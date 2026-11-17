@@ -10,6 +10,6 @@ moon add walkzzz/image.codec@0.1.0
 
 ## 主入口
 
-格式支持矩阵、统一 API（`save_image_auto` / `get_image_info_extended`）与完整文档见主模块 [walkzzz/image.mbt](https://mooncakes.io/docs/walkzzz/image.mbt) 与 [GitHub 仓库](https://github.com/toadium/image)。
+格式支持矩阵、统一 API（`save_image_auto` / `get_image_info_extended`）与完整文档见主模块 [walkzzz/image.mbt](https://mooncakes.io/docs/walkzzz/image.mbt) 与 [GitHub 仓库](https://github.com/walkzzz/image.mbt)。
 
 License: MIT

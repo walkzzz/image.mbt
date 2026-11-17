@@ -6,7 +6,7 @@ license = "MIT"
 
 description = "MoonBit image library: pure MoonBit backend for native/wasm-gc/js/wasm multi-target support."
 
-repository = "https://github.com/toadium/image"
+repository = "https://github.com/walkzzz/image.mbt"
 
 keywords = [
   "moonbit",

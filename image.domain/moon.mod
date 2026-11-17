@@ -8,7 +8,7 @@ readme = "README.md"
 
 description = "MoonBit domain imaging: medical, remote sensing, encryption, watermark, forensics, quality."
 
-repository = "https://github.com/toadium/image"
+repository = "https://github.com/walkzzz/image.mbt"
 
 preferred_target = "native"
 

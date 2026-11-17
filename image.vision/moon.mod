@@ -8,7 +8,7 @@ readme = "README.md"
 
 description = "MoonBit computer vision: OCR, face recognition, pose estimation, SLAM, video, 3D vision."
 
-repository = "https://github.com/toadium/image"
+repository = "https://github.com/walkzzz/image.mbt"
 
 preferred_target = "native"
 

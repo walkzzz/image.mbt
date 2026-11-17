@@ -10,6 +10,6 @@ moon add walkzzz/image.core@0.1.0
 
 ## 主入口
 
-完整文档、18 格式编解码、90+ 图像算法与 OCR 全链路见主模块 [walkzzz/image.mbt](https://mooncakes.io/docs/walkzzz/image.mbt) 与 [GitHub 仓库](https://github.com/toadium/image)。
+完整文档、18 格式编解码、90+ 图像算法与 OCR 全链路见主模块 [walkzzz/image.mbt](https://mooncakes.io/docs/walkzzz/image.mbt) 与 [GitHub 仓库](https://github.com/walkzzz/image.mbt)。
 
 License: MIT

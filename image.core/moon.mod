@@ -8,7 +8,7 @@ readme = "README.md"
 
 description = "MoonBit image core types: Image, Image16, ImageF, LoadError, traits."
 
-repository = "https://github.com/toadium/image"
+repository = "https://github.com/walkzzz/image.mbt"
 
 keywords = [ "moonbit", "image", "types", "core" ]
 

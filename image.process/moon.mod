@@ -8,7 +8,7 @@ readme = "README.md"
 
 description = "MoonBit image processing: color, transform, filter, edge, feature, enhance, segment, detection."
 
-repository = "https://github.com/toadium/image"
+repository = "https://github.com/walkzzz/image.mbt"
 
 preferred_target = "native"
 

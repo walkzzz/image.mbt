@@ -5,7 +5,7 @@
 - **项目名称**：image.mbt — 纯 MoonBit 图像处理库（零 C 依赖 · 18 格式 · OCR 全链路 · 视频 keyframe 定位）
 - **参赛者**：蒋本雄（GitHub: walkzzz）
 - **联系方式**：745244185@qq.com / 13689047817
-- **GitHub 仓库链接**：https://github.com/toadium/image
+- **GitHub 仓库链接**：https://github.com/walkzzz/image.mbt
 - **mooncakes 包**：walkzzz/image.mbt（旧名 walkzzz/image@0.6.0 已发布，本期完成重命名重构）
 - **参赛方向**：季度优秀社区项目评选方向（既有生态项目维护与升级，章程 5.2）
 - **项目性质**：以 stb_image.h 为参考基础的 MoonBit 原生重实现（移植合规见第四节），并大幅超越原项目能力
