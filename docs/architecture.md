@@ -129,9 +129,9 @@ graph TD
 **新模式**（当前，参考 pinyin 项目）：
 
 ```moonbit
-import "walkzzz/core/types"
-import "walkzzz/codec/lib"
-import "walkzzz/process/filter"
+import "walkzzz/image.core/types"
+import "walkzzz/image.codec/lib"
+import "walkzzz/image.process/filter"
 
 let img : Image = @lib.load_from_bytes_auto(bytes)
 let blurred : Image = @filter.gaussian_blur(img, 3.0)
@@ -149,7 +149,7 @@ let blurred : Image = @filter.gaussian_blur(img, 3.0)
 ```json5
 // moon.mod (根模块)
 {
-  "name": "walkzzz/image",
+  "name": "walkzzz/image.mbt",
   "version": "0.5.0"
 }
 ```
@@ -157,15 +157,15 @@ let blurred : Image = @filter.gaussian_blur(img, 3.0)
 ```json5
 // core/moon.mod
 {
-  "name": "walkzzz/core"
+  "name": "walkzzz/image.core"
 }
 ```
 
 ```json5
 // codec/moon.mod
 {
-  "name": "walkzzz/codec",
-  "import": { "walkzzz/core": "0.1.0" }
+  "name": "walkzzz/image.codec",
+  "import": { "walkzzz/image.core": "0.1.0" }
 }
 ```
 
@@ -176,5 +176,5 @@ let blurred : Image = @filter.gaussian_blur(img, 3.0)
 | 架构模式 | 多模块工作空间 | 115+ 包单模块根 moon.pkg 导入 65+ 包不可维护 |
 | 子模块位置 | 根目录下直接放置 | 参考 pinyin 项目，结构直观 |
 | reexport | 不做 reexport | 消除 20K 行 reexport.mbt 维护负担 |
-| 目录前缀 | 不使用 image- 前缀 | walkzzz/ 已提供命名空间 |
+| 目录前缀 | 0.1.0 起使用 image. 前缀（image.core/ 等，目录与 mooncakes 模块名 walkzzz/image.* 对应） | 重命名重构（0.6.x 时期曾不使用前缀，当时依赖 walkzzz/ 命名空间） |
 | cv_advanced | 打散合并 | 72 文件单包违反 ≤30 文件原则 |

@@ -1,6 +1,6 @@
 ---
 name: 🐛 Bug report
-about: 报告 walkzzz/image 的行为问题
+about: 报告 walkzzz/image.mbt 的行为问题
 title: '[bug] 简述问题'
 labels: bug
 ---

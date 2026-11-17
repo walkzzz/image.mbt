@@ -1,0 +1,235 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.vision/intelligent_vision"
+
+import {
+  "moonbitlang/core/debug",
+  "walkzzz/image.core/types",
+}
+
+// Values
+pub fn create_default_intelligent_vision_config() -> IntelligentVisionConfig
+
+pub fn detect_crops(@types.Image, IntelligentVisionConfig) -> Array[CropDetectionResult]
+
+pub fn detect_defects(@types.Image, IntelligentVisionConfig) -> Array[DefectDetectionResult]
+
+pub fn detect_intrusion(@types.Image, Array[Double], IntelligentVisionConfig) -> IntrusionDetectionResult
+
+pub fn detect_lanes(@types.Image, IntelligentVisionConfig) -> LaneDetectionResult
+
+pub fn detect_objects_iv(@types.Image, IntelligentVisionConfig) -> Array[DetectionResultIV]
+
+pub fn detect_stars(@types.Image, IntelligentVisionConfig) -> StarDetectionResult
+
+pub fn intelligent_vision_report_to_string(String, Int32, Double, IntelligentVisionConfig) -> String
+
+pub fn recognize_traffic_signs(@types.Image, IntelligentVisionConfig) -> Array[TrafficSignResult]
+
+// Errors
+
+// Types and methods
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum AgriculturalVisionTask {
+  CropDetection
+  WeedDetection
+  DiseaseDetection
+  PestDetection
+  YieldEstimation
+  SoilAnalysis
+  IrrigationMonitoring
+  HarvestReadiness
+  Unknown
+}
+pub fn AgriculturalVisionTask::equal(Self, Self) -> Bool
+pub fn AgriculturalVisionTask::not_equal(Self, Self) -> Bool
+pub fn AgriculturalVisionTask::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum AstronomicalImageTask {
+  StarDetection
+  GalaxyClassification
+  PlanetDetection
+  NebulaAnalysis
+  CometTracking
+  SupernovaDetection
+  CosmicRayRemoval
+  ImageStacking
+  Unknown
+}
+pub fn AstronomicalImageTask::equal(Self, Self) -> Bool
+pub fn AstronomicalImageTask::not_equal(Self, Self) -> Bool
+pub fn AstronomicalImageTask::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum AutonomousDrivingTask {
+  LaneDetection
+  TrafficSignRecognition
+  PedestrianDetection
+  VehicleDetection
+  ObstacleDetection
+  RoadSegmentation
+  DepthEstimation
+  TrafficLightDetection
+  Unknown
+}
+pub fn AutonomousDrivingTask::equal(Self, Self) -> Bool
+pub fn AutonomousDrivingTask::not_equal(Self, Self) -> Bool
+pub fn AutonomousDrivingTask::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct CropDetectionResult {
+  crop_type : String
+  health_status : String
+  confidence : Double
+  bounding_box : Array[Double]
+  growth_stage : String
+  num_crops : Int32
+}
+pub fn CropDetectionResult::equal(Self, Self) -> Bool
+pub fn CropDetectionResult::not_equal(Self, Self) -> Bool
+pub fn CropDetectionResult::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct DefectDetectionResult {
+  defect_type : String
+  severity : String
+  confidence : Double
+  bounding_box : Array[Double]
+  defect_area : Double
+  num_defects : Int32
+}
+pub fn DefectDetectionResult::equal(Self, Self) -> Bool
+pub fn DefectDetectionResult::not_equal(Self, Self) -> Bool
+pub fn DefectDetectionResult::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct DetectionResultIV {
+  class_name : String
+  confidence : Double
+  bounding_box : Array[Double]
+  class_id : Int32
+  num_detections : Int32
+}
+pub fn DetectionResultIV::equal(Self, Self) -> Bool
+pub fn DetectionResultIV::not_equal(Self, Self) -> Bool
+pub fn DetectionResultIV::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum IndustrialInspectionTask {
+  DefectDetection
+  SurfaceInspection
+  DimensionMeasurement
+  AssemblyVerification
+  QualityControl
+  WeldInspection
+  PCBInspection
+  TextileInspection
+  Unknown
+}
+pub fn IndustrialInspectionTask::equal(Self, Self) -> Bool
+pub fn IndustrialInspectionTask::not_equal(Self, Self) -> Bool
+pub fn IndustrialInspectionTask::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct IntelligentVisionConfig {
+  confidence_threshold : Double
+  nms_threshold : Double
+  max_detections : Int32
+  input_size : Int32
+  use_gpu : Bool
+  model_type : String
+}
+pub fn IntelligentVisionConfig::equal(Self, Self) -> Bool
+pub fn IntelligentVisionConfig::not_equal(Self, Self) -> Bool
+pub fn IntelligentVisionConfig::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct IntrusionDetectionResult {
+  is_intrusion : Bool
+  confidence : Double
+  intrusion_region : Array[Double]
+  object_type : String
+  timestamp : Double
+  num_intrusions : Int32
+}
+pub fn IntrusionDetectionResult::equal(Self, Self) -> Bool
+pub fn IntrusionDetectionResult::not_equal(Self, Self) -> Bool
+pub fn IntrusionDetectionResult::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct LaneDetectionResult {
+  lanes : Array[Array[Array[Double]]]
+  num_lanes : Int32
+  lane_type : String
+  confidence : Double
+  curvature : Double
+}
+pub fn LaneDetectionResult::equal(Self, Self) -> Bool
+pub fn LaneDetectionResult::not_equal(Self, Self) -> Bool
+pub fn LaneDetectionResult::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum RobotVisionTask {
+  ObjectRecognition
+  GraspDetection
+  Navigation
+  SLAM
+  HumanFollowing
+  GestureRecognition
+  FaceRecognition
+  SceneUnderstanding
+  Unknown
+}
+pub fn RobotVisionTask::equal(Self, Self) -> Bool
+pub fn RobotVisionTask::not_equal(Self, Self) -> Bool
+pub fn RobotVisionTask::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum SecurityMonitoringTask {
+  IntrusionDetection
+  FaceRecognition
+  BehaviorAnalysis
+  CrowdCounting
+  LicensePlateRecognition
+  AbandonedObjectDetection
+  FireSmokeDetection
+  FallDetection
+  Unknown
+}
+pub fn SecurityMonitoringTask::equal(Self, Self) -> Bool
+pub fn SecurityMonitoringTask::not_equal(Self, Self) -> Bool
+pub fn SecurityMonitoringTask::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct StarDetectionResult {
+  stars : Array[Array[Double]]
+  num_stars : Int32
+  magnitudes : Array[Double]
+  brightest_star : Array[Double]
+  sky_background : Double
+}
+pub fn StarDetectionResult::equal(Self, Self) -> Bool
+pub fn StarDetectionResult::not_equal(Self, Self) -> Bool
+pub fn StarDetectionResult::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct TrafficSignResult {
+  sign_type : String
+  sign_value : String
+  confidence : Double
+  bounding_box : Array[Double]
+  num_signs : Int32
+}
+pub fn TrafficSignResult::equal(Self, Self) -> Bool
+pub fn TrafficSignResult::not_equal(Self, Self) -> Bool
+pub fn TrafficSignResult::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

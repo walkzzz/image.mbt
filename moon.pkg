@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/bench",
-  "walkzzz/core/types" @types,
-  "walkzzz/codec/lib" @lib,
-  "walkzzz/process/transform" @transform,
+  "walkzzz/image.core/types",
+  "walkzzz/image.codec/lib",
+  "walkzzz/image.process/transform",
 }

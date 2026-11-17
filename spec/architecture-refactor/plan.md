@@ -1,10 +1,10 @@
-# Implementation Plan: walkzzz/image 项目架构全面重构
+# Implementation Plan: walkzzz/image.mbt 项目架构全面重构
 
 **Input**: Feature specification from `spec/architecture-refactor/spec.md`
 
 ## Summary
 
-将 walkzzz/image 从 src/ 单体巨石架构重构为根目录下多模块工作空间架构。参考 pinyin 项目的扁平架构模式：子模块直接放根目录（无 modules/ 包裹），去掉 image-* 前缀，image.mbt 仅含文档+version 不做 reexport，用户直接 import 子模块包。核心工作：1) 删除 src/，以根目录下子模块为唯一源码位置；2) 删除 33 个 _advanced 存根包；3) 合并 9 组重叠包，打散 cv_advanced；4) 完成 pure/ 迁移；5) 清理临时文件和过时文档。
+将 walkzzz/image.mbt 从 src/ 单体巨石架构重构为根目录下多模块工作空间架构。参考 pinyin 项目的扁平架构模式：子模块直接放根目录（无 modules/ 包裹），去掉 image-* 前缀，image.mbt 仅含文档+version 不做 reexport，用户直接 import 子模块包。核心工作：1) 删除 src/，以根目录下子模块为唯一源码位置；2) 删除 33 个 _advanced 存根包；3) 合并 9 组重叠包，打散 cv_advanced；4) 完成 pure/ 迁移；5) 清理临时文件和过时文档。
 
 ## Technical Context
 
@@ -30,8 +30,8 @@ spec/architecture-refactor/
 ### Target Source Code (重构后)
 
 ```text
-walkzzz/image/                           # 根模块（文档门面，无 reexport）
-├── moon.mod                             # name = "walkzzz/image", v0.5.0
+walkzzz/image.mbt/                           # 根模块（文档门面，无 reexport）
+├── moon.mod                             # name = "walkzzz/image.mbt", v0.5.0
 ├── moon.work                            # members = [".", "core", "codec", "process", "photography", "vision", "domain"]
 ├── moon.pkg                             # 空（文档入口，不导入子包）
 ├── image.mbt                            # 文档 + version（像 pinyin.mbt）
@@ -40,7 +40,7 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 ├── LICENSE
 │
 ├── core/                                # Layer 0: 基础类型
-│   ├── moon.mod                         # name = "walkzzz/core"
+│   ├── moon.mod                         # name = "walkzzz/image.core"
 │   ├── moon.pkg
 │   ├── types/                           # Image, Image16, ImageF, LoadError, AnyImage, Pixel
 │   │   ├── moon.pkg
@@ -52,7 +52,7 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 │   └── cmd/main/
 │
 ├── codec/                               # Layer 1: 编解码
-│   ├── moon.mod                         # name = "walkzzz/codec", import = { walkzzz/core@0.1.0 }
+│   ├── moon.mod                         # name = "walkzzz/image.codec", import = { walkzzz/image.core@0.1.0 }
 │   ├── moon.pkg
 │   ├── codec/                           # 18 格式编解码
 │   │   ├── png/ jpeg/ bmp/ gif/ qoi/ tga/ psd/ hdr/ pnm/
@@ -66,7 +66,7 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 │   └── cmd/main/
 │
 ├── process/                             # Layer 2: 核心图像处理
-│   ├── moon.mod                         # name = "walkzzz/process", import = { core@0.1.0, codec@0.1.0 }
+│   ├── moon.mod                         # name = "walkzzz/image.process", import = { core@0.1.0, codec@0.1.0 }
 │   ├── moon.pkg
 │   ├── color/                           # 色彩调整/CLAHE/Retinex/阈值
 │   ├── filter/                          # 滤波/去噪/锐化 (← 合并 denoise)
@@ -80,7 +80,7 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 │   └── stereo3d/                        # 立体视觉 (← 合并 cv_advanced/stereo_*)
 │
 ├── photography/                         # Layer 3a: 计算摄影
-│   ├── moon.mod                         # name = "walkzzz/photography", import = { core, codec, process }
+│   ├── moon.mod                         # name = "walkzzz/image.photography", import = { core, codec, process }
 │   ├── moon.pkg
 │   ├── photo_enhance/                   # 计算摄影 (← 合并 enhance/hdr)
 │   ├── superres/                        # 超分辨率
@@ -95,7 +95,7 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 │   └── quality/                         # 质量评估
 │
 ├── vision/                              # Layer 3b: 计算机视觉
-│   ├── moon.mod                         # name = "walkzzz/vision", import = { core, codec, process }
+│   ├── moon.mod                         # name = "walkzzz/image.vision", import = { core, codec, process }
 │   ├── moon.pkg
 │   ├── ocr/                             # OCR 全流程
 │   ├── face_recognition/                # 人脸识别
@@ -111,7 +111,7 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 │   └── aoci/                            # AI 符号索引
 │
 ├── domain/                              # Layer 4: 领域应用
-│   ├── moon.mod                         # name = "walkzzz/domain", import = { core, codec, process, vision }
+│   ├── moon.mod                         # name = "walkzzz/image.domain", import = { core, codec, process, vision }
 │   ├── moon.pkg
 │   ├── medical/                         # 医学图像 (← 合并 cv_advanced/medical_*)
 │   ├── remote_sensing/                  # 遥感 (← 合并 cv_advanced/remote_sensing_*)
@@ -142,7 +142,7 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 └── scripts/                             # 构建脚本
 ```
 
-**Structure Decision**: 参考 pinyin 项目的单模块扁平架构思想，扩展为多模块工作空间。子模块直接放根目录下，无 modules/ 包裹层，无 image-* 前缀。根模块 `walkzzz/image` 作为文档门面（image.mbt 仅含 version），不做 reexport，用户直接 import 子模块包。
+**Structure Decision**: 参考 pinyin 项目的单模块扁平架构思想，扩展为多模块工作空间。子模块直接放根目录下，无 modules/ 包裹层，无 image-* 前缀。根模块 `walkzzz/image.mbt` 作为文档门面（image.mbt 仅含 version），不做 reexport，用户直接 import 子模块包。
 
 ## Complexity Tracking
 
@@ -171,17 +171,17 @@ walkzzz/image/                           # 根模块（文档门面，无 reexpo
 
 ### RD-003: 去掉 image-* 前缀
 
-**Decision**: 目录名和 moon.mod 模块名均不使用 image- 前缀：`core/`(walkzzz/core), `codec/`(walkzzz/codec), `process/`(walkzzz/process), `photography/`(walkzzz/photography), `vision/`(walkzzz/vision), `domain/`(walkzzz/domain)
+**Decision**: 目录名和 moon.mod 模块名均不使用 image- 前缀：`core/`(walkzzz/image.core), `codec/`(walkzzz/image.codec), `process/`(walkzzz/image.process), `photography/`(walkzzz/image.photography), `vision/`(walkzzz/image.vision), `domain/`(walkzzz/image.domain)
 
-**Rationale**: pinyin 使用 `core/`, `data/`, `convert/` 等简短名称。walkzzz/ 前缀已提供命名空间隔离，无需重复 image- 前缀。import 路径更短：`walkzzz/codec/lib` vs `walkzzz/image-codec/lib`。
+**Rationale**: pinyin 使用 `core/`, `data/`, `convert/` 等简短名称。walkzzz/ 前缀已提供命名空间隔离，无需重复 image- 前缀。import 路径更短：`walkzzz/image.codec/lib` vs `walkzzz/image.mbt-codec/lib`。
 
 ### RD-004: 不做 reexport，用户直接 import
 
-**Decision**: image.mbt 仅含 `pub let version` 和文档注释，不重导出任何子模块 API。用户通过 `import "walkzzz/process/filter"` + `@filter.gaussian_blur()` 直接访问
+**Decision**: image.mbt 仅含 `pub let version` 和文档注释，不重导出任何子模块 API。用户通过 `import "walkzzz/image.process/filter"` + `@filter.gaussian_blur()` 直接访问
 
 **Rationale**: 
 - pinyin 模式：`import "walkzzz/pinyin/convert"` + `@convert.to_pinyin()`
-- image 同理：`import "walkzzz/codec/lib"` + `@lib.load_from_bytes_auto()`
+- image 同理：`import "walkzzz/image.codec/lib"` + `@lib.load_from_bytes_auto()`
 - 消除 20K 行 reexport.mbt，API 变更不再需要同步修改 reexport
 - 每个 sub-module 自治，职责清晰
 
@@ -229,7 +229,7 @@ photography  vision (Layer 3, → core + codec + process)
 
 **旧模式** (reexport):
 ```moonbit
-import "walkzzz/image"  // 导入根包
+import "walkzzz/image.mbt"  // 导入根包
 @image.gaussian_blur(img, 3.0)
 @image.load_from_bytes_auto(bytes)
 @image.Image
@@ -237,9 +237,9 @@ import "walkzzz/image"  // 导入根包
 
 **新模式** (直接 import，参考 pinyin):
 ```moonbit
-import "walkzzz/process/filter"   // 按需导入
-import "walkzzz/codec/lib"
-import "walkzzz/core/types"
+import "walkzzz/image.process/filter"   // 按需导入
+import "walkzzz/image.codec/lib"
+import "walkzzz/image.core/types"
 
 @filter.gaussian_blur(img, 3.0)
 @lib.load_from_bytes_auto(bytes)
@@ -250,12 +250,12 @@ import "walkzzz/core/types"
 
 | 模块 | moon.mod name | 包 | 原位置 |
 |------|---------------|-----|--------|
-| core | walkzzz/core | types | src/types |
-| codec | walkzzz/codec | codec, lib, color, meta, barcode, util | src/pure/codec + src/lib + src/pure/color + src/meta + src/barcode + src/pure/util |
-| process | walkzzz/process | color, filter, edge, feature, segment, transform, frequency, enhance, detection, stereo3d | src/color + src/filter + src/denoise + src/edge + src/feature + src/segment + src/segmentation + src/transform + src/frequency + src/enhance + src/detection + src/stereo3d + cv_advanced/feature_* + cv_advanced/detection_* + cv_advanced/stereo_* |
-| photography | walkzzz/photography | photo_enhance, superres, fusion, stitch, style_transfer, inpainting, computational_imaging, neural_rendering, advanced_imaging, compression, quality | src/photo_enhance + src/superres + src/fusion + src/fusion_enhanced + src/stitch + src/stylize + src/style_transfer + src/inpainting + src/computational_imaging + src/neural_rendering + src/advanced_imaging + src/compression + src/quality |
-| vision | walkzzz/vision | ocr, face_recognition, pose_estimation, slam, video, scene_understanding, spatiotemporal, vlm_multimodal, intelligent_vision, fieldimg, imgir, aoci | src/ocr + src/face_recognition + src/pose_estimation + src/slam + src/video + src/scene_understanding + src/spatiotemporal + src/vlm_multimodal + src/intelligent_vision + src/fieldimg + src/imgir + src/aoci |
-| domain | walkzzz/domain | medical, remote_sensing, encryption, watermark, forensics, registration, retrieval, pipeline, performance, production_utils, texture, mesh, point_cloud, agent_kit, self_evolve, util | src/medical + src/remote_sensing + src/encryption + src/watermark + src/forensics + src/forensics_enhanced + src/registration + src/registration_advanced + src/retrieval + src/pipeline + src/performance + src/production_utils + src/texture + src/mesh + src/point_cloud + src/agent_kit + src/self_evolve + src/util |
+| core | walkzzz/image.core | types | src/types |
+| codec | walkzzz/image.codec | codec, lib, color, meta, barcode, util | src/pure/codec + src/lib + src/pure/color + src/meta + src/barcode + src/pure/util |
+| process | walkzzz/image.process | color, filter, edge, feature, segment, transform, frequency, enhance, detection, stereo3d | src/color + src/filter + src/denoise + src/edge + src/feature + src/segment + src/segmentation + src/transform + src/frequency + src/enhance + src/detection + src/stereo3d + cv_advanced/feature_* + cv_advanced/detection_* + cv_advanced/stereo_* |
+| photography | walkzzz/image.photography | photo_enhance, superres, fusion, stitch, style_transfer, inpainting, computational_imaging, neural_rendering, advanced_imaging, compression, quality | src/photo_enhance + src/superres + src/fusion + src/fusion_enhanced + src/stitch + src/stylize + src/style_transfer + src/inpainting + src/computational_imaging + src/neural_rendering + src/advanced_imaging + src/compression + src/quality |
+| vision | walkzzz/image.vision | ocr, face_recognition, pose_estimation, slam, video, scene_understanding, spatiotemporal, vlm_multimodal, intelligent_vision, fieldimg, imgir, aoci | src/ocr + src/face_recognition + src/pose_estimation + src/slam + src/video + src/scene_understanding + src/spatiotemporal + src/vlm_multimodal + src/intelligent_vision + src/fieldimg + src/imgir + src/aoci |
+| domain | walkzzz/image.domain | medical, remote_sensing, encryption, watermark, forensics, registration, retrieval, pipeline, performance, production_utils, texture, mesh, point_cloud, agent_kit, self_evolve, util | src/medical + src/remote_sensing + src/encryption + src/watermark + src/forensics + src/forensics_enhanced + src/registration + src/registration_advanced + src/retrieval + src/pipeline + src/performance + src/production_utils + src/texture + src/mesh + src/point_cloud + src/agent_kit + src/self_evolve + src/util |
 
 ### 删除清单
 
@@ -287,6 +287,6 @@ import "walkzzz/core/types"
 ### 内部接口契约
 
 1. **moon.work members**: `[".", "core", "codec", "process", "photography", "vision", "domain"]`
-2. **跨模块引用**: `"walkzzz/core/types"`, `"walkzzz/codec/lib"`, `"walkzzz/process/filter"` 等
+2. **跨模块引用**: `"walkzzz/image.core/types"`, `"walkzzz/image.codec/lib"`, `"walkzzz/image.process/filter"` 等
 3. **测试依赖分离**: `import { ... } for "test"` 声明仅测试时依赖
 4. **根包不做 reexport**: image.mbt 仅含 `pub let version : String = "0.5.0"` + 文档

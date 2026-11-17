@@ -2,7 +2,33 @@
 
 > 本文件为变更**摘要**（面向评审与使用者的第一入口）。完整功能迭代历史（v0.1 → v237.0.0，3300+ 行）见 [docs/changelog.md](docs/changelog.md)。
 
-**版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（core/codec/process/photography/vision/domain）版本随主包同步。
+**版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
+
+## [0.1.0] - 2026-11-17
+
+### Breaking（包重命名重构 — 破坏性变更）
+
+模块名统一重构：根模块 `walkzzz/image` → **`walkzzz/image.mbt`**，六子模块加 `image.*` 前缀，子模块目录同步改名（core/ → image.core/ 等）。**API 零变化，纯前缀迁移**；下游需更新安装命令与 import 路径：
+
+| 旧模块名 | 新模块名 |
+|---|---|
+| walkzzz/image | walkzzz/image.mbt |
+| walkzzz/core | walkzzz/image.core |
+| walkzzz/codec | walkzzz/image.codec |
+| walkzzz/process | walkzzz/image.process |
+| walkzzz/photography | walkzzz/image.photography |
+| walkzzz/vision | walkzzz/image.vision |
+| walkzzz/domain | walkzzz/image.domain |
+
+- import 迁移规则：`walkzzz/image` → `walkzzz/image.mbt`；`walkzzz/<子模块>` → `walkzzz/image.<子模块>`
+- 完整迁移示例见 README.md「从 walkzzz/image（0.6.x）迁移」章节
+- 旧名包（walkzzz/image@0.6.0 及六子模块@0.1.0）在 mooncakes 上保留可装，不再更新
+- 版本号重新计数：新名包首发 0.1.0
+
+### Verified
+- `moon check --deny-warn --target all` 零警告；`moon test` 四目标 6576/6576 全绿
+- `moon info` 重新生成 `.mbti`：仅 `package` 路径行变化，公共 API 符号零变化
+- 目录树/徽章/文档/脚本同步更新（136 文件批量替换 + 人工治理）
 
 ## [0.6.1] - 2026-11-13
 

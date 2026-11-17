@@ -7,13 +7,13 @@ You can browse and install extra skills here:
 
 ## Project Overview
 
-**walkzzz/image**（参考 stb_image.h 移植）— 纯 MoonBit 图像处理库，零 C FFI 依赖。
+**walkzzz/image.mbt**（参考 stb_image.h 移植）— 纯 MoonBit 图像处理库，零 C FFI 依赖。
 
 | 属性 | 值 |
 |------|-----|
-| 版本 | 0.6.1（mooncakes 0.6.0 已发布，0.6.1 待发布） |
-| 测试 | 6574 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
-| 架构 | 6 子模块工作空间 (core/codec/process/photography/vision/domain)，子模块独立发布（各 0.1.0，按依赖顺序 core → codec → process → photography/vision → domain） |
+| 版本 | 0.1.0（包重命名重构版：walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀） |
+| 测试 | 6576 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
+| 架构 | 6 子模块工作空间 (image.core/image.codec/image.process/image.photography/image.vision/image.domain)，子模块独立发布（各 0.1.0，按依赖顺序 core → codec → process → photography/vision → domain） |
 | 格式 | 18 种编解码 (PNG/JPEG/BMP/GIF/QOI/TGA/PSD/HDR/PNM/TIFF/ICO/CUR/ICNS/APNG/WebP/AVIF/HEIF/JPEG-XL) |
 | 形式化验证 | core/safe_math `moon prove` **8 goals proved**（safe_mul_ok/clamp_pixel_ok/dims_valid_pred/int_max_ok/int_min_ok/valid_index/valid_2d_index/rotate90_identity）；另有 8 条谓词预留（SMT 超时与前端限制，见 safe_math.mbtp 注释） |
 
@@ -30,32 +30,32 @@ You can browse and install extra skills here:
 ### 多子模块架构
 
 ```
-src/  (已迁移为根目录 6 子模块工作空间)
-├── core/                    # L0: 核心类型 (Image, Image16, ImageF, LoadError 等)
+src/  (已迁移为根目录 6 子模块工作空间；0.1.0 起子模块目录带 image. 前缀)
+├── image.core/                # L0: 核心类型 (Image, Image16, ImageF, LoadError 等)
 │   └── types/
-├── codec/                   # L1: 编解码 + 元数据 + 色彩 + 条码
-│   ├── codec/               #   18 格式编解码
-│   ├── lib/                 #   高层封装 (自动格式分派 + 流式解码)
-│   ├── color/               #   色彩空间转换
-│   ├── meta/                #   EXIF/XMP/IPTC/PNG text
-│   ├── barcode/             #   QR/条码
-│   └── util/                #   resize/zlib/配置
-├── process/                 # L2: 图像处理算法
-│   ├── color/               #   色彩转换/调整/CLAHE/Retinex/去雾
-│   ├── edge/                #   边缘检测/Canny/霍夫/轮廓
-│   ├── feature/             #   Harris/ORB/SIFT/模板匹配/光流/GLCM/LBP
-│   ├── filter/              #   滤波/去噪/图像修复
-│   ├── frequency/           #   FFT/DCT/Haar 小波
-│   ├── segment/             #   分水岭/SLIC/grabCut/形态学/连通域
-│   ├── transform/           #   几何变换/透视/Seam Carving/金字塔
-│   ├── enhance/             #   图像修复/去雾/降噪
-│   ├── detection/           #   目标检测/跟踪
-│   └── stereo3d/            #   立体视觉
-├── photography/             # L3a: 计算摄影 (photo_enhance/superres/fusion/stitch/style_transfer/inpainting/computational_imaging/neural_rendering/advanced_imaging/compression/quality)
-├── vision/                  # L3b: 计算机视觉 (ocr/face_recognition/pose_estimation/slam/video/scene_understanding/spatiotemporal/vlm_multimodal/intelligent_vision/fieldimg/imgir/aoci)
-├── domain/                  # L4: 领域应用 (medical/remote_sensing/encryption/watermark/forensics/registration/retrieval/pipeline/performance/production_utils/texture/mesh/point_cloud/agent_kit/self_evolve/util)
-├── image.mbt                # 根模块门面 (仅 version + 文档)
-└── (无 reexport.mbt)        #   用户直接 import 子模块包
+├── image.codec/               # L1: 编解码 + 元数据 + 色彩 + 条码
+│   ├── codec/                 #   18 格式编解码
+│   ├── lib/                   #   高层封装 (自动格式分派 + 流式解码)
+│   ├── color/                 #   色彩空间转换
+│   ├── meta/                  #   EXIF/XMP/IPTC/PNG text
+│   ├── barcode/               #   QR/条码
+│   └── util/                  #   resize/zlib/配置
+├── image.process/             # L2: 图像处理算法
+│   ├── color/                 #   色彩转换/调整/CLAHE/Retinex/去雾
+│   ├── edge/                  #   边缘检测/Canny/霍夫/轮廓
+│   ├── feature/               #   Harris/ORB/SIFT/模板匹配/光流/GLCM/LBP
+│   ├── filter/                #   滤波/去噪/图像修复
+│   ├── frequency/             #   FFT/DCT/Haar 小波
+│   ├── segment/               #   分水岭/SLIC/grabCut/形态学/连通域
+│   ├── transform/             #   几何变换/透视/Seam Carving/金字塔
+│   ├── enhance/               #   图像修复/去雾/降噪
+│   ├── detection/             #   目标检测/跟踪
+│   └── stereo3d/              #   立体视觉
+├── image.photography/         # L3a: 计算摄影 (photo_enhance/superres/fusion/stitch/style_transfer/inpainting/computational_imaging/neural_rendering/advanced_imaging/compression/quality)
+├── image.vision/              # L3b: 计算机视觉 (ocr/face_recognition/pose_estimation/slam/video/scene_understanding/spatiotemporal/vlm_multimodal/intelligent_vision/fieldimg/imgir/aoci)
+├── image.domain/              # L4: 领域应用 (medical/remote_sensing/encryption/watermark/forensics/registration/retrieval/pipeline/performance/production_utils/texture/mesh/point_cloud/agent_kit/self_evolve/util)
+├── image.mbt                  # 根模块门面 (仅 version + 文档)
+└── (无 reexport.mbt)          #   用户直接 import 子模块包
 ```
 
 ## Core Constraints
@@ -69,7 +69,7 @@ src/  (已迁移为根目录 6 子模块工作空间)
 
 ## Development Rules（开发规则全集）
 
-> **来源**：`rules.md`，适配 walkzzz/image 项目。优先级：防跑偏规则 > 项目规则 > 个人偏好。
+> **来源**：`rules.md`，适配 walkzzz/image.mbt 项目。优先级：防跑偏规则 > 项目规则 > 个人偏好。
 
 ### R1 — 源码目录
 源代码放在 6 个根目录子模块中：core/ codec/ process/ photography/ vision/ domain/
@@ -109,7 +109,7 @@ README 中英文，美化，默认中文；每个子包也要 README.md。
 禁止在没确认的情况下，把群聊里的某句话当成最终决定。
 
 ### R12 — 根包门面
-项目根包（`walkzzz/image`，根目录 `moon.pkg` + `image.mbt`）仅含 version + 文档，不做 reexport。用户直接 import 子模块包（如 `import "walkzzz/process/filter"`）。
+项目根包（`walkzzz/image.mbt`，根目录 `moon.pkg` + `image.mbt`）仅含 version + 文档，不做 reexport。用户直接 import 子模块包（如 `import "walkzzz/image.process/filter"`）。
 
 ### R13 — Warning 治理
 每次迭代完成后都要进行 **warning 治理**：运行 `moon check` / `moon test`，对所有 warning 逐一处理（修复根因，禁止注释/ignore 压制），目标 0 warning。

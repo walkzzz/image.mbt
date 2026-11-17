@@ -1,0 +1,146 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.vision/slam"
+
+import {
+  "moonbitlang/core/debug",
+  "walkzzz/image.core/types",
+}
+
+// Values
+pub fn create_default_slam_config() -> SLAMConfig
+
+pub fn detect_features_slam(@types.Image, Int32, Double) -> Array[Array[Double]]
+
+pub fn detect_loop_closure(Array[Array[Double]], Array[KeyFrame], Double) -> LoopClosureResult
+
+pub fn estimate_camera_pose(FeatureTrackingResult, SLAMConfig, CameraPose) -> CameraPose
+
+pub fn initialize_slam(SLAMConfig) -> SLAMState
+
+pub fn process_frame_slam(SLAMState, @types.Image, SLAMConfig) -> SLAMState
+
+pub fn slam_report_to_string(SLAMState) -> String
+
+pub fn track_features_slam(@types.Image, @types.Image, Array[Array[Double]], Int32) -> FeatureTrackingResult
+
+pub fn triangulate_points(Array[Array[Double]], CameraPose, CameraPose, SLAMConfig) -> Array[MapPoint]
+
+// Errors
+
+// Types and methods
+#derive(Eq, @debug.Debug)
+pub(all) struct CameraPose {
+  position : Array[Double]
+  rotation : Array[Double]
+  timestamp : Double
+  confidence : Double
+}
+pub fn CameraPose::equal(Self, Self) -> Bool
+pub fn CameraPose::not_equal(Self, Self) -> Bool
+pub fn CameraPose::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct FeatureTrackingResult {
+  tracked_features : Array[Array[Double]]
+  num_tracked : Int32
+  num_lost : Int32
+  parallax : Double
+  is_keyframe : Bool
+}
+pub fn FeatureTrackingResult::equal(Self, Self) -> Bool
+pub fn FeatureTrackingResult::not_equal(Self, Self) -> Bool
+pub fn FeatureTrackingResult::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct KeyFrame {
+  pose : CameraPose
+  image : @types.Image
+  features : Array[Array[Double]]
+  descriptors : Array[Array[Double]]
+  map_points : Array[Int32]
+  timestamp : Double
+  is_loop_closure : Bool
+}
+pub fn KeyFrame::equal(Self, Self) -> Bool
+pub fn KeyFrame::not_equal(Self, Self) -> Bool
+pub fn KeyFrame::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct LoopClosureResult {
+  is_loop_detected : Bool
+  loop_frame_index : Int32
+  similarity_score : Double
+  transformation : Array[Double]
+  num_inliers : Int32
+}
+pub fn LoopClosureResult::equal(Self, Self) -> Bool
+pub fn LoopClosureResult::not_equal(Self, Self) -> Bool
+pub fn LoopClosureResult::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct MapPoint {
+  position : Array[Double]
+  color : Array[Int32]
+  normal : Array[Double]
+  descriptor : Array[Double]
+  num_observations : Int32
+  is_outlier : Bool
+}
+pub fn MapPoint::equal(Self, Self) -> Bool
+pub fn MapPoint::not_equal(Self, Self) -> Bool
+pub fn MapPoint::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum SLAMAlgorithm {
+  MonoSLAM
+  ORBSLAM
+  LSD_SLAM
+  SVO
+  DSO
+  PTAM
+  KinectFusion
+  ElasticFusion
+  Unknown
+}
+pub fn SLAMAlgorithm::equal(Self, Self) -> Bool
+pub fn SLAMAlgorithm::not_equal(Self, Self) -> Bool
+pub fn SLAMAlgorithm::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct SLAMConfig {
+  algorithm : SLAMAlgorithm
+  feature_threshold : Double
+  max_features : Int32
+  keyframe_interval : Int32
+  min_parallax : Double
+  use_loop_closure : Bool
+  use_bundle_adjustment : Bool
+  camera_fx : Double
+  camera_fy : Double
+  camera_cx : Double
+  camera_cy : Double
+}
+pub fn SLAMConfig::equal(Self, Self) -> Bool
+pub fn SLAMConfig::not_equal(Self, Self) -> Bool
+pub fn SLAMConfig::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct SLAMState {
+  current_pose : CameraPose
+  trajectory : Array[CameraPose]
+  map_points : Array[MapPoint]
+  keyframes : Array[KeyFrame]
+  num_frames_processed : Int32
+  num_lost_frames : Int32
+  is_tracking : Bool
+  is_mapping : Bool
+  processing_time_ms : Double
+}
+pub fn SLAMState::equal(Self, Self) -> Bool
+pub fn SLAMState::not_equal(Self, Self) -> Bool
+pub fn SLAMState::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

@@ -1,9 +1,9 @@
 members = [
   ".",
-  "core",
-  "codec",
-  "process",
-  "photography",
-  "vision",
-  "domain",
+  "image.core",
+  "image.codec",
+  "image.process",
+  "image.photography",
+  "image.vision",
+  "image.domain",
 ]

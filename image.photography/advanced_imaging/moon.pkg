@@ -1,0 +1,8 @@
+import {
+  "walkzzz/image.core/types",
+  "moonbitlang/core/debug",
+}
+
+import {
+  "walkzzz/image.core/types",
+} for "test"

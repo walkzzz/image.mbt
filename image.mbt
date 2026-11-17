@@ -1,5 +1,5 @@
 ///|
-/// # walkzzz/image 图像处理库
+/// # walkzzz/image.mbt 图像处理库
 ///
 /// 纯 MoonBit 图像处理库，零 C FFI 依赖。 Pure MoonBit image processing library with zero C FFI dependency.
 ///
@@ -9,8 +9,8 @@
 /// ## 快速入门 Quick Start
 ///
 /// ```moonbit nocheck
-/// import "walkzzz/codec/lib"
-/// import "walkzzz/core/types"
+/// import "walkzzz/image.codec/lib"
+/// import "walkzzz/image.core/types"
 ///
 /// let img = @lib.load_from_bytes_auto(bytes)!
 /// let blurred = @lib.gaussian_blur(img, 3.0)
@@ -20,11 +20,11 @@
 ///
 /// | 模块 Module | 说明 Description | 导入 Import |
 /// |-------------|------------------|-------------|
-/// | core | 基础类型（Image, Image16, ImageF, LoadError）Base types | `walkzzz/core/types` |
-/// | codec | 编解码、色彩、元数据、条码 Encoding/decoding, color, metadata, barcode | `walkzzz/codec/lib` |
-/// | process | 图像处理算法 Image processing algorithms | `walkzzz/process/filter` |
-/// | photography | 计算摄影 Computational photography | `walkzzz/photography/photo_enhance` |
-/// | vision | 计算机视觉 Computer vision | `walkzzz/vision/ocr` |
-/// | domain | 领域应用 Domain-specific applications | `walkzzz/domain/medical` |
+/// | core | 基础类型（Image, Image16, ImageF, LoadError）Base types | `walkzzz/image.core/types` |
+/// | codec | 编解码、色彩、元数据、条码 Encoding/decoding, color, metadata, barcode | `walkzzz/image.codec/lib` |
+/// | process | 图像处理算法 Image processing algorithms | `walkzzz/image.process/filter` |
+/// | photography | 计算摄影 Computational photography | `walkzzz/image.photography/photo_enhance` |
+/// | vision | 计算机视觉 Computer vision | `walkzzz/image.vision/ocr` |
+/// | domain | 领域应用 Domain-specific applications | `walkzzz/image.domain/medical` |
 ///
 pub let version : String = "0.5.0"

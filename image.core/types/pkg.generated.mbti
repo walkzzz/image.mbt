@@ -1,0 +1,251 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.core/types"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub const DOC_TEST_BMP_1X1 : Bytes = b"\x42\x4d\x3a\x00\x00\x00\x00\x00\x00\x00\x36\x00\x00\x00\x28\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x18\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\x00"
+
+pub const DOC_TEST_PNG_1X1_RGBA : Bytes = b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\xeb\x89\x2f\x0b\x00\x00\x00\x10\x49\x44\x41\x54\x78\x01\x01\x05\x00\xfa\xff\x00\xff\x00\x00\xff\x05\x00\x01\xff\x0b\x15\xdf\x08\x00\x00\x00\x00\x49\x45\x4e\x44\xf0\x2b\x1d\x59"
+
+pub const DOC_TEST_PNM_1X1 : Bytes = b"P6\n1 1\n255\n\xff\x00\x00"
+
+pub const DOC_TEST_QOI_1X1 : Bytes = b"\x71\x6f\x69\x66\x00\x00\x00\x01\x00\x00\x00\x01\x04\x00\x00\xfe\x00\xff\x00\x00\x00\x00\x00\x00\x00\x01"
+
+pub const MAX_IMAGE_DIMENSION : Int32 = 65535
+
+pub const MAX_TOTAL_PIXELS : Int32 = 500000000
+
+pub fn any_image_to_u8(AnyImage) -> Image
+
+pub fn check_dims(Int32, Int32, Int32) -> Unit raise LoadError
+
+pub fn clamp_byte(Int32) -> Byte
+
+pub fn clamp_coord(Int32, Int32) -> Int32
+
+pub fn clamp_double(Double, Double, Double) -> Double
+
+pub fn clamp_float(Float, Float, Float) -> Float
+
+pub fn clamp_int(Int32, Int32, Int32) -> Int32
+
+pub fn clamp_pixel_value(Int32) -> Int32
+
+pub fn dims_valid_check(Int32, Int32, Int32) -> Bool
+
+pub fn hdr_from_u8(Image) -> ImageF
+
+pub fn image16_to_any(Image16) -> AnyImage
+
+pub fn image_to_any(Image) -> AnyImage
+
+pub fn imagef_to_any(ImageF) -> AnyImage
+
+pub fn int_max(Int32, Int32) -> Int32
+
+pub fn int_min(Int32, Int32) -> Int32
+
+pub fn safe_mul(Int32, Int32) -> Int32?
+
+pub fn safe_mul3(Int32, Int32, Int32) -> Int32?
+
+// Errors
+pub(all) suberror LoadError {
+  FileIO(String)
+  UnsupportedFormat(String)
+  DecodeFailed(String)
+  EncodeFailed(String)
+}
+pub fn LoadError::output(Self, &Logger) -> Unit
+pub fn LoadError::to_string(Self) -> String
+pub impl Show for LoadError
+
+// Types and methods
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum AnyImage {
+  U8(Image)
+  U16(Image16)
+  F32(ImageF)
+}
+pub fn AnyImage::byte_count(Self) -> Int32
+pub fn AnyImage::bytes_per_pixel(Self) -> Int32
+pub fn AnyImage::channels(Self) -> Int32
+pub fn AnyImage::data(Self) -> Bytes
+pub fn AnyImage::equal(Self, Self) -> Bool
+pub fn AnyImage::height(Self) -> Int32
+pub fn AnyImage::is_grayscale(Self) -> Bool
+pub fn AnyImage::is_rgb(Self) -> Bool
+pub fn AnyImage::is_rgba(Self) -> Bool
+pub fn AnyImage::not_equal(Self, Self) -> Bool
+pub fn AnyImage::pixel_count(Self) -> Int32
+pub fn AnyImage::to_repr(Self) -> @debug.Repr
+pub fn AnyImage::width(Self) -> Int32
+pub impl ImageLike for AnyImage
+
+#derive(Eq, @debug.Debug)
+pub(all) struct GifAnimation {
+  frames : Array[Image]
+  delays : Array[Int32]
+}
+pub fn GifAnimation::equal(Self, Self) -> Bool
+pub fn GifAnimation::not_equal(Self, Self) -> Bool
+pub fn GifAnimation::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct Image {
+  width : Int32
+  height : Int32
+  channels : Int32
+  data : Bytes
+}
+pub fn Image::byte_count(Self) -> Int32
+pub fn Image::bytes_per_pixel(Self) -> Int32
+pub fn Image::channels(Self) -> Int32
+pub fn Image::data(Self) -> Bytes
+pub fn Image::equal(Self, Self) -> Bool
+pub fn Image::height(Self) -> Int32
+pub fn Image::is_grayscale(Self) -> Bool
+pub fn Image::is_rgb(Self) -> Bool
+pub fn Image::is_rgba(Self) -> Bool
+pub fn Image::not_equal(Self, Self) -> Bool
+pub fn Image::pixel_count(Self) -> Int32
+pub fn Image::to_repr(Self) -> @debug.Repr
+pub fn Image::width(Self) -> Int32
+pub impl ImageLike for Image
+
+#derive(Eq, @debug.Debug)
+pub(all) struct Image16 {
+  width : Int32
+  height : Int32
+  channels : Int32
+  data : Bytes
+}
+pub fn Image16::byte_count(Self) -> Int32
+pub fn Image16::bytes_per_pixel(Self) -> Int32
+pub fn Image16::channels(Self) -> Int32
+pub fn Image16::data(Self) -> Bytes
+pub fn Image16::equal(Self, Self) -> Bool
+pub fn Image16::height(Self) -> Int32
+pub fn Image16::is_grayscale(Self) -> Bool
+pub fn Image16::is_rgb(Self) -> Bool
+pub fn Image16::is_rgba(Self) -> Bool
+pub fn Image16::not_equal(Self, Self) -> Bool
+pub fn Image16::pixel_count(Self) -> Int32
+pub fn Image16::to_repr(Self) -> @debug.Repr
+pub fn Image16::width(Self) -> Int32
+pub impl ImageLike for Image16
+
+#derive(Eq, @debug.Debug)
+pub(all) struct ImageF {
+  width : Int32
+  height : Int32
+  channels : Int32
+  data : Bytes
+}
+pub fn ImageF::byte_count(Self) -> Int32
+pub fn ImageF::bytes_per_pixel(Self) -> Int32
+pub fn ImageF::channels(Self) -> Int32
+pub fn ImageF::data(Self) -> Bytes
+pub fn ImageF::equal(Self, Self) -> Bool
+pub fn ImageF::height(Self) -> Int32
+pub fn ImageF::is_grayscale(Self) -> Bool
+pub fn ImageF::is_rgb(Self) -> Bool
+pub fn ImageF::is_rgba(Self) -> Bool
+pub fn ImageF::not_equal(Self, Self) -> Bool
+pub fn ImageF::pixel_count(Self) -> Int32
+pub fn ImageF::to_repr(Self) -> @debug.Repr
+pub fn ImageF::width(Self) -> Int32
+pub impl ImageLike for ImageF
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum ImageFormat {
+  Png
+  Jpeg
+  Bmp
+  Gif
+  Tga
+  Psd
+  Hdr
+  Pnm
+  Qoi
+  Webp
+  Tiff
+  Ico
+  Cur
+  Icns
+  Apng
+  Avif
+  Heif
+  JpegXl
+  Unknown
+}
+pub fn ImageFormat::equal(Self, Self) -> Bool
+pub fn ImageFormat::not_equal(Self, Self) -> Bool
+pub fn ImageFormat::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct ImageInfo {
+  width : Int32
+  height : Int32
+  channels : Int32
+}
+pub fn ImageInfo::equal(Self, Self) -> Bool
+pub fn ImageInfo::not_equal(Self, Self) -> Bool
+pub fn ImageInfo::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct PngAnimation {
+  frames : Array[Image]
+  delays : Array[Int32]
+}
+pub fn PngAnimation::equal(Self, Self) -> Bool
+pub fn PngAnimation::not_equal(Self, Self) -> Bool
+pub fn PngAnimation::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum ResizeEdge {
+  Clamp
+  Reflect
+  Wrap
+  Zero
+}
+pub fn ResizeEdge::equal(Self, Self) -> Bool
+pub fn ResizeEdge::not_equal(Self, Self) -> Bool
+pub fn ResizeEdge::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum ResizeFilter {
+  Default
+  Box
+  Triangle
+  CubicBSPline
+  CatmullROM
+  Mitchell
+  PointSample
+}
+pub fn ResizeFilter::equal(Self, Self) -> Bool
+pub fn ResizeFilter::not_equal(Self, Self) -> Bool
+pub fn ResizeFilter::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits
+pub(open) trait ImageLike {
+  fn width(Self) -> Int32
+  fn height(Self) -> Int32
+  fn channels(Self) -> Int32
+  fn data(Self) -> Bytes
+  fn bytes_per_pixel(Self) -> Int32
+  fn pixel_count(Self) -> Int32 = _
+  fn byte_count(Self) -> Int32 = _
+  fn is_grayscale(Self) -> Bool = _
+  fn is_rgb(Self) -> Bool = _
+  fn is_rgba(Self) -> Bool = _
+}

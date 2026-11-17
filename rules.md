@@ -1,6 +1,6 @@
-# walkzzz/image 开发规则全集 / Development Rules
+# walkzzz/image.mbt 开发规则全集 / Development Rules
 
-> **用途**：本文件是 walkzzz/image 项目所有开发规则的权威汇总，供 agent 与人类协作者复用。  
+> **用途**：本文件是 walkzzz/image.mbt 项目所有开发规则的权威汇总，供 agent 与人类协作者复用。  
 > **维护**：每次新增规则时回写本文件。  
 > **优先级**：防跑偏规则 > 项目规则 > 个人偏好。
 
@@ -46,7 +46,7 @@ README 中英文，美化，默认中文；每个一级子包也要 README.md。
 禁止在没确认的情况下，把群聊里的某句话当成最终决定。
 
 ### R12 — 根包门面
-项目根包（`walkzzz/image`，根目录 `moon.pkg` + `image.mbt`）仅含 version + 文档，不做 reexport。用户直接 import 子模块包（如 `import "walkzzz/process/filter"`）。
+项目根包（`walkzzz/image.mbt`，根目录 `moon.pkg` + `image.mbt`）仅含 version + 文档，不做 reexport。用户直接 import 子模块包（如 `import "walkzzz/image.process/filter"`）。
 
 ### R13 — Warning 治理
 每次迭代完成后都要进行 **warning 治理**：运行 `moon check` / `moon test`，对所有 warning 逐一处理（修复根因，禁止注释/ignore 压制），目标 0 warning。
@@ -95,7 +95,7 @@ photography  vision (Layer 3, → core + codec + process)
 
 - 下层模块不可依赖上层模块
 - 同层模块之间不可互相依赖
-- 跨模块引用使用完整路径：`"walkzzz/core/types"`, `"walkzzz/codec/lib"` 等
+- 跨模块引用使用完整路径：`"walkzzz/image.core/types"`, `"walkzzz/image.codec/lib"` 等
 
 ### moon.work 工作空间
 
@@ -107,7 +107,7 @@ members = [".", "core", "codec", "process", "photography", "vision", "domain"]
 
 - `image.mbt`：仅含 `pub let version : String = "0.5.0"` + 文档注释
 - `moon.pkg`：空（不导入任何子包）
-- 用户通过 `import "walkzzz/process/filter"` + `@filter.gaussian_blur()` 直接访问
+- 用户通过 `import "walkzzz/image.process/filter"` + `@filter.gaussian_blur()` 直接访问
 
 ---
 

@@ -1,6 +1,6 @@
 # image 项目改进项评估报告
 
-> 评估日期：2026-11-13 · moon 0.1.20261104 · 评估范围：walkzzz/image 全仓（workspace 6 模块）
+> 评估日期：2026-11-13 · moon 0.1.20261104 · 评估范围：walkzzz/image.mbt 全仓（workspace 6 模块）
 > 方法：沿用 walkzzz/astrolabe 评估方法论（四后端实测 + 文档一致性核查 + mooncakes 发布状态核查 + 章程合规对照）
 
 ---
@@ -51,7 +51,7 @@
 
 | # | 改进项 | 建议 |
 |:--:|:---|:---|
-| 7 | mooncakes 徽章缺失 | README badge 区加 `[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.6.0-orange)](https://mooncakes.io/package/walkzzz/image)`（发布后版本号随升） |
+| 7 | mooncakes 徽章缺失 | README badge 区加 `[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.6.0-orange)](https://mooncakes.io/package/walkzzz/image.mbt)`（发布后版本号随升） |
 | 8 | Dependents 证据放大 | README 加一行 "被 moonrockz/diagrams-raster 依赖"——生态价值维度硬证据 |
 | 9 | coverage 数据入 README | CI 已产出 coverage 报告，README 补覆盖率数字 |
 | 10 | spec/ 目录定位说明 | spec/（SDD 产物：architecture-refactor / doc-comment-enhancement）挪入 docs/ 或在 README 文档表说明用途 |

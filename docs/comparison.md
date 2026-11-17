@@ -1,6 +1,6 @@
 # mooncakes.io image 库对比
 
-对比 mooncakes.io 上已有的 image 相关 MoonBit 包与本库 `walkzzz/image` 的功能差异。
+对比 mooncakes.io 上已有的 image 相关 MoonBit 包与本库 `walkzzz/image.mbt` 的功能差异。
 
 > 数据来源：`moon update` 本地注册表索引 + 各仓库 README
 > 快照：**2026-11-13 版本核对**（下表版本列实测刷新）；格式/能力矩阵基于 2026-08-06 快照 + 本地实测，逐项深核见后续更新
@@ -9,7 +9,7 @@
 
 | 库 | 版本 | 实现方式 | 目标 | 依赖 | 许可证 |
 |---|---|---|---|---|---|
-| **walkzzz/image** | **0.6.0**（本地待发布；mooncakes 最新 0.5.0） | 纯 MoonBit | native/wasm-gc/js/wasm | 无 | MIT |
+| **walkzzz/image.mbt** | **0.6.0**（本地待发布；mooncakes 最新 0.5.0） | 纯 MoonBit | native/wasm-gc/js/wasm | 无 | MIT |
 | mizchi/image | **0.5.0**（↑ 自 0.4.3） | 纯 MoonBit | js/native/wasm-gc | mizchi/zlib | Apache-2.0 |
 | bikallem/image | 0.1.0（无更新） | 纯 MoonBit (Go 移植) | ? | bikallem/compress, moonbitlang/x, bikallem/blit | Apache-2.0 |
 | gmlewis/image | **0.17.19**（↑ 自 0.16.19） | 纯 MoonBit (Go 移植) | ? | gmlewis/flate, hash, io, zlib | Apache-2.0 |

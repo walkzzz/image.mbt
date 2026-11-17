@@ -30,7 +30,7 @@ image 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目标�
 
 ### 3.1 六竞品格式覆盖对比（解码）
 
-| 能力 | walkzzz/image | mizchi | bikallem | gmlewis | Nanaloveyuki | shunge |
+| 能力 | walkzzz/image.mbt | mizchi | bikallem | gmlewis | Nanaloveyuki | shunge |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | 格式总数（解码） | **18** | 4 | 4 | 2 | 1 | 5 |
 | PNG 16-bit / Adam7 | ✅ | ❌ | ✅ | ? | ❌ | ❌ |
@@ -93,7 +93,7 @@ image 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目标�
 
 ## 九、预期验收产物
 
-- mooncakes.io 七模块在线：walkzzz/image@0.6.0 + 六个子模块@0.1.0（子模块独立安装）；
+- mooncakes.io 七模块在线：walkzzz/image@0.6.0 + 六个子模块@0.1.0（子模块独立安装）；本期重构为 walkzzz/image.mbt + image.* 子模块（0.1.0 重新计数发布）；
 - 四目标测试 6574 × 4 全绿、`moon check --deny-warn` 零警告、coverage 90.4%（CI 报告）；
 - 双语 README（badge 实测对齐）+ 13 份 docs 文档 + 根 CHANGELOG + 评估报告（docs/assessment.md）+ 本申报书；
 - 本期全部新增贡献在 CHANGELOG、git 提交历史与 docs/roadmap.md 中可追踪。

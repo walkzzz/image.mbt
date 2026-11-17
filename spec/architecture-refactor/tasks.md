@@ -1,4 +1,4 @@
-# Tasks: walkzzz/image 项目架构全面重构
+# Tasks: walkzzz/image.mbt 项目架构全面重构
 
 **Input**: Design documents from `spec/architecture-refactor/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories)
@@ -21,12 +21,12 @@
 
 - [X] T001 创建根目录工作空间配置: 更新 moon.work members=[".", "core", "codec", "process", "photography", "vision", "domain"] 在 moon.work
 - [X] T002 创建根模块门面文件: 创建 image.mbt（仅含 pub let version + 文档注释），创建空 moon.pkg 在根目录
-- [X] T003 [P] 创建 core/ 子模块骨架: 创建 core/moon.mod (name="walkzzz/core"), core/moon.pkg, core/cmd/main/ 在 core/
-- [X] T004 [P] 创建 codec/ 子模块骨架: 创建 codec/moon.mod (name="walkzzz/codec", import={walkzzz/core}), codec/moon.pkg, codec/cmd/main/ 在 codec/
-- [X] T005 [P] 创建 process/ 子模块骨架: 创建 process/moon.mod (name="walkzzz/process", import={walkzzz/core, walkzzz/codec}), process/moon.pkg, process/cmd/main/ 在 process/
-- [X] T006 [P] 创建 photography/ 子模块骨架: 创建 photography/moon.mod (name="walkzzz/photography", import={walkzzz/core, walkzzz/codec, walkzzz/process}), photography/moon.pkg, photography/cmd/main/ 在 photography/
-- [X] T007 [P] 创建 vision/ 子模块骨架: 创建 vision/moon.mod (name="walkzzz/vision", import={walkzzz/core, walkzzz/codec, walkzzz/process}), vision/moon.pkg, vision/cmd/main/ 在 vision/
-- [X] T008 [P] 创建 domain/ 子模块骨架: 创建 domain/moon.mod (name="walkzzz/domain", import={walkzzz/core, walkzzz/codec, walkzzz/process, walkzzz/vision}), domain/moon.pkg, domain/cmd/main/ 在 domain/
+- [X] T003 [P] 创建 core/ 子模块骨架: 创建 core/moon.mod (name="walkzzz/image.core"), core/moon.pkg, core/cmd/main/ 在 core/
+- [X] T004 [P] 创建 codec/ 子模块骨架: 创建 codec/moon.mod (name="walkzzz/image.codec", import={walkzzz/image.core}), codec/moon.pkg, codec/cmd/main/ 在 codec/
+- [X] T005 [P] 创建 process/ 子模块骨架: 创建 process/moon.mod (name="walkzzz/image.process", import={walkzzz/image.core, walkzzz/image.codec}), process/moon.pkg, process/cmd/main/ 在 process/
+- [X] T006 [P] 创建 photography/ 子模块骨架: 创建 photography/moon.mod (name="walkzzz/image.photography", import={walkzzz/image.core, walkzzz/image.codec, walkzzz/image.process}), photography/moon.pkg, photography/cmd/main/ 在 photography/
+- [X] T007 [P] 创建 vision/ 子模块骨架: 创建 vision/moon.mod (name="walkzzz/image.vision", import={walkzzz/image.core, walkzzz/image.codec, walkzzz/image.process}), vision/moon.pkg, vision/cmd/main/ 在 vision/
+- [X] T008 [P] 创建 domain/ 子模块骨架: 创建 domain/moon.mod (name="walkzzz/image.domain", import={walkzzz/image.core, walkzzz/image.codec, walkzzz/image.process, walkzzz/image.vision}), domain/moon.pkg, domain/cmd/main/ 在 domain/
 - [X] T009 验证工作空间骨架: 运行 moon check 确认 6 子模块骨架编译通过
 
 ---
@@ -60,10 +60,10 @@
 - [X] T017 [P] [US1] 迁移 src/meta/ → codec/meta/: 复制 EXIF/XMP/IPTC/PNG text 代码及测试，更新 import 路径
 - [X] T018 [P] [US1] 迁移 src/barcode/ → codec/barcode/: 复制条码检测代码及测试，更新 import 路径
 - [X] T019 [P] [US1] 迁移 src/pure/util/ → codec/util/: 复制 resize/zlib/配置代码及测试，更新 import 路径
-- [X] T020 [US1] 修复 codec/ 内所有跨模块引用: moon.pkg imports updated (walkzzz/image/src/* → walkzzz/core/types, walkzzz/codec/*), .mbt files use local @types/@lib aliases — moon check 0 errors
+- [X] T020 [US1] 修复 codec/ 内所有跨模块引用: moon.pkg imports updated (walkzzz/image.mbt/src/* → walkzzz/image.core/types, walkzzz/image.codec/*), .mbt files use local @types/@lib aliases — moon check 0 errors
 - [X] T021 [US1] 验证 codec/ 模块: moon test codec/*/ --target native 全通过 (510+154+23+71+149+91 = 998 tests)
 
-**Checkpoint**: codec 模块可用，用户可通过 `import "walkzzz/codec/lib"` 访问编解码 API
+**Checkpoint**: codec 模块可用，用户可通过 `import "walkzzz/image.codec/lib"` 访问编解码 API
 
 ---
 
@@ -200,7 +200,7 @@
 - [X] T066 [US6] 确认 image.mbt 门面文件: image.mbt 仅含 pub let version = "0.5.0" + 文档注释
 - [X] T067 [US6] 确认根 moon.pkg 为空: 根包 import {} (empty, no reexport)
 - [X] T068 [US6] 删除旧 reexport.mbt: src/reexport.mbt deleted with src/ deletion
-- [X] T069 [US6] 验证新 API 访问模式: Users import via walkzzz/process/filter etc.
+- [X] T069 [US6] 验证新 API 访问模式: Users import via walkzzz/image.process/filter etc.
 - [X] T070 [US6] 验证根模块编译: moon check 0 errors
 
 **Checkpoint**: reexport 模式已重构为 pinyin 模式
@@ -235,7 +235,7 @@
 
 - [X] T076 [P] [US8] 更新 README.md: 更新包结构为6子模块架构
 - [X] T077 [P] [US8] 更新 AGENTS.md: 更新项目结构图、核心约束、R1/R10/R12规则
-- [ ] T078 [P] [US8] 重写 rules.md: 将 GeoVerse 项目规则替换为 walkzzz/image 项目适用的开发规则
+- [ ] T078 [P] [US8] 重写 rules.md: 将 GeoVerse 项目规则替换为 walkzzz/image.mbt 项目适用的开发规则
 - [ ] T079 [P] [US8] 更新 docs/roadmap.md: 更新头部数据，记录架构重构迭代状态
 - [ ] T080 [P] [US8] 更新 docs/architecture.md: 反映新多模块工作空间架构
 - [ ] T081 [P] [US8] 更新 docs/changelog.md: 添加架构重构版本变更记录

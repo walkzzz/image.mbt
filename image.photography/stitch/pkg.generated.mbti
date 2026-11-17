@@ -1,0 +1,83 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.photography/stitch"
+
+import {
+  "moonbitlang/core/debug",
+  "walkzzz/image.core/types",
+}
+
+// Values
+pub fn apply_homography(Homography, Double, Double) -> (Double, Double)
+
+pub fn detect_features_simple(@types.Image, max_features? : Int32) -> Array[FeaturePoint]
+
+pub fn estimate_homography_ransac(Array[MatchPair], Array[FeaturePoint], Array[FeaturePoint], iterations? : Int32, threshold? : Double) -> (Homography?, Array[MatchPair])
+
+pub fn identity_homography() -> Homography
+
+pub fn invert_homography(Homography) -> Homography?
+
+pub fn match_features(Array[FeaturePoint], Array[FeaturePoint], ratio_threshold? : Double) -> Array[MatchPair]
+
+pub fn stitch_default_config() -> StitchConfig
+
+pub fn stitch_images(@types.Image, @types.Image, config? : StitchConfig) -> @types.Image?
+
+// Errors
+
+// Types and methods
+#derive(Eq, @debug.Debug)
+pub(all) struct FeaturePoint {
+  x : Double
+  y : Double
+  response : Double
+  orientation : Double
+  descriptor : Array[Double]
+}
+pub fn FeaturePoint::equal(Self, Self) -> Bool
+pub fn FeaturePoint::not_equal(Self, Self) -> Bool
+pub fn FeaturePoint::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct Homography {
+  h00 : Double
+  h01 : Double
+  h02 : Double
+  h10 : Double
+  h11 : Double
+  h12 : Double
+  h20 : Double
+  h21 : Double
+  h22 : Double
+}
+pub fn Homography::equal(Self, Self) -> Bool
+pub fn Homography::not_equal(Self, Self) -> Bool
+pub fn Homography::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct MatchPair {
+  query_idx : Int32
+  train_idx : Int32
+  distance : Double
+}
+pub fn MatchPair::equal(Self, Self) -> Bool
+pub fn MatchPair::not_equal(Self, Self) -> Bool
+pub fn MatchPair::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct StitchConfig {
+  max_features : Int32
+  ratio_threshold : Double
+  ransac_iterations : Int32
+  ransac_threshold : Double
+  min_inliers : Int32
+  blend_width : Int32
+  use_multi_band : Bool
+}
+pub fn StitchConfig::equal(Self, Self) -> Bool
+pub fn StitchConfig::not_equal(Self, Self) -> Bool
+pub fn StitchConfig::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

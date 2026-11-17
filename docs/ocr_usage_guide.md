@@ -24,7 +24,7 @@
 ### 安装
 
 ```bash
-moon add walkzzz/image
+moon add walkzzz/image.mbt
 ```
 
 ### 最小示例
@@ -665,7 +665,7 @@ mkdir my_ocr_project && cd my_ocr_project
 moon init
 
 # 3. 添加 image 依赖
-moon add walkzzz/image
+moon add walkzzz/image.mbt
 
 # 4. 构建
 moon build
@@ -685,7 +685,7 @@ WORKDIR /app
 COPY . .
 
 # 安装依赖并构建
-RUN moon add walkzzz/image && moon build --release
+RUN moon add walkzzz/image.mbt && moon build --release
 
 # 运行
 CMD ["moon", "run"]

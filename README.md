@@ -9,10 +9,10 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.6.1-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.6.1-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image)
+[![Version](https://img.shields.io/badge/version-0.1.0-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.0-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_574×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_576×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-90.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
@@ -61,7 +61,7 @@
 
 ### 🟢 零 C 依赖
 
-全部纯 MoonBit 实现，无需 C 编译器。`moon add walkzzz/image` 即装即用，四目标零配置。
+全部纯 MoonBit 实现，无需 C 编译器。`moon add walkzzz/image.mbt` 即装即用，四目标零配置。
 
 </td>
 <td width="50%">
@@ -165,18 +165,45 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 ### 安装
 
 ```bash
-moon add walkzzz/image
+moon add walkzzz/image.mbt
 ```
 
-> 🧩 **子模块按需安装**（0.6.0 起，workspace 六模块独立发布）：`moon add walkzzz/codec` 只装 18 格式编解码；`moon add walkzzz/process` 只装 90+ 算法子包；core / photography / vision / domain 同理。
+> 🧩 **子模块按需安装**（workspace 六模块独立发布）：`moon add walkzzz/image.codec` 只装 18 格式编解码；`moon add walkzzz/image.process` 只装 90+ 算法子包；core / photography / vision / domain 同理。
+
+### ⚠️ 从 walkzzz/image（0.6.x）迁移
+
+> 0.1.0 起模块重命名为 `walkzzz/image.mbt`，六子模块统一 `image.*` 前缀（目录同步改名）。旧名包在 mooncakes 上仍可安装但**不再更新**。迁移只需替换模块前缀，API 完全不变：
+
+| 旧 | 新 |
+|---|---|
+| `moon add walkzzz/image` | `moon add walkzzz/image.mbt` |
+| `moon add walkzzz/core` | `moon add walkzzz/image.core` |
+| `moon add walkzzz/codec` | `moon add walkzzz/image.codec` |
+| `moon add walkzzz/process` | `moon add walkzzz/image.process` |
+| `moon add walkzzz/photography` | `moon add walkzzz/image.photography` |
+| `moon add walkzzz/vision` | `moon add walkzzz/image.vision` |
+| `moon add walkzzz/domain` | `moon add walkzzz/image.domain` |
+
+import 路径同步替换：`walkzzz/image` → `walkzzz/image.mbt`；`walkzzz/<子模块>` → `walkzzz/image.<子模块>`。例如：
+
+```moonbit
+// 旧（0.6.x）
+import "walkzzz/core/types"
+import "walkzzz/codec/lib"
+import "walkzzz/process/filter"
+// 新（0.1.0+）
+import "walkzzz/image.core/types"
+import "walkzzz/image.codec/lib"
+import "walkzzz/image.process/filter"
+```
 
 ### 30 秒示例
 
 ```moonbit
-import "walkzzz/core/types"
-import "walkzzz/codec/lib"
-import "walkzzz/process/filter"
-import "walkzzz/process/transform"
+import "walkzzz/image.core/types"
+import "walkzzz/image.codec/lib"
+import "walkzzz/image.process/filter"
+import "walkzzz/image.process/transform"
 
 // 解码 — 自动检测 18 种格式
 let img : Image = @lib.load_from_bytes_auto(data)
@@ -204,7 +231,7 @@ try {
 ### 高级：SIFT 特征匹配
 
 ```moonbit
-import "walkzzz/process/feature"
+import "walkzzz/image.process/feature"
 
 // 检测 SIFT 特征
 let kp1 = @feature.sift_detect(img1)
@@ -220,7 +247,7 @@ let homography = @feature.ransac_homography(matches, threshold=5.0, iterations=1
 ### 流式解码
 
 ```moonbit
-import "walkzzz/codec/lib"
+import "walkzzz/image.codec/lib"
 
 // 逐行回调（当前为全量解码后逐行分发，v5.0 计划增量解码）
 @lib.decode_stream(data, fn(row, y) {
@@ -251,36 +278,36 @@ graph TD
 ### 包结构
 
 ```
-walkzzz/image (根模块 — 门面，不做 reexport)
-├── core/                        # L0: 基础类型
-│   └── types/                   #   Image, Image16, ImageF, LoadError, Pixel
-├── codec/                       # L1: 编解码
-│   ├── codec/                   #   18 格式编解码 (png/ jpeg/ bmp/ gif/ ...)
-│   ├── lib/                     #   高层封装 (自动格式分派 + 流式解码)
-│   ├── color/                   #   色彩空间转换
-│   ├── meta/                    #   EXIF/XMP/IPTC/PNG text
-│   ├── barcode/                 #   QR/条码
-│   └── util/                    #   resize/zlib/配置
-├── process/                     # L2: 图像处理
-│   ├── color/                   #   色彩/CLAHE/Retinex/去雾
-│   ├── filter/                  #   滤波/去噪
-│   ├── edge/                    #   边缘/Canny/霍夫
-│   ├── feature/                 #   Harris/ORB/SIFT/光流
-│   ├── segment/                 #   分水岭/SLIC/grabCut
-│   ├── transform/               #   几何/透视/Seam Carving
-│   ├── frequency/               #   FFT/DCT/小波
-│   ├── enhance/                 #   修复/去雾/降噪
-│   ├── detection/               #   检测/跟踪
-│   └── stereo3d/                #   立体视觉
-├── photography/                 # L3a: 计算摄影
-│   ├── photo_enhance/           #   HDR/照片增强
+walkzzz/image.mbt (根模块 — 门面，不做 reexport)
+├── image.core/                    # L0: 基础类型
+│   └── types/                     #   Image, Image16, ImageF, LoadError, Pixel
+├── image.codec/                   # L1: 编解码
+│   ├── codec/                     #   18 格式编解码 (png/ jpeg/ bmp/ gif/ ...)
+│   ├── lib/                       #   高层封装 (自动格式分派 + 流式解码)
+│   ├── color/                     #   色彩空间转换
+│   ├── meta/                      #   EXIF/XMP/IPTC/PNG text
+│   ├── barcode/                   #   QR/条码
+│   └── util/                      #   resize/zlib/配置
+├── image.process/                 # L2: 图像处理
+│   ├── color/                     #   色彩/CLAHE/Retinex/去雾
+│   ├── filter/                    #   滤波/去噪
+│   ├── edge/                      #   边缘/Canny/霍夫
+│   ├── feature/                   #   Harris/ORB/SIFT/光流
+│   ├── segment/                   #   分水岭/SLIC/grabCut
+│   ├── transform/                 #   几何/透视/Seam Carving
+│   ├── frequency/                 #   FFT/DCT/小波
+│   ├── enhance/                   #   修复/去雾/降噪
+│   ├── detection/                 #   检测/跟踪
+│   └── stereo3d/                  #   立体视觉
+├── image.photography/             # L3a: 计算摄影
+│   ├── photo_enhance/             #   HDR/照片增强
 │   ├── superres/ fusion/ stitch/ style_transfer/ inpainting/
 │   └── computational_imaging/ neural_rendering/ compression/ quality/
-├── vision/                      # L3b: 计算机视觉
-│   ├── ocr/                     #   OCR 全链路 (36 模块文件)
+├── image.vision/                  # L3b: 计算机视觉
+│   ├── ocr/                       #   OCR 全链路 (36 模块文件)
 │   ├── face_recognition/ slam/ video/ scene_understanding/
 │   └── spatiotemporal/ vlm_multimodal/ fieldimg/ imgir/ aoci/
-└── domain/                      # L4: 领域应用
+└── image.domain/                  # L4: 领域应用
     ├── medical/ remote_sensing/ encryption/ watermark/
     ├── forensics/ registration/ retrieval/ pipeline/
     ├── texture/ mesh/ point_cloud/ agent_kit/ self_evolve/
@@ -291,11 +318,11 @@ walkzzz/image (根模块 — 门面，不做 reexport)
 
 ```moonbit
 // 直接 import 子模块包 — 清晰、按需、零耦合
-import "walkzzz/core/types"          // @types.Image
-import "walkzzz/codec/lib"           // @lib.load_from_bytes_auto()
-import "walkzzz/process/filter"      // @filter.gaussian_blur()
-import "walkzzz/process/feature"     // @feature.sift_detect()
-import "walkzzz/vision/ocr"          // @ocr.recognize_text()
+import "walkzzz/image.core/types"          // @types.Image
+import "walkzzz/image.codec/lib"           // @lib.load_from_bytes_auto()
+import "walkzzz/image.process/filter"      // @filter.gaussian_blur()
+import "walkzzz/image.process/feature"     // @feature.sift_detect()
+import "walkzzz/image.vision/ocr"          // @ocr.recognize_text()
 ```
 
 ---
@@ -352,7 +379,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 
 ## 📊 vs stb_image.h
 
-| | **stb_image.h** | **walkzzz/image** |
+| | **stb_image.h** | **walkzzz/image.mbt** |
 |---|---|---|
 | 语言 | C | **MoonBit** |
 | 依赖 | C 编译器 | **零 C 依赖** |

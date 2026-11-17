@@ -1,5 +1,0 @@
-import {
-  "moonbitlang/core/debug",
-  "walkzzz/core/types",
-  "walkzzz/vision/imgir",
-}

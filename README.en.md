@@ -9,10 +9,10 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.6.1-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.6.1-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image)
+[![Version](https://img.shields.io/badge/version-0.1.0-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.0-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_574×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_576×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-90.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
@@ -57,7 +57,7 @@ Beyond feature development, this project built a **self_evolve closed loop** (do
 
 ### 🟢 Zero C Dependencies
 
-Fully pure MoonBit, no C compiler needed. `moon add walkzzz/image` and you're done. Four targets, zero configuration.
+Fully pure MoonBit, no C compiler needed. `moon add walkzzz/image.mbt` and you're done. Four targets, zero configuration.
 
 </td>
 <td width="50%">
@@ -145,18 +145,45 @@ Core safety functions carry SMT-checkable proofs: representation invariants, ove
 ### Installation
 
 ```bash
-moon add walkzzz/image
+moon add walkzzz/image.mbt
 ```
 
-> 🧩 **Modular installation** (since 0.6.0, six workspace modules published independently): `moon add walkzzz/codec` for the 18-format codecs only; `moon add walkzzz/process` for the 90+ algorithm packages; likewise core / photography / vision / domain.
+> 🧩 **Modular installation** (six workspace modules published independently): `moon add walkzzz/image.codec` for the 18-format codecs only; `moon add walkzzz/image.process` for the 90+ algorithm packages; likewise core / photography / vision / domain.
+
+### ⚠️ Migrating from walkzzz/image (0.6.x)
+
+> Since 0.1.0 the module is renamed to `walkzzz/image.mbt`, and the six sub-modules adopt the unified `image.*` prefix (directories renamed accordingly). Old-name packages remain installable on mooncakes but are **no longer updated**. Migration is a pure prefix swap — the API is unchanged:
+
+| Old | New |
+|---|---|
+| `moon add walkzzz/image` | `moon add walkzzz/image.mbt` |
+| `moon add walkzzz/core` | `moon add walkzzz/image.core` |
+| `moon add walkzzz/codec` | `moon add walkzzz/image.codec` |
+| `moon add walkzzz/process` | `moon add walkzzz/image.process` |
+| `moon add walkzzz/photography` | `moon add walkzzz/image.photography` |
+| `moon add walkzzz/vision` | `moon add walkzzz/image.vision` |
+| `moon add walkzzz/domain` | `moon add walkzzz/image.domain` |
+
+Import paths follow the same rule: `walkzzz/image` → `walkzzz/image.mbt`; `walkzzz/<module>` → `walkzzz/image.<module>`. For example:
+
+```moonbit
+// Old (0.6.x)
+import "walkzzz/core/types"
+import "walkzzz/codec/lib"
+import "walkzzz/process/filter"
+// New (0.1.0+)
+import "walkzzz/image.core/types"
+import "walkzzz/image.codec/lib"
+import "walkzzz/image.process/filter"
+```
 
 ### 30-Second Example
 
 ```moonbit
-import "walkzzz/core/types"
-import "walkzzz/codec/lib"
-import "walkzzz/process/filter"
-import "walkzzz/process/transform"
+import "walkzzz/image.core/types"
+import "walkzzz/image.codec/lib"
+import "walkzzz/image.process/filter"
+import "walkzzz/image.process/transform"
 
 // Decode — auto-detect 18 formats
 let img : Image = @lib.load_from_bytes_auto(data)
@@ -184,7 +211,7 @@ try {
 ### Advanced: SIFT Feature Matching
 
 ```moonbit
-import "walkzzz/process/feature"
+import "walkzzz/image.process/feature"
 
 // Detect SIFT features
 let kp1 = @feature.sift_detect(img1)
@@ -200,7 +227,7 @@ let homography = @feature.ransac_homography(matches, threshold=5.0, iterations=1
 ### Streaming Decode
 
 ```moonbit
-import "walkzzz/codec/lib"
+import "walkzzz/image.codec/lib"
 
 // Row-by-row callback (full decode then dispatch; incremental planned for v5.0)
 @lib.decode_stream(data, fn(row, y) {
@@ -231,26 +258,26 @@ graph TD
 ### Package Structure
 
 ```
-walkzzz/image (root module — facade, no reexport)
-├── core/                        # L0: Base types
-│   └── types/                   #   Image, Image16, ImageF, LoadError, Pixel
-├── codec/                       # L1: Codecs
-│   ├── codec/                   #   18 format codecs (png/ jpeg/ bmp/ gif/ ...)
-│   ├── lib/                     #   High-level wrapper (auto dispatch + streaming)
-│   ├── color/                   #   Color space conversion
-│   ├── meta/                    #   EXIF/XMP/IPTC/PNG text
-│   ├── barcode/                 #   QR/barcode
-│   └── util/                    #   resize/zlib/config
-├── process/                     # L2: Image processing
+walkzzz/image.mbt (root module — facade, no reexport)
+├── image.core/                    # L0: Base types
+│   └── types/                     #   Image, Image16, ImageF, LoadError, Pixel
+├── image.codec/                   # L1: Codecs
+│   ├── codec/                     #   18 format codecs (png/ jpeg/ bmp/ gif/ ...)
+│   ├── lib/                       #   High-level wrapper (auto dispatch + streaming)
+│   ├── color/                     #   Color space conversion
+│   ├── meta/                      #   EXIF/XMP/IPTC/PNG text
+│   ├── barcode/                   #   QR/barcode
+│   └── util/                      #   resize/zlib/config
+├── image.process/                 # L2: Image processing
 │   ├── color/ filter/ edge/ feature/ segment/
 │   ├── transform/ frequency/ enhance/ detection/ stereo3d/
-├── photography/                 # L3a: Computational photography
+├── image.photography/             # L3a: Computational photography
 │   ├── photo_enhance/ superres/ fusion/ stitch/ style_transfer/ inpainting/
 │   └── computational_imaging/ neural_rendering/ compression/ quality/
-├── vision/                      # L3b: Computer vision
+├── image.vision/                  # L3b: Computer vision
 │   ├── ocr/ face_recognition/ slam/ video/ scene_understanding/
 │   └── spatiotemporal/ vlm_multimodal/ fieldimg/ imgir/ aoci/
-└── domain/                      # L4: Domain applications
+└── image.domain/                  # L4: Domain applications
     ├── medical/ remote_sensing/ encryption/ watermark/
     ├── forensics/ registration/ retrieval/ pipeline/
     └── texture/ mesh/ point_cloud/ agent_kit/ self_evolve/
@@ -260,11 +287,11 @@ walkzzz/image (root module — facade, no reexport)
 
 ```moonbit
 // Direct import sub-module packages — clear, on-demand, zero coupling
-import "walkzzz/core/types"          // @types.Image
-import "walkzzz/codec/lib"           // @lib.load_from_bytes_auto()
-import "walkzzz/process/filter"      // @filter.gaussian_blur()
-import "walkzzz/process/feature"     // @feature.sift_detect()
-import "walkzzz/vision/ocr"          // @ocr.recognize_text()
+import "walkzzz/image.core/types"          // @types.Image
+import "walkzzz/image.codec/lib"           // @lib.load_from_bytes_auto()
+import "walkzzz/image.process/filter"      // @filter.gaussian_blur()
+import "walkzzz/image.process/feature"     // @feature.sift_detect()
+import "walkzzz/image.vision/ocr"          // @ocr.recognize_text()
 ```
 
 ---
@@ -321,7 +348,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 
 ## 📊 vs stb_image.h
 
-| | **stb_image.h** | **walkzzz/image** |
+| | **stb_image.h** | **walkzzz/image.mbt** |
 |---|---|---|
 | Language | C | **MoonBit** |
 | Dependencies | C compiler | **Zero C deps** |

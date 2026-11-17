@@ -5,14 +5,14 @@
 ## 版本与安装
 
 > [!NOTE]
-> mooncakes 包版本 `0.6.0` 对应 **workspace 六模块重构**后的主模块（mooncakes 上 0.5.0 为重构前最后版本）；功能迭代版本（v0.1 → v237.0.0+）历史见 [docs/changelog.md](docs/changelog.md)。主模块安装：`moon add walkzzz/image`。
+> mooncakes 包版本 `0.6.0` 对应 **workspace 六模块重构**后的主模块（mooncakes 上 0.5.0 为重构前最后版本）；功能迭代版本（v0.1 → v237.0.0+）历史见 [docs/changelog.md](docs/changelog.md)。主模块安装：`moon add walkzzz/image.mbt`。
 
 > [!TIP]
 > **子模块可独立安装**（按需轻量依赖）：
-> - `moon add walkzzz/core` — 基础类型（Image/Image16/ImageF/LoadError）
-> - `moon add walkzzz/codec` — 18 种格式编解码 + 颜色 + 元数据 + 条码
-> - `moon add walkzzz/process` — 90+ 图像算法子包
-> - `moon add walkzzz/photography` / `walkzzz/vision` / `walkzzz/domain` — 上层能力
+> - `moon add walkzzz/image.core` — 基础类型（Image/Image16/ImageF/LoadError）
+> - `moon add walkzzz/image.codec` — 18 种格式编解码 + 颜色 + 元数据 + 条码
+> - `moon add walkzzz/image.process` — 90+ 图像算法子包
+> - `moon add walkzzz/image.photography` / `walkzzz/image.vision` / `walkzzz/image.domain` — 上层能力
 
 ## 格式检测
 

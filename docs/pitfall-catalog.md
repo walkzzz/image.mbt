@@ -104,7 +104,7 @@
 
 ### I3 workspace 架构的发布陷阱：主模块依赖未发布的子模块 → registry 解析失败
 
-- **现象**：`moon publish --dry-run` 在**解包验证**阶段报 `Failed to resolve registry dependency 'walkzzz/core' for module 'walkzzz/image': module was not found in the registry`（六连报）。
+- **现象**：`moon publish --dry-run` 在**解包验证**阶段报 `Failed to resolve registry dependency 'walkzzz/image.core' for module 'walkzzz/image.mbt': module was not found in the registry`（六连报）。
 - **根因**：本地 moon.work 组合解析成功，但 publish 的干净环境验证从 registry 拉子模块——子模块从未发布。
 - **判别**：dry-run 输出的 `Caused by: Failed to resolve registry dependency` 清单。
 - **修法**：**按依赖顺序发布子模块**（core → codec → process → photography/vision → domain），每步之间 `moon update` 刷新本地 registry 索引（否则下一步仍找不到刚发布的依赖），最后发主模块。
@@ -138,7 +138,7 @@
 
 ### I7 主模块聚合器也可能有自己的包
 
-- **现象**：workspace 主模块（walkzzz/image）根目录存在 `moon.pkg`（import 为空）——根包是合法包，可直接承载 bench/CLI 代码。
+- **现象**：workspace 主模块（walkzzz/image.mbt）根目录存在 `moon.pkg`（import 为空）——根包是合法包，可直接承载 bench/CLI 代码。
 - **修法**：根 `moon.pkg` 加 import（如 bench 需要的子模块包）后即可在根包写代码。
 - **来源**：【实测】bench_real.mbt（根包 bench 块）。
 - **可自动化**：❌。

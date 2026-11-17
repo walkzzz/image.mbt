@@ -1,0 +1,185 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.process/enhance"
+
+import {
+  "walkzzz/image.core/types",
+}
+
+// Values
+pub fn bilateral_filter_denoise(@types.Image, Int32, Double, Double) -> @types.Image raise @types.LoadError
+
+pub fn calculate_brightness(@types.Image) -> Double raise @types.LoadError
+
+pub fn calculate_contrast(@types.Image) -> Double raise @types.LoadError
+
+pub fn calculate_noise_level(@types.Image) -> Double raise @types.LoadError
+
+pub fn calculate_sharpness(@types.Image) -> Double raise @types.LoadError
+
+pub fn create_default_denoise_config() -> DenoiseConfig
+
+pub fn create_rect_mask(Int32, Int32, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn dark_channel(@types.Image, patch_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn dehaze_advanced(@types.Image, config? : DehazeConfig) -> @types.Image raise @types.LoadError
+
+pub fn dehaze_default_config() -> DehazeConfig
+
+pub fn dehaze_recover(@types.Image, @types.Image, Array[Int32], t_min? : Double) -> @types.Image raise @types.LoadError
+
+pub fn denoise(@types.Image, String) -> @types.Image raise @types.LoadError
+
+pub fn denoise_algorithm_to_string(DenoiseAlgorithm) -> String
+
+pub fn denoise_bilateral(@types.Image, diameter? : Int32, sigma_color? : Double, sigma_space? : Double) -> @types.Image raise @types.LoadError
+
+pub fn denoise_image(@types.Image, DenoiseConfig) -> DenoiseResult raise @types.LoadError
+
+pub fn denoise_median(@types.Image, kernel_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn denoise_nlm(@types.Image, config? : NlmConfig) -> @types.Image raise @types.LoadError
+
+pub fn denoise_report_to_string(DenoiseResult) -> String
+
+pub fn enhance_image_advanced(@types.Image, EnhancementAlgorithm) -> EnhancementResult raise @types.LoadError
+
+pub fn estimate_atmospheric_light(@types.Image, @types.Image, top_percent? : Int32) -> Array[Int32] raise @types.LoadError
+
+pub fn estimate_transmission(@types.Image, Array[Int32], omega? : Double, patch_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn gamma_correction_enhance(@types.Image, Double) -> @types.Image raise @types.LoadError
+
+pub fn gaussian_filter_denoise(@types.Image, Int32, Double) -> @types.Image raise @types.LoadError
+
+pub fn guided_filter_image(@types.Image, @types.Image, radius? : Int32, eps? : Double) -> @types.Image raise @types.LoadError
+
+pub fn histogram_equalization_enhance(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn inpaint_advanced(@types.Image, @types.Image, radius? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn inpaint_default_config() -> InpaintConfig
+
+pub fn mean_filter_denoise(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn median_filter_denoise(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn nlm_default_config() -> NlmConfig
+
+pub fn remove_small_objects(@types.Image, max_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn remove_watermark(@types.Image, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn unsharp_mask_enhance(@types.Image, Double, Int32) -> @types.Image raise @types.LoadError
+
+// Errors
+
+// Types and methods
+pub(all) struct DehazeConfig {
+  patch_size : Int32
+  omega : Double
+  t_min : Double
+  guided_radius : Int32
+  guided_eps : Double
+  max_atmospheric : Int32
+}
+
+#non_exhaustive
+#derive(Eq)
+pub(all) enum DenoiseAlgorithm {
+  MeanFilter
+  MedianFilter
+  GaussianFilter
+  BilateralFilter
+  NonLocalMeans
+  WienerFilter
+  TotalVariation
+  WaveletDenoise
+  BM3D
+  DeepLearningDenoise
+  Unknown
+}
+pub fn DenoiseAlgorithm::equal(Self, Self) -> Bool
+pub fn DenoiseAlgorithm::not_equal(Self, Self) -> Bool
+
+pub(all) struct DenoiseConfig {
+  algorithm : DenoiseAlgorithm
+  strength : Double
+  kernel_size : Int32
+  sigma_color : Double
+  sigma_space : Double
+  search_window : Int32
+  patch_size : Int32
+  iterations : Int32
+}
+
+pub(all) struct DenoiseResult {
+  image : @types.Image
+  algorithm : DenoiseAlgorithm
+  noise_level_before : Double
+  noise_level_after : Double
+  psnr : Double
+  ssim : Double
+  processing_time_ms : Double
+  strength : Double
+}
+
+#non_exhaustive
+#derive(Eq)
+pub(all) enum EnhancementAlgorithm {
+  HistogramEqualization
+  CLAHE
+  GammaCorrection
+  UnsharpMask
+  Retinex
+  HomomorphicFiltering
+  ColorBalance
+  ContrastStretching
+  AdaptiveThreshold
+  DeepLearningEnhance
+  Unknown
+}
+pub fn EnhancementAlgorithm::equal(Self, Self) -> Bool
+pub fn EnhancementAlgorithm::not_equal(Self, Self) -> Bool
+
+pub(all) struct EnhancementResult {
+  image : @types.Image
+  algorithm : EnhancementAlgorithm
+  brightness_before : Double
+  brightness_after : Double
+  contrast_before : Double
+  contrast_after : Double
+  sharpness_before : Double
+  sharpness_after : Double
+  processing_time_ms : Double
+}
+
+pub(all) struct InpaintConfig {
+  radius : Int32
+  method_type : String
+  max_iterations : Int32
+}
+
+pub(all) struct NlmConfig {
+  search_window : Int32
+  patch_size : Int32
+  h : Double
+  sigma : Double
+}
+
+#non_exhaustive
+#derive(Eq)
+pub(all) enum NoiseType {
+  GaussianNoise
+  SaltAndPepper
+  SpeckleNoise
+  PoissonNoise
+  UniformNoise
+  Unknown
+}
+pub fn NoiseType::equal(Self, Self) -> Bool
+pub fn NoiseType::not_equal(Self, Self) -> Bool
+
+// Type aliases
+
+// Traits

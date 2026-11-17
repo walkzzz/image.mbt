@@ -1,6 +1,0 @@
-import {
-  "moonbitlang/core/debug",
-  "walkzzz/core/types",
-  "walkzzz/codec/codec",
-  "walkzzz/codec/color",
-}

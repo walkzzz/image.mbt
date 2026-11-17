@@ -1,4 +1,4 @@
-# Feature Specification: walkzzz/image 项目架构全面重构
+# Feature Specification: walkzzz/image.mbt 项目架构全面重构
 
 **Created**: 2026-11-12  
 **Status**: Draft  
@@ -6,13 +6,13 @@
 
 ## Overview
 
-walkzzz/image 是一个拥有 1338 公开函数 + 491 类型的纯 MoonBit 图像处理库，但当前架构存在严重的结构性问题：src/ 单体巨石与 modules/ 多模块工作空间并存且代码完全重复、33 个 `_advanced` 存根包未集成、功能重叠包散落各处、pure/ 迁移不完整、cv_advanced 巨型包未拆分、文档严重过时。本次重构的目标是完成从 src/ 单体到 modules/ 多模块工作空间的迁移，消除所有重复代码和存根包，全面重划功能域合并重叠包，打散 cv_advanced 到现有包，完成 pure/ 迁移，重构 reexport 模式，清理项目并更新文档，使项目达到可维护、可扩展、文档准确的工程标准。
+walkzzz/image.mbt 是一个拥有 1338 公开函数 + 491 类型的纯 MoonBit 图像处理库，但当前架构存在严重的结构性问题：src/ 单体巨石与 modules/ 多模块工作空间并存且代码完全重复、33 个 `_advanced` 存根包未集成、功能重叠包散落各处、pure/ 迁移不完整、cv_advanced 巨型包未拆分、文档严重过时。本次重构的目标是完成从 src/ 单体到 modules/ 多模块工作空间的迁移，消除所有重复代码和存根包，全面重划功能域合并重叠包，打散 cv_advanced 到现有包，完成 pure/ 迁移，重构 reexport 模式，清理项目并更新文档，使项目达到可维护、可扩展、文档准确的工程标准。
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 库用户通过 @image 访问完整 API（Priority: P1）
 
-库用户安装 `walkzzz/image` 包后，通过 `@image.xxx` 访问所有公开 API，行为与重构前完全一致。重构不应破坏任何现有的公开 API。
+库用户安装 `walkzzz/image.mbt` 包后，通过 `@image.xxx` 访问所有公开 API，行为与重构前完全一致。重构不应破坏任何现有的公开 API。
 
 **Why this priority**: API 兼容性是库项目的生命线，必须首先保证。
 
@@ -134,7 +134,7 @@ README 徽章、roadmap 头部、AGENTS.md 项目结构、rules.md 内容全部�
 
 1. **Given** README.md, **When** 检查徽章, **Then** 测试数量、API 数量、覆盖率均与实际一致
 2. **Given** AGENTS.md, **When** 检查项目结构, **Then** 准确反映 modules/ 多模块架构
-3. **Given** rules.md, **When** 检查内容, **Then** 规则适用于 walkzzz/image 项目（不是 GeoVerse）
+3. **Given** rules.md, **When** 检查内容, **Then** 规则适用于 walkzzz/image.mbt 项目（不是 GeoVerse）
 
 ---
 
@@ -156,7 +156,7 @@ README 徽章、roadmap 头部、AGENTS.md 项目结构、rules.md 内容全部�
 - **FR-001**: 项目必须从 src/ 单体架构迁移到 modules/ 多模块工作空间架构，src/ 目录最终被完全移除
 - **FR-002**: modules/ 下保持 6 个子模块（删除 image-advanced）：image-core, image-codec, image-process, image-photography, image-vision, image-domain
 - **FR-003**: 每个子模块必须遵循严格的层级依赖：image-core(0层) → image-codec(1层) → image-process(2层) → image-photography/image-vision(3层) → image-domain(4层)
-- **FR-004**: 根包 `walkzzz/image` 必须作为统一门面，用户通过 `@image.xxx` 访问全部公开 API
+- **FR-004**: 根包 `walkzzz/image.mbt` 必须作为统一门面，用户通过 `@image.xxx` 访问全部公开 API
 - **FR-005**: 重构后必须保持所有现有公开 API 的签名和行为不变（允许内部包路径变更）
 - **FR-017**: 每个子模块必须有独立的 moon.mod（声明依赖）、moon.pkg（包配置）、cmd/main（独立测试入口）
 
@@ -193,7 +193,7 @@ README 徽章、roadmap 头部、AGENTS.md 项目结构、rules.md 内容全部�
 
 - **FR-011**: 必须更新 README.md 徽章数据使其与实际测试结果一致
 - **FR-012**: 必须更新 AGENTS.md 项目结构使其准确反映 modules/ 多模块架构
-- **FR-013**: 必须重写 rules.md 使其适用于 walkzzz/image 项目（当前内容为 GeoVerse 项目的规则）
+- **FR-013**: 必须重写 rules.md 使其适用于 walkzzz/image.mbt 项目（当前内容为 GeoVerse 项目的规则）
 - **FR-014**: 必须更新 docs/roadmap.md 头部数据（版本号、测试数量、覆盖率）
 
 **质量保证**

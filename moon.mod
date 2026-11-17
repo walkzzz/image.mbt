@@ -1,6 +1,6 @@
-name = "walkzzz/image"
+name = "walkzzz/image.mbt"
 
-version = "0.6.1"
+version = "0.1.0"
 
 license = "MIT"
 
@@ -29,10 +29,10 @@ preferred_target = "native"
 readme = "README.md"
 
 import {
-  "walkzzz/core@0.1.0",
-  "walkzzz/codec@0.1.0",
-  "walkzzz/process@0.1.0",
-  "walkzzz/photography@0.1.0",
-  "walkzzz/vision@0.1.0",
-  "walkzzz/domain@0.1.0",
+  "walkzzz/image.core@0.1.0",
+  "walkzzz/image.codec@0.1.0",
+  "walkzzz/image.process@0.1.0",
+  "walkzzz/image.photography@0.1.0",
+  "walkzzz/image.vision@0.1.0",
+  "walkzzz/image.domain@0.1.0",
 }

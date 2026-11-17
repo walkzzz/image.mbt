@@ -1,0 +1,127 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.photography/inpainting"
+
+import {
+  "moonbitlang/core/debug",
+  "walkzzz/image.core/types",
+}
+
+// Values
+pub fn create_default_inpainting_config() -> InpaintingConfig
+
+pub fn create_rect_mask(Int32, Int32, Int32, Int32, Int32, Int32) -> @types.Image
+
+pub fn dehaze(@types.Image, DehazeAlgorithm) -> DehazeResult
+
+pub fn dehaze_clahe(@types.Image, Double, Int32) -> @types.Image
+
+pub fn dehaze_dark_channel(@types.Image, Double, Double) -> DehazeResult
+
+pub fn derain(@types.Image, DerainAlgorithm) -> DerainResult
+
+pub fn derain_morphological(@types.Image) -> DerainResult
+
+pub fn inpaint(@types.Image, @types.Image, InpaintingConfig) -> InpaintingResult
+
+pub fn inpaint_diffusion(@types.Image, @types.Image, Int32) -> @types.Image
+
+pub fn inpaint_simple(@types.Image, @types.Image, Int32) -> @types.Image
+
+pub fn inpainting_report_to_string(InpaintingResult) -> String
+
+// Errors
+
+// Types and methods
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum DehazeAlgorithm {
+  DarkChannelPrior
+  ColorAttenuation
+  HomomorphicFiltering
+  Retinex
+  CLAHE
+  Unknown
+}
+pub fn DehazeAlgorithm::equal(Self, Self) -> Bool
+pub fn DehazeAlgorithm::not_equal(Self, Self) -> Bool
+pub fn DehazeAlgorithm::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct DehazeResult {
+  image : @types.Image
+  algorithm : DehazeAlgorithm
+  atmospheric_light : Double
+  transmission_map : Array[Double]
+  processing_time_ms : Double
+}
+pub fn DehazeResult::equal(Self, Self) -> Bool
+pub fn DehazeResult::not_equal(Self, Self) -> Bool
+pub fn DehazeResult::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum DerainAlgorithm {
+  DictionaryLearning
+  ConvolutionalNeuralNetwork
+  GAN
+  Morphological
+  Unknown
+}
+pub fn DerainAlgorithm::equal(Self, Self) -> Bool
+pub fn DerainAlgorithm::not_equal(Self, Self) -> Bool
+pub fn DerainAlgorithm::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct DerainResult {
+  image : @types.Image
+  algorithm : DerainAlgorithm
+  rain_streaks_removed : Int32
+  processing_time_ms : Double
+}
+pub fn DerainResult::equal(Self, Self) -> Bool
+pub fn DerainResult::not_equal(Self, Self) -> Bool
+pub fn DerainResult::to_repr(Self) -> @debug.Repr
+
+#non_exhaustive
+#derive(Eq, @debug.Debug)
+pub(all) enum InpaintingAlgorithm {
+  Telea
+  NavierStokes
+  FastMarching
+  PatchMatch
+  DeepLearning
+  Unknown
+}
+pub fn InpaintingAlgorithm::equal(Self, Self) -> Bool
+pub fn InpaintingAlgorithm::not_equal(Self, Self) -> Bool
+pub fn InpaintingAlgorithm::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct InpaintingConfig {
+  algorithm : InpaintingAlgorithm
+  radius : Int32
+  iterations : Int32
+  use_edge_preservation : Bool
+  tolerance : Double
+}
+pub fn InpaintingConfig::equal(Self, Self) -> Bool
+pub fn InpaintingConfig::not_equal(Self, Self) -> Bool
+pub fn InpaintingConfig::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct InpaintingResult {
+  image : @types.Image
+  mask : @types.Image
+  algorithm : InpaintingAlgorithm
+  inpainted_pixels : Int32
+  total_mask_pixels : Int32
+  processing_time_ms : Double
+  iterations : Int32
+}
+pub fn InpaintingResult::equal(Self, Self) -> Bool
+pub fn InpaintingResult::not_equal(Self, Self) -> Bool
+pub fn InpaintingResult::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits
