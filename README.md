@@ -12,7 +12,7 @@
 [![Version](https://img.shields.io/badge/version-0.1.0-orange)]()
 [![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.0-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_576×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_580×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-90.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
@@ -45,7 +45,7 @@
 - **演化推荐引擎**：根据当前状态推荐下一步演化方向（v298）
 - **覆盖盲区分析**：自动定位测试覆盖盲区（v297）
 
-> 意义：评审看到的每个版本测试数增长（3378 → 6574）背后，有一条**可复现的自动化工程流水线**——这是"工程质量"维度最硬的证据，也是 stb_image.h 等 C 参照项目不具备的能力。
+> 意义：评审看到的每个版本测试数增长（3378 → 6574 → 6580，含包重命名重构期与 mp4 包修复期）背后，有一条**可复现的自动化工程流水线**——这是"工程质量"维度最硬的证据，也是 stb_image.h 等 C 参照项目不具备的能力。
 
 ---
 

@@ -25,8 +25,11 @@
 - 旧名包（walkzzz/image@0.6.0 及六子模块@0.1.0）在 mooncakes 上保留可装，不再更新
 - 版本号重新计数：新名包首发 0.1.0
 
+### Fixed
+- mp4 包修复（上次提交遗留的不可编译半成品）：补齐缺失的大端字节读取原语 `read_u32`/`read_u64`；`parse_chunk_offsets` 的 stco 按规范读 32 位字段（原误用 64 位读取污染偏移值）；`compute_sample_offset` 修正 chunk 首样本 1-based 偏移并补数组下界保护；白盒测试合成数据修正（stbl 子 box 缺 header 包装、stsc 条目缺 sdi 字段且 first_chunk/samples_per_chunk 字段顺序颠倒）
+
 ### Verified
-- `moon check --deny-warn --target all` 零警告；`moon test` 四目标 6576/6576 全绿
+- `moon check --deny-warn --target all` 零警告；`moon test` 四目标 6580/6580 全绿
 - `moon info` 重新生成 `.mbti`：仅 `package` 路径行变化，公共 API 符号零变化
 - 目录树/徽章/文档/脚本同步更新（136 文件批量替换 + 人工治理）
 

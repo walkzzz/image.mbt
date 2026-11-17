@@ -7,31 +7,40 @@
 ///       帧图像提取由外部工具（ffmpeg）完成——见 cmd/video-keyframes。
 /// ============================================================================
 
-///| MP4 解析错误。
+///|
+/// MP4 解析错误。
 pub(all) suberror Mp4Error {
   InvalidBox(String)
   Truncated(String)
   NoVideoTrack(String)
 }
 
-///| MP4 视频轨关键帧信息集合。
+///|
+/// MP4 视频轨关键帧信息集合。
 pub(all) struct Mp4Info {
   timescale : Int32
-  sample_count : Int
-  keyframe_count : Int
+  sample_count : Int32
+  keyframe_count : Int32
   duration_ms : Int64
   keyframes : Array[KeyframeInfo]
 }
 
 ///| 提取视频轨关键帧信息。
-///| 管线：moov → traks（hdlr 判定 vide）→ mdia/minf/stbl → 采样表组装。
+
+///|
+/// 管线：moov → traks（hdlr 判定 vide）→ mdia/minf/stbl → 采样表组装。
 pub fn extract_video_keyframes(data : Bytes) -> Mp4Info raise Mp4Error {
   let total = data.length()
   let moov = match find_box(data, 0, total, "moov") {
     Some(b) => b
     None => raise Mp4Error::NoVideoTrack("no moov box found")
   }
-  let traks = collect_boxes(data, moov.payload_start, moov.start + moov.size, "trak")
+  let traks = collect_boxes(
+    data,
+    moov.payload_start,
+    moov.start + moov.size,
+    "trak",
+  )
   if traks.is_empty() {
     raise Mp4Error::NoVideoTrack("no trak box found in moov")
   }
@@ -64,21 +73,15 @@ pub fn extract_video_keyframes(data : Bytes) -> Mp4Info raise Mp4Error {
     Some(b) => parse_stss(b.payload_start, b.start + b.size, data)
     None => {
       // 无 stss：全部样本均为关键帧（all-sync 视频）
-      let all : Array[Int] = []
-      for i in 1..=sample_count {
+      let all : Array[Int32] = []
+      for i in 1..<=sample_count {
         all.push(i)
       }
       all
     }
   }
   let keyframes = assemble_keyframes(
-    data,
-    keyframe_samples,
-    sizes,
-    stsc_entries,
-    chunk_offsets,
-    stts_box,
-    timescale,
+    data, keyframe_samples, sizes, stsc_entries, chunk_offsets, stts_box, timescale,
   )
   let duration_ms = track_duration_ms(stts_box, data, sample_count, timescale)
   {
@@ -90,8 +93,12 @@ pub fn extract_video_keyframes(data : Bytes) -> Mp4Info raise Mp4Error {
   }
 }
 
-///| 在 moov 内找 handler_type == 'vide' 的视频轨（返回其 stbl 与 timescale）。
-fn find_video_stbl(data : Bytes, traks : Array[Mp4Box]) -> (Mp4Box, Int32) raise Mp4Error {
+///|
+/// 在 moov 内找 handler_type == 'vide' 的视频轨（返回其 stbl 与 timescale）。
+fn find_video_stbl(
+  data : Bytes,
+  traks : Array[Mp4Box],
+) -> (Mp4Box, Int32) raise Mp4Error {
   for trak in traks {
     let trak_end = trak.start + trak.size
     let mdia = match find_box(data, trak.payload_start, trak_end, "mdia") {
@@ -125,7 +132,8 @@ fn find_video_stbl(data : Bytes, traks : Array[Mp4Box]) -> (Mp4Box, Int32) raise
   raise Mp4Error::NoVideoTrack("no video track (hdlr handler_type != 'vide')")
 }
 
-///| 关键帧元数据 JSON 输出。
+///|
+/// 关键帧元数据 JSON 输出。
 pub fn keyframes_to_json(info : Mp4Info) -> String {
   let buf : StringBuilder = StringBuilder()
   buf.write_string(

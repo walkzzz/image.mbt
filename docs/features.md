@@ -1,6 +1,6 @@
 # 功能一览
 
-> 从 README 提取。1338 个公开函数 + 1 常量按分类概览，完整签名见 [api_reference.md](api_reference.md)。
+> 从 README 提取。全仓 3764 公开函数 + 712 类型（.mbti 口径，72 包）按分类概览；本表为核心编解码/处理分类，完整签名见 [api_reference.md](api_reference.md) 与各包 `pkg.generated.mbti`。
 
 | 分类 | 关键函数 | 说明 |
 |------|---------|------|
@@ -18,3 +18,7 @@
 | **形态学** | `erode`, `dilate`, `morph_open`, `skeletonize` | 腐蚀/膨胀/开闭运算/骨架化 |
 | **频域** | `fft_2d`, `dct_2d`, `haar_transform_2d`, `freq_filter` | FFT/DCT/Haar 小波/频率滤波 |
 | **质量** | `mse`, `psnr`, `ssim`, `compute_stats` | MSE/PSNR/SSIM/统计 |
+| **视频容器** | `extract_video_keyframes`, `keyframes_to_json`（mp4 包） | ISO BMFF box 解析 + stss/stsz/stsc/stco/stts 关键帧定位（样本号/时间戳/大小/文件偏移） |
+| **OCR/CV 全链路** | image.vision 12 子包 | OCR/人脸/姿态/SLAM/视频/场景理解等（详见 image.vision 各子包 .mbti） |
+| **计算摄影** | image.photography 11 子包 | HDR/超分/融合/拼接/风格迁移/修复等 |
+| **领域应用** | image.domain 16 子包 | 医学/遥感/加密/水印/取证/配准/检索等 |

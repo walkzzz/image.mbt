@@ -2,60 +2,57 @@
 /// ISO BMFF (MP4) box 结构解析 — 纯 MoonBit 零依赖实现。
 /// ============================================================================
 
-///| 4 字节 ASCII fourcc → String。
-fn fourcc(data : Bytes, offset : Int) -> String {
+///|
+/// 4 字节 ASCII fourcc → String（非 Unicode scalar 字节以 U+FFFD 占位，保证不匹配任何已知 box 类型）。
+fn fourcc(data : Bytes, offset : Int32) -> String {
   String::from_array([
-    Char::from_int(data[offset].to_int()),
-    Char::from_int(data[offset + 1].to_int()),
-    Char::from_int(data[offset + 2].to_int()),
-    Char::from_int(data[offset + 3].to_int()),
+    data[offset].to_int().to_char().unwrap_or('\u{FFFD}'),
+    data[offset + 1].to_int().to_char().unwrap_or('\u{FFFD}'),
+    data[offset + 2].to_int().to_char().unwrap_or('\u{FFFD}'),
+    data[offset + 3].to_int().to_char().unwrap_or('\u{FFFD}'),
   ])
 }
 
-///| u32 大端写回（测试合成用）。
-fn write_u32(arr : Array[Byte], v : Int) -> Unit {
-  arr.push(((v >> 24) & 0xFF).to_byte())
-  arr.push(((v >> 16) & 0xFF).to_byte())
-  arr.push(((v >> 8) & 0xFF).to_byte())
-  arr.push((v & 0xFF).to_byte())
+///|
+/// u32 大端读取（ISO BMFF 长度/计数字段）。
+fn read_u32(data : Bytes, offset : Int32) -> Int32 {
+  (data[offset].to_int() << 24) |
+  (data[offset + 1].to_int() << 16) |
+  (data[offset + 2].to_int() << 8) |
+  data[offset + 3].to_int()
 }
 
-///| 4 字符字符串 → 字节（fourcc 写入）。
-fn fourcc_bytes(s : String) -> Array[Byte] {
-  let arr : Array[Byte] = []
-  for c in s {
-    arr.push(c.to_int().to_byte())
-  }
-  arr
+///|
+/// u64 大端读取（largesize / co64 偏移）。
+fn read_u64(data : Bytes, offset : Int32) -> Int64 {
+  (Int64::from_int(data[offset].to_int() & 0xFF) << 56) |
+  (Int64::from_int(data[offset + 1].to_int() & 0xFF) << 48) |
+  (Int64::from_int(data[offset + 2].to_int() & 0xFF) << 40) |
+  (Int64::from_int(data[offset + 3].to_int() & 0xFF) << 32) |
+  (Int64::from_int(data[offset + 4].to_int() & 0xFF) << 24) |
+  (Int64::from_int(data[offset + 5].to_int() & 0xFF) << 16) |
+  (Int64::from_int(data[offset + 6].to_int() & 0xFF) << 8) |
+  Int64::from_int(data[offset + 7].to_int() & 0xFF)
 }
 
-///| 解析出的 MP4 box。
+///|
+/// 解析出的 MP4 box。
 pub(all) struct Mp4Box {
   box_type : String
-  start : Int
-  payload_start : Int
-  size : Int
+  start : Int32
+  payload_start : Int32
+  size : Int32
 }
 
-///| 判断是否为 container box（payload 内为子 box 序列）。
-fn is_container(ty : String) -> Bool {
-  ty == "moov" ||
-  ty == "trak" ||
-  ty == "mdia" ||
-  ty == "minf" ||
-  ty == "stbl" ||
-  ty == "edts" ||
-  ty == "mvex"
-}
-
-///| 在 [start, end) 范围内**单层遍历** box 序列，对每个 box 调用 f。
+///|
+/// 在 [start, end) 范围内**单层遍历** box 序列，对每个 box 调用 f。
 fn walk_boxes_one_level(
   data : Bytes,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   f : (Mp4Box) -> Unit,
 ) -> Unit {
-  var off = start
+  let mut off = start
   while off + 8 <= end {
     let size = read_u32(data, off)
     let ty = fourcc(data, off + 4)
@@ -77,12 +74,7 @@ fn walk_boxes_one_level(
     if off + total > end {
       return // 截断
     }
-    f({
-      box_type: ty,
-      start: off,
-      payload_start: off + header,
-      size: total,
-    })
+    f({ box_type: ty, start: off, payload_start: off + header, size: total, })
     if size == 0 {
       return
     }
@@ -90,13 +82,9 @@ fn walk_boxes_one_level(
   }
 }
 
-///| 在 [start, end) 单层查找指定类型的第一个 box。
-fn find_box(
-  data : Bytes,
-  start : Int,
-  end : Int,
-  ty : String,
-) -> Mp4Box? {
+///|
+/// 在 [start, end) 单层查找指定类型的第一个 box。
+fn find_box(data : Bytes, start : Int32, end : Int32, ty : String) -> Mp4Box? {
   let mut result : Mp4Box? = None
   walk_boxes_one_level(data, start, end, fn(b) {
     if b.box_type == ty {
@@ -109,11 +97,12 @@ fn find_box(
   result
 }
 
-///| 在 [start, end) 单层收集指定类型的全部 box（如多 trak）。
+///|
+/// 在 [start, end) 单层收集指定类型的全部 box（如多 trak）。
 fn collect_boxes(
   data : Bytes,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   ty : String,
 ) -> Array[Mp4Box] {
   let arr : Array[Mp4Box] = []
@@ -125,27 +114,14 @@ fn collect_boxes(
   arr
 }
 
-///| 遍历 container box 的 payload（单层子 box）。
-fn children_of(data : Bytes, b : Mp4Box) -> (Int, Int) {
-  (b.payload_start, b.start + b.size)
-}
-
-///| 读取 box payload 的指定偏移处的 u32（相对 payload_start）。
-fn payload_u32(data : Bytes, b : Mp4Box, rel : Int) -> Int {
-  read_u32(data, b.payload_start + rel)
-}
-
-///| 读取 box payload 的指定偏移处的 u64。
-fn payload_u64(data : Bytes, b : Mp4Box, rel : Int) -> Int64 {
-  read_u64(data, b.payload_start + rel)
-}
-
-///| 绝对偏移 u32 读取。
-fn payload_u32_at(data : Bytes, base : Int, rel : Int) -> Int {
+///|
+/// 绝对偏移 u32 读取。
+fn payload_u32_at(data : Bytes, base : Int32, rel : Int32) -> Int32 {
   read_u32(data, base + rel)
 }
 
-///| 绝对偏移 u64 读取。
-fn payload_u64_at(data : Bytes, base : Int, rel : Int) -> Int64 {
+///|
+/// 绝对偏移 u64 读取。
+fn payload_u64_at(data : Bytes, base : Int32, rel : Int32) -> Int64 {
   read_u64(data, base + rel)
 }

@@ -5,7 +5,21 @@
 
 ---
 
-## 一、评估快照（全部实测）
+## 〇、复评摘要（2026-11-17 · 0.1.0 包重命名重构版）
+
+| 维度 | 实测结果 | 判定 |
+|---|---|---|
+| 重命名验收 | walkzzz/image → walkzzz/image.mbt，六子模块 image.* 前缀，目录同步改名；`.mbti` 公共 API 符号零变化（仅 package 路径行） | ✅ |
+| 测试 | **6580/6580 × native/wasm-gc/js/wasm 全绿**（mp4 修复新增 4 测试） | ✅ |
+| 编译 | `moon check --deny-warn --target all` 零警告 | ✅ |
+| mp4 包 | 上次提交半成品已修复（read_u32/u64 补齐、stco 32 位读取、样本偏移 1-based、测试数据构造），4/4 测试绿 | ✅ |
+| 文档同步 | README 双语迁移章节 + docs 全量复评（本文档）+ CHANGELOG 0.1.0 Breaking 条目 | ✅ |
+| 形式化 | safe_math 8 goals（本机缺 SMT solver，prove 回归移交 CI） | ⚠️ 待复跑 |
+| 版本 | 新名包 0.1.0 重新计数发布（mooncakes 旧名包保留不再更新） | ✅ |
+
+---
+
+## 一、评估快照（2026-11-13，全部实测）
 
 | 维度 | 实测结果 | README/文档声称 | 判定 |
 |---|---|---|---|

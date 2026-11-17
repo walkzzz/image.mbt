@@ -1,6 +1,19 @@
 # 变更日志
 
-> 下表为**功能迭代版本**（v0.1 → v237.0.0）演进历史。mooncakes **包版本**为 `0.5.0`（mooncakes 早期阶段 0.x.y 格式），对应最新功能版本 v237.0.0。
+> 下表为**功能迭代版本**（v0.1 → v237.0.0）演进历史。mooncakes **包版本**现为 `0.1.0`（包重命名重构版：walkzzz/image → walkzzz/image.mbt，六子模块 image.* 前缀，版本重新计数；旧名包 walkzzz/image@0.6.0 等保留不再更新），对应最新功能版本 v237.0.0。
+
+## 0.1.0 (2026-11-17) — 包重命名重构版
+
+### Breaking（破坏性变更，迁移方案见 README）
+- 模块重命名：walkzzz/image → **walkzzz/image.mbt**；六子模块统一 image.* 前缀（walkzzz/image.core 等）；子模块目录同步改名（core/ → image.core/ 等）
+- 版本号重新计数：新名包首发 0.1.0（根模块自 0.6.1）；API 零变化（.mbti 仅 package 路径行变化）
+
+### Fixed
+- mp4 包修复（上次提交遗留的不可编译半成品）：补齐缺失的大端字节读取原语 `read_u32`/`read_u64`；`parse_chunk_offsets` 的 stco 按规范读 32 位字段；`compute_sample_offset` 修正 chunk 首样本 1-based 偏移并补数组下界保护；白盒测试合成数据修正（stbl 子 box 缺 header 包装、stsc 条目缺 sdi 字段且 first_chunk/samples_per_chunk 字段顺序颠倒）
+
+### Verified
+- `moon check --deny-warn --target all` 零警告；`moon test` 四目标 6580/6580 全绿
+- `moon info` 重新生成 `.mbti`：公共 API 符号零变化；README 双语迁移章节 + docs 全量同步
 
 ## v0.5.1 (2026-11-13)
 

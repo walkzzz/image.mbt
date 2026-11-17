@@ -5,7 +5,7 @@
 ## 版本与安装
 
 > [!NOTE]
-> mooncakes 包版本 `0.6.0` 对应 **workspace 六模块重构**后的主模块（mooncakes 上 0.5.0 为重构前最后版本）；功能迭代版本（v0.1 → v237.0.0+）历史见 [docs/changelog.md](docs/changelog.md)。主模块安装：`moon add walkzzz/image.mbt`。
+> mooncakes 包版本 `0.1.0` 对应**包重命名重构版**（walkzzz/image → walkzzz/image.mbt，六子模块 image.* 前缀，版本重新计数；旧名 walkzzz/image@0.6.0 已发布不再更新）；功能迭代版本（v0.1 → v237.0.0+）历史见 [changelog.md](changelog.md)。主模块安装：`moon add walkzzz/image.mbt`。
 
 > [!TIP]
 > **子模块可独立安装**（按需轻量依赖）：
@@ -23,10 +23,10 @@
 ## 多目标测试
 
 > [!NOTE]
-> 四目标（native / wasm-gc / js / wasm）均使用同一套纯 MoonBit 代码，各 **6574 测试**全部通过，覆盖率 90.4%，`moon check --deny-warn` 零警告。
+> 四目标（native / wasm-gc / js / wasm）均使用同一套纯 MoonBit 代码，各 **6580 测试**全部通过，覆盖率 90.4%，`moon check --deny-warn` 零警告。
 
 > [!TIP]
-> 四目标共用 workspace（core/codec/process/photography/vision/domain）同一套代码，无任何条件编译或目标分支。
+> 四目标共用 workspace（image.core/image.codec/image.process/image.photography/image.vision/image.domain）同一套代码，无任何条件编译或目标分支。
 
 ## 安全约束
 
@@ -81,6 +81,8 @@ flowchart LR
 ## 版本更新摘要
 
 > [!TIP]
+> **0.1.0（包重命名重构版）** — walkzzz/image → walkzzz/image.mbt · 六子模块统一 image.* 前缀（目录同步改名）· 版本重新计数 · API 零变化（.mbti 仅路径行变化）· README 双语迁移章节 · mp4 包修复完成（6580 测试 × 4 全绿）
+>
 > **0.6.0（workspace 重构）** — src/ 单体 → 六模块 workspace · 根 CHANGELOG · CI `--deny-warn` 零警告门禁 · badge 数据实测对齐（6574 测试 / 8 goals）· 子模块独立安装 · 自演化叙事（中英）
 >
-> 完整功能迭代历史见 [docs/changelog.md](docs/changelog.md)。
+> 完整功能迭代历史见 [changelog.md](changelog.md)。

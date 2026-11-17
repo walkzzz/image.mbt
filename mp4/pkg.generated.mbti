@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.mbt/mp4"
+
+// Values
+pub fn extract_video_keyframes(Bytes) -> Mp4Info raise Mp4Error
+
+pub fn keyframes_to_json(Mp4Info) -> String
+
+// Errors
+pub(all) suberror Mp4Error {
+  InvalidBox(String)
+  Truncated(String)
+  NoVideoTrack(String)
+}
+
+// Types and methods
+pub(all) struct KeyframeInfo {
+  sample_number : Int32
+  timestamp_ms : Int64
+  size : Int32
+  offset : Int64
+}
+
+pub(all) struct Mp4Box {
+  box_type : String
+  start : Int32
+  payload_start : Int32
+  size : Int32
+}
+
+pub(all) struct Mp4Info {
+  timescale : Int32
+  sample_count : Int32
+  keyframe_count : Int32
+  duration_ms : Int64
+  keyframes : Array[KeyframeInfo]
+}
+
+pub(all) struct VideoTrackInfo {
+  track_count : Int32
+  timescale : Int32
+  sample_count : Int32
+  keyframe_count : Int32
+  keyframes : Array[KeyframeInfo]
+  duration_ms : Int64
+}
+
+// Type aliases
+
+// Traits

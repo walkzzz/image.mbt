@@ -1,20 +1,20 @@
-# image 架构文档
+# image.mbt 架构文档
 
-> 版本 0.5.0 | 1504 函数 + 508 类型 | 6486 测试 × 4 目标 (native/wasm-gc/js/wasm)
+> 版本 0.1.0（包重命名重构版：walkzzz/image → walkzzz/image.mbt，功能版本 v237.0.0）| 3764 公开函数 + 712 公开类型（.mbti 口径，72 包）| 6580 测试 × 4 目标 (native/wasm-gc/js/wasm)
 
 ## 概述
 
-image 是纯 MoonBit 图像处理库，无 C FFI 依赖，提供完整的图像解码/编码/缩放/处理能力。采用**多模块工作空间架构**，6 个子模块严格分层，用户直接 import 子模块包访问 API。
+walkzzz/image.mbt 是纯 MoonBit 图像处理库，无 C FFI 依赖，提供完整的图像解码/编码/缩放/处理能力。采用**多模块工作空间架构**，6 个子模块严格分层，用户直接 import 子模块包访问 API。
 
 ## 架构总览
 
 ```mermaid
 graph TD
-    CORE["core<br/>Layer 0"] --> CODEC["codec<br/>Layer 1"]
-    CODEC --> PROCESS["process<br/>Layer 2"]
-    PROCESS --> PHOTO["photography<br/>Layer 3a"]
-    PROCESS --> VISION["vision<br/>Layer 3b"]
-    VISION --> DOMAIN["domain<br/>Layer 4"]
+    CORE["image.core<br/>Layer 0"] --> CODEC["image.codec<br/>Layer 1"]
+    CODEC --> PROCESS["image.process<br/>Layer 2"]
+    PROCESS --> PHOTO["image.photography<br/>Layer 3a"]
+    PROCESS --> VISION["image.vision<br/>Layer 3b"]
+    VISION --> DOMAIN["image.domain<br/>Layer 4"]
     
     style CORE fill:#4CAF50,color:#fff
     style CODEC fill:#2196F3,color:#fff
@@ -26,7 +26,7 @@ graph TD
 
 ## 模块详情
 
-### core — Layer 0: 基础类型
+### image.core — Layer 0: 基础类型
 
 | 包 | 功能 |
 |----|------|
@@ -34,7 +34,7 @@ graph TD
 
 **依赖**: 无（零外部依赖）
 
-### codec — Layer 1: 编解码
+### image.codec — Layer 1: 编解码
 
 | 包 | 功能 |
 |----|------|
@@ -47,7 +47,7 @@ graph TD
 
 **依赖**: → core
 
-### process — Layer 2: 图像处理算法
+### image.process — Layer 2: 图像处理算法
 
 | 包 | 功能 |
 |----|------|
@@ -64,7 +64,7 @@ graph TD
 
 **依赖**: → core + codec
 
-### photography — Layer 3a: 计算摄影
+### image.photography — Layer 3a: 计算摄影
 
 | 包 | 功能 |
 |----|------|
@@ -82,7 +82,7 @@ graph TD
 
 **依赖**: → core + codec + process
 
-### vision — Layer 3b: 计算机视觉
+### image.vision — Layer 3b: 计算机视觉
 
 | 包 | 功能 |
 |----|------|
@@ -101,7 +101,7 @@ graph TD
 
 **依赖**: → core + codec + process
 
-### domain — Layer 4: 领域应用
+### image.domain — Layer 4: 领域应用
 
 | 包 | 功能 |
 |----|------|
@@ -142,7 +142,7 @@ let blurred : Image = @filter.gaussian_blur(img, 3.0)
 ```json5
 // moon.work
 {
-  "members": [".", "core", "codec", "process", "photography", "vision", "domain"]
+  "members": [".", "image.core", "image.codec", "image.process", "image.photography", "image.vision", "image.domain"]
 }
 ```
 
@@ -150,24 +150,26 @@ let blurred : Image = @filter.gaussian_blur(img, 3.0)
 // moon.mod (根模块)
 {
   "name": "walkzzz/image.mbt",
-  "version": "0.5.0"
+  "version": "0.1.0"
 }
 ```
 
 ```json5
-// core/moon.mod
+// image.core/moon.mod
 {
   "name": "walkzzz/image.core"
 }
 ```
 
 ```json5
-// codec/moon.mod
+// image.codec/moon.mod
 {
   "name": "walkzzz/image.codec",
   "import": { "walkzzz/image.core": "0.1.0" }
 }
 ```
+
+> **根模块附属包**：`mp4/`（ISO BMFF 容器解析，视频轨关键帧定位，属根模块 walkzzz/image.mbt 的直接子包，不在六子模块分层内）。
 
 ## 设计决策
 
