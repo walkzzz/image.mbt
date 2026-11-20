@@ -11,7 +11,7 @@ designs-tech/
 deliberations/
 instructions/
 requirements/
-scripts/
+scripts/_build/
 governances/
 pdc/
 vitepress-docs/node_modules/

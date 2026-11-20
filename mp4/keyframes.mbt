@@ -104,9 +104,7 @@ fn parse_chunk_offsets(
       for i in 0..<entry_count {
         if b.payload_start + 8 + i * 4 + 4 <= b.start + b.size {
           // stco：32 位 chunk 偏移
-          arr.push(
-            Int64::from_int(payload_u32_at(data, b.payload_start, 8 + i * 4)),
-          )
+          arr.push(payload_u32_at(data, b.payload_start, 8 + i * 4).to_int64())
         }
       }
     }
@@ -152,17 +150,15 @@ fn stts_timestamp_ms(
     let count = payload_u32_at(data, count_base, 0)
     let duration = payload_u32_at(data, count_base, 4)
     if count >= remaining {
-      elapsed_units = elapsed_units +
-        Int64::from_int(duration) * Int64::from_int(remaining)
+      elapsed_units = elapsed_units + duration.to_int64() * remaining.to_int64()
       break
     } else {
-      elapsed_units = elapsed_units +
-        Int64::from_int(duration) * Int64::from_int(count)
+      elapsed_units = elapsed_units + duration.to_int64() * count.to_int64()
       remaining = remaining - count
     }
   }
   if timescale > 0 {
-    elapsed_units * 1000 / Int64::from_int(timescale)
+    elapsed_units * 1000 / timescale.to_int64()
   } else {
     elapsed_units
   }
@@ -226,7 +222,7 @@ fn compute_sample_offset(
         1
       for s in chunk_first_sample..<sample_number {
         if s >= 1 && s - 1 < sizes.length() {
-          base = base + Int64::from_int(sizes[s - 1])
+          base = base + sizes[s - 1].to_int64()
         }
       }
       let _ = within_chunk

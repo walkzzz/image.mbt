@@ -25,14 +25,14 @@ fn read_u32(data : Bytes, offset : Int32) -> Int32 {
 ///|
 /// u64 大端读取（largesize / co64 偏移）。
 fn read_u64(data : Bytes, offset : Int32) -> Int64 {
-  (Int64::from_int(data[offset].to_int() & 0xFF) << 56) |
-  (Int64::from_int(data[offset + 1].to_int() & 0xFF) << 48) |
-  (Int64::from_int(data[offset + 2].to_int() & 0xFF) << 40) |
-  (Int64::from_int(data[offset + 3].to_int() & 0xFF) << 32) |
-  (Int64::from_int(data[offset + 4].to_int() & 0xFF) << 24) |
-  (Int64::from_int(data[offset + 5].to_int() & 0xFF) << 16) |
-  (Int64::from_int(data[offset + 6].to_int() & 0xFF) << 8) |
-  Int64::from_int(data[offset + 7].to_int() & 0xFF)
+  ((data[offset].to_int() & 0xFF).to_int64() << 56) |
+  ((data[offset + 1].to_int() & 0xFF).to_int64() << 48) |
+  ((data[offset + 2].to_int() & 0xFF).to_int64() << 40) |
+  ((data[offset + 3].to_int() & 0xFF).to_int64() << 32) |
+  ((data[offset + 4].to_int() & 0xFF).to_int64() << 24) |
+  ((data[offset + 5].to_int() & 0xFF).to_int64() << 16) |
+  ((data[offset + 6].to_int() & 0xFF).to_int64() << 8) |
+  (data[offset + 7].to_int() & 0xFF).to_int64()
 }
 
 ///|

@@ -52,7 +52,7 @@ pub fn integral_image(
   for y in 0..<h {
     let mut row_sum = 0L
     for x in 0..<w {
-      row_sum += Int64::from_int(data_int[(y * w + x) * ch])
+      row_sum += data_int[(y * w + x) * ch].to_int64()
       data[(y + 1) * iw + x + 1] = data[y * iw + x + 1] + row_sum
     }
   }
@@ -176,7 +176,7 @@ pub fn integral_image_sq(
   for y in 0..<h {
     let mut row_sum = 0L
     for x in 0..<w {
-      let v = Int64::from_int(data_int[(y * w + x) * ch])
+      let v = data_int[(y * w + x) * ch].to_int64()
       row_sum += v * v
       data[(y + 1) * iw + x + 1] = data[y * iw + x + 1] + row_sum
     }

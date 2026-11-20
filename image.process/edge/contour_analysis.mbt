@@ -212,8 +212,8 @@ pub fn image_moments(points : Array[ContourPoint]) -> Moments {
   let mut m12 = 0.0
   let mut m03 = 0.0
   for p in points {
-    let x = Double::from_int(p.x)
-    let y = Double::from_int(p.y)
+    let x = p.x.to_double()
+    let y = p.y.to_double()
     m00 += 1.0
     m10 += x
     m01 += y

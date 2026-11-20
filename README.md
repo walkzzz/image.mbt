@@ -1,8 +1,5 @@
 <div align="center">
 
-<!-- Hero Banner -->
-<img src="https://raw.githubusercontent.com/walkzzz/image/main/docs/assets/banner.svg" alt="image" width="480" />
-
 # **image**
 
 **纯 MoonBit 图像处理库** · 零 C 依赖 · 四目标原生支持
@@ -14,10 +11,10 @@
 
 [![Tests](https://img.shields.io/badge/tests-6_580×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
-[![Coverage](https://img.shields.io/badge/coverage-90.4%25-4CAF50?style=flat-square)]()
+[![Coverage](https://img.shields.io/badge/coverage-77.9%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-71-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-72-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-参赛项目-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 [English](README.en.md) · 简体中文
@@ -68,7 +65,7 @@
 
 ### 🟢 四目标原生
 
-native / wasm-gc / js / wasm 共用同一代码库，**无条件编译**。6,574 测试 × 4 目标全绿。形式化验证 8 goals proved（另有 8 条预留谓词，SMT 超时与前端限制清单见 core/safe_math）。
+native / wasm-gc / js / wasm 共用同一代码库，**无条件编译**。6,580 测试 × 4 目标全绿。形式化验证 8 goals proved（另有 8 条预留谓词，SMT 超时与前端限制清单见 core/safe_math）。
 
 </td>
 </tr>
@@ -125,7 +122,7 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 </td>
 <td width="50%">
 
-### 🟢 71 个子包
+### 🟢 72 个子包
 
 6 子模块 (core/codec/process/photography/vision/domain) · 用户直接 import 子包 · 根包仅门面
 
@@ -368,10 +365,10 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 
 | 目标 | 后端 | 测试 | 状态 |
 |:----:|:----:|-----:|:----:|
-| **native** | 纯 MoonBit | 6,486 | ✅ |
-| **wasm-gc** | 纯 MoonBit | 6,486 | ✅ |
-| **js** | 纯 MoonBit | 6,486 | ✅ |
-| **wasm** | 纯 MoonBit | 6,486 | ✅ |
+| **native** | 纯 MoonBit | 6,580 | ✅ |
+| **wasm-gc** | 纯 MoonBit | 6,580 | ✅ |
+| **js** | 纯 MoonBit | 6,580 | ✅ |
+| **wasm** | 纯 MoonBit | 6,580 | ✅ |
 
 > 同一代码库，**无条件编译**，四目标共用所有源码。
 
@@ -391,7 +388,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | 频域分析 | ❌ | ✅ (FFT/DCT/小波) |
 | 图像分割 | ❌ | ✅ (分水岭/SLIC/grabCut) |
 | OCR | ❌ | ✅ (全链路: 数字/英文/中文/表格/手写体) |
-| **形式化验证** | ❌ | ✅ (moon prove: 5 goals proved, 溢出安全/像素钳制/索引检查/旋转恒等) |
+| **形式化验证** | ❌ | ✅ (moon prove: 8 goals proved, 溢出安全/像素钳制/索引检查/旋转恒等) |
 | 内存安全 | 手动 | **GC 管理** |
 
 ---
@@ -422,7 +419,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 # 编译检查（四目标）
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# 运行测试（6,486 × 4 目标）
+# 运行测试（6,580 × 4 目标）
 moon test --target native
 moon test --target wasm-gc
 moon test --target js

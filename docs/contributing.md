@@ -9,8 +9,8 @@
 # 见 https://www.moonbitlang.com/download/
 
 # 克隆并验证
-git clone git@github.com:toadium/stb-image.git
-cd stb-image
+git clone git@github.com:walkzzz/image.mbt.git
+cd image.mbt
 moon check                          # 编译检查
 moon test --target native           # 运行测试（应 6580 通过）
 ```

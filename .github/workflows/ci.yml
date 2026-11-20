@@ -7,9 +7,9 @@ on:
     branches: [dev, main]
 
 jobs:
-  check:
-    name: Check + Test + Bench
-    runs-on: ubuntu-22.04
+  quality:
+    name: Quality gates (fmt / check / mbti / docs)
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -21,33 +21,112 @@ jobs:
       - name: Moon version
         run: moon version
 
-      - name: Check compilation
+      - name: Format check
+        run: moon fmt --check
+
+      - name: Check compilation (4 targets, deny warnings)
         run: |
           moon check --deny-warn --target native
           moon check --deny-warn --target wasm-gc
           moon check --deny-warn --target js
           moon check --deny-warn --target wasm
 
-      - name: Run tests
+      - name: API contract (mbti drift must not pass)
         run: |
-          moon test --target native
-          moon test --target wasm-gc
-          moon test --target js
-          moon test --target wasm
+          moon info
+          git diff --exit-code -- '*.mbti'
+
+      - name: Docs consistency gate
+        run: |
+          node scripts/check_docs.mjs --self-test
+          node scripts/check_docs.mjs
+
+  test:
+    name: Test (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [native, wasm-gc, js, wasm]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Run tests (${{ matrix.target }})
+        run: moon test --target ${{ matrix.target }}
+
+  bench:
+    name: Benchmark (native)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: Run benchmarks
         run: moon bench --target native
 
-      - name: Verify API interface
-        run: |
-          moon info
-          git diff --exit-code -- '*.mbti' || echo "Warning: .mbti files changed, please commit them"
+  coverage:
+    name: Coverage gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Code coverage report
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Generate coverage
         run: |
           moon test --enable-coverage --target native
           moon coverage analyze | tee coverage.txt
+          moon coverage report -f summary | tee coverage-summary.txt
+
+      - name: Enforce coverage threshold
+        run: node scripts/check_coverage.mjs coverage-summary.txt --min 77.5
+
+      - name: Summary
+        run: |
           echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          head -5 coverage.txt >> $GITHUB_STEP_SUMMARY
+          grep '^Total:' coverage-summary.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-native
+          path: |
+            coverage.txt
+            coverage-summary.txt
+
+  prove:
+    name: Formal proof (Why3 + Z3)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install provers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y why3 z3
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Run moon prove
+        run: |
+          why3 --version
+          z3 --version
+          cd image.core
+          moon prove

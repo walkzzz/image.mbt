@@ -1,8 +1,5 @@
 <div align="center">
 
-<!-- Hero Banner -->
-<img src="https://raw.githubusercontent.com/walkzzz/image/main/docs/assets/banner.svg" alt="image" width="480" />
-
 # **image**
 
 **Pure MoonBit Image Library** · Zero C Dependencies · Four-Target Native Support
@@ -14,10 +11,10 @@
 
 [![Tests](https://img.shields.io/badge/tests-6_580×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
-[![Coverage](https://img.shields.io/badge/coverage-90.4%25-4CAF50?style=flat-square)]()
+[![Coverage](https://img.shields.io/badge/coverage-77.9%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-71-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-72-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-Contest-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 简体中文 · [English](README.en.md)
@@ -64,7 +61,7 @@ Fully pure MoonBit, no C compiler needed. `moon add walkzzz/image.mbt` and you'r
 
 ### 🟢 Four Targets Native
 
-native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,574 tests × 4 targets all green.
+native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,580 tests × 4 targets all green.
 
 </td>
 </tr>
@@ -337,10 +334,10 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 
 | Target | Backend | Tests | Status |
 |:------:|:-------:|------:|:------:|
-| **native** | Pure MoonBit | 6,574 | ✅ |
-| **wasm-gc** | Pure MoonBit | 6,574 | ✅ |
-| **js** | Pure MoonBit | 6,574 | ✅ |
-| **wasm** | Pure MoonBit | 6,574 | ✅ |
+| **native** | Pure MoonBit | 6,580 | ✅ |
+| **wasm-gc** | Pure MoonBit | 6,580 | ✅ |
+| **js** | Pure MoonBit | 6,580 | ✅ |
+| **wasm** | Pure MoonBit | 6,580 | ✅ |
 
 > Same codebase, **no conditional compilation**, all four targets share all source files.
 
@@ -391,7 +388,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 # Compile check (four targets)
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# Run tests (6,574 × 4 targets)
+# Run tests (6,580 × 4 targets)
 moon test --target native
 moon test --target wasm-gc
 moon test --target js

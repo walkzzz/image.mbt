@@ -105,7 +105,7 @@ members = [".", "core", "codec", "process", "photography", "vision", "domain"]
 
 ### 根包门面
 
-- `image.mbt`：仅含 `pub let version : String = "0.5.0"` + 文档注释
+- `image.mbt`：仅含 `pub let version : String = "0.1.0"` + 文档注释
 - `moon.pkg`：空（不导入任何子包）
 - 用户通过 `import "walkzzz/image.process/filter"` + `@filter.gaussian_blur()` 直接访问
 
