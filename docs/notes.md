@@ -23,7 +23,7 @@
 ## 多目标测试
 
 > [!NOTE]
-> 四目标（native / wasm-gc / js / wasm）均使用同一套纯 MoonBit 代码，各 **6585 测试**全部通过，覆盖率 77.9%（30263/38846，2026-11-20 实测），`moon check --deny-warn` 零警告。
+> 四目标（native / wasm-gc / js / wasm）均使用同一套纯 MoonBit 代码，各 **6585 测试**全部通过，覆盖率 77.7%（30267/38952，2026-11-20 实测），`moon check --deny-warn` 零警告。
 
 > [!TIP]
 > 四目标共用 workspace（image.core/image.codec/image.process/image.photography/image.vision/image.domain）同一套代码，无任何条件编译或目标分支。

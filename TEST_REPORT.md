@@ -20,11 +20,11 @@
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **30,263 / 38,846 = 77.9%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
-| 未覆盖行 | 4,912 行 / 315 文件（`moon coverage analyze`） |
+| 可执行行覆盖 | **30,263 / 38,846 = 77.7%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 未覆盖行 | 4,963 行 / 322 文件（`moon coverage analyze`） |
 | CI 门槛 | **≥ 77.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
-> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 77.9%，以本报告为准。README badge 已同步纠正。
+> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 77.7%，以本报告为准。README badge 已同步纠正。
 
 ## 3. 形式化验证
 
@@ -38,7 +38,7 @@
 
 > Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug（`Unix.EINVAL`）；统一走 WSL 与 CI `prove` job。
 
-## 4. 变异测试（7 点 / 3 包 / 100% KILLED）
+## 4. 变异测试（12 点 / 7 包 / 100% KILLED）
 
 命令：`node scripts/mutation_test.mjs --min-kill=80`（CI `mutation` job 同命令）
 
@@ -51,8 +51,13 @@
 | M05 | image.codec/util | `resize` 最近邻 x 取整偏移 | KILLED |
 | M06 | image.process/segment | `threshold_otsu` 方差比较反转 | KILLED |
 | M07 | image.process/segment | `otsu_threshold_value` 通道上限放宽 | KILLED |
+| M08 | image.codec/codec | BMP 行 4 字节对齐缺失 | KILLED |
+| M09 | image.codec/codec | PNG 位深校验反转 | KILLED |
+| M10 | image.codec/barcode | Reed-Solomon 纠正计数偏移 | KILLED |
+| M11 | image.vision/ocr | 数字 OCR KNN 邻居数默认值漂移 | KILLED |
+| M12 | image.domain/watermark | 水印 PSNR 的 MSE 除法变乘法 | KILLED |
 
-- 结果：**7 / 7 KILLED（击杀率 100%）**，报告写入 `mutation-report.json`。
+- 结果：**12 / 12 KILLED（击杀率 100%）**，报告写入 `mutation-report.json`。
 - 过程中发现并修复 3 个测试盲区：resize 零/负尺寸测试的断言被 `try/catch` 吞掉、最近邻下采样只断言尺寸、Otsu 渐变图只断言尺寸。
 - 变异点出现 0 次或多次时标记 SKIPPED 并计入总分母，防止"变异点写错也算通过"。
 

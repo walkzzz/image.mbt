@@ -55,6 +55,36 @@ const MUTANTS = [
     replace: '  if img.channels < 1 || img.channels > 5 {\n    raise @types.LoadError::DecodeFailed(\n      "otsu_threshold_value: 通道数必须在1-4之间",',
     desc: 'otsu_threshold_value 通道上限放宽',
   },
+  {
+    id: 'M08', pkg: 'walkzzz/image.codec/codec', file: 'image.codec/codec/bmp_decode.mbt',
+    find: '  let row_size = (abs_width * bytes_per_pixel + 3) / 4 * 4',
+    replace: '  let row_size = abs_width * bytes_per_pixel',
+    desc: 'BMP 行 4 字节对齐缺失',
+  },
+  {
+    id: 'M09', pkg: 'walkzzz/image.codec/codec', file: 'image.codec/codec/png_decode.mbt',
+    find: '  if bit_depth != 8 {',
+    replace: '  if bit_depth == 8 {',
+    desc: 'PNG 位深校验反转',
+  },
+  {
+    id: 'M10', pkg: 'walkzzz/image.codec/barcode', file: 'image.codec/barcode/qr_decode.mbt',
+    find: '  (data.copy(), 0)',
+    replace: '  (data.copy(), 1)',
+    desc: 'Reed-Solomon 纠正计数偏移',
+  },
+  {
+    id: 'M11', pkg: 'walkzzz/image.vision/ocr', file: 'image.vision/ocr/digit_ocr.mbt',
+    find: '    k: 3,',
+    replace: '    k: 2,',
+    desc: '数字 OCR KNN 邻居数默认值漂移',
+  },
+  {
+    id: 'M12', pkg: 'walkzzz/image.domain/watermark', file: 'image.domain/watermark/digital_watermark.mbt',
+    find: '    mse = mse / count.to_double()',
+    replace: '    mse = mse * count.to_double()',
+    desc: '水印 PSNR 的 MSE 除法变乘法',
+  },
 ];
 
 function runTests(pkg) {
