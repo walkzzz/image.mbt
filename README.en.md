@@ -381,7 +381,8 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | Document | Description |
 |----------|-------------|
 | [docs/architecture.md](docs/architecture.md) | Architecture diagram, module dependencies, design decisions |
-| [docs/api_reference.md](docs/api_reference.md) | Full API reference |
+| [docs/api_index.md](docs/api_index.md) | **API index (auto-generated, 72 packages / 3,748 fns)** |
+| [docs/api_reference.md](docs/api_reference.md) | API reference snapshot (see api_index and per-package .mbti) |
 | [docs/roadmap.md](docs/roadmap.md) | Iteration roadmap |
 | [docs/changelog.md](docs/changelog.md) | Version changelog |
 | [docs/proposal.md](docs/proposal.md) | Quarterly award proposal |
@@ -389,10 +390,12 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | [docs/comparison.md](docs/comparison.md) | mooncakes.io image library comparison |
 | [docs/performance_report.md](docs/performance_report.md) | Performance benchmark report |
 | [docs/notes.md](docs/notes.md) | Usage notes and core constraints |
-| [docs/examples.md](docs/examples.md) | Example collection |
+| [docs/examples.md](docs/examples.md) | 7 runnable examples (measured output) |
 | [docs/features.md](docs/features.md) | Feature category overview |
+| [docs/known-gaps.md](docs/known-gaps.md) | Honest gap ledger |
 | [docs/contributing.md](docs/contributing.md) | Contributing guide |
 | [docs/skill.md](docs/skill.md) | AI-assisted development notes |
+| [TEST_REPORT.md](TEST_REPORT.md) | Test report (tests / coverage / mutation / proof / CI) |
 
 ---
 

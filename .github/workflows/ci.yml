@@ -40,6 +40,7 @@ jobs:
         run: |
           node scripts/check_docs.mjs --self-test
           node scripts/check_docs.mjs
+          node scripts/gen_api_index.mjs --check
 
   test:
     name: Test (${{ matrix.target }})

@@ -412,7 +412,8 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | 文档 | 说明 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | 架构图、模块依赖、设计决策 |
-| [docs/api_reference.md](docs/api_reference.md) | 完整 API 参考 |
+| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，72 包 / 3,748 fn）** |
+| [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
 | [docs/changelog.md](docs/changelog.md) | 版本变更历史 |
 | [docs/proposal.md](docs/proposal.md) | 季度评选申报书 |
@@ -420,10 +421,12 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/comparison.md](docs/comparison.md) | mooncakes.io 图像库对比 |
 | [docs/performance_report.md](docs/performance_report.md) | 性能基准报告 |
 | [docs/notes.md](docs/notes.md) | 使用说明与核心约束 |
-| [docs/examples.md](docs/examples.md) | 示例集 |
+| [docs/examples.md](docs/examples.md) | 7 个可运行示例（含实测输出） |
 | [docs/features.md](docs/features.md) | 功能分类概览 |
+| [docs/known-gaps.md](docs/known-gaps.md) | 真话台账（边界与未完成项） |
 | [docs/contributing.md](docs/contributing.md) | 贡献指南 |
 | [docs/skill.md](docs/skill.md) | AI 辅助开发说明 |
+| [TEST_REPORT.md](TEST_REPORT.md) | 测试报告（测试 / 覆盖率 / 变异 / 证明 / CI） |
 
 ---
 
