@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-20）：版本 0.1.0 · 6,585 测试 × 4 目标 · 72 包 · 覆盖率 77.7% · prove 8 goals。
+> 当前口径（2026-11-20）：版本 0.1.1 · 6,606 测试 × 4 目标 · 72 包 · 覆盖率 80.7% · prove 8 goals。
 
 ## 功能边界
 
@@ -20,7 +20,7 @@
 | 编号 | 描述 | 现状 | 计划 |
 |------|------|------|------|
 | GAP-8 | 白盒测试仅 1 个（`mp4/mp4_wbtest.mbt`） | 364 黑盒 + 1 白盒 | 阶段 2 为核心包补白盒与属性测试 |
-| GAP-9 | 覆盖率 77.7%（30267/38952），低于历史宣称 90.4% | 已按实测纠正 README/notes/proposal | CI 门槛 77.5% 防退化，逐版提升至 90% |
+| GAP-9 | 覆盖率 80.7%（31426/38952），低于历史宣称 90.4% | 已按实测纠正 README/notes/proposal | CI 门槛 80.5% 防退化，逐版提升至 90% |
 | GAP-10 | Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug | `Unix.EINVAL` | 统一走 WSL / CI `prove` job |
 | GAP-11 | CI 仅 Linux（ubuntu-24.04），无 Windows/macOS native 矩阵 | 四目标已覆盖语义差异 | 后续补 OS 矩阵 |
 | GAP-12 | ~~API 参考过时~~ **已闭环（2026-11-20）** | `docs/api_reference.md` 仍为历史快照（1,339 fn / 50 包） | ✅ 新增 `docs/api_index.md`（`scripts/gen_api_index.mjs` 从 72 包 `.mbti` 自动生成：3,748 fn / 710 类型；CI `--check` 防漂移）；旧参考页已标注"历史快照，以 api_index 与 `.mbti` 为准" |
@@ -36,6 +36,6 @@
 
 ## 测试口径
 
-- **6,585 为 native 实测**（2026-11-20）；四目标由 CI `test` job 矩阵实测。
+- **6,606 为 native 实测**（2026-11-20）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。

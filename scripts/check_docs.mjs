@@ -183,6 +183,24 @@ const ASSERTIONS = [
       return { coverage: zhC };
     },
   },
+  {
+    id: 'B9', desc: 'known-gaps 顶部当前口径（版本/测试数/包数/覆盖率）与 README/moon.mod 一致',
+    async run(root) {
+      const kg = await read('docs/known-gaps.md', root);
+      const mod = extractVersion(await read('moon.mod', root));
+      const zh = await read('README.md', root);
+      const m = kg.match(/当前口径（[^）]*）：版本 ([\d.]+) · ([\d,_]+) 测试 × 4 目标 · (\d+) 包 · 覆盖率 ([\d.]+)%/);
+      if (!m) throw new Error('known-gaps 顶部口径行未找到或格式不符');
+      const tests = cap(/tests-([\d_]+)×4/, zh, 'README.md', 'zh tests badge');
+      const pkgs = cap(/packages-(\d+)-/, zh, 'README.md', 'zh packages badge');
+      const cov = cap(/coverage-([\d.]+)%25/, zh, 'README.md', 'zh coverage badge');
+      uniqEqual('known-gaps 版本', [mod, m[1]]);
+      uniqEqual('known-gaps 测试数', [tests, m[2]]);
+      uniqEqual('known-gaps 包数', [pkgs, m[3]]);
+      uniqEqual('known-gaps 覆盖率', [cov, m[4]]);
+      return { version: m[1], tests: m[2], packages: m[3], coverage: m[4] };
+    },
+  },
 ];
 
 function extractVersion(text) {
@@ -238,6 +256,8 @@ async function selfTest() {
     await writeFile(path.join(tmp, 'docs', 'architecture.md'),
       `> 版本 ${version} | 3,748 公开函数 + 710 公开类型（.mbti 口径，${packages} 包）| ${tests} 测试 × 4 目标\n`);
     await writeFile(path.join(tmp, 'docs', 'api.md'), '# api\n');
+    await writeFile(path.join(tmp, 'docs', 'known-gaps.md'),
+      `# gaps\n\n> 当前口径（2026-11-20）：版本 ${version} · ${tests} 测试 × 4 目标 · ${packages} 包 · 覆盖率 90.4% = 1/1\n`);
     await writeFile(path.join(tmp, 'docs', 'contributing.md'), 'git clone git@github.com:walkzzz/image.mbt.git\n');
   };
   const assertFails = async (id, expectId) => {
@@ -278,7 +298,7 @@ async function selfTest() {
     await assertFails('ST5', 'B7');
     // 正向：全一致
     await writeFixtures('0.1.0', '6_580', '8', '1');
-    await assertPasses('ST6', ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8']);
+    await assertPasses('ST6', ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9']);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

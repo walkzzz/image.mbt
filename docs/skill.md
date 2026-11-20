@@ -1,6 +1,6 @@
 ---
 name: image.mbt
-description: MoonBit 图像处理库 walkzzz/image.mbt — 纯 MoonBit 实现，多目标支持（native/wasm-gc/js/wasm 均使用纯 MoonBit），完整图像解码/编码/缩放/处理能力，6585 测试 × 4 目标 (native/wasm-gc/js/wasm)。
+description: MoonBit 图像处理库 walkzzz/image.mbt — 纯 MoonBit 实现，多目标支持（native/wasm-gc/js/wasm 均使用纯 MoonBit），完整图像解码/编码/缩放/处理能力，6606 测试 × 4 目标 (native/wasm-gc/js/wasm)。
 ---
 
 # image.mbt 包使用指南
@@ -197,7 +197,7 @@ try {
 
 ## 目标后端
 
-多目标支持：native/wasm-gc/js/wasm 均使用纯 MoonBit，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）共用同一套代码。四目标各 6585 测试通过。
+多目标支持：native/wasm-gc/js/wasm 均使用纯 MoonBit，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）共用同一套代码。四目标各 6606 测试通过。
 
 ## 架构
 
@@ -208,7 +208,7 @@ try {
 3. **处理层**：`image.process/`（10 算法子包）+ `image.photography/`（11 计算摄影子包）
 4. **视觉层**：`image.vision/`（12 子包：OCR/人脸/姿态/SLAM/视频等）
 5. **领域层**：`image.domain/`（16 子包：医学/遥感/加密/水印等）
-6. **测试与文档层**：`*_test.mbt`（6585 测试 × 4 目标）+ `roundtrip_test.mbt`（全格式往返）+ `bench.mbt`（性能基准）+ 根模块附属包 `mp4/`（ISO BMFF 关键帧定位）
+6. **测试与文档层**：`*_test.mbt`（6606 测试 × 4 目标）+ `roundtrip_test.mbt`（全格式往返）+ `bench.mbt`（性能基准）+ 根模块附属包 `mp4/`（ISO BMFF 关键帧定位）
 
 ## 版本演进
 
@@ -229,7 +229,7 @@ try {
 - **v3.1-v3.2**：DCT O(N³) 优化 + 16-bit/float 滤波泛化 + wasm 目标 + WebP lossless 解码，942 测试 × 4 目标
 - **v4.0-v4.8**：ORB + SIFT 特征检测 + SIFT匹配 + RANSAC单应性估计 + grabCut分割 + 流式解码 + 模板匹配 + 图像修复 + 光流(LK+HS) + WebP lossy(VP8)编码 + PNG/TIFF安全修复 + fuzzing审计 + 32个示例代码 + 38项边界测试，286 API + 47 类型，1203 测试 × 4 目标 (native/wasm-gc/js/wasm)
 - **v5.0-v237**：OCR 全链路 + 计算摄影 + 领域应用（医学/遥感/加密/水印）+ workspace 六模块重构 + 形式化验证（moon prove 8 goals）
-- **0.1.0（包重命名重构版）**：walkzzz/image → walkzzz/image.mbt · 六子模块统一 image.* 前缀 · API 零变化 · 3,748 公开函数 + 710 类型（.mbti 口径）· 6585 测试 × 4 目标 · mp4 包修复（视频轨关键帧定位）
+- **0.1.0（包重命名重构版）**：walkzzz/image → walkzzz/image.mbt · 六子模块统一 image.* 前缀 · API 零变化 · 3,748 公开函数 + 710 类型（.mbti 口径）· 6606 测试 × 4 目标 · mp4 包修复（视频轨关键帧定位）
 
 ## 限制
 

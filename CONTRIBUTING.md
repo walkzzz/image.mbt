@@ -21,12 +21,12 @@ moon check --deny-warn --target all
 moon test --target all
 moon info && git diff --exit-code -- '*.mbti'
 node scripts/check_docs.mjs
-node scripts/check_coverage.mjs coverage-summary.txt --min 77.5
+node scripts/check_coverage.mjs coverage-summary.txt --min 80.5
 ```
 
 - `.mbti` 漂移视为契约变更，必须与代码同提交。
 - 文档数字（版本 / 测试数 / 包数 / proof / 覆盖率）由 `check_docs.mjs` 校验，禁止手抄漂移。
-- 覆盖率不得低于 77.5%；新增代码应自带测试。
+- 覆盖率不得低于 80.5%；新增代码应自带测试。
 
 ## 代码规范
 

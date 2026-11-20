@@ -47,3 +47,19 @@ test "mean_value: uniform" {
   let _ = img
   let _ = m
 }
+
+///|
+test "image_stats: variance/entropy/contrast/brightness/median" {
+  let img = @types.Image::{
+    width: 4,
+    height: 1,
+    channels: 1,
+    data: [b'\x00', b'\x40', b'\x80', b'\xFF'] |> Bytes::from_array,
+  }
+  assert_true(@util.variance_value(img) > 0.0F)
+  assert_true(@util.entropy_value(img) >= 0.0F)
+  assert_true(@util.contrast_value(img) >= 0.0F)
+  assert_true(@util.brightness_value(img) >= 0.0F)
+  let m = @util.median_value(img)
+  assert_true(m >= 0 && m <= 255)
+}

@@ -7,24 +7,30 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,585 / 6,585 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,585 / 6,585（CI `test` job 实测） |
-| js | `moon test --target js` | 6,585 / 6,585（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,585 / 6,585（CI `test` job 实测） |
+| native | `moon test --target native` | **6,606 / 6,606 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,606 / 6,606（CI `test` job 实测） |
+| js | `moon test --target js` | 6,606 / 6,606（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,606 / 6,606（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
-- 测试文件 365 个（364 黑盒 `*_test.mbt` + 1 白盒 `*_wbtest.mbt`）。
+- 测试文件 372 个（371 黑盒 `*_test.mbt` + 1 白盒 `*_wbtest.mbt`）。
 - 覆盖 18 格式编解码、三级像素深度、resize、色彩/滤波/边缘/特征/分割/频域、计算摄影、OCR/视频、领域应用。
 
 ## 2. 覆盖率
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **30,263 / 38,846 = 77.7%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
-| 未覆盖行 | 4,963 行 / 322 文件（`moon coverage analyze`） |
-| CI 门槛 | **≥ 77.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
+| 可执行行覆盖 | **31,426 / 38,952 = 80.7%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
+| CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
-> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 77.7%，以本报告为准。README badge 已同步纠正。
+> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 80.7%，以本报告为准。README badge 已同步纠正。
+
+## 2.1 本轮修复的缺陷
+
+| 缺陷 | 文件 | 修复 | 回归测试 |
+|------|------|------|---------|
+| WebP VP8 编码奇数宽高 UV 平面越界（1x1/3x3 `PanicError`） | `image.codec/codec/webp_vp8_encode.mbt` | UV 平面按 `ceil(w/2)×ceil(h/2)` 分配，索引步长一致 | `webp_vp8_encode_test.mbt`（1x1 / 3x3 / 1 通道拒绝） |
 
 ## 3. 形式化验证
 
@@ -69,11 +75,11 @@
 
 | job | 门禁 |
 |-----|------|
-| `quality` | `moon fmt --check` · 四目标 `check --deny-warn` · `moon info` + `git diff --exit-code -- '*.mbti'` · `check_docs.mjs`（8 断言 + 5 负向自测） |
+| `quality` | `moon fmt --check` · 四目标 `check --deny-warn` · `moon info` + `git diff --exit-code -- '*.mbti'` · `check_docs.mjs`（9 断言 + 5 负向自测） |
 | `test` | 四目标测试矩阵（native / wasm-gc / js / wasm） |
 | `bench` | native 基准 |
-| `coverage` | 覆盖率生成 + 77.5% 门槛 + artifact 上传 |
-| `mutation` | `mutation_test.mjs --min-kill=80`（7 点 / 3 包） |
+| `coverage` | 覆盖率生成 + 80.5% 门槛 + artifact 上传 |
+| `mutation` | `mutation_test.mjs --min-kill=80`（12 点 / 7 包） |
 | `prove` | Why3 + Z3 + `moon prove` |
 
 ## 7. 复现步骤
@@ -85,7 +91,7 @@ moon fmt --check
 node scripts/check_docs.mjs
 moon test --enable-coverage --target native
 moon coverage report -f summary
-node scripts/check_coverage.mjs coverage-summary.txt --min 77.5
+node scripts/check_coverage.mjs coverage-summary.txt --min 80.5
 node scripts/mutation_test.mjs --min-kill=80
 cd image.core && moon prove   # WSL / Ubuntu
 ```

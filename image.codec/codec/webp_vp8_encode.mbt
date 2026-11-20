@@ -91,8 +91,12 @@ fn rgb_to_yuv420(
   let h = img.height
   let ch = img.channels
   let y_plane : Array[Int32] = Array::make(w * h, 0)
-  let u_plane : Array[Int32] = Array::make(w / 2 * (h / 2), 128)
-  let v_plane : Array[Int32] = Array::make(w / 2 * (h / 2), 128)
+  // 色度平面按 ceil(w/2) × ceil(h/2) 分配，索引与步长保持一致；
+  // 旧实现用 w/2 * (h/2)，奇数宽高时会越界（1x1/3x3 触发 PanicError）。
+  let uv_w = (w + 1) / 2
+  let uv_h = (h + 1) / 2
+  let u_plane : Array[Int32] = Array::make(uv_w * uv_h, 128)
+  let v_plane : Array[Int32] = Array::make(uv_w * uv_h, 128)
 
   for y in 0..<h {
     for x in 0..<w {
@@ -108,7 +112,7 @@ fn rgb_to_yuv420(
       if x % 2 == 0 && y % 2 == 0 {
         let u_val = ((-r * 38 - g * 74 + b * 112 + 128) >> 8) + 128
         let v_val = ((r * 112 - g * 94 - b * 18 + 128) >> 8) + 128
-        let uv_idx = y / 2 * (w / 2) + x / 2
+        let uv_idx = y / 2 * uv_w + x / 2
         u_plane[uv_idx] = u_val
         v_plane[uv_idx] = v_val
       }

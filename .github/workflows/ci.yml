@@ -92,7 +92,7 @@ jobs:
           moon coverage report -f summary | tee coverage-summary.txt
 
       - name: Enforce coverage threshold
-        run: node scripts/check_coverage.mjs coverage-summary.txt --min 77.5
+        run: node scripts/check_coverage.mjs coverage-summary.txt --min 80.5
 
       - name: Summary
         run: |

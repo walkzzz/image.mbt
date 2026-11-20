@@ -15,7 +15,7 @@
 
 image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目标（native / wasm-gc / js / wasm）共用同一代码库**。覆盖 **18 种格式**的解码与编码（含独家 PSD / HDR / TIFF / ICNS / AVIF / HEIF / JPEG-XL），提供 8 位 / 16 位 / HDR 浮点三级像素深度、**90+ 算法子包**（色彩/边缘/特征/频域/分割/变换）与 **OCR 全链路**（数字/英文/中文/表格/手写体/多语言混合，19 模块），并扩展 **MP4 容器解析**（视频轨关键帧定位）。全仓 **3,748 个公开函数 + 710 个公开类型**（.mbti 口径，72 包）。
 
-本期参赛内容为**既有项目的持续维护与升级**（章程 5.2）：在 workspace 六模块重构与七模块发布的基础上，完成**包重命名重构**（walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀，API 零变化，迁移方案已公示）、**mp4 视频容器包修复交付**（stss/stsz/stsc/stco/stts 关键帧定位）、docs 17 份文档全量同步（6585 测试 × 4 实测）与竞品对比维护。以下贡献均为本届赛事周期内的新增有效成果。
+本期参赛内容为**既有项目的持续维护与升级**（章程 5.2）：在 workspace 六模块重构与七模块发布的基础上，完成**包重命名重构**（walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀，API 零变化，迁移方案已公示）、**mp4 视频容器包修复交付**（stss/stsz/stsc/stco/stts 关键帧定位）、docs 17 份文档全量同步（6606 测试 × 4 实测）与竞品对比维护。以下贡献均为本届赛事周期内的新增有效成果。
 
 ## 二、项目价值与生态定位
 
@@ -64,20 +64,20 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 | workspace 六模块重构 | src/ 单体 → core/codec/process/photography/vision/domain 六模块，编译并行化、职责清晰 | moon.work + 各 moon.mod |
 | **七模块全部发布 mooncakes** | core/codec/process/photography/vision/domain @0.1.0 + image @0.6.0，按依赖顺序发布，子模块可独立安装 | mooncakes.io 七个模块页 |
 | **包重命名重构（0.1.0）** | walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀（目录同步改名）；**API 零变化**（.mbti 仅路径行变化），破坏性变更按规范公示完整迁移方案（README 双语迁移章节 + CHANGELOG Breaking 条目）；版本重新计数 0.1.0 按依赖序发布 | README 迁移章节 + CHANGELOG 0.1.0 + `moon info` diff |
-| **mp4 视频容器包修复交付** | 修复上次提交遗留的不可编译半成品：补齐 read_u32/read_u64 字节读取原语、stco 按规范 32 位读取、样本偏移 1-based 修正与下界保护、测试数据构造修正（stbl header/stsc 字段序）——4/4 测试绿 | mp4 4/4 + 全仓 6585×4 实测 |
-| **docs 17 份全量同步** | 架构/API 参考/技能描述/路线图/评估/变更日志/对比/OCR 指南等按统一口径（包版本 0.1.0 双轨 · 6585 测试 · 3,748 fn + 710 type）更新，死链清零 | docs/*.md + check_docs.mjs 5/5 |
+| **mp4 视频容器包修复交付** | 修复上次提交遗留的不可编译半成品：补齐 read_u32/read_u64 字节读取原语、stco 按规范 32 位读取、样本偏移 1-based 修正与下界保护、测试数据构造修正（stbl header/stsc 字段序）——4/4 测试绿 | mp4 4/4 + 全仓 6606×4 实测 |
+| **docs 17 份全量同步** | 架构/API 参考/技能描述/路线图/评估/变更日志/对比/OCR 指南等按统一口径（包版本 0.1.0 双轨 · 6606 测试 · 3,748 fn + 710 type）更新，死链清零 | docs/*.md + check_docs.mjs 5/5 |
 | 根 CHANGELOG.md | 摘要页 + 版本双轨说明（功能版本 v0.1-v237 / 包版本 0.x.y），指向完整历史 | 评审第一眼可见 |
 | CI 零警告门禁 | 4 处 `moon check --deny-warn`（全目标零警告实测固化） | .github/workflows/ci.yml |
-| badge 数据实测对齐 | 测试徽章与 native 实测全绿数对齐（6585）、proof 8 goals（moon prove 实测）、双语 badge 对齐 | README.md / README.en.md |
+| badge 数据实测对齐 | 测试徽章与 native 实测全绿数对齐（6606）、proof 8 goals（moon prove 实测）、双语 badge 对齐 | README.md / README.en.md |
 | comparison.md 刷新 | 快照 2026-08-06 → 2026-11-13：四家竞品版本升级实测（mizchi 0.5.0 / gmlewis 0.17.19 / shunge 0.2.2 / Nanaloveyuki 0.1.5）；本库版本同步 0.1.0 | docs/comparison.md |
 | 真实尺寸性能基准 | 1024²/4096² PNG 编解码 + resize（moon bench 框架，与 astrolabe 同款机制）：4096² 解码 1.25 s / 编码 0.78 s，跨规模线性度良好 | docs/performance_report.md |
-| 文档对齐 | docs/notes.md 重写（workspace/6585 口径）、AGENTS.md 元数据对齐（8 goals 函数名实测）、README 自演化叙事（中英） | docs/ + AGENTS.md |
+| 文档对齐 | docs/notes.md 重写（workspace/6606 口径）、AGENTS.md 元数据对齐（8 goals 函数名实测）、README 自演化叙事（中英） | docs/ + AGENTS.md |
 
 ## 六、核心功能范围
 
-**已交付**：18 格式编解码；三级像素深度；resize（7 滤波器 × 4 边缘模式）；色彩/绘制/合成；90+ 算法子包（含 OCR 19 模块）；MP4 视频轨关键帧定位（mp4 包）；TIFF LZW/PackBits 压缩解码；四目标测试 6585 × 4 全绿、coverage 77.7%（30267/38952，2026-11-20 实测）。
+**已交付**：18 格式编解码；三级像素深度；resize（7 滤波器 × 4 边缘模式）；色彩/绘制/合成；90+ 算法子包（含 OCR 19 模块）；MP4 视频轨关键帧定位（mp4 包）；TIFF LZW/PackBits 压缩解码；四目标测试 6606 × 4 全绿、coverage 80.7%（31426/38952，2026-11-20 实测）。
 
-**拟实现（下赛期）**：JPEG progressive 解码（格式矩阵仅存的解码短板）；真实尺寸 JPEG 基准；coverage 77.7% → 90%；fuzz 扩展（草案阶段六，+240~295 测试）；新名包 mooncakes 发布完成与子模块生态推广。
+**拟实现（下赛期）**：JPEG progressive 解码（格式矩阵仅存的解码短板）；真实尺寸 JPEG 基准；coverage 80.7% → 90%；fuzz 扩展（草案阶段六，+240~295 测试）；新名包 mooncakes 发布完成与子模块生态推广。
 
 **明确不做**：不做 GPU/CUDA 加速（纯 MoonBit 定位）；不做音视频流编解码（H.264 等编码流解码与音频，与图像库定位区分——mp4 仅做容器元数据解析）；不追求 JPEG-XL 全特性（仅基础解码，边界已在 README 标注）。
 
@@ -94,13 +94,13 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 - **契约重构零伤退出**：包重命名属破坏性变更，按上游库规范先试点验证工具链可行性（带点模块名门禁），再以脚本化批量替换（顺序敏感规则）+ `moon info` 证明 API 零变化 + 双语迁移指引公示——重构严格度等同于功能迭代。
 - **安全即语义**：`check_dims` 进入全部解码器入口、`safe_mul` 溢出安全乘法、`MAX_IMAGE_DIMENSION` 守卫——安全约束不是事后补丁，而是类型与入口设计的一部分，并以 `moon prove` 8 goals 形式化背书。
 - **四目标零条件编译**：native / wasm-gc / js / wasm 共用同一套源文件，无平台分支——多目标支持的代价被架构吸收而非扩散到代码。
-- **自演化工程体系**：self_evolve 闭环（测试生成 → 退化修复 → 管道优化 → 拷问引擎 → 演化推荐）保证 6585 测试的持续增长有可复现的流水线支撑，而非人工堆砌。
+- **自演化工程体系**：self_evolve 闭环（测试生成 → 退化修复 → 管道优化 → 拷问引擎 → 演化推荐）保证 6606 测试的持续增长有可复现的流水线支撑，而非人工堆砌。
 - **MoonBit 惯用法**：`suberror LoadError` + raise/catch、`#derive(Eq, Debug)` 全覆盖、`#inline` 热路径、`pub extend` 特征实现、`#non_exhaustive` 前向兼容。
 
 ## 九、预期验收产物
 
 - mooncakes.io 七模块在线：旧名 walkzzz/image@0.6.0 + 六个子模块@0.1.0（子模块独立安装）；本期重构为 walkzzz/image.mbt + image.* 子模块（0.1.0 重新计数，按依赖序发布）；
-- 四目标测试 6585 × 4 全绿、`moon check --deny-warn` 全目标零警告、coverage 77.7%（30267/38952，2026-11-20 实测）；
+- 四目标测试 6606 × 4 全绿、`moon check --deny-warn` 全目标零警告、coverage 80.7%（31426/38952，2026-11-20 实测）；
 - 双语 README（badge 实测对齐 + 迁移章节）+ 17 份 docs 文档 + 根 CHANGELOG（0.1.0 Breaking 条目）+ 评估报告（docs/assessment.md 复评摘要）+ 本申报书；
 - 本期全部新增贡献在 CHANGELOG、git 提交历史与 docs/roadmap.md 中可追踪。
 
@@ -110,7 +110,7 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 |:---|:---|:---|
 | 0.2.0 | JPEG progressive 解码（格式矩阵最后一处解码短板） | 项目完成度 |
 | 0.3.0 | 真实尺寸 JPEG 基准 + stb_image.h C 基线同机量化对比 | 工程质量 |
-| 0.4.0 | coverage 77.7% → 90%（薄弱模块 fuzz 扩展） | 工程质量 |
+| 0.4.0 | coverage 80.7% → 90%（薄弱模块 fuzz 扩展） | 工程质量 |
 | 1.0.0 | API 稳定化候选 + 子模块生态推广（OCR/codec 独立采用案例） | 生态贡献 |
 
 ## 使用 AI 工具的声明与人工把控
@@ -127,4 +127,4 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 
 ---
 
-*本申报书基于项目实测数据（moon 0.1.20261104：check 全目标零警告、test 6585×4、moon prove 8 goals）与 mooncakes.io 发布页核查（旧名 7 模块在线 / 429+ 下载 / 1 依赖方 moonrockz/diagrams-raster；新名 walkzzz/image.mbt 按依赖序发布中）撰写，竞品数据见 docs/comparison.md 快照。*
+*本申报书基于项目实测数据（moon 0.1.20261104：check 全目标零警告、test 6606×4、moon prove 8 goals）与 mooncakes.io 发布页核查（旧名 7 模块在线 / 429+ 下载 / 1 依赖方 moonrockz/diagrams-raster；新名 walkzzz/image.mbt 按依赖序发布中）撰写，竞品数据见 docs/comparison.md 快照。*
