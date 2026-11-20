@@ -13,7 +13,7 @@
 
 ## 一、项目简介
 
-image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目标（native / wasm-gc / js / wasm）共用同一代码库**。覆盖 **18 种格式**的解码与编码（含独家 PSD / HDR / TIFF / ICNS / AVIF / HEIF / JPEG-XL），提供 8 位 / 16 位 / HDR 浮点三级像素深度、**90+ 算法子包**（色彩/边缘/特征/频域/分割/变换）与 **OCR 全链路**（数字/英文/中文/表格/手写体/多语言混合，19 模块），并扩展 **MP4 容器解析**（视频轨关键帧定位）。全仓 **3764 个公开函数 + 712 个公开类型**（.mbti 口径，72 包）。
+image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目标（native / wasm-gc / js / wasm）共用同一代码库**。覆盖 **18 种格式**的解码与编码（含独家 PSD / HDR / TIFF / ICNS / AVIF / HEIF / JPEG-XL），提供 8 位 / 16 位 / HDR 浮点三级像素深度、**90+ 算法子包**（色彩/边缘/特征/频域/分割/变换）与 **OCR 全链路**（数字/英文/中文/表格/手写体/多语言混合，19 模块），并扩展 **MP4 容器解析**（视频轨关键帧定位）。全仓 **3,748 个公开函数 + 710 个公开类型**（.mbti 口径，72 包）。
 
 本期参赛内容为**既有项目的持续维护与升级**（章程 5.2）：在 workspace 六模块重构与七模块发布的基础上，完成**包重命名重构**（walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀，API 零变化，迁移方案已公示）、**mp4 视频容器包修复交付**（stss/stsz/stsc/stco/stts 关键帧定位）、docs 17 份文档全量同步（6585 测试 × 4 实测）与竞品对比维护。以下贡献均为本届赛事周期内的新增有效成果。
 
@@ -65,7 +65,7 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 | **七模块全部发布 mooncakes** | core/codec/process/photography/vision/domain @0.1.0 + image @0.6.0，按依赖顺序发布，子模块可独立安装 | mooncakes.io 七个模块页 |
 | **包重命名重构（0.1.0）** | walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀（目录同步改名）；**API 零变化**（.mbti 仅路径行变化），破坏性变更按规范公示完整迁移方案（README 双语迁移章节 + CHANGELOG Breaking 条目）；版本重新计数 0.1.0 按依赖序发布 | README 迁移章节 + CHANGELOG 0.1.0 + `moon info` diff |
 | **mp4 视频容器包修复交付** | 修复上次提交遗留的不可编译半成品：补齐 read_u32/read_u64 字节读取原语、stco 按规范 32 位读取、样本偏移 1-based 修正与下界保护、测试数据构造修正（stbl header/stsc 字段序）——4/4 测试绿 | mp4 4/4 + 全仓 6585×4 实测 |
-| **docs 17 份全量同步** | 架构/API 参考/技能描述/路线图/评估/变更日志/对比/OCR 指南等按统一口径（包版本 0.1.0 双轨 · 6585 测试 · 3764 fn + 712 type）更新，死链清零 | docs/*.md + check_docs.mjs 5/5 |
+| **docs 17 份全量同步** | 架构/API 参考/技能描述/路线图/评估/变更日志/对比/OCR 指南等按统一口径（包版本 0.1.0 双轨 · 6585 测试 · 3,748 fn + 710 type）更新，死链清零 | docs/*.md + check_docs.mjs 5/5 |
 | 根 CHANGELOG.md | 摘要页 + 版本双轨说明（功能版本 v0.1-v237 / 包版本 0.x.y），指向完整历史 | 评审第一眼可见 |
 | CI 零警告门禁 | 4 处 `moon check --deny-warn`（全目标零警告实测固化） | .github/workflows/ci.yml |
 | badge 数据实测对齐 | 测试徽章与 native 实测全绿数对齐（6585）、proof 8 goals（moon prove 实测）、双语 badge 对齐 | README.md / README.en.md |

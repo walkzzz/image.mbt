@@ -236,7 +236,7 @@ async function selfTest() {
     await writeFile(path.join(tmp, 'AGENTS.md'),
       `| 测试 | ${norm(tests)} (native) × 4 目标 |\n| 形式化验证 | core/safe_math \`moon prove\` **${goals} goals proved**（x） |\n`);
     await writeFile(path.join(tmp, 'docs', 'architecture.md'),
-      `> 版本 ${version} | 3764 公开函数 + 712 公开类型（.mbti 口径，${packages} 包）| ${tests} 测试 × 4 目标\n`);
+      `> 版本 ${version} | 3,748 公开函数 + 710 公开类型（.mbti 口径，${packages} 包）| ${tests} 测试 × 4 目标\n`);
     await writeFile(path.join(tmp, 'docs', 'api.md'), '# api\n');
     await writeFile(path.join(tmp, 'docs', 'contributing.md'), 'git clone git@github.com:walkzzz/image.mbt.git\n');
   };

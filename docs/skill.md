@@ -229,7 +229,7 @@ try {
 - **v3.1-v3.2**：DCT O(N³) 优化 + 16-bit/float 滤波泛化 + wasm 目标 + WebP lossless 解码，942 测试 × 4 目标
 - **v4.0-v4.8**：ORB + SIFT 特征检测 + SIFT匹配 + RANSAC单应性估计 + grabCut分割 + 流式解码 + 模板匹配 + 图像修复 + 光流(LK+HS) + WebP lossy(VP8)编码 + PNG/TIFF安全修复 + fuzzing审计 + 32个示例代码 + 38项边界测试，286 API + 47 类型，1203 测试 × 4 目标 (native/wasm-gc/js/wasm)
 - **v5.0-v237**：OCR 全链路 + 计算摄影 + 领域应用（医学/遥感/加密/水印）+ workspace 六模块重构 + 形式化验证（moon prove 8 goals）
-- **0.1.0（包重命名重构版）**：walkzzz/image → walkzzz/image.mbt · 六子模块统一 image.* 前缀 · API 零变化 · 3764 公开函数 + 712 类型（.mbti 口径）· 6585 测试 × 4 目标 · mp4 包修复（视频轨关键帧定位）
+- **0.1.0（包重命名重构版）**：walkzzz/image → walkzzz/image.mbt · 六子模块统一 image.* 前缀 · API 零变化 · 3,748 公开函数 + 710 类型（.mbti 口径）· 6585 测试 × 4 目标 · mp4 包修复（视频轨关键帧定位）
 
 ## 限制
 

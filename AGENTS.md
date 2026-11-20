@@ -239,7 +239,7 @@ moon run --target native
 |------|------|
 | [README.md](README.md) | 项目说明（中文） |
 | [docs/architecture.md](docs/architecture.md) | 架构图、包依赖关系、设计决策 |
-| [docs/api_reference.md](docs/api_reference.md) | API 参考（正文核心快照 1339 函数；全仓 3764 fn + 712 type 以各包 .mbti 为准） |
+| [docs/api_reference.md](docs/api_reference.md) | API 参考（正文核心快照 1339 函数；全仓 3,748 fn + 710 type 以各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
 | [docs/comparison.md](docs/comparison.md) | mooncakes.io 图像库对比 |
 | [docs/performance_report.md](docs/performance_report.md) | 性能基准报告 |
