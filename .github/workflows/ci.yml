@@ -110,7 +110,7 @@ jobs:
             coverage-summary.txt
 
   mutation:
-    name: Mutation gate (3 packages, 7 mutants)
+    name: Mutation gate (7 packages, 12 mutants)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
