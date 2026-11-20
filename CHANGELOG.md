@@ -4,6 +4,31 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.1] - 2026-11-20
+
+### Added
+
+- **可运行示例集**：`examples/` 7 个零外部依赖示例（raw_to_png / resize_demo / threshold_otsu / format_detect / lossless_roundtrip / canny_edges / gaussian_blur），均 `moon run` 实测通过，见 docs/examples.md。
+- **变异测试闭环**：`scripts/mutation_test.mjs`（3 包 / 7 变异点，100% KILLED）+ CI `mutation` job + `mutation-report.json` artifact。
+- **质量门禁脚本**：`scripts/check_docs.mjs`（8 断言 + 5 负向自测）、`scripts/check_coverage.mjs`（≥77.5%）、`scripts/check_version.mjs`（七模块版本一致）、`scripts/publish.sh`（依赖序发布，由维护者执行）。
+- **治理文件**：TEST_REPORT.md、docs/known-gaps.md、CONTRIBUTING.md、SECURITY.md、CODE_OF_CONDUCT.md、PR 模板、CODEOWNERS。
+
+### Changed
+
+- **CI 重构**：单 job → 6 jobs（quality / test 四目标矩阵 / bench / coverage / mutation / prove，ubuntu-24.04）；`mbti` 漂移与 `moon fmt --check` 改为阻断；`scripts/` 取消 gitignore，门禁脚本随仓库发布。
+- **测试**：6,580 → **6,585**（新增 check_dims 零通道、resize 1:1 恒等与最近邻像素断言、otsu 通道/尺寸拒绝）。
+- **弃用 API 迁移**：19 处 `Int64::from_int` / `Double::from_int` → `to_int64()` / `to_double()`，四目标 `check --deny-warn` 零警告。
+
+### Fixed
+
+- 文档口径：版本 0.5.0/0.1.0 冲突、测试数 6,574/6,486、包数 71、proof 5 goals、覆盖率 90.4% 全部按实测纠正（覆盖率 **77.9% = 30263/38846**）；删除死链 banner 与旧仓库链接；`docs/examples.md` 虚报 32 示例改为真实清单。
+- 测试盲区：resize 零/负尺寸断言被 try/catch 吞掉、最近邻下采样与 Otsu 渐变图只断言尺寸。
+
+### Verified
+
+- `moon check --deny-warn --target all` 零警告；`moon test` **6,585/6,585**（native，2026-11-20）；CI 6 jobs（quality / test×4 / bench / coverage / mutation / prove）。
+- 覆盖率 30,263/38,846 = **77.9%**（门槛 77.5%）；变异 **7/7 KILLED**；`moon prove` **8 goals proved**（WSL Why3 1.6.0 + Z3 4.8.12）。
+
 ## [0.1.0] - 2026-11-17
 
 ### Breaking（包重命名重构 — 破坏性变更）

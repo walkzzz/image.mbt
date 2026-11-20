@@ -24,7 +24,7 @@
 | GAP-10 | Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug | `Unix.EINVAL` | 统一走 WSL / CI `prove` job |
 | GAP-11 | CI 仅 Linux（ubuntu-24.04），无 Windows/macOS native 矩阵 | 四目标已覆盖语义差异 | 后续补 OS 矩阵 |
 | GAP-12 | `docs/api_reference.md` 为历史快照（1,339 fn / 50 包），当前 72 包 / 3,746+ fn | 以各包 `.mbti` 为准 | 后续由 mbti 自动生成 |
-| GAP-13 | `examples/` 独立示例集尚未落地 | `docs/examples.md` 只列真实入口 | 阶段 3 补齐 6–8 个可运行示例 |
+| GAP-13 | ~~示例集缺失~~ **已闭环（2026-11-20）** | `examples/` 7 个可运行示例 | ✅ `raw_to_png` / `resize_demo` / `threshold_otsu` / `format_detect` / `lossless_roundtrip` / `canny_edges` / `gaussian_blur`，内嵌合成数据、零外部依赖 |
 | GAP-14 | 无 git tag / GitHub Release / 发布流水线 | 发布靠人工 moon publish | 阶段 3 补版本门禁与发布脚本 |
 
 ## 平台与工具链

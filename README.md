@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.0-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.0-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.1-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.1-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-6_585×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -166,6 +166,20 @@ moon add walkzzz/image.mbt
 ```
 
 > 🧩 **子模块按需安装**（workspace 六模块独立发布）：`moon add walkzzz/image.codec` 只装 18 格式编解码；`moon add walkzzz/image.process` 只装 90+ 算法子包；core / photography / vision / domain 同理。
+
+### 可运行示例（7 个，零外部依赖）
+
+```bash
+moon run examples/raw_to_png --target native         # RAW RGB → PNG → 解码校验
+moon run examples/resize_demo --target native        # 上采样 / 下采样
+moon run examples/threshold_otsu --target native     # Otsu 二值化
+moon run examples/format_detect --target native      # PNG/BMP/QOI 魔数探测
+moon run examples/lossless_roundtrip --target native # BMP / QOI 像素级往返
+moon run examples/canny_edges --target native        # Canny 边缘
+moon run examples/gaussian_blur --target native      # 高斯模糊
+```
+
+实测输出与 API 对照见 [docs/examples.md](docs/examples.md)。
 
 ### ⚠️ 从 walkzzz/image（0.6.x）迁移
 

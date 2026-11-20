@@ -41,7 +41,7 @@ function uniqEqual(label, values) {
 }
 
 async function countPackages(root) {
-  const skip = new Set(['_build', '.git', '.mooncakes', 'node_modules', '.tmp-smoke']);
+  const skip = new Set(['_build', '.git', '.mooncakes', 'node_modules', '.tmp-smoke', 'examples']);
   let n = 0;
   async function walk(dir) {
     const entries = await readdir(dir, { withFileTypes: true });

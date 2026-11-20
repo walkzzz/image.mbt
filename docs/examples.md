@@ -1,18 +1,28 @@
 # 示例
 
-> 本页只列**真实可运行**的入口，不虚构示例数量。
+> 本页列出**真实可运行**的示例（`examples/` 目录），输出为 2026-11-20 native 实测。
+> 运行方式：`moon run examples/<name> --target native`（四目标通用，示例无目标限制）。
 
-## 当前可运行入口
+## 7 个可运行示例
+
+| 示例 | 命令 | 覆盖 API | 实测输出（摘要） |
+|------|------|----------|------------------|
+| `raw_to_png` | `moon run examples/raw_to_png --target native` | `encode_png_pure` / `decode_png_pure` | `PNG bytes: 82` / `pixel-exact roundtrip: true` |
+| `resize_demo` | `moon run examples/resize_demo --target native` | `resize_pure`（上采样/下采样） | `upscale: 8x8 first=0 last=96` / `downscale: 2x2` |
+| `threshold_otsu` | `moon run examples/threshold_otsu --target native` | `threshold_otsu` | `black=50 white=50` |
+| `format_detect` | `moon run examples/format_detect --target native` | `detect_format` | `png->Png` / `bmp->Bmp` / `qoi->Qoi` |
+| `lossless_roundtrip` | `moon run examples/lossless_roundtrip --target native` | BMP / QOI 编解码 | `bmp: 102 bytes, pixel-exact=true` / `qoi: 54 bytes, pixel-exact=true` |
+| `canny_edges` | `moon run examples/canny_edges --target native` | `canny_edge` | `canny edges: 52 / 256 pixels` |
+| `gaussian_blur` | `moon run examples/gaussian_blur --target native` | `gaussian_blur` | `center before 255` → `after 22` |
+
+每个示例仅内嵌几十字节合成像素，不依赖外部图片文件、网络或 C 库。
+
+## 其他可运行入口
 
 | 入口 | 命令 | 覆盖内容 |
 |------|------|---------|
 | 性能基准（根模块） | `moon bench --target native` | PNG 1024/4096 编解码、resize 基准 |
-| MP4 白盒示例 | `moon test mp4 --target native` | ISO BMFF 关键帧定位（stss/stsz/stco/stts） |
-| 各模块 README | 见 [architecture.md](architecture.md) 包表 | 各子包的 API 用法片段 |
-
-## 独立示例集
-
-可独立 `moon run` 的示例集（RAW→PNG、resize、EXIF 读取、二维码生成、MP4 关键帧等）正在补齐，落地后本节会给出真实路径与运行命令；在此之前不放任何未验证的示例列表。
+| MP4 白盒测试 | `moon test mp4 --target native` | ISO BMFF 关键帧定位（stss/stsz/stco/stts） |
 
 ## 安全 API
 

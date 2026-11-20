@@ -1,0 +1,7 @@
+import {
+  "walkzzz/image.core/types",
+  "walkzzz/image.codec/codec",
+  "walkzzz/image.codec/lib",
+}
+
+pkgtype(kind: "executable")

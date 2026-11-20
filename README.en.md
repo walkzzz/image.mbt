@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.0-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.0-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.1-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.1-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-6_585×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -146,6 +146,20 @@ moon add walkzzz/image.mbt
 ```
 
 > 🧩 **Modular installation** (six workspace modules published independently): `moon add walkzzz/image.codec` for the 18-format codecs only; `moon add walkzzz/image.process` for the 90+ algorithm packages; likewise core / photography / vision / domain.
+
+### Runnable examples (7, zero external dependencies)
+
+```bash
+moon run examples/raw_to_png --target native         # RAW RGB -> PNG -> decode check
+moon run examples/resize_demo --target native        # upscale / downscale
+moon run examples/threshold_otsu --target native     # Otsu binarization
+moon run examples/format_detect --target native      # PNG/BMP/QOI magic detection
+moon run examples/lossless_roundtrip --target native # BMP / QOI pixel-exact roundtrip
+moon run examples/canny_edges --target native        # Canny edges
+moon run examples/gaussian_blur --target native      # Gaussian blur
+```
+
+Measured outputs and API mapping: [docs/examples.md](docs/examples.md).
 
 ### ⚠️ Migrating from walkzzz/image (0.6.x)
 

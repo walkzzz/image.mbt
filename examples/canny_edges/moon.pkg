@@ -1,0 +1,6 @@
+import {
+  "walkzzz/image.core/types",
+  "walkzzz/image.process/edge",
+}
+
+pkgtype(kind: "executable")
