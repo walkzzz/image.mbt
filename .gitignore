@@ -18,6 +18,10 @@ vitepress-docs/node_modules/
 nul
 testdata/
 coverage_report*.txt
-.codegraph/
-mutation-report.json
+coverage.txt
+coverage-full.txt
+coverage-*.txt
+coverage*.log
 coverage-summary.txt
+mutation-report.json
+.codegraph/
