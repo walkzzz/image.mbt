@@ -252,6 +252,13 @@ test "segf: threshold_otsu 渐变图" {
   let result = @segment.threshold_otsu(img)
   assert_eq(result.width, 10)
   assert_eq(result.height, 10)
+  let mut white = 0
+  for i in 0..<100 {
+    if result.data[i].to_int() == 255 {
+      white += 1
+    }
+  }
+  assert_true(white > 30 && white < 70)
 }
 
 ///|
@@ -341,4 +348,38 @@ test "segf: region_growing + segmentation_to_color 流程" {
   assert_eq(vis.width, 10)
   assert_eq(vis.height, 10)
   assert_eq(vis.channels, 3)
+}
+
+///|
+test "otsu_threshold_value: channels 5 rejected" {
+  let img = @types.Image::{
+    width: 1,
+    height: 1,
+    channels: 5,
+    data: b"\x00\x00\x00\x00\x00",
+  }
+  try {
+    let _ = @segment.otsu_threshold_value(img)
+    assert_true(false)
+  } catch {
+    @types.LoadError::DecodeFailed(_) => assert_true(true)
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "otsu_threshold_value: data size mismatch rejected" {
+  let img = @types.Image::{
+    width: 2,
+    height: 2,
+    channels: 1,
+    data: b"\x00\x00\x00",
+  }
+  try {
+    let _ = @segment.otsu_threshold_value(img)
+    assert_true(false)
+  } catch {
+    @types.LoadError::DecodeFailed(_) => assert_true(true)
+    _ => assert_true(false)
+  }
 }

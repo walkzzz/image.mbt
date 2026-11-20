@@ -128,6 +128,17 @@ test "safe_mul3: overflow in second multiply" {
 }
 
 ///|
+test "check_dims: zero channels rejected" {
+  try {
+    @types.check_dims(100, 100, 0)
+    assert_true(false)
+  } catch {
+    @types.LoadError::DecodeFailed(_) => assert_true(true)
+    _ => assert_true(false)
+  }
+}
+
+///|
 test "MAX_IMAGE_DIMENSION value" {
   assert_eq(@types.MAX_IMAGE_DIMENSION, 65535)
 }

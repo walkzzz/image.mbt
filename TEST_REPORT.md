@@ -7,10 +7,10 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,580 / 6,580 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,580 / 6,580（CI `test` job 实测） |
-| js | `moon test --target js` | 6,580 / 6,580（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,580 / 6,580（CI `test` job 实测） |
+| native | `moon test --target native` | **6,585 / 6,585 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,585 / 6,585（CI `test` job 实测） |
+| js | `moon test --target js` | 6,585 / 6,585（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,585 / 6,585（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
 - 测试文件 365 个（364 黑盒 `*_test.mbt` + 1 白盒 `*_wbtest.mbt`）。
@@ -38,9 +38,23 @@
 
 > Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug（`Unix.EINVAL`）；统一走 WSL 与 CI `prove` job。
 
-## 4. 变异测试
+## 4. 变异测试（7 点 / 3 包 / 100% KILLED）
 
-见 `scripts/mutation_test.mbtx`（阶段 2 接入，报告写入本文件第 4 节）。
+命令：`node scripts/mutation_test.mjs --min-kill=80`（CI `mutation` job 同命令）
+
+| ID | 包 | 变异 | 结果 |
+|----|----|------|------|
+| M01 | image.core/types | `check_dims` 漏检零宽 | KILLED |
+| M02 | image.core/types | `check_dims` 边界 65535 误拒 | KILLED |
+| M03 | image.core/types | `check_dims` 漏检零通道 | KILLED |
+| M04 | image.codec/util | `resize` 漏检零宽输出 | KILLED |
+| M05 | image.codec/util | `resize` 最近邻 x 取整偏移 | KILLED |
+| M06 | image.process/segment | `threshold_otsu` 方差比较反转 | KILLED |
+| M07 | image.process/segment | `otsu_threshold_value` 通道上限放宽 | KILLED |
+
+- 结果：**7 / 7 KILLED（击杀率 100%）**，报告写入 `mutation-report.json`。
+- 过程中发现并修复 3 个测试盲区：resize 零/负尺寸测试的断言被 `try/catch` 吞掉、最近邻下采样只断言尺寸、Otsu 渐变图只断言尺寸。
+- 变异点出现 0 次或多次时标记 SKIPPED 并计入总分母，防止"变异点写错也算通过"。
 
 ## 5. 性能基准
 
@@ -54,6 +68,7 @@
 | `test` | 四目标测试矩阵（native / wasm-gc / js / wasm） |
 | `bench` | native 基准 |
 | `coverage` | 覆盖率生成 + 77.5% 门槛 + artifact 上传 |
+| `mutation` | `mutation_test.mjs --min-kill=80`（7 点 / 3 包） |
 | `prove` | Why3 + Z3 + `moon prove` |
 
 ## 7. 复现步骤
@@ -66,5 +81,6 @@ node scripts/check_docs.mjs
 moon test --enable-coverage --target native
 moon coverage report -f summary
 node scripts/check_coverage.mjs coverage-summary.txt --min 77.5
+node scripts/mutation_test.mjs --min-kill=80
 cd image.core && moon prove   # WSL / Ubuntu
 ```

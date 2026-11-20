@@ -108,6 +108,27 @@ jobs:
             coverage.txt
             coverage-summary.txt
 
+  mutation:
+    name: Mutation gate (3 packages, 7 mutants)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Run mutation tests
+        run: node scripts/mutation_test.mjs --min-kill=80
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: mutation-report.json
+
   prove:
     name: Formal proof (Why3 + Z3)
     runs-on: ubuntu-24.04

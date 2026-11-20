@@ -19,3 +19,5 @@ nul
 testdata/
 coverage_report*.txt
 .codegraph/
+mutation-report.json
+coverage-summary.txt

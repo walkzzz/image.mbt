@@ -107,34 +107,37 @@ test "resize_pure: same size returns equivalent image" {
 ///|
 test "resize_pure: zero width raises error" {
   let img = v251_resize_make_image(2, 2, 1, [10, 20, 30, 40])
-  try {
+  let raised = try {
     let _ = @util.resize_pure(img, 0, 2)
-    assert_true(false)
+    false
   } catch {
-    _ => assert_true(true)
+    _ => true
   }
+  assert_true(raised)
 }
 
 ///|
 test "resize_pure: zero height raises error" {
   let img = v251_resize_make_image(2, 2, 1, [10, 20, 30, 40])
-  try {
+  let raised = try {
     let _ = @util.resize_pure(img, 2, 0)
-    assert_true(false)
+    false
   } catch {
-    _ => assert_true(true)
+    _ => true
   }
+  assert_true(raised)
 }
 
 ///|
 test "resize_pure: negative dimensions raise error" {
   let img = v251_resize_make_image(2, 2, 1, [10, 20, 30, 40])
-  try {
+  let raised = try {
     let _ = @util.resize_pure(img, -1, 2)
-    assert_true(false)
+    false
   } catch {
-    _ => assert_true(true)
+    _ => true
   }
+  assert_true(raised)
 }
 
 ///|
@@ -161,4 +164,40 @@ test "resize_pure: downscale 4x4 to 2x2 nearest" {
   )
   assert_eq(result.width, 2)
   assert_eq(result.height, 2)
+}
+
+///|
+test "resize_pure: point sample 1:1 identity" {
+  let img = v251_resize_make_image(2, 2, 3, [
+    10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120,
+  ])
+  let same = @util.resize_pure(
+    img,
+    2,
+    2,
+    filter=@types.ResizeFilter::PointSample,
+  )
+  assert_eq(same.width, 2)
+  assert_eq(same.height, 2)
+  assert_eq(same.channels, 3)
+  for i in 0..<12 {
+    assert_eq(same.data[i].to_int(), img.data[i].to_int())
+  }
+}
+
+///|
+test "resize_pure: nearest downscale 4x4 to 2x2 pixel values" {
+  let img = v251_resize_make_image(4, 4, 1, [
+    10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160,
+  ])
+  let result = @util.resize_pure(
+    img,
+    2,
+    2,
+    filter=@types.ResizeFilter::PointSample,
+  )
+  assert_eq(result.data[0].to_int(), 60)
+  assert_eq(result.data[1].to_int(), 80)
+  assert_eq(result.data[2].to_int(), 140)
+  assert_eq(result.data[3].to_int(), 160)
 }
