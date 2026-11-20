@@ -16,19 +16,21 @@
 ### Changed
 
 - **CI 重构**：单 job → 6 jobs（quality / test 四目标矩阵 / bench / coverage / mutation / prove，ubuntu-24.04）；`mbti` 漂移与 `moon fmt --check` 改为阻断；`scripts/` 取消 gitignore，门禁脚本随仓库发布。
-- **测试**：6,580 → **6,606**（+26：门禁/边界补测 + 7 个零覆盖大文件补测 18 项 + WebP 奇数尺寸回归）。
+- **测试**：6,580 → **6,619**（+39：门禁/边界补测、7 个零覆盖大文件补测、5 个白盒测试文件、WebP 编解码互操作与奇数尺寸回归）。
 - **弃用 API 迁移**：19 处 `Int64::from_int` / `Double::from_int` → `to_int64()` / `to_double()`，四目标 `check --deny-warn` 零警告。
 
 ### Fixed
 
 - **WebP VP8 编码奇数尺寸崩溃**：`rgb_to_yuv420` 的 UV 平面按 `w/2*(h/2)` 分配、索引却按 `ceil(w/2)` 步长访问，1x1/3x3 触发 `PanicError`；改为 `ceil(w/2)×ceil(h/2)` 分配并统一步长，新增 1x1 / 3x3 / 1 通道拒绝回归测试。
-- 文档口径：版本 0.5.0/0.1.0 冲突、测试数 6,574/6,486、包数 71、proof 5 goals、覆盖率 90.4% 全部按实测纠正（覆盖率 **80.7% = 31426/38952**）；删除死链 banner 与旧仓库链接；`docs/examples.md` 虚报 32 示例改为真实清单。
+- **WebP VP8 解码无法解自身编码**：`parse_vp8_frame_header` 把 3 字节帧 tag 当 MSB-first 3 位读取并判 `tag == 0`，合法关键帧被误判为非关键帧；按 RFC 6386 改为小端 tag（bit0=关键帧、bit5-23=first_part_size）+ 小端分辨率解析，自编码 16x16 / 8x8 / 32x32 / RGBA 往返全部通过。
+- **WebP VP8 解码奇数尺寸崩溃**：色度平面按 `w/2*(h/2)` 分配导致 1x1/3x3 越界 panic；解码器现返回明确 `DecodeFailed`（正确 ceil 平面支持列入后续，见 GAP-17）。
+- 文档口径：版本 0.5.0/0.1.0 冲突、测试数 6,574/6,486、包数 71、proof 5 goals、覆盖率 90.4% 全部按实测纠正（覆盖率 **81.3% = 31668/38950**）；删除死链 banner 与旧仓库链接；`docs/examples.md` 虚报 32 示例改为真实清单。
 - 测试盲区：resize 零/负尺寸断言被 try/catch 吞掉、最近邻下采样与 Otsu 渐变图只断言尺寸。
 
 ### Verified
 
-- `moon check --deny-warn --target all` 零警告；`moon test` **6,606/6,606**（native，2026-11-20）；CI 6 jobs（quality / test×4 / bench / coverage / mutation / prove）。
-- 覆盖率 31,426/38,952 = **80.7%**（门槛 80.5%）；变异 **12/12 KILLED（7 包）**；`moon prove` **8 goals proved**（WSL Why3 1.6.0 + Z3 4.8.12）。
+- `moon check --deny-warn --target all` 零警告；`moon test` **6,619/6,619**（native，2026-11-20）；CI 6 jobs（quality / test×4 / bench / coverage / mutation / prove）。
+- 覆盖率 31,668/38,950 = **81.3%**（门槛 80.5%）；变异 **12/12 KILLED（7 包）**；`moon prove` **8 goals proved**（WSL Why3 1.6.0 + Z3 4.8.12）。
 
 ## [0.1.0] - 2026-11-17
 

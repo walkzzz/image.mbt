@@ -7,30 +7,32 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,606 / 6,606 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,606 / 6,606（CI `test` job 实测） |
-| js | `moon test --target js` | 6,606 / 6,606（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,606 / 6,606（CI `test` job 实测） |
+| native | `moon test --target native` | **6,619 / 6,619 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,619 / 6,619（CI `test` job 实测） |
+| js | `moon test --target js` | 6,619 / 6,619（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,619 / 6,619（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
-- 测试文件 372 个（371 黑盒 `*_test.mbt` + 1 白盒 `*_wbtest.mbt`）。
+- 测试文件 384 个（379 黑盒 `*_test.mbt` + 5 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode）。
 - 覆盖 18 格式编解码、三级像素深度、resize、色彩/滤波/边缘/特征/分割/频域、计算摄影、OCR/视频、领域应用。
 
 ## 2. 覆盖率
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **31,426 / 38,952 = 80.7%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 可执行行覆盖 | **31,668 / 38,950 = 81.3%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
 | 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
 | CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
-> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 80.7%，以本报告为准。README badge 已同步纠正。
+> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 81.3%，以本报告为准。README badge 已同步纠正。
 
 ## 2.1 本轮修复的缺陷
 
 | 缺陷 | 文件 | 修复 | 回归测试 |
 |------|------|------|---------|
 | WebP VP8 编码奇数宽高 UV 平面越界（1x1/3x3 `PanicError`） | `image.codec/codec/webp_vp8_encode.mbt` | UV 平面按 `ceil(w/2)×ceil(h/2)` 分配，索引步长一致 | `webp_vp8_encode_test.mbt`（1x1 / 3x3 / 1 通道拒绝） |
+| WebP VP8 解码帧头解析错误（合法关键帧被判为非关键帧，编解码不互操作） | `image.codec/codec/webp_vp8_decode.mbt` | 按 RFC 6386 读 3 字节小端 tag（bit0=关键帧、bit5-23=first_part_size），分辨率按 2 字节小端解析 | `webp_vp8_decode_roundtrip_test.mbt`（16x16 / 8x8 / 32x32 / RGBA 自编码往返） |
+| WebP VP8 解码奇数宽高崩溃（色度平面按 floor 分配） | `image.codec/codec/webp_vp8_decode.mbt` | 解码器对奇数宽高返回明确 `DecodeFailed`（正确 ceil 平面支持列入后续） | 同上（1x1 / 3x3 期望明确错误） |
 
 ## 3. 形式化验证
 

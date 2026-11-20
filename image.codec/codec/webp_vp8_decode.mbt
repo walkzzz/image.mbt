@@ -455,16 +455,21 @@ priv struct Vp8FrameHeader {
 
 ///|
 fn parse_vp8_frame_header(br : Vp8BitReader) -> Vp8FrameHeader {
-  let tag = br.read_bits(3)
-  let key_frame = tag == 0
-  let version = br.read_bits(3)
-  let show_frame = br.read_bits(1) == 1
-  let first_part_size_0 = br.read_bits(8)
-  let first_part_size_1 = br.read_bits(8)
-  let first_part_size_2 = br.read_bits(8)
-  let first_part_size = first_part_size_0 |
-    (first_part_size_1 << 8) |
-    (first_part_size_2 << 16)
+  // VP8 帧 tag 是 3 字节小端整数（RFC 6386 §9.1），不是布尔编码位流：
+  //   bit0     frame_type（0 = key frame）
+  //   bit1-3   version
+  //   bit4     show_frame
+  //   bit5-23  first_part_size
+  // 旧实现按 MSB-first 读 3 位并判 `tag == 0`，把合法关键帧误判为非关键帧，
+  // 导致本库编码器输出无法被本库解码器解码（编解码不互操作）。
+  let tag_b0 = br.read_bits(8)
+  let tag_b1 = br.read_bits(8)
+  let tag_b2 = br.read_bits(8)
+  let tag = tag_b0 | (tag_b1 << 8) | (tag_b2 << 16)
+  let key_frame = (tag & 1) == 0
+  let version = (tag >> 1) & 7
+  let show_frame = ((tag >> 4) & 1) == 1
+  let first_part_size = (tag >> 5) & 0x7FFFF
 
   let mut width = 0
   let mut height = 0
@@ -472,18 +477,22 @@ fn parse_vp8_frame_header(br : Vp8BitReader) -> Vp8FrameHeader {
   let mut vertical_scale = 0
 
   if key_frame {
-    // 关键帧：3 字节 start code + 分辨率
+    // 关键帧：3 字节 start code（0x9d 0x01 0x2a）+ 小端分辨率
     let start_code_0 = br.read_bits(8)
     let start_code_1 = br.read_bits(8)
     let start_code_2 = br.read_bits(8)
     ignore(start_code_0)
     ignore(start_code_1)
     ignore(start_code_2)
-    // 分辨率：14 bits width + 2 bits horizontal scale + 14 bits height + 2 bits vertical scale
-    width = br.read_bits(14)
-    horizontal_scale = br.read_bits(2)
-    height = br.read_bits(14)
-    vertical_scale = br.read_bits(2)
+    // 分辨率：每轴 2 字节小端，低 14 位尺寸、高 2 位 scale
+    let w0 = br.read_bits(8)
+    let w1 = br.read_bits(8)
+    width = w0 | ((w1 & 0x3F) << 8)
+    horizontal_scale = (w1 >> 6) & 3
+    let h0 = br.read_bits(8)
+    let h1 = br.read_bits(8)
+    height = h0 | ((h1 & 0x3F) << 8)
+    vertical_scale = (h1 >> 6) & 3
   }
 
   Vp8FrameHeader::{
@@ -2075,6 +2084,14 @@ pub fn decode_vp8_frame(
 
   let w = header.width
   let h = header.height
+
+  // 当前实现按 w/2×(h/2) 分配色度平面，奇数宽高会越界 panic（native trap）。
+  // 在正确支持 ceil 色度平面之前，先返回明确错误而不是崩溃。
+  if w % 2 != 0 || h % 2 != 0 {
+    raise @types.LoadError::DecodeFailed(
+      "VP8 解码当前要求偶数宽高（YUV420 色度平面对齐）: \{w}x\{h}",
+    )
+  }
 
   // 解析量化参数
   let quant = parse_quantization(br)
