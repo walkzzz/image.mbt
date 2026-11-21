@@ -62,3 +62,29 @@ test "advanced_denoise: denoise_image 默认配置与报告" {
     _ => assert_true(false)
   }
 }
+
+///|
+test "advanced_enhance: enhance_image_advanced 各算法" {
+  let img = ade_make_gray(8, 8)
+  let algs : Array[@enhance.EnhancementAlgorithm] = [
+    @enhance.EnhancementAlgorithm::HistogramEqualization,
+    @enhance.EnhancementAlgorithm::CLAHE,
+    @enhance.EnhancementAlgorithm::GammaCorrection,
+    @enhance.EnhancementAlgorithm::UnsharpMask,
+    @enhance.EnhancementAlgorithm::Retinex,
+    @enhance.EnhancementAlgorithm::HomomorphicFiltering,
+    @enhance.EnhancementAlgorithm::ColorBalance,
+    @enhance.EnhancementAlgorithm::ContrastStretching,
+    @enhance.EnhancementAlgorithm::AdaptiveThreshold,
+    @enhance.EnhancementAlgorithm::DeepLearningEnhance,
+    @enhance.EnhancementAlgorithm::Unknown,
+  ]
+  for a in algs {
+    try {
+      let r = @enhance.enhance_image_advanced(img, a)
+      assert_eq(r.image.width, 8)
+    } catch {
+      _ => assert_true(false)
+    }
+  }
+}
