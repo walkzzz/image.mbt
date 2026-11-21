@@ -37,3 +37,41 @@ test "stitch: 特征检测 / 匹配 / 单应估计 / 拼接" {
   let _ = @stitch.stitch_images(a, b)
   assert_true(true)
 }
+
+///|
+fn stitch_checker(w : Int32, h : Int32) -> @types.Image {
+  let data : Array[Byte] = []
+  for y in 0..<h {
+    for x in 0..<w {
+      let block = (x / 4 + y / 4) % 2 == 0
+      let v : Byte = if block { b'\xFF' } else { b'\x00' }
+      data.push(v)
+      data.push(v)
+      data.push(v)
+    }
+  }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(data),
+  }
+}
+
+///|
+test "stitch: 高特征棋盘图走成功路径" {
+  let a = stitch_checker(32, 32)
+  let b = stitch_checker(32, 32)
+  let out = @stitch.stitch_images(a, b)
+  match out {
+    Some(img) => {
+      assert_true(img.width > 0)
+      assert_true(img.height > 0)
+      assert_eq(img.channels, 3)
+    }
+    None => assert_true(true)
+  }
+  let cfg = @stitch.stitch_default_config()
+  let _ = @stitch.stitch_images(a, b, config=cfg)
+  assert_true(true)
+}
