@@ -23,7 +23,7 @@
 ## 多目标测试
 
 > [!NOTE]
-> 四目标（native / wasm-gc / js / wasm）均使用同一套纯 MoonBit 代码，各 **6634 测试**全部通过，覆盖率 82.8%（32435/39174，2026-11-20 实测），`moon check --deny-warn` 零警告。
+> 四目标（native / wasm-gc / js / wasm）均使用同一套纯 MoonBit 代码，各 **6638 测试**全部通过，覆盖率 82.8%（32440/39174，2026-11-20 实测），`moon check --deny-warn` 零警告。
 
 > [!TIP]
 > 四目标共用 workspace（image.core/image.codec/image.process/image.photography/image.vision/image.domain）同一套代码，无任何条件编译或目标分支。
@@ -81,7 +81,7 @@ flowchart LR
 ## 版本更新摘要
 
 > [!TIP]
-> **0.1.0（包重命名重构版）** — walkzzz/image → walkzzz/image.mbt · 六子模块统一 image.* 前缀（目录同步改名）· 版本重新计数 · API 零变化（.mbti 仅路径行变化）· README 双语迁移章节 · mp4 包修复完成（6634 测试 × 4 全绿）
+> **0.1.0（包重命名重构版）** — walkzzz/image → walkzzz/image.mbt · 六子模块统一 image.* 前缀（目录同步改名）· 版本重新计数 · API 零变化（.mbti 仅路径行变化）· README 双语迁移章节 · mp4 包修复完成（6638 测试 × 4 全绿）
 >
 > **0.6.0（workspace 重构）** — src/ 单体 → 六模块 workspace · 根 CHANGELOG · CI `--deny-warn` 零警告门禁 · badge 数据实测对齐（6574 测试 / 8 goals）· 子模块独立安装 · 自演化叙事（中英）
 >

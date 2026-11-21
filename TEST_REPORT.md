@@ -7,10 +7,10 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,634 / 6,634 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,634 / 6,634（CI `test` job 实测） |
-| js | `moon test --target js` | 6,634 / 6,634（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,634 / 6,634（CI `test` job 实测） |
+| native | `moon test --target native` | **6,638 / 6,638 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,638 / 6,638（CI `test` job 实测） |
+| js | `moon test --target js` | 6,638 / 6,638（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,638 / 6,638（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
 - 测试文件 397 个（392 黑盒 `*_test.mbt` + 5 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode）。
@@ -20,7 +20,7 @@
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **32,435 / 39,174 = 82.8%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 可执行行覆盖 | **32,440 / 39,174 = 82.8%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
 | 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
 | CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 

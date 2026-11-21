@@ -78,3 +78,28 @@ test "codec_trait: 全部可编码格式的 encode 分派" {
     }
   }
 }
+
+///|
+test "codec_trait: 可往返格式的 decode 分派" {
+  let img = ct_make_rgb(2, 2)
+  let any = @types.AnyImage::U8(img)
+  let formats : Array[@types.ImageFormat] = [
+    @types.ImageFormat::Png,
+    @types.ImageFormat::Bmp,
+    @types.ImageFormat::Gif,
+    @types.ImageFormat::Tga,
+    @types.ImageFormat::Pnm,
+    @types.ImageFormat::Qoi,
+    @types.ImageFormat::Tiff,
+  ]
+  for f in formats {
+    assert_true(@codec.Codec::can_decode(f))
+    try {
+      let bytes = @codec.Codec::encode(f, any)
+      let back = @codec.Codec::decode(f, bytes)
+      assert_true(back is @types.AnyImage::U8(_))
+    } catch {
+      _ => assert_true(false)
+    }
+  }
+}

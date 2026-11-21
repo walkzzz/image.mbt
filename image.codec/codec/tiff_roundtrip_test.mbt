@@ -59,3 +59,18 @@ test "codec_trait: codec_detect_format 魔数识别" {
   assert_eq(@codec.codec_detect_format(bmp), @types.ImageFormat::Bmp)
   assert_eq(@codec.codec_detect_format(b"\x00"), @types.ImageFormat::Unknown)
 }
+
+///|
+test "tiff: packbits 解码字面/重复/无效控制码" {
+  try {
+    // 0x02 → 复制 3 个字面字节；0xFE → 重复 3 次 0xAA；0x80 → 无效（跳过）
+    let out = @codec.tiff_packbits_decode(b"\x02\x10\x20\x30\xFE\xAA")
+    assert_true(out.length() >= 6)
+    assert_eq(out[0].to_int(), 0x10)
+    assert_eq(out[1].to_int(), 0x20)
+    assert_eq(out[2].to_int(), 0x30)
+    assert_eq(out[3].to_int(), 0xAA)
+  } catch {
+    _ => assert_true(false)
+  }
+}
