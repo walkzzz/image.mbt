@@ -2293,12 +2293,21 @@ pub fn decode_vp8_inter_frame(
     return (img, new_refs)
   }
 
-  // 非关键帧：使用帧间预测
-  let w = header.width
-  let h = header.height
+  // 非关键帧：VP8 inter 帧头不携带分辨率，尺寸来自参考帧
+  let mut w = header.width
+  let mut h = header.height
+  if w == 0 || h == 0 {
+    w = refs.width
+    h = refs.height
+  }
 
   if w == 0 || h == 0 {
     raise @types.LoadError::DecodeFailed("VP8 帧尺寸无效")
+  }
+  if w % 2 != 0 || h % 2 != 0 {
+    raise @types.LoadError::DecodeFailed(
+      "VP8 inter 解码当前要求偶数宽高（YUV420 色度平面对齐）: \{w}x\{h}",
+    )
   }
 
   // 解析量化参数

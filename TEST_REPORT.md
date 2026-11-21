@@ -7,24 +7,24 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,624 / 6,624 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,624 / 6,624（CI `test` job 实测） |
-| js | `moon test --target js` | 6,624 / 6,624（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,624 / 6,624（CI `test` job 实测） |
+| native | `moon test --target native` | **6,634 / 6,634 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,634 / 6,634（CI `test` job 实测） |
+| js | `moon test --target js` | 6,634 / 6,634（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,634 / 6,634（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
-- 测试文件 393 个（388 黑盒 `*_test.mbt` + 5 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode）。
+- 测试文件 397 个（392 黑盒 `*_test.mbt` + 5 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode）。
 - 覆盖 18 格式编解码、三级像素深度、resize、色彩/滤波/边缘/特征/分割/频域、计算摄影、OCR/视频、领域应用。
 
 ## 2. 覆盖率
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **32,014 / 38,950 = 82.2%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 可执行行覆盖 | **32,435 / 39,174 = 82.8%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
 | 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
 | CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
-> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 82.2%，以本报告为准。README badge 已同步纠正。
+> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 82.8%，以本报告为准。README badge 已同步纠正。
 
 ## 2.1 本轮修复的缺陷
 
@@ -33,6 +33,22 @@
 | WebP VP8 编码奇数宽高 UV 平面越界（1x1/3x3 `PanicError`） | `image.codec/codec/webp_vp8_encode.mbt` | UV 平面按 `ceil(w/2)×ceil(h/2)` 分配，索引步长一致 | `webp_vp8_encode_test.mbt`（1x1 / 3x3 / 1 通道拒绝） |
 | WebP VP8 解码帧头解析错误（合法关键帧被判为非关键帧，编解码不互操作） | `image.codec/codec/webp_vp8_decode.mbt` | 按 RFC 6386 读 3 字节小端 tag（bit0=关键帧、bit5-23=first_part_size），分辨率按 2 字节小端解析 | `webp_vp8_decode_roundtrip_test.mbt`（16x16 / 8x8 / 32x32 / RGBA 自编码往返） |
 | WebP VP8 解码奇数宽高崩溃（色度平面按 floor 分配） | `image.codec/codec/webp_vp8_decode.mbt` | 解码器对奇数宽高返回明确 `DecodeFailed`（正确 ceil 平面支持列入后续） | 同上（1x1 / 3x3 期望明确错误） |
+| QR finder 垂直验证从中心行开始扫描（检测恒为 0） | `image.codec/barcode/barcode_decode.mbt` | 从图案顶部（中心行 − 3×模块）开始扫描 5 段 | `testgen_driven_test.mbt`（QR 往返 hello） |
+| QR finder 重复计数、x/y 语义不一致 | `image.codec/barcode/barcode_decode.mbt` | 统一返回图案左上角坐标，并按 x/y 邻域去重 | 同上 |
+| QR 版本估算公式偏移（V 恒偏大 1） | `image.codec/barcode/qr_decode.mbt` | 改为 `V = (中心距 − 10) / 4`（finder 中心距 14+4(V−1)） | 同上 |
+| QR 格式信息位序反（MSB/LSB） | `image.codec/barcode/qr_decode.mbt` | 按 ISO 18004 以 positions[i] = 第 i 位（LSB first）读取 | 同上（解析出 L / mask 0） |
+| VP8 inter 帧尺寸来源错误（从 header 取 0 → 恒拒绝） | `image.codec/codec/webp_vp8_decode.mbt` | inter 帧无分辨率，回退参考帧宽高（保留偶数对齐守卫） | `webp_vp8_decode_wbtest.mbt`（inter 帧解码 16x16） |
+
+## 2.2 测试输入生成器（`image.core/testgen`）
+
+为覆盖 QR / 条码 / OCR / VP8 等“需要真实输入”的模块，新增纯 MoonBit 生成器包：
+
+| 生成器 | 入口 | 产出 |
+|--------|------|------|
+| QR | `render_qr(payload, module_px~, quiet_zone~)` / `qr_modules` | 版本 1-L / 字节模式 / 掩码 0 的 21×21 码图（GF(256)+RS 自洽） |
+| Code39 | `render_code39(codes, module_px~, height~)` | 与解码器同表的标准条码条纹图 |
+| 数字文本 | `render_digits(digits, scale~, margin~)` | 5×7 点阵灰度图 |
+| VP8 | `build_vp8_key_frame(w, h, first_part_size~)` / `build_vp8_inter_frame(first_part_size~)` | RFC 6386 合法帧头 + 零填充分区 |
 
 ## 3. 形式化验证
 

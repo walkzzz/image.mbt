@@ -469,12 +469,25 @@ pub fn detect_qr_finder_patterns(
             data, w, h, pattern_x, y, pattern_size,
           )
           if vertical_valid {
-            patterns.push(QrFinderPattern::{
-              x: pattern_x.to_double(),
-              y: y.to_double(),
-              size: pattern_size.to_double(),
-              quality: 0.8,
-            })
+            // 统一语义：x/y 均为定位图案左上角（水平扫描命中的 y 是中心行）
+            let cell = pattern_size / 7
+            let top_y = y - 3 * cell
+            let top = if top_y < 0 { 0 } else { top_y }
+            let mut duplicate = false
+            for q in patterns {
+              if (q.x - pattern_x.to_double()).abs() < 1.0 &&
+                (q.y - top.to_double()).abs() <= (pattern_size / 2).to_double() {
+                duplicate = true
+              }
+            }
+            if !duplicate {
+              patterns.push(QrFinderPattern::{
+                x: pattern_x.to_double(),
+                y: top.to_double(),
+                size: pattern_size.to_double(),
+                quality: 0.8,
+              })
+            }
           }
           x = pattern_x + pattern_size + 1
         } else {
@@ -569,7 +582,13 @@ fn verify_qr_pattern_vertical(
   if center_x >= w {
     return false
   }
-  let mut y = start_y
+  // 水平扫描传入的 start_y 是图案中心行；垂直验证必须从图案顶部开始，
+  // 否则会把“中心黑块”当成第一个 run，比例永远不匹配（检测恒为 0）。
+  let cell = size / 7
+  let mut y = start_y - 3 * cell
+  if y < 0 {
+    y = 0
+  }
   // 模块1：黑条
   let mut m1 = 0
   while y < h && data[y * w + center_x].to_int() < 128 {

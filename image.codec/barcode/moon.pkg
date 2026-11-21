@@ -5,4 +5,5 @@ import {
 
 import {
   "walkzzz/image.core/types",
+  "walkzzz/image.core/testgen",
 } for "test"

@@ -1,6 +1,6 @@
 # 功能一览
 
-> 从 README 提取。全仓 3,748 公开函数 + 710 类型（.mbti 口径，72 包）按分类概览；本表为核心编解码/处理分类，完整签名见 [api_reference.md](api_reference.md) 与各包 `pkg.generated.mbti`。
+> 从 README 提取。全仓 3,755 公开函数 + 710 类型（.mbti 口径，72 包）按分类概览；本表为核心编解码/处理分类，完整签名见 [api_reference.md](api_reference.md) 与各包 `pkg.generated.mbti`。
 
 | 分类 | 关键函数 | 说明 |
 |------|---------|------|

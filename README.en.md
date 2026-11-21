@@ -9,12 +9,12 @@
 [![Version](https://img.shields.io/badge/version-0.1.1-orange)]()
 [![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.1-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_624×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_634×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
-[![Coverage](https://img.shields.io/badge/coverage-82.2%25-4CAF50?style=flat-square)]()
+[![Coverage](https://img.shields.io/badge/coverage-82.8%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-72-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-73-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-Contest-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 简体中文 · [English](README.en.md)
@@ -42,7 +42,7 @@ Beyond feature development, this project built a **self_evolve closed loop** (do
 - **Evolution recommendation engine**: recommends the next evolution step from current state (v298)
 - **Coverage blind-spot analysis**: automatically locates test coverage blind spots (v297)
 
-> The test count growth visible across versions (3378 → 6574 → 6624, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
+> The test count growth visible across versions (3378 → 6574 → 6634, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
 
 ---
 
@@ -61,7 +61,7 @@ Fully pure MoonBit, no C compiler needed. `moon add walkzzz/image.mbt` and you'r
 
 ### 🟢 Four Targets Native
 
-native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,624 tests × 4 targets all green.
+native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,634 tests × 4 targets all green.
 
 </td>
 </tr>
@@ -348,10 +348,10 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 
 | Target | Backend | Tests | Status |
 |:------:|:-------:|------:|:------:|
-| **native** | Pure MoonBit | 6,624 | ✅ |
-| **wasm-gc** | Pure MoonBit | 6,624 | ✅ |
-| **js** | Pure MoonBit | 6,624 | ✅ |
-| **wasm** | Pure MoonBit | 6,624 | ✅ |
+| **native** | Pure MoonBit | 6,634 | ✅ |
+| **wasm-gc** | Pure MoonBit | 6,634 | ✅ |
+| **js** | Pure MoonBit | 6,634 | ✅ |
+| **wasm** | Pure MoonBit | 6,634 | ✅ |
 
 > Same codebase, **no conditional compilation**, all four targets share all source files.
 
@@ -381,7 +381,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | Document | Description |
 |----------|-------------|
 | [docs/architecture.md](docs/architecture.md) | Architecture diagram, module dependencies, design decisions |
-| [docs/api_index.md](docs/api_index.md) | **API index (auto-generated, 72 packages / 3,748 fns)** |
+| [docs/api_index.md](docs/api_index.md) | **API index (auto-generated, 72 packages / 3,755 fns)** |
 | [docs/api_reference.md](docs/api_reference.md) | API reference snapshot (see api_index and per-package .mbti) |
 | [docs/roadmap.md](docs/roadmap.md) | Iteration roadmap |
 | [docs/changelog.md](docs/changelog.md) | Version changelog |
@@ -405,7 +405,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 # Compile check (four targets)
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# Run tests (6,624 × 4 targets)
+# Run tests (6,634 × 4 targets)
 moon test --target native
 moon test --target wasm-gc
 moon test --target js

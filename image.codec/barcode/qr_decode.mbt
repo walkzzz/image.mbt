@@ -116,7 +116,8 @@ pub fn decode_qrcode_full(
   let dist12 = ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)).sqrt()
   let dist13 = ((p1.x - p3.x) * (p1.x - p3.x) + (p1.y - p3.y) * (p1.y - p3.y)).sqrt()
   let modules_between = dist12.max(dist13) / module_size
-  let version = ((modules_between - 10.0) / 4.0 + 1.0).to_int().max(1).min(10)
+  // finder 中心间距 = 14 + 4(V-1) 模块 → V = (d - 10) / 4
+  let version = ((modules_between - 10.0) / 4.0).to_int().max(1).min(10)
   let qr_size = 17 + version * 4 // 版本 N 的模块数 = 17 + 4N
   // 4. 计算 QR Code 区域边界
   let min_x = p1.x.min(p2.x).min(p3.x).to_int()
@@ -239,7 +240,8 @@ fn read_qr_format_info(modules : Array[Int32], qr_size : Int32) -> Int32 {
     let (row, col) = positions[i]
     if row < qr_size && col < qr_size {
       if modules[row * qr_size + col] == 1 {
-        format_bits = format_bits | (1 << (14 - i))
+        // 标准（ISO 18004 / qrcodegen）：positions[i] 对应格式信息第 i 位（LSB first）
+        format_bits = format_bits | (1 << i)
       }
     }
   }
