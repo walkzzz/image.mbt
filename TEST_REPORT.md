@@ -7,10 +7,10 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,640 / 6,640 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,640 / 6,640（CI `test` job 实测） |
-| js | `moon test --target js` | 6,640 / 6,640（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,640 / 6,640（CI `test` job 实测） |
+| native | `moon test --target native` | **6,644 / 6,644 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,644 / 6,644（CI `test` job 实测） |
+| js | `moon test --target js` | 6,644 / 6,644（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,644 / 6,644（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
 - 测试文件 398 个（392 黑盒 `*_test.mbt` + 6 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode、ean13_gen）。
@@ -20,11 +20,11 @@
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **32,477 / 39,174 = 82.9%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 可执行行覆盖 | **32,664 / 39,289 = 83.1%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
 | 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
 | CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
-> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 82.9%，以本报告为准。README badge 已同步纠正。
+> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 83.1%，以本报告为准。README badge 已同步纠正。
 
 ## 2.1 本轮修复的缺陷
 
@@ -39,6 +39,7 @@
 | QR 格式信息位序反（MSB/LSB） | `image.codec/barcode/qr_decode.mbt` | 按 ISO 18004 以 positions[i] = 第 i 位（LSB first）读取 | 同上（解析出 L / mask 0） |
 | VP8 inter 帧尺寸来源错误（从 header 取 0 → 恒拒绝） | `image.codec/codec/webp_vp8_decode.mbt` | inter 帧无分辨率，回退参考帧宽高（保留偶数对齐守卫） | `webp_vp8_decode_wbtest.mbt`（inter 帧解码 16x16） |
 | UPC-A 包装层 `String` 索引比较恒 false（`data[0] == '0'`） | `image.codec/barcode/linear_barcodes.mbt` | 改用切片 `data[0:1].to_owned() == "0"` 与 `data[1:13].to_owned()` | `ean13_gen_wbtest.mbt`（UPC-A 往返 490000123457） |
+| 扩展 EXIF 解析器 tag 非法（`0x88222` / `0x88242` 五位十六进制） | `image.codec/meta/exif_extended_read.mbt` | 修正为 `0xA402`（ExposureMode）/ `0xA403`（WhiteBalance） | `exif_roundtrip_test.mbt`（多标签 ISO/曝光/光圈/焦距/GPS 解析） |
 
 ## 2.2 测试输入生成器（`image.core/testgen`）
 

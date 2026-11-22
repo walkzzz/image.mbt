@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn build_exif_jpeg() -> Bytes
+
 pub fn build_vp8_inter_frame(first_part_size? : Int32) -> Bytes
 
 pub fn build_vp8_key_frame(Int32, Int32, first_part_size? : Int32) -> Bytes

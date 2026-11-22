@@ -6,4 +6,5 @@ import {
 
 import {
   "walkzzz/image.codec/codec",
+  "walkzzz/image.core/testgen",
 } for "test"

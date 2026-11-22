@@ -74,3 +74,67 @@ test "tiff: packbits 解码字面/重复/无效控制码" {
     _ => assert_true(false)
   }
 }
+
+///|
+fn lzw_pack(codes : Array[Int32], width : Int32) -> Bytes {
+  let bits : Array[Int32] = []
+  for c in codes {
+    for i in 0..<width {
+      bits.push((c >> i) & 1)
+    }
+  }
+  let out : Array[Byte] = [b'\x08']
+  let mut cur = 0
+  let mut n = 0
+  for b in bits {
+    cur = cur | (b << n)
+    n += 1
+    if n == 8 {
+      out.push(cur.to_byte())
+      cur = 0
+      n = 0
+    }
+  }
+  if n > 0 {
+    out.push(cur.to_byte())
+  }
+  Bytes::from_array(out)
+}
+
+///|
+test "tiff: LZW 解码 CLEAR → 字面码 → EOI" {
+  // init_code_len=8 → clear=256 / eoi=257，码宽 9
+  let data = lzw_pack([256, 65, 66, 257], 9)
+  try {
+    let out = @codec.tiff_lzw_decode(data)
+    assert_eq(out.length(), 2)
+    assert_eq(out[0].to_int(), 65)
+    assert_eq(out[1].to_int(), 66)
+  } catch {
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "tiff: LZW 首码非 CLEAR 被拒" {
+  let data = lzw_pack([65, 257], 9)
+  let rejected = try {
+    let _ = @codec.tiff_lzw_decode(data)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(rejected)
+}
+
+///|
+test "tiff: LZW 码越界被拒" {
+  let data = lzw_pack([256, 400, 257], 9)
+  let rejected = try {
+    let _ = @codec.tiff_lzw_decode(data)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(rejected)
+}

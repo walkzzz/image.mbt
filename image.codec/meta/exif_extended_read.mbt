@@ -299,13 +299,13 @@ pub fn read_exif_extended_from_bytes(data : Bytes) -> ExifInfoExtended? {
             focal_length = exif_read_rational(
               data, tiff_start, entry_offset, little,
             )
-          0x88222 =>
+          0xA402 =>
             exposure_mode = exif_read_u16(
               data,
               tiff_start + entry_offset + 8,
               little,
             )
-          0x88242 =>
+          0xA403 =>
             white_balance = exif_read_u16(
               data,
               tiff_start + entry_offset + 8,
