@@ -355,12 +355,9 @@ pub fn decode_upca(img : @types.Image) -> BarcodeResult? raise @types.LoadError 
   let result = decode_ean13(img)
   match result {
     Some(r) =>
-      if r.data.length() == 13 && r.data[0] == '0' {
-        // 去掉前导 0，转换为 UPC-A
-        let mut upca = ""
-        for i in 1..<13 {
-          upca += r.data[i].to_string()
-        }
+      if r.data.length() == 13 && r.data[0:1].to_owned() == "0" {
+        // 去掉前导 0，转换为 UPC-A（用切片避免 String 索引的 Byte/Char 差异）
+        let upca = r.data[1:13].to_owned()
         Some(BarcodeResult::{
           barcode_type: BarcodeType::UpcA,
           data: upca,
