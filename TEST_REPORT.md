@@ -7,10 +7,10 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,658 / 6,658 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,658 / 6,658（CI `test` job 实测） |
-| js | `moon test --target js` | 6,658 / 6,658（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,658 / 6,658（CI `test` job 实测） |
+| native | `moon test --target native` | **6,664 / 6,664 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,664 / 6,664（CI `test` job 实测） |
+| js | `moon test --target js` | 6,664 / 6,664（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,664 / 6,664（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
 - 测试文件 398 个（392 黑盒 `*_test.mbt` + 6 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode、ean13_gen）。
