@@ -1,0 +1,9 @@
+import {
+  "moonbitlang/core/encoding/utf8" @encoding/utf8,
+  "walkzzz/image.core/testgen",
+  "walkzzz/image.codec/lib",
+  "walkzzz/image.process/color",
+  "walkzzz/image.process/filter",
+}
+
+pkgtype(kind: "foreign_library")

@@ -231,6 +231,9 @@ moon fmt
 
 # 性能基准
 moon run --target native
+
+# 展示页门禁（构建 JS 产物 + 49 项页面/导出/语义检查）
+node scripts/check_pages.mjs
 ```
 
 ## Documents

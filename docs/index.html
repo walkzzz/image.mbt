@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>image.mbt — 纯 MoonBit 图像编解码与处理 · 浏览器内演示</title>
+  <meta name="description" content="walkzzz/image.mbt：18 种编解码、滤镜、几何变换、特征与视觉算法，零 C FFI，四后端一致。QR 生成与滤镜演示在你的浏览器内实时计算。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="image.mbt — 纯 MoonBit 图像库" />
+  <meta property="og:description" content="18 种格式编解码、滤镜与视觉算法，零 C FFI；6664×4 测试全绿；浏览器内 QR 生成与滤镜演示。" />
+  <meta property="og:url" content="https://walkzzz.github.io/image.mbt/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230b1020'/><rect x='12' y='12' width='18' height='18' fill='%235eead4'/><rect x='34' y='12' width='18' height='18' fill='%23a78bfa'/><rect x='12' y='34' width='18' height='18' fill='%23f59e0b'/><rect x='34' y='34' width='18' height='18' fill='%235eead4'/></svg>" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("image-mbt-theme"); } catch (e) { saved = null; }
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.dataset.theme = saved || (prefersDark ? "dark" : "light");
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主内容</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">◧</span>
+        <span class="brand-name">image.mbt</span>
+        <span class="brand-ver">v0.1.1</span>
+      </a>
+      <nav class="nav" aria-label="主导航">
+        <a href="#features">能力</a>
+        <a href="#demo">在线演示</a>
+        <a href="#start">快速开始</a>
+        <a href="#api">API</a>
+        <a href="#quality">工程质量</a>
+        <a href="#docs">文档</a>
+      </nav>
+      <div class="topbar-actions">
+        <button id="theme-toggle" class="icon-btn" type="button" title="切换深浅主题" aria-label="切换深浅主题">◐</button>
+        <a class="gh-btn" href="https://github.com/walkzzz/image.mbt" target="_blank" rel="noreferrer">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-text">
+        <p class="eyebrow">MoonBit · Image Processing · Zero C FFI</p>
+        <h1>image.mbt</h1>
+        <p class="tagline">纯 MoonBit 图像编解码与处理库</p>
+        <p class="sub">
+          18 种格式编解码、色彩与滤镜、几何变换、特征检测、分割、OCR 与领域算法——
+          全部纯 MoonBit，零 C FFI，四后端（native / wasm / wasm-gc / js）一致。
+          右侧 QR 与下方每张图，都由同一份源码编译的 JS 在你的浏览器内实时生成。
+        </p>
+        <div class="cta">
+          <a class="btn primary" href="#demo">立即试用</a>
+          <a class="btn ghost" href="#start">快速开始</a>
+        </div>
+        <ul class="badges" aria-label="项目指标">
+          <li>6664 × 4 测试</li>
+          <li>覆盖率 83.4%</li>
+          <li>变异 12 / 12</li>
+          <li>18 种格式</li>
+        </ul>
+      </div>
+
+      <div class="hero-card" aria-label="浏览器内 QR 生成状态">
+        <div class="hero-card-head">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="hero-card-title">playground.js · 浏览器内计算</span>
+        </div>
+        <img id="hero-qr" class="hero-qr" alt="示例二维码（image.mbt）" />
+        <dl class="wasm-stats">
+          <div><dt>版本</dt><dd id="hero-version">0.1.1</dd></div>
+          <div><dt>导出函数</dt><dd id="hero-exports">—</dd></div>
+          <div><dt>最近 PNG</dt><dd id="hero-size">—</dd></div>
+        </dl>
+        <p class="hero-meta"><span id="hero-status">正在生成示例…</span> · 无后端 · 无第三方请求</p>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-head">
+        <p class="kicker">Capabilities</p>
+        <h2>从解码到视觉算法的一条链</h2>
+        <p class="lede">6 个模块、73 个包；core 是纯类型层，codec / process / photography / vision / domain 逐层复用。</p>
+      </div>
+      <div class="feature-grid">
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">01</span>
+          <h3>18 种格式</h3>
+          <p>PNG / JPEG / BMP / GIF / QOI / TGA / PSD / HDR / PNM / TIFF / ICO / CUR / ICNS / APNG / WebP / AVIF / HEIF / JPEG-XL。</p>
+          <code>image.codec</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/codec/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">02</span>
+          <h3>编解码内核</h3>
+          <p>解码 + 编码、16-bit / float 变体、流式解码与格式探测。</p>
+          <code>codec</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/barcode/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">03</span>
+          <h3>条码 / QR</h3>
+          <p>QR 与 Code39 解码、定位图案检测；演示用渲染器生成可扫码图像。</p>
+          <code>barcode</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/color/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">04</span>
+          <h3>色彩与阈值</h3>
+          <p>灰度/亮度/对比度、CLAHE、自适应阈值、Retinex 与去雾。</p>
+          <code>process/color</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/filter/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">05</span>
+          <h3>滤波与去噪</h3>
+          <p>方框/高斯/双边滤波、中值、图像修复与降噪。</p>
+          <code>process/filter</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/transform/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">06</span>
+          <h3>几何变换</h3>
+          <p>缩放、旋转、翻转、透视、金字塔与 Seam Carving。</p>
+          <code>process/transform</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/edge/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">07</span>
+          <h3>边缘与特征</h3>
+          <p>Canny / 霍夫、Harris / ORB / SIFT、模板匹配与光流。</p>
+          <code>process/edge · feature</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/segment/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">08</span>
+          <h3>分割与形态学</h3>
+          <p>分水岭、SLIC、GrabCut、连通域与形态学运算。</p>
+          <code>process/segment</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/frequency/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">09</span>
+          <h3>频域变换</h3>
+          <p>FFT / DCT / Haar 小波。</p>
+          <code>process/frequency</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.vision/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">10</span>
+          <h3>视觉与 OCR</h3>
+          <p>OCR、人脸识别、姿态估计、SLAM 与视频分析。</p>
+          <code>image.vision</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.photography/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">11</span>
+          <h3>计算摄影</h3>
+          <p>超分、融合、拼接、风格迁移、神经渲染与质量评估。</p>
+          <code>image.photography</code>
+        </a>
+        <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.domain/README.md" target="_blank" rel="noreferrer">
+          <span class="feature-no">12</span>
+          <h3>领域应用</h3>
+          <p>医学、遥感、水印、取证、检索、点云与生产管线。</p>
+          <code>image.domain</code>
+        </a>
+      </div>
+    </section>
+
+    <section class="section" id="demo">
+      <div class="section-head">
+        <p class="kicker">Live demo</p>
+        <h2>在浏览器里直接跑</h2>
+        <p class="lede">下面的 QR、滤镜与 PNG 摘要全部由同一份 MoonBit 编译产物在本地计算；页面不调用后端，也不请求第三方接口。</p>
+      </div>
+
+      <div class="demo-grid">
+        <article class="card">
+          <header class="card-head">
+            <h3>QR 生成</h3>
+            <a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/barcode/README.md" target="_blank" rel="noreferrer"><code>render_qr</code></a>
+          </header>
+          <p class="hint">输入文本 → 模块级 QR 图像 → PNG 编码；模块大小与静区可调。</p>
+          <div class="row">
+            <label class="grow">文本 <input id="qr-text" value="image.mbt" /></label>
+            <label>模块像素
+              <select id="qr-module">
+                <option value="2">2 px</option>
+                <option value="4" selected>4 px</option>
+                <option value="6">6 px</option>
+              </select>
+            </label>
+            <button type="button" data-run="qr">生成</button>
+          </div>
+          <img id="qr-img" class="demo-img" alt="生成的二维码" />
+          <output id="qr-out">点击「生成」…</output>
+        </article>
+
+        <article class="card">
+          <header class="card-head">
+            <h3>QR + 滤镜</h3>
+            <a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/filter/README.md" target="_blank" rel="noreferrer"><code>adjust_brightness · box_blur</code></a>
+          </header>
+          <p class="hint">先渲染 QR，再调整亮度并做方框模糊；输出仍是 PNG。</p>
+          <div class="row">
+            <label class="grow">文本 <input id="filter-text" value="image.mbt" /></label>
+            <label>亮度 <input id="filter-brightness" type="range" min="-100" max="100" value="30" /></label>
+            <label>模糊半径 <input id="filter-blur" type="range" min="0" max="3" value="1" /></label>
+            <button type="button" data-run="filter">处理</button>
+          </div>
+          <img id="filter-img" class="demo-img" alt="经过亮度与模糊处理的二维码" />
+          <output id="filter-out">点击「处理」…</output>
+        </article>
+
+        <article class="card wide">
+          <header class="card-head">
+            <h3>PNG 编解码摘要</h3>
+            <a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/lib/README.md" target="_blank" rel="noreferrer"><code>get_image_summary</code></a>
+          </header>
+          <p class="hint">把上一张 PNG 的字节重新解码，输出格式、尺寸、通道与位深。</p>
+          <div class="row">
+            <button type="button" data-run="summary">解读当前 PNG</button>
+            <button type="button" class="chip-btn" data-run="qr">重新生成 QR</button>
+          </div>
+          <output id="summary-out" class="out-wide">点击「解读当前 PNG」…</output>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="start">
+      <div class="section-head">
+        <p class="kicker">Get started</p>
+        <h2>按模块接入</h2>
+        <p class="lede">根模块只负责版本与文档；用户直接 import 子模块包，按需引入编解码或处理算法。</p>
+      </div>
+      <div class="start-grid">
+        <div class="start-col">
+          <div class="code">
+            <div class="code-head"><span>安装子模块</span><button type="button" class="copy" data-copy-target="cmd-install">复制</button></div>
+            <pre id="cmd-install"><code>moon add walkzzz/image.core@0.1.0
+moon add walkzzz/image.codec@0.1.0
+moon add walkzzz/image.process@0.1.0</code></pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span>构建浏览器演示产物</span><button type="button" class="copy" data-copy-target="cmd-build">复制</button></div>
+            <pre id="cmd-build"><code>moon build --target js --release playground</code></pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span>工程门禁</span><button type="button" class="copy" data-copy-target="cmd-gates">复制</button></div>
+            <pre id="cmd-gates"><code>moon check --deny-warn --target all
+moon test  --target all
+node scripts/check_coverage.mjs coverage-summary.txt --min 80.5
+node scripts/mutation_test.mjs --min-kill=80
+node scripts/check_docs.mjs
+node scripts/check_pages.mjs</code></pre>
+          </div>
+        </div>
+        <div class="start-col">
+          <div class="code">
+            <div class="code-head"><span>解码任意格式</span><button type="button" class="copy" data-copy-target="code-load">复制</button></div>
+            <pre id="code-load"><code>let bytes = @fs.read_file("photo.jpg")
+let img = @lib.load_from_bytes_auto(bytes)
+// img.width / img.height / img.channels</code></pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span>滤镜与几何变换</span><button type="button" class="copy" data-copy-target="code-process">复制</button></div>
+            <pre id="code-process"><code>let bright = @color.adjust_brightness(img, 30)
+let soft = @filter.box_blur(bright, 1)
+let small = @transform.resize_f(@transform.resize(img, 320, 240), 320, 240)</code></pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span>编码 PNG</span><button type="button" class="copy" data-copy-target="code-encode">复制</button></div>
+            <pre id="code-encode"><code>let png = @lib.encode_png(small)
+@fs.write_file("out.png", png)</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="api">
+      <div class="section-head">
+        <p class="kicker">API map</p>
+        <h2>能力与入口</h2>
+        <p class="lede">子包直接 import；完整签名见各包 README 与 <code>.mbti</code>。</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>能力</th><th>包</th><th>主要入口</th></tr></thead>
+          <tbody>
+            <tr><td>核心类型 / 图像容器</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.core/README.md" target="_blank" rel="noreferrer"><code>image.core</code></a></td><td><code>Image</code> · <code>Image16</code> · <code>ImageF</code> · <code>LoadError</code></td></tr>
+            <tr><td>处理算法总览</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/README.md" target="_blank" rel="noreferrer"><code>image.process</code></a></td><td>色彩 / 滤波 / 变换 / 边缘 / 分割 / 频域（见模块 README）</td></tr>
+            <tr><td>自动格式解码</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/lib/README.md" target="_blank" rel="noreferrer"><code>codec/lib</code></a></td><td><code>load_from_bytes_auto</code> · <code>load_16_from_bytes_auto</code></td></tr>
+            <tr><td>PNG / JPEG 编码</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/lib/README.md" target="_blank" rel="noreferrer"><code>codec/lib</code></a></td><td><code>encode_png</code> · <code>encode_jpeg</code></td></tr>
+            <tr><td>格式探测 / 摘要</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/lib/README.md" target="_blank" rel="noreferrer"><code>codec/lib</code></a></td><td><code>detect_format</code> · <code>get_image_summary</code></td></tr>
+            <tr><td>QR / 条码解码</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/barcode/README.md" target="_blank" rel="noreferrer"><code>codec/barcode</code></a></td><td><code>decode_qrcode</code> · <code>decode_code39</code></td></tr>
+            <tr><td>亮度 / 阈值</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/color/README.md" target="_blank" rel="noreferrer"><code>process/color</code></a></td><td><code>adjust_brightness</code> · <code>adaptive_threshold_mean</code></td></tr>
+            <tr><td>滤波 / 去噪</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/filter/README.md" target="_blank" rel="noreferrer"><code>process/filter</code></a></td><td><code>box_blur</code> · <code>bilateral_filter</code></td></tr>
+            <tr><td>缩放 / 旋转</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/transform/README.md" target="_blank" rel="noreferrer"><code>process/transform</code></a></td><td><code>resize</code> · <code>rotate</code> · <code>build_gaussian_pyramid</code></td></tr>
+            <tr><td>边缘 / 特征</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.process/edge/README.md" target="_blank" rel="noreferrer"><code>process/edge</code></a></td><td>Canny / Hough / Harris / ORB（见 README）</td></tr>
+            <tr><td>OCR / 视觉</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.vision/README.md" target="_blank" rel="noreferrer"><code>vision</code></a></td><td>OCR / 人脸 / 姿态 / SLAM（见 README）</td></tr>
+            <tr><td>领域算法</td><td><a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.domain/README.md" target="_blank" rel="noreferrer"><code>domain</code></a></td><td>医学 / 遥感 / 水印 / 取证（见 README）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="quality">
+      <div class="section-head">
+        <p class="kicker">Quality gates</p>
+        <h2>数字可复算</h2>
+        <p class="lede">四后端严格模式零警告；覆盖率、变异、文档与展示页自检均有脚本与 CI 作业。</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><strong>6664</strong><span>每后端测试</span></div>
+        <div class="stat"><strong>26656</strong><span>四后端合计</span></div>
+        <div class="stat"><strong>83.4%</strong><span>核心覆盖率</span></div>
+        <div class="stat"><strong>12 / 12</strong><span>变异点 KILLED</span></div>
+        <div class="stat"><strong>18</strong><span>编解码格式</span></div>
+        <div class="stat"><strong>73</strong><span>子包</span></div>
+        <div class="stat"><strong>60</strong><span>包级 README</span></div>
+        <div class="stat"><strong>0</strong><span>C FFI 依赖</span></div>
+      </div>
+      <div class="quality-notes">
+        <p><strong>覆盖率口径</strong>：32862/39395 = 83.4%，门槛 80.5%（<code>scripts/check_coverage.mjs</code>）。</p>
+        <p><strong>零 C FFI</strong>：全部纯 MoonBit；四后端共用同一份源码，无目标条件编译。</p>
+        <p><strong>演示口径</strong>：QR/滤镜/摘要来自 <code>playground</code> 导出，发布后另有真实浏览器验收。</p>
+      </div>
+    </section>
+
+    <section class="section" id="docs">
+      <div class="section-head">
+        <p class="kicker">Documentation</p>
+        <h2>继续深入</h2>
+        <p class="lede">架构、能力、对比、性能与已知缺口都写在仓库里。</p>
+      </div>
+      <div class="doc-grid">
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/architecture.md"><h3>架构设计</h3><p>6 模块、73 包依赖拓扑与设计决策。</p></a>
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/features.md"><h3>能力清单</h3><p>18 格式与各模块能力全景。</p></a>
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/comparison.md"><h3>生态对比</h3><p>与 mooncakes 图像库的差异。</p></a>
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/performance_report.md"><h3>性能报告</h3><p>编解码与算法的基准数据。</p></a>
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/api_reference.md"><h3>API 参考</h3><p>核心函数快照与入口索引。</p></a>
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/known-gaps.md"><h3>已知缺口</h3><p>未实现能力与边界。</p></a>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="section-head">
+        <p class="kicker">Under the hood</p>
+        <h2>这是怎么在浏览器里跑的？</h2>
+      </div>
+      <ol class="steps">
+        <li><span class="step-no">1</span><p><code>playground/</code> 是根模块的 <code>foreign_library</code> 包，导出 QR 生成、滤镜与 PNG 摘要函数。</p></li>
+        <li><span class="step-no">2</span><p><code>moon build --target js --release playground</code> 生成一份 JS；PNG 以十六进制字符串跨边界。</p></li>
+        <li><span class="step-no">3</span><p>页面把 hex 还原为 PNG Blob 显示；QR 渲染、亮度、模糊与解码全部在本地完成。</p></li>
+        <li><span class="step-no">4</span><p>CI 在四后端跑 6664 测试；<code>check_pages.mjs</code> 验证导出与语义，Pages 部署 <code>docs/</code>。</p></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="footer-brand"><span class="brand-mark small">◧</span> image.mbt · MIT · 纯 MoonBit · 零 C FFI</p>
+      <nav class="footer-links" aria-label="页脚导航">
+        <a href="https://github.com/walkzzz/image.mbt" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://mooncakes.io/docs/walkzzz/image.core" target="_blank" rel="noreferrer">mooncakes</a>
+        <a href="https://github.com/walkzzz/image.mbt/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">变更日志</a>
+        <a href="https://github.com/walkzzz/image.mbt/blob/main/CONTRIBUTING.md" target="_blank" rel="noreferrer">参与贡献</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

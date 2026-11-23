@@ -1,0 +1,19 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.mbt/playground"
+
+// Values
+pub fn img_png_summary(String) -> String
+
+pub fn img_qr_filter_png_hex(String, Int32, Int32) -> String
+
+pub fn img_qr_png_hex(String, Int32, Int32) -> String
+
+pub fn img_version() -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

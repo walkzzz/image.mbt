@@ -4,6 +4,14 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## 展示页（2026-11-23）
+
+### Added
+
+- **GitHub Pages 库首页**（`docs/index.html`）：Hero、12 项能力、3 张浏览器内演示（QR 生成 / 亮度与模糊滤镜 / PNG 摘要）、快速开始、API 表、质量指标与文档入口；深浅主题与模块 README 跳转。
+- **`playground/` 导出层**：4 个函数（版本、QR PNG、滤镜 PNG、PNG 摘要），PNG 以十六进制字符串跨 JS 边界，无需后端。
+- **`scripts/check_pages.mjs`**：49 项门禁（构建产物、导出、QR/滤镜/摘要语义、页面结构、模块链接、口径数字）。
+
 ## [0.1.1] - 2026-11-20
 
 ### Added

@@ -41,7 +41,7 @@ function uniqEqual(label, values) {
 }
 
 async function countPackages(root) {
-  const skip = new Set(['_build', '.git', '.mooncakes', 'node_modules', '.tmp-smoke', 'examples']);
+  const skip = new Set(['_build', '.git', '.mooncakes', 'node_modules', '.tmp-smoke', 'examples', 'playground']);
   let n = 0;
   async function walk(dir) {
     const entries = await readdir(dir, { withFileTypes: true });
@@ -141,7 +141,7 @@ const ASSERTIONS = [
     },
   },
   {
-    id: 'B6', desc: 'packages 数：zh/en badge == README 子包标题 == docs/architecture.md == 实际 moon.pkg 数',
+    id: 'B6', desc: 'packages 数：zh/en badge == README 子包标题 == docs/architecture.md == 实际库 moon.pkg 数（排除 examples/playground）',
     async run(root) {
       const zh = await read('README.md', root);
       const en = await read('README.en.md', root);
