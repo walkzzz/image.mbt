@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-20）：版本 0.1.1 · 6,657 测试 × 4 目标 · 73 包 · 覆盖率 83.4% · prove 8 goals。
+> 当前口径（2026-11-20）：版本 0.1.1 · 6,658 测试 × 4 目标 · 73 包 · 覆盖率 83.4% · prove 8 goals。
 
 ## 功能边界
 
@@ -20,7 +20,7 @@
 | 编号 | 描述 | 现状 | 计划 |
 |------|------|------|------|
 | GAP-8 | ~~白盒测试仅 1 个~~ **已补强（2026-11-20）** | 392 黑盒 + 6 白盒（mp4 / png_decode / zlib / fft / webp_vp8_decode / ean13_gen） | 后续可为 resize / 滤波 / 分割核心算法继续补白盒 |
-| GAP-9 | 覆盖率 83.4%（32,820/39,367），低于历史宣称 90.4% | 已按实测纠正 README/notes/proposal | CI 门槛 80.5% 防退化；90% 需专项（webp 解码剩余约 380 行、OCR 约 1,400 行） |
+| GAP-9 | 覆盖率 83.4%（32,847/39,395），低于历史宣称 90.4% | 已按实测纠正 README/notes/proposal | CI 门槛 80.5% 防退化；90% 需专项（webp 解码剩余约 380 行、OCR 约 1,400 行） |
 | GAP-10 | Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug | `Unix.EINVAL` | 统一走 WSL / CI `prove` job |
 | GAP-11 | ~~无 OS 矩阵~~ **受上游限制（2026-11-20 实测）** | 官方安装脚本仅支持 Linux x86_64/aarch64 与 macOS arm64；Windows 二进制 URL 实测返回 403 | 暂不纳入 CI；如官方提供 Windows/macOS 包再补 job |
 | GAP-12 | ~~API 参考过时~~ **已闭环（2026-11-20）** | `docs/api_reference.md` 仍为历史快照（1,339 fn / 50 包） | ✅ 新增 `docs/api_index.md`（`scripts/gen_api_index.mjs` 从 73 包 `.mbti` 自动生成：3,748 fn / 710 类型；CI `--check` 防漂移）；旧参考页已标注"历史快照，以 api_index 与 `.mbti` 为准" |
@@ -34,7 +34,7 @@
 | GAP-22 | ~~字母/英文 OCR 无输入样本~~ **部分闭环（2026-11-21）** | testgen 新增 5×7 大写字母点阵 `render_letters`（0=A…25=Z） | ✅ 驱动 `recognize_english` / 阈值 / 字符分割链路；`english_ocr` 模板匹配主路径未提升（289/348 持平），需训练模板或更真实字形后再攻 |
 | GAP-23 | ~~Code128 无输入样本~~ **已闭环（2026-11-21）** | 白盒生成器复用同包 `code128_patterns`（Start B + 校验位 + Stop） | ✅ 往返 `HELLO` / `123` 成功；`linear_barcodes.mbt` 77 → 106/150 |
 | GAP-24 | OCR 评估/训练纯函数覆盖不足 | `calculate_char_accuracy` / `edit_distance` / `accuracy_stats` / `check_accuracy_threshold` / `calculate_accuracy` / `check_early_stopping` / 训练进度报告 | ✅ 已补测；这些函数多已被现有测试覆盖，覆盖率持平（真实缺口在模板匹配生成路径） |
-| GAP-25 | VP8 解码非关键帧/预测分支缺输入（文件剩 222 行） | 解码器用非标准 16 位 bool 窗口，标准 libvpx 编码器不匹配 | 改用字节级构造（首字节 `0xFF` → `is_intra=1`）驱动 intra 预测/残差/滤波分支（2/4/8/16 字节 1 位、32×32/64×64 变体），`webp_vp8_decode` 324 → **398/620**；剩余需精确 bool 编码非零 AC 系数与 inter 预测 |
+| GAP-25 | VP8 解码非关键帧/精确残差分支缺输入（文件剩 220 行） | 解码器用非标准 16 位 bool 窗口，标准 libvpx 编码器不匹配 | 字节级构造驱动 intra 预测/残差/滤波分支（2/4/8/16 字节 1 位、32×32/64×64、4 种字节模式 0xAA/0x55/0xF0/0x0F），`webp_vp8_decode` 324 → **400/620**；再往上需按 16 位窗口逆向实现精确 bool 编码（非零 AC 系数/inter 预测），模式化探索已饱和（每变体 +2 行） |
 
 ## 平台与工具链
 
@@ -45,6 +45,6 @@
 
 ## 测试口径
 
-- **6,657 为 native 实测**（2026-11-20）；四目标由 CI `test` job 矩阵实测。
+- **6,658 为 native 实测**（2026-11-20）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。

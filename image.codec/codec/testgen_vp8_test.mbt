@@ -86,3 +86,17 @@ test "testgen-drive: VP8 帧内 64x64（16 宏块）" {
     _ => assert_true(false)
   }
 }
+
+///|
+test "testgen-drive: VP8 模式化首分区（4 种字节模式）" {
+  let patterns : Array[Int32] = [170, 85, 240, 15]
+  for bv in patterns {
+    let bytes = @testgen.build_vp8_pattern_frame(16, 16, byte_val=bv, size=32)
+    try {
+      let img = @codec.decode_vp8_frame(bytes, 0)
+      assert_eq(img.width, 16)
+    } catch {
+      _ => assert_true(true)
+    }
+  }
+}

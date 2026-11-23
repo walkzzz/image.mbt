@@ -14,6 +14,8 @@ pub fn build_vp8_intra_frame(Int32, Int32, ones? : Int32) -> Bytes
 
 pub fn build_vp8_key_frame(Int32, Int32, first_part_size? : Int32) -> Bytes
 
+pub fn build_vp8_pattern_frame(Int32, Int32, byte_val? : Int32, size? : Int32) -> Bytes
+
 pub let code39_chars : Array[String]
 
 pub let code39_patterns : Array[Array[Int32]]

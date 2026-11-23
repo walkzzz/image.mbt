@@ -80,3 +80,32 @@ pub fn build_vp8_intra_frame(
   }
   Bytes::from_array(out)
 }
+
+///|
+/// 构造首分区为指定重复字节的最小 VP8 关键帧（用于探索不同解码分支）。
+pub fn build_vp8_pattern_frame(
+  width : Int32,
+  height : Int32,
+  byte_val~ : Int32 = 170,
+  size~ : Int32 = 32,
+) -> Bytes {
+  let w = if width < 0 { 0 } else { width }
+  let h = if height < 0 { 0 } else { height }
+  let n = if size < 2 { 2 } else { size }
+  let out : Array[Byte] = []
+  let tag = (0 << 0) | (0 << 1) | (1 << 4) | ((n & 0x7FFFF) << 5)
+  out.push((tag & 0xFF).to_byte())
+  out.push(((tag >> 8) & 0xFF).to_byte())
+  out.push(((tag >> 16) & 0xFF).to_byte())
+  out.push(157)
+  out.push(1)
+  out.push(42)
+  out.push((w & 0xFF).to_byte())
+  out.push(((w >> 8) & 0x3F).to_byte())
+  out.push((h & 0xFF).to_byte())
+  out.push(((h >> 8) & 0x3F).to_byte())
+  for _ in 0..<n {
+    out.push((byte_val & 0xFF).to_byte())
+  }
+  Bytes::from_array(out)
+}
