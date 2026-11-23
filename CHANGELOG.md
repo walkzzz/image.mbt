@@ -9,7 +9,7 @@
 ### Added
 
 - **可运行示例集**：`examples/` 7 个零外部依赖示例（raw_to_png / resize_demo / threshold_otsu / format_detect / lossless_roundtrip / canny_edges / gaussian_blur），均 `moon run` 实测通过，见 docs/examples.md。
-- **测试输入生成器 `image.core/testgen`**：QR（版本 1-L / 字节模式 / 掩码 0，GF(256)+RS）、Code39 条码、5×7 数字与 A–Z 字母点阵、VP8 key/inter 帧（RFC 6386 帧头 + 零填充分区）、多标签 EXIF 样本（小端 TIFF + JPEG APP1：ISO/曝光/光圈/焦距/模式/白平衡/闪光/GPS），均为纯 MoonBit。
+- **测试输入生成器 `image.core/testgen`**：QR（版本 1-L / 字节模式 / 掩码 0，GF(256)+RS）、Code39 / Code128 / EAN-13 / UPC-A 条码、5×7 数字与 A–Z 字母点阵、VP8 key/inter 帧（RFC 6386 帧头 + 零填充分区）、多标签 EXIF 样本（小端 TIFF + JPEG APP1：ISO/曝光/光圈/焦距/模式/白平衡/闪光/GPS），均为纯 MoonBit。
 - **变异测试闭环**：`scripts/mutation_test.mjs`（7 包 / 12 变异点，100% KILLED）+ CI `mutation` job + `mutation-report.json` artifact。
 - **质量门禁脚本**：`scripts/check_docs.mjs`（9 断言 + 5 负向自测）、`scripts/check_coverage.mjs`（≥80.5%）、`scripts/check_version.mjs`（七模块版本一致）、`scripts/publish.sh`（依赖序发布，由维护者执行）。
 - **治理文件**：TEST_REPORT.md、docs/known-gaps.md、CONTRIBUTING.md、SECURITY.md、CODE_OF_CONDUCT.md、PR 模板、CODEOWNERS。
@@ -17,7 +17,7 @@
 ### Changed
 
 - **CI 重构**：单 job → 6 jobs（quality / test 四目标矩阵 / bench / coverage / mutation / prove，ubuntu-24.04）；`mbti` 漂移与 `moon fmt --check` 改为阻断；`scripts/` 取消 gitignore，门禁脚本随仓库发布。
-- **测试**：6,580 → **6,646**（+66：门禁/边界补测、7 个零覆盖大文件补测、分割/视频/拼接/TIFF/Codec trait/EXIF/OCR 补测、6 个白盒测试文件、testgen 生成器驱动 QR/Code39/OCR/VP8/EXIF、A–Z 字母点阵驱动英文 OCR、EAN-13/UPC-A 白盒往返、TIFF LZW/PackBits 解码、WebP 编解码互操作与奇数尺寸回归）。
+- **测试**：6,580 → **6,651**（+71：门禁/边界补测、7 个零覆盖大文件补测、分割/视频/拼接/TIFF/Codec trait/EXIF/OCR 补测、6 个白盒测试文件、testgen 生成器驱动 QR/Code39/Code128/EAN-13/UPC-A/OCR/VP8/EXIF、A–Z 字母点阵驱动英文 OCR、OCR 评估/训练纯函数、TIFF LZW/PackBits 解码、WebP 编解码互操作与奇数尺寸回归）。
 - **弃用 API 迁移**：19 处 `Int64::from_int` / `Double::from_int` → `to_int64()` / `to_double()`，四目标 `check --deny-warn` 零警告。
 
 ### Fixed
@@ -27,13 +27,13 @@
 - **WebP VP8 解码奇数尺寸崩溃**：色度平面按 `w/2*(h/2)` 分配导致 1x1/3x3 越界 panic；解码器现返回明确 `DecodeFailed`（正确 ceil 平面支持列入后续，见 GAP-17）。
 - **QR 解码器无法定位/解析标准码**：修复 4 处缺陷——垂直验证从中心行而非图案顶部扫描（检测恒为 0）、finder 重复计数且 x/y 语义不一致、版本公式偏移（V 恒偏大 1）、格式信息位序反（MSB/LSB）。修复后 testgen 生成的版本 1-L/mask 0 码可完整往返（`hello`）。
 - **VP8 inter 帧恒被拒绝**：inter 帧头不携带分辨率，原实现从 header 取 0 后判无效；改为回退参考帧宽高（保留偶数对齐守卫），16×16 inter 帧可解码。
-- 文档口径：版本 0.5.0/0.1.0 冲突、测试数 6,574/6,486、包数 71、proof 5 goals、覆盖率 90.4% 全部按实测纠正（覆盖率 **83.1% = 32688/39335**）；删除死链 banner 与旧仓库链接；`docs/examples.md` 虚报 32 示例改为真实清单。
+- 文档口径：版本 0.5.0/0.1.0 冲突、测试数 6,574/6,486、包数 71、proof 5 goals、覆盖率 90.4% 全部按实测纠正（覆盖率 **83.2% = 32717/39335**）；删除死链 banner 与旧仓库链接；`docs/examples.md` 虚报 32 示例改为真实清单。
 - 测试盲区：resize 零/负尺寸断言被 try/catch 吞掉、最近邻下采样与 Otsu 渐变图只断言尺寸。
 
 ### Verified
 
 - `moon check --deny-warn --target all` 零警告；`moon test` **6,646/6,646**（native，2026-11-20）；CI 6 jobs（quality / test×4 / bench / coverage / mutation / prove）。
-- 覆盖率 32,688/39,335 = **83.1%**（门槛 80.5%）；变异 **12/12 KILLED（7 包）**；`moon prove` **8 goals proved**（WSL Why3 1.6.0 + Z3 4.8.12）。
+- 覆盖率 32,717/39,335 = **83.2%**（门槛 80.5%）；变异 **12/12 KILLED（7 包）**；`moon prove` **8 goals proved**（WSL Why3 1.6.0 + Z3 4.8.12）。
 
 ## [0.1.0] - 2026-11-17
 

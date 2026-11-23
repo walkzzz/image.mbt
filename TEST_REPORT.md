@@ -20,11 +20,11 @@
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **32,688 / 39,335 = 83.1%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 可执行行覆盖 | **32,717 / 39,335 = 83.2%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
 | 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
 | CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
-> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 83.1%，以本报告为准。README badge 已同步纠正。
+> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 83.2%，以本报告为准。README badge 已同步纠正。
 
 ## 2.1 本轮修复的缺陷
 

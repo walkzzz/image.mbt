@@ -75,9 +75,9 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 
 ## 六、核心功能范围
 
-**已交付**：18 格式编解码；三级像素深度；resize（7 滤波器 × 4 边缘模式）；色彩/绘制/合成；90+ 算法子包（含 OCR 19 模块）；MP4 视频轨关键帧定位（mp4 包）；TIFF LZW/PackBits 压缩解码；四目标测试 6646 × 4 全绿、coverage 83.1%（32688/39335，2026-11-20 实测）。
+**已交付**：18 格式编解码；三级像素深度；resize（7 滤波器 × 4 边缘模式）；色彩/绘制/合成；90+ 算法子包（含 OCR 19 模块）；MP4 视频轨关键帧定位（mp4 包）；TIFF LZW/PackBits 压缩解码；四目标测试 6646 × 4 全绿、coverage 83.2%（32717/39335，2026-11-20 实测）。
 
-**拟实现（下赛期）**：JPEG progressive 解码（格式矩阵仅存的解码短板）；真实尺寸 JPEG 基准；coverage 83.1% → 90%；fuzz 扩展（草案阶段六，+240~295 测试）；新名包 mooncakes 发布完成与子模块生态推广。
+**拟实现（下赛期）**：JPEG progressive 解码（格式矩阵仅存的解码短板）；真实尺寸 JPEG 基准；coverage 83.2% → 90%；fuzz 扩展（草案阶段六，+240~295 测试）；新名包 mooncakes 发布完成与子模块生态推广。
 
 **明确不做**：不做 GPU/CUDA 加速（纯 MoonBit 定位）；不做音视频流编解码（H.264 等编码流解码与音频，与图像库定位区分——mp4 仅做容器元数据解析）；不追求 JPEG-XL 全特性（仅基础解码，边界已在 README 标注）。
 
@@ -100,7 +100,7 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 ## 九、预期验收产物
 
 - mooncakes.io 七模块在线：旧名 walkzzz/image@0.6.0 + 六个子模块@0.1.0（子模块独立安装）；本期重构为 walkzzz/image.mbt + image.* 子模块（0.1.0 重新计数，按依赖序发布）；
-- 四目标测试 6646 × 4 全绿、`moon check --deny-warn` 全目标零警告、coverage 83.1%（32688/39335，2026-11-20 实测）；
+- 四目标测试 6646 × 4 全绿、`moon check --deny-warn` 全目标零警告、coverage 83.2%（32717/39335，2026-11-20 实测）；
 - 双语 README（badge 实测对齐 + 迁移章节）+ 17 份 docs 文档 + 根 CHANGELOG（0.1.0 Breaking 条目）+ 评估报告（docs/assessment.md 复评摘要）+ 本申报书；
 - 本期全部新增贡献在 CHANGELOG、git 提交历史与 docs/roadmap.md 中可追踪。
 
@@ -110,7 +110,7 @@ image.mbt 是纯 MoonBit 实现的图像处理库：**零 C FFI 依赖、四目�
 |:---|:---|:---|
 | 0.2.0 | JPEG progressive 解码（格式矩阵最后一处解码短板） | 项目完成度 |
 | 0.3.0 | 真实尺寸 JPEG 基准 + stb_image.h C 基线同机量化对比 | 工程质量 |
-| 0.4.0 | coverage 83.1% → 90%（薄弱模块 fuzz 扩展） | 工程质量 |
+| 0.4.0 | coverage 83.2% → 90%（薄弱模块 fuzz 扩展） | 工程质量 |
 | 1.0.0 | API 稳定化候选 + 子模块生态推广（OCR/codec 独立采用案例） | 生态贡献 |
 
 ## 使用 AI 工具的声明与人工把控
