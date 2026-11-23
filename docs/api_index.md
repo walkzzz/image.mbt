@@ -1,7 +1,7 @@
 # API 索引（自动生成）
 
 > 由 `node scripts/gen_api_index.mjs` 从各包 `pkg.generated.mbti` 生成，请勿手工编辑。
-> 生成日期口径：每次运行覆盖；当前共 **73** 个包、**3756** 个 `pub fn`、**710** 个公开类型/trait。
+> 生成日期口径：每次运行覆盖；当前共 **73** 个包、**3758** 个 `pub fn`、**710** 个公开类型/trait。
 > 详细用法见各包 `.mbti` 与 [api_reference.md](api_reference.md)（后者为历史快照，以本索引与 `.mbti` 为准）。
 
 | 包 | pub fn | 公开类型/trait |
@@ -19,7 +19,7 @@
 | `image.core` | 0 | 0 |
 | `image.core/cmd/main` | 0 | 0 |
 | `image.core/safe_math` | 18 | 0 |
-| `image.core/testgen` | 8 | 0 |
+| `image.core/testgen` | 10 | 0 |
 | `image.core/types` | 89 | 10 |
 | `image.domain` | 0 | 0 |
 | `image.domain/agent_kit` | 16 | 1 |
@@ -79,4 +79,4 @@
 | `image.vision/video` | 321 | 59 |
 | `image.vision/vlm_multimodal` | 47 | 12 |
 | `mp4` | 2 | 4 |
-| **合计** | **3756** | **710** |
+| **合计** | **3758** | **710** |

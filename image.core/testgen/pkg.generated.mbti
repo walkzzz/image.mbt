@@ -20,11 +20,15 @@ pub let code39_start_pattern : Array[Int32]
 
 pub fn digit_glyph(Int32) -> Array[Int32]
 
+pub fn letter_glyph(Int32) -> Array[Int32]
+
 pub fn qr_modules(Bytes) -> Array[Int32]
 
 pub fn render_code39(Array[Int32], module_px? : Int32, height? : Int32) -> @types.Image
 
 pub fn render_digits(Array[Int32], scale? : Int32, margin? : Int32) -> @types.Image
+
+pub fn render_letters(Array[Int32], scale? : Int32, margin? : Int32) -> @types.Image
 
 pub fn render_qr(Bytes, module_px? : Int32, quiet_zone? : Int32) -> @types.Image
 

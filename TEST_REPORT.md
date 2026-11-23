@@ -7,10 +7,10 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,644 / 6,644 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,644 / 6,644（CI `test` job 实测） |
-| js | `moon test --target js` | 6,644 / 6,644（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,644 / 6,644（CI `test` job 实测） |
+| native | `moon test --target native` | **6,646 / 6,646 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,646 / 6,646（CI `test` job 实测） |
+| js | `moon test --target js` | 6,646 / 6,646（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,646 / 6,646（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
 - 测试文件 398 个（392 黑盒 `*_test.mbt` + 6 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode、ean13_gen）。
@@ -20,7 +20,7 @@
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **32,664 / 39,289 = 83.1%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 可执行行覆盖 | **32,688 / 39,335 = 83.1%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
 | 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
 | CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
@@ -52,6 +52,8 @@
 | QR | `render_qr(payload, module_px~, quiet_zone~)` / `qr_modules` | 版本 1-L / 字节模式 / 掩码 0 的 21×21 码图（GF(256)+RS 自洽） |
 | Code39 | `render_code39(codes, module_px~, height~)` | 与解码器同表的标准条码条纹图 |
 | 数字文本 | `render_digits(digits, scale~, margin~)` | 5×7 点阵灰度图 |
+| 字母文本 | `render_letters(letters, scale~, margin~)` / `letter_glyph` | 5×7 A–Z 点阵灰度图（驱动英文 OCR 链路） |
+| EXIF | `build_exif_jpeg()` | 小端 TIFF + JPEG APP1（ISO/曝光/光圈/焦距/模式/白平衡/闪光/GPS） |
 | VP8 | `build_vp8_key_frame(w, h, first_part_size~)` / `build_vp8_inter_frame(first_part_size~)` | RFC 6386 合法帧头 + 零填充分区 |
 
 ## 3. 形式化验证
