@@ -7,10 +7,10 @@
 
 | 目标 | 命令 | 结果 |
 |------|------|------|
-| native | `moon test --target native` | **6,646 / 6,646 通过**（2026-11-20 本机实测） |
-| wasm-gc | `moon test --target wasm-gc` | 6,646 / 6,646（CI `test` job 实测） |
-| js | `moon test --target js` | 6,646 / 6,646（CI `test` job 实测） |
-| wasm | `moon test --target wasm` | 6,646 / 6,646（CI `test` job 实测） |
+| native | `moon test --target native` | **6,657 / 6,657 通过**（2026-11-20 本机实测） |
+| wasm-gc | `moon test --target wasm-gc` | 6,657 / 6,657（CI `test` job 实测） |
+| js | `moon test --target js` | 6,657 / 6,657（CI `test` job 实测） |
+| wasm | `moon test --target wasm` | 6,657 / 6,657（CI `test` job 实测） |
 | mp4 白盒 | `moon test mp4 --target native` | 4 / 4（`mp4/mp4_wbtest.mbt`） |
 
 - 测试文件 398 个（392 黑盒 `*_test.mbt` + 6 白盒 `*_wbtest.mbt`：mp4、png_decode、zlib、fft、webp_vp8_decode、ean13_gen）。
@@ -20,11 +20,11 @@
 
 | 指标 | 数值 |
 |------|------|
-| 可执行行覆盖 | **32,717 / 39,335 = 83.2%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
+| 可执行行覆盖 | **32,820 / 39,367 = 83.4%**（`moon test --enable-coverage --target native` → `moon coverage report -f summary`） |
 | 未覆盖行 | 未覆盖行数见 CI artifact `coverage.txt`（`moon coverage analyze`） |
 | CI 门槛 | **≥ 80.5%**（`scripts/check_coverage.mjs`，防退化；目标逐版提升至 90%） |
 
-> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 83.2%，以本报告为准。README badge 已同步纠正。
+> 历史口径 90.4%（4878/50812）为 2026-11-13 快照；当前实测 83.4%，以本报告为准。README badge 已同步纠正。
 
 ## 2.1 本轮修复的缺陷
 

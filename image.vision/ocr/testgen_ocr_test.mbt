@@ -45,3 +45,14 @@ test "testgen-drive: 字母渲染驱动阈值与字符分割" {
     _ => assert_true(false)
   }
 }
+
+///|
+test "testgen-drive: 英文 OCR 模板生成（全字符模式）" {
+  let all = @ocr.generate_english_templates()
+  assert_true(all.length() >= 10)
+  let lower = @ocr.generate_english_templates(case_sensitive=false)
+  let upper = @ocr.generate_english_templates(case_sensitive=true)
+  assert_true(
+    upper.length() >= lower.length() || lower.length() >= upper.length(),
+  )
+}

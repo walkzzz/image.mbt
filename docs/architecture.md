@@ -1,6 +1,6 @@
 # image.mbt 架构文档
 
-> 版本 0.1.1（包重命名重构版：walkzzz/image → walkzzz/image.mbt，功能版本 v237.0.0）| 3,758 公开函数 + 710 公开类型（.mbti 口径，73 包）| 6580 测试 × 4 目标 (native/wasm-gc/js/wasm)
+> 版本 0.1.1（包重命名重构版：walkzzz/image → walkzzz/image.mbt，功能版本 v237.0.0）| 3,759 公开函数 + 710 公开类型（.mbti 口径，73 包）| 6580 测试 × 4 目标 (native/wasm-gc/js/wasm)
 
 ## 概述
 
