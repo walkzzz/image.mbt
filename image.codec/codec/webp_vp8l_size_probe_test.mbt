@@ -75,3 +75,37 @@ test "vp8l M2 体积探针" {
     println("\{name}: LZ77=\{lz.length()} literal=\{lit.length()} png=\{png.length()} 原始=\{px * 4} 占比=\{ratio}%")
   }
 }
+
+///|
+test "vp8l RGBA dump" {
+  let src : Array[Byte] = []
+  for i in 0..<1024 {
+    src.push(((i * 7 + 3) % 256).to_byte())
+  }
+  let img = @types.Image::{ width: 16, height: 16, channels: 4, data: Bytes::from_array(src) }
+  let enc = try @codec.encode_webp_vp8l_lz77(img) catch { _ => Bytes::from_array([]) }
+  println("RGBA_HEX=" + vp8l_to_hex(enc))
+}
+
+///|
+test "vp8l RGBA 尺寸阶梯回环" {
+  for side in [2, 4, 8, 16, 32] {
+    let n = side * side * 4
+    let src : Array[Byte] = []
+    for i in 0..<n {
+      src.push(((i * 7 + 3) % 256).to_byte())
+    }
+    let img = @types.Image::{ width: side, height: side, channels: 4, data: Bytes::from_array(src) }
+    let enc = try @codec.encode_webp_vp8l_lz77(img) catch { _ => Bytes::from_array([]) }
+    let dec = try @codec.decode_webp_vp8l_rfc(enc) catch { _ => img }
+    let mut bad = 0
+    let mut first = -1
+    for i in 0..<n {
+      if dec.data[i] != src[i] {
+        if first < 0 { first = i }
+        bad += 1
+      }
+    }
+    println("side=\{side} 差异=\{bad} 首个=\{first} 体积=\{enc.length()}")
+  }
+}

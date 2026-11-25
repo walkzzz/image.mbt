@@ -520,11 +520,8 @@ pub fn encode_webp_vp8l_lz77(img : @types.Image) -> Bytes raise @types.LoadError
       let (prefix, _, _) = vp8l_encode_length(v1[t])
       cg[256 + prefix] += 1
       let dcode = vp8l_distance_code(v2[t], w)
-      if dcode < 40 {
-        cd[dcode] += 1
-      } else {
-        cd[39] += 1
-      }
+      let (dsym, _, _) = vp8l_encode_length(dcode)
+      cd[dsym] += 1
     }
   }
   // ---- 构建码表 ----
@@ -580,14 +577,16 @@ pub fn encode_webp_vp8l_lz77(img : @types.Image) -> Bytes raise @types.LoadError
     } else {
       let len = v1[t]
       let (prefix, extra, ebits) = vp8l_encode_length(len)
-      vp8l_write_code(bw, gcodes[256 + prefix], glens[256 + prefix])
+      if !g_single {
+        vp8l_write_code(bw, gcodes[256 + prefix], glens[256 + prefix])
+      }
       bw.write(extra, ebits)
       let dcode = vp8l_distance_code(v2[t], w)
+      let (dprefix, dextra, debits) = vp8l_encode_length(dcode)
       if !d_single {
-        let (dprefix, dextra, debits) = vp8l_encode_length(dcode)
         vp8l_write_code(bw, dcodes[dprefix], dlens[dprefix])
-        bw.write(dextra, debits)
       }
+      bw.write(dextra, debits)
     }
   }
   vp8l_wrap_riff(bw.finish())

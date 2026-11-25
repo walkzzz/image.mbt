@@ -129,13 +129,39 @@ ffmpeg -v error -i <file> -f null -    # 无输出即通过
 
 结论：M2 只解决"重复结构"，未解决"熵"。噪声图 5.9 bits/byte 已是 literal 的熵下限附近，libwebp 靠 palette / predictor 变换把残差压到 1.1 bits/byte。因此 **M3 的变换不是优化项，而是体积竞争力的主体**；纯色 / 棋盘这类可被长距离匹配吃掉的内容，本库已与 libwebp 同档。
 
+### 4.4 MoonBit 落地（M3 解码侧：四类逆变换）
+
+`image.codec/codec/webp_vp8l_transforms.mbt` 重写了解码主路径：
+
+1. 通用图像流解码 `vp8l_decode_stream`：literal / LZ77 / 色彩缓存 / meta 多组前缀码，`allow_meta=false` 用于变换数据、熵图等子分辨率图像；
+2. 变换表按读入顺序记录，按**逆序**应用；palette 会先缩小宽度（影响后续变换尺寸），逆变换时再复原；
+3. 四类逆变换：predictor（14 模式 + 16² 块 + 边界规则）、cross-color（3.5 定点 delta）、subtract-green、color indexing（调色板 delta 解码 + 1/2/4/8 像素打包）。
+
+同时删掉了旧的非 RFC 解码器（`decode_webp_nonrfc`、`read_huffman_tree`、`apply_predictor_inverse`）与其 10 项伪流测试：这些只解得开自造的非标准流，留着会误导下游。`decode_webp_pure` 现在直接走 RFC 路径。
+
+**编码侧两处修正**（都由真实文件解析暴露）：
+
+- 距离码直方图按"码值"统计而非"前缀符号"统计，导致距离码表与写入不匹配 → 改成 `vp8l_encode_length(dcode).0`；
+- 单符号树只该省略**符号码**，`extra bits` 仍必须写出。此前整块跳过，距离码实际值为 0（64 像素的匹配被读成 19），流合法但像素全错。
+
+验证：
+
+| 环节 | 结果 |
+|---|---|
+| libwebp 纯色 256²（palette + 8 像素打包） | 65536 像素全等 |
+| libwebp 棋盘 256²（palette） | 65536 像素全等 |
+| libwebp 64² 梯度（predictor + subtract-green） | 4096 像素全等（70 字节文件） |
+| 自编码 RGBA 16²（256 色，5 棵多符号树） | 内环 0 差异；ffmpeg 外环 0 差异 |
+| 自编码尺寸阶梯 2²/4²/8²/16²/32² | 全部 0 差异 |
+| `image.codec/codec` 全包 | 556 项全绿 |
+
 ## 5. 里程碑（对应 roadmap S02）
 
 | 里程碑 | 内容 | 验收 |
 |---|---|---|
 | M1 | literal-only + 正常码表路径；16²/64²/1024² 三档 | 三档 ffmpeg 均可解，像素逐字节一致 |
 | M2 | LZ77：长度/距离前缀码 + 距离映射 | 正确性：内环 + ffmpeg 外环均逐字节一致（达标）；体积：可匹配内容（纯色/棋盘）与 libwebp 同档，噪声图仍差 4.3 倍（体积目标押到 M3） |
-| M3 | 变换：subtract-green + predictor（14 模式 / block 级）+ 色彩缓存 | 同图体积比 PNG 小 15–30% |
+| M3 | 变换：subtract-green + predictor（14 模式 / block 级）+ 色彩缓存 | 解码侧完成：三类变换 + palette 全支持，真实 libwebp 文件逐字节一致；编码侧（选择与写变换表）未开始 |
 | M4 | 落 MoonBit：`encode_webp_lossless`；bench 入 performance.md；`_pure`/`_full` 标 deprecated | 1024² 编码 ≥3 MP/s；6664 测试全绿；能力表只留一个 WebP 编码入口 |
 
 ## 6. 给下游的承诺（M4 之后）

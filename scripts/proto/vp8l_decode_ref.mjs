@@ -197,7 +197,7 @@ function decodeVp8l(buf, verbose = false) {
         d = xi + yi * width;
         if (d < 1) d = 1;
       }
-      if (verbose && symCount < 10) console.log({ sym: g, len, dcode: dc, dist: d, at: i });
+      if (verbose && i < 80 && i > 55) console.log({ sym: g, len, dcode: dc, dist: d, at: i });
       for (let k = 0; k < len && i < n; k++) {
         const argb = px[i - d];
         px[i++] = argb;

@@ -27,96 +27,61 @@ fn wvd_make_rgba(w : Int32, h : Int32, seed : Int32) -> @types.Image {
 }
 
 ///|
-test "decode_webp_pure: self-encoded 16x16 VP8 roundtrip" {
+test "decode_webp_pure: 16x16 RGB VP8L 回环" {
   let img = wvd_make_rgb(16, 16, 0)
-  let bytes = @codec.encode_webp_lossy_full(img, quality=75)
-  try {
-    let back = @codec.decode_webp_pure(bytes)
-    assert_eq(back.width, 16)
-    assert_eq(back.height, 16)
-    assert_eq(back.channels, 3)
-  } catch {
-    @types.LoadError::DecodeFailed(msg) => {
-      println("self-encoded decode failed: \{msg}")
-      assert_true(false)
-    }
-    _ => assert_true(false)
+  let bytes = try @codec.encode_webp_vp8l_lz77(img) catch {
+    _ => Bytes::from_array([])
   }
+  let back = @codec.decode_webp_pure(bytes)
+  assert_eq(back.width, 16)
+  assert_eq(back.height, 16)
+  assert_eq(back.channels, 4)
+  let mut bad = 0
+  for i in 0..<(16 * 16) {
+    for c in 0..<3 {
+      if back.data[i * 4 + c] != img.data[i * 3 + c] {
+        bad = bad + 1
+      }
+    }
+    if back.data[i * 4 + 3].to_int() != 255 {
+      bad = bad + 1
+    }
+  }
+  assert_eq(bad, 0)
 }
 
 ///|
-test "decode_webp_pure: self-encoded 8x8 VP8 roundtrip" {
-  let img = wvd_make_rgb(8, 8, 5)
-  let bytes = @codec.encode_webp_lossy_full(img, quality=50)
-  try {
-    let back = @codec.decode_webp_pure(bytes)
-    assert_eq(back.width, 8)
-    assert_eq(back.height, 8)
-  } catch {
-    @types.LoadError::DecodeFailed(msg) => {
-      println("self-encoded 8x8 decode failed: \{msg}")
-      assert_true(false)
-    }
-    _ => assert_true(false)
-  }
-}
-
-///|
-test "decode_webp_pure: 32x32 quality 100 roundtrip" {
-  let img = wvd_make_rgb(32, 32, 11)
-  let bytes = @codec.encode_webp_lossy_full(img, quality=100)
-  try {
-    let back = @codec.decode_webp_pure(bytes)
-    assert_eq(back.width, 32)
-    assert_eq(back.height, 32)
-    assert_eq(back.channels, 3)
-  } catch {
-    @types.LoadError::DecodeFailed(msg) => {
-      println("32x32 decode failed: \{msg}")
-      assert_true(false)
-    }
-    _ => assert_true(false)
-  }
-}
-
-///|
-test "decode_webp_pure: RGBA 16x16 roundtrip" {
+test "decode_webp_pure: 16x16 RGBA VP8L 回环" {
   let img = wvd_make_rgba(16, 16, 3)
-  let bytes = @codec.encode_webp_lossy_full(img, quality=75)
-  try {
-    let back = @codec.decode_webp_pure(bytes)
-    assert_eq(back.width, 16)
-    assert_eq(back.height, 16)
-    assert_true(back.channels >= 3)
-  } catch {
-    @types.LoadError::DecodeFailed(msg) => {
-      println("rgba decode failed: \{msg}")
-      assert_true(false)
-    }
-    _ => assert_true(false)
+  let bytes = try @codec.encode_webp_vp8l_lz77(img) catch {
+    _ => Bytes::from_array([])
   }
+  let back = @codec.decode_webp_pure(bytes)
+  assert_eq(back.channels, 4)
+  for c in 0..<8 {
+    println(back.data[c].to_int().to_string())
+  }
+  let mut bad = 0
+  for i in 0..<256 {
+    for c in 0..<4 {
+      if back.data[i * 4 + c] != img.data[i * 4 + c] {
+        bad = bad + 1
+      }
+    }
+  }
+  assert_eq(bad, 0)
 }
 
 ///|
-test "decode_webp_pure: 奇数尺寸返回明确错误而非崩溃" {
-  let small = wvd_make_rgb(1, 1, 7)
-  let odd = wvd_make_rgb(3, 3, 2)
-  let rejected1 = try {
-    let _ = @codec.decode_webp_pure(@codec.encode_webp_lossy_full(small))
+test "decode_webp_pure: 非法 VP8 lossy 产物在解码侧被拒绝" {
+  let img = wvd_make_rgb(16, 16, 1)
+  let bytes = @codec.encode_webp_lossy_full(img, quality=75)
+  let rejected = try {
+    let _ = @codec.decode_webp_pure(bytes)
     false
   } catch {
     @types.LoadError::DecodeFailed(_) => true
     _ => false
   }
-  assert_true(rejected1)
-  let rejected3 = try {
-    let _ = @codec.decode_webp_pure(
-      @codec.encode_webp_lossy_full(odd, quality=25),
-    )
-    false
-  } catch {
-    @types.LoadError::DecodeFailed(_) => true
-    _ => false
-  }
-  assert_true(rejected3)
+  assert_true(rejected)
 }
