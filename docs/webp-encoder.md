@@ -72,6 +72,23 @@ ffmpeg -v error -i <file> -f null -    # 无输出即通过
 
 阶段 C 的体积是 **3.0 字节/像素**，比 PNG 差 —— 这是 literal-only 的必然结果，LZ77 与变换（M2/M3）才是体积来源。
 
+### 4.1 MoonBit 落地（M1）
+
+`image.codec/codec/webp_vp8l_encode.mbt` → `encode_webp_vp8l_literal(img)`：literal-only + 5 棵前缀码（绿 280 / 红 256 / 蓝 256 / alpha / 距离 40），alpha 全不透明时用单符号码表省掉每像素 8 位。
+
+验证链：
+
+| 环节 | 结果 |
+|---|---|
+| 内环：编码 → `decode_webp_vp8l_rfc` 解码 → 逐字节比对 | 5 项测试通过（16² RGBA / 8² RGB 补 alpha / 1×1 / 尺寸超限 / hex dump） |
+| 外环：MoonBit 产物 → ffmpeg 解码 → 与源图 RGBA 比对 | 16² 全等（1024 字节无差异） |
+| 回归：`image.codec/codec` 全包测试 | 558 项全绿 |
+
+同时暴露并修复了两个解码侧问题（记入 `docs/known-gaps.md` GAP-28）：
+
+1. **单符号码表仍消耗 1 位**：旧 `HuffmanTree::decode` 一律"先读 1 位再走左子树"，而 RFC 规定单符号码表零比特。现象是 alpha/距离这类单符号树每像素多吃 1 位，导致整条流逐步错位 —— 1024 字节里错 1002 字节。修法：单符号树根节点直接持值，`decode` 先判根值。
+2. **旧 VP8L 解码路径整体非 RFC 合规**：simple 码表位布局、码长硬编码 256、三通道复用绿树。因此不能拿 `decode_webp_pure` 当验证器，M1 的验证改用新增的 `decode_webp_vp8l_rfc`；切换默认路径与重写受影响的旧测试排到 S03（JPEG 之后）。
+
 ## 5. 里程碑（对应 roadmap S02）
 
 | 里程碑 | 内容 | 验收 |

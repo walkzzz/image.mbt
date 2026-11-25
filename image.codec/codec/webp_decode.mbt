@@ -109,10 +109,14 @@ fn HuffmanTree::add_code(
 ///|
 fn HuffmanTree::decode(self : HuffmanTree, br : BitReader) -> Int32 {
   let mut node = 0
+  if self.codes.length() == 0 {
+    return 0
+  }
+  // 单符号码表：不消耗任何比特（RFC 9649 §3.2.2；此前按"读 1 位走左子树"会让后续流错位）
+  if self.codes[0].value != -1 {
+    return self.codes[0].value
+  }
   while true {
-    if self.codes.length() == 0 {
-      return 0
-    }
     let bit = br.read_bit()
     let child = if bit == 0 {
       self.codes[node].left

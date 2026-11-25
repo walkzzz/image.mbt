@@ -62,6 +62,8 @@ pub fn decode_vp8_inter_frame(Bytes, Int32, Vp8ReferenceFrames) -> (@types.Image
 
 pub fn decode_webp_pure(Bytes) -> @types.Image raise @types.LoadError
 
+pub fn decode_webp_vp8l_rfc(Bytes) -> @types.Image raise @types.LoadError
+
 pub fn detect_image_format(Bytes) -> String
 
 pub fn encode_apng_pure(@types.PngAnimation) -> Bytes raise @types.LoadError
@@ -103,6 +105,8 @@ pub fn encode_tiff_pure(@types.Image) -> Bytes raise @types.LoadError
 pub fn encode_webp_lossy_full(@types.Image, quality? : Int32) -> Bytes raise @types.LoadError
 
 pub fn encode_webp_lossy_pure(@types.Image, quality? : Int32) -> Bytes raise @types.LoadError
+
+pub fn encode_webp_vp8l_literal(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn get_image_info_extended(Bytes) -> ImageInfoExtended raise @types.LoadError
 
