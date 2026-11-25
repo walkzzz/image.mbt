@@ -45,9 +45,23 @@ image.mbt（根）   ← 上面全部 + moonbitlang/x
 - `node scripts/bump_version.mjs --to 0.1.8` 会同时改 7 个 `moon.mod` 的 `version` **和**每个 `moon.mod` 里 `"walkzzz/image.*@x.y.z"` 的钉；
 - `node scripts/check_version.mjs` 第 14 项（`moon.mod dep pins`）一旦发现钉与版本不一致就红，并打印 `image.codec/moon.mod: walkzzz/image.core@0.1.1 != 0.1.7` 这种定位信息。
 
-### 现在的残余阻塞
+### 现在的残余阻塞与正确节奏
 
-只剩顺序问题：registry 里没有 0.1.7 的子模块，dry-run 自然拿不到。**先按顺序发六个子模块的 0.1.7，再发根**，dry-run 应当直接转绿；在那之前根包的 dry-run 会一直报 API 缺失，这不是代码错。
+只剩顺序问题：registry 里没有 0.1.7 的子模块，dry-run 自然拿不到。
+
+**关键：每发完一层要 `moon update` 一次，再发上一层。** 因为 verify 解析依赖读的是 registry 索引 + 本地缓存，发完 `image.core@0.1.7` 之后不刷新，上层 `image.codec` 的 verify 还是看不到它，会继续报"找不到 `walkzzz/image.core@0.1.7`"。
+
+```
+cd image.core       moon publish  →  cd ..  moon update
+cd image.codec      moon publish  →  cd ..  moon update
+cd image.process    moon publish  →  cd ..  moon update
+cd image.photography moon publish →  cd ..  moon update
+cd image.vision     moon publish  →  cd ..  moon update
+cd image.domain     moon publish  →  cd ..  moon update
+cd .          （根） moon publish
+```
+
+反例：一次把六个全发完再 `moon update`，中间四层的 verify 会连锁失败，且失败后**该版本号已占位**，要改只能升版本。
 
 ## 三、发布前门禁（全绿才发）
 
