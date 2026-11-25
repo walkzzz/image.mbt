@@ -155,13 +155,38 @@ ffmpeg -v error -i <file> -f null -    # 无输出即通过
 | 自编码尺寸阶梯 2²/4²/8²/16²/32² | 全部 0 差异 |
 | `image.codec/codec` 全包 | 556 项全绿 |
 
+### 4.5 MoonBit 落地（M3 编码侧：变换选择 + 单入口 `encode_webp_lossless`）
+
+编码流程被拆成可复用的三层，新增两个文件：
+
+- `webp_vp8l_encoder_core.mbt`：`vp8l_pack_argb`（RFC 顺序打包 `(a<<24)|(r<<16)|(g<<8)|b`）、`vp8l_tokenize`（LZ77 切 token）、`vp8l_write_image_stream`（写 cache 位 + 可选 meta 位 + 5 棵树 + token；子分辨率图像传 `level0=false`）；
+- `webp_vp8l_encoder_transforms.mbt`：`vp8l_write_header`、`vp8l_alpha_solid`、`vp8l_apply_subtract_green`、`vp8l_predict_value` / `vp8l_predict_pixel`（边界规则与解码侧逐条对齐）、`vp8l_forward_predictor`（逐 16² 块在 14 模式里按残差绝对值和选优）、`vp8l_try_palette`（1024 槽开放寻址去重，>256 色返回 None；≤2/4/16 色分别 8/4/2 像素一字节打包）、`vp8l_palette_delta`、`vp8l_encode_palette_variant`；
+- 对外单入口 `pub fn encode_webp_lossless(img)`：候选 palette / 原样 / subtract-green / predictor+subtract-green，**每个候选都实际编码一遍比 payload 长度**取最小 —— 编码成本换确定性，不做体积估计。
+
+体积（`webp_vp8l_lossless_test.mbt` 实测，64² 与 256²）：
+
+| 内容 | 尺寸 | 本库 M3 | libwebp `-lossless` | 差距 |
+|---|---|---|---|---|
+| 纯色 | 64² | 38 字节 | 44 字节 | −14% |
+| 棋盘 8px 块 | 256² | 112 字节 | 66 字节 | +70% |
+| 梯度 | 64² | 66 字节 | 70 字节 | −6% |
+| 噪声 | 64² | 12422 字节 | 12404 字节 | +0.1% |
+
+四个候选都编出过**非法流**，逐字节比对才暴露（ffmpeg 报 `Overdetermined VLC tree` / 像素全错）——三个编码侧新坑，全部与"simple 码表"有关：
+
+1. **双符号 simple 码表也必须先写 `is_first_8bits`**。RFC 9649 §3.7.2.1.1 里首个符号按该位决定 1 位或 8 位；初版直接写了 8 位 + 8 位，解码端按 1 位读，整条树下所有位错位（本库自己的解码器宽容、ffmpeg 直接拒）。
+2. **simple 码表只能表达 `[0..255]` 的符号**。green 树同时含字面量（0..255）和长度前缀码（256+），初版把它们塞进 simple 码表，长度符号被截断成 8 位（`279 → 23`）；修法是判断所有符号都 < 256 才走 simple。
+3. **单叶子节点若符号 >255，必须走 normal 码表**：RFC 明确"单叶子用 normal 码表编码时，其余码长全 0、该叶子码长写 1"，即使实际不消耗符号位。初版对单符号无条件走 simple，符号被截断后解码成别的颜色。
+
+修完后：`encode_webp_lossless` 四种内容内环 0 差异；纯色 / 棋盘 / 梯度三份产物经 ffmpeg 解码后与同图 libwebp 产物的 RGBA dump **逐字节 0 差异**；噪声 64² 与 libwebp 只差 18 字节。
+
 ## 5. 里程碑（对应 roadmap S02）
 
 | 里程碑 | 内容 | 验收 |
 |---|---|---|
 | M1 | literal-only + 正常码表路径；16²/64²/1024² 三档 | 三档 ffmpeg 均可解，像素逐字节一致 |
 | M2 | LZ77：长度/距离前缀码 + 距离映射 | 正确性：内环 + ffmpeg 外环均逐字节一致（达标）；体积：可匹配内容（纯色/棋盘）与 libwebp 同档，噪声图仍差 4.3 倍（体积目标押到 M3） |
-| M3 | 变换：subtract-green + predictor（14 模式 / block 级）+ 色彩缓存 | 解码侧完成：三类变换 + palette 全支持，真实 libwebp 文件逐字节一致；编码侧（选择与写变换表）未开始 |
+| M3 | 变换：subtract-green + predictor（14 模式 / block 级）+ 色彩缓存 | 两侧完成：解码侧三类变换 + palette 全支持；编码侧候选选择 + 单入口 `encode_webp_lossless`；ffmpeg 解码产物与 libwebp 逐字节 0 差异；体积：纯色/梯度已优于 libwebp，棋盘 +70%，噪声 +0.1% |
 | M4 | 落 MoonBit：`encode_webp_lossless`；bench 入 performance.md；`_pure`/`_full` 标 deprecated | 1024² 编码 ≥3 MP/s；6664 测试全绿；能力表只留一个 WebP 编码入口 |
 
 ## 6. 给下游的承诺（M4 之后）

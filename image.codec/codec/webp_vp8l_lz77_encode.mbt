@@ -266,7 +266,7 @@ fn vp8l_write_prefix_table(w : Vp8lBits, lens : Array[Int], alphabet : Int) -> U
     vp8l_write_simple_single(w, 0)
     return
   }
-  if used.length() == 1 {
+  if used.length() == 1 && used[0] < 256 {
     vp8l_write_simple_single(w, used[0])
     return
   }
@@ -276,12 +276,17 @@ fn vp8l_write_prefix_table(w : Vp8lBits, lens : Array[Int], alphabet : Int) -> U
       all_one_bit = false
     }
   }
-  if all_one_bit && used.length() == 2 {
-    // 双符号 simple 码表：符号必须能塞进 8 位
+  if all_one_bit && used.length() == 2 && used[0] < 256 && used[1] < 256 {
+    // 双符号 simple 码表：符号必须能塞进 8 位；首个符号按 is_first_8bits 决定 1 位还是 8 位
     w.write(1, 1)
     w.write(1, 1)
-    w.write(0, 1)
-    w.write(used[0], 8)
+    if used[0] > 1 {
+      w.write(1, 1)
+      w.write(used[0], 8)
+    } else {
+      w.write(0, 1)
+      w.write(used[0], 1)
+    }
     w.write(used[1], 8)
     return
   }
@@ -412,182 +417,24 @@ fn vp8l_hash_pixel(argb : Int) -> Int {
 }
 
 ///|
-/// M2 编码器：贪心 LZ77 + 频次驱动的 Huffman 码表。
+/// M2 编码器：贪心 LZ77 + 频次驱动 Huffman（无变换）。
 ///
-/// 体积目标是"进入 PNG 量级"，最终优于 PNG 要靠 M3 的变换。
+/// 变换版本见 encode_webp_lossless。
 pub fn encode_webp_vp8l_lz77(img : @types.Image) -> Bytes raise @types.LoadError {
-  let w = img.width.to_int()
-  let h = img.height.to_int()
-  if w <= 0 || h <= 0 {
-    raise @types.LoadError::DecodeFailed("WebP 编码：图像尺寸无效")
-  }
-  if w > 16384 || h > 16384 {
-    raise @types.LoadError::DecodeFailed("WebP 编码：尺寸超出 VP8L 上限 16384")
-  }
-  let ch = img.channels.to_int()
-  if ch != 3 && ch != 4 {
-    raise @types.LoadError::DecodeFailed("WebP 编码：仅支持 3/4 通道")
-  }
-  let n = w * h
-  let argb : Array[Int] = Array::make(n, 0)
+  let (pixels, w, h) = vp8l_pack_argb(img)
   let mut alpha_solid = true
-  for i in 0..<n {
-    let base = i * ch
-    let r = img.data[base].to_int()
-    let g = img.data[base + 1].to_int()
-    let b = img.data[base + 2].to_int()
-    let a = if ch == 4 {
-      img.data[base + 3].to_int()
-    } else {
-      255
-    }
-    if a != 255 {
+  for i in 0..<pixels.length() {
+    if vp8l_ch(pixels[i], 24) != 255 {
       alpha_solid = false
     }
-    argb[i] = (a << 24) | (b << 16) | (g << 8) | r
   }
-  // ---- 贪心 LZ77 ----
-  let kinds : Array[Int] = []
-  let v1 : Array[Int] = []
-  let v2 : Array[Int] = []
-  let head : Array[Int] = Array::make(4096, -1)
-  let chain : Array[Int] = Array::make(n, -1)
-  let mut i = 0
-  while i < n {
-    let mut best_len = 0
-    let mut best_dist = 0
-    if i + 3 < n {
-      let hv = vp8l_hash_pixel(argb[i])
-      let mut j = head[hv]
-      let mut steps = 0
-      while j >= 0 && steps < 16 {
-        if argb[j] == argb[i] {
-          let mut l = 1
-          while l < 4096 && i + l < n && j + l < n && argb[j + l] == argb[i + l] {
-            l += 1
-          }
-          if l >= 3 && l > best_len {
-            best_len = l
-            best_dist = i - j
-          }
-        }
-        j = chain[j]
-        steps += 1
-      }
-    }
-    if best_len >= 3 {
-      kinds.push(1)
-      v1.push(best_len)
-      v2.push(best_dist)
-      for k in 0..<best_len {
-        if i + k + 3 < n {
-          let hv = vp8l_hash_pixel(argb[i + k])
-          chain[i + k] = head[hv]
-          head[hv] = i + k
-        }
-      }
-      i += best_len
-    } else {
-      kinds.push(0)
-      v1.push(argb[i])
-      v2.push(0)
-      if i + 3 < n {
-        let hv = vp8l_hash_pixel(argb[i])
-        chain[i] = head[hv]
-        head[hv] = i
-      }
-      i += 1
-    }
-  }
-  // ---- 统计频次 ----
-  let cg : Array[Int] = Array::make(280, 0)
-  let cr : Array[Int] = Array::make(256, 0)
-  let cb : Array[Int] = Array::make(256, 0)
-  let ca : Array[Int] = Array::make(256, 0)
-  let cd : Array[Int] = Array::make(40, 0)
-  for t in 0..<kinds.length() {
-    if kinds[t] == 0 {
-      let argb_v = v1[t]
-      let g = (argb_v >> 8) & 0xFF
-      let r = argb_v & 0xFF
-      let b = (argb_v >> 16) & 0xFF
-      let a = (argb_v >> 24) & 0xFF
-      cg[g] += 1
-      cr[r] += 1
-      cb[b] += 1
-      ca[a] += 1
-    } else {
-      let (prefix, _, _) = vp8l_encode_length(v1[t])
-      cg[256 + prefix] += 1
-      let dcode = vp8l_distance_code(v2[t], w)
-      let (dsym, _, _) = vp8l_encode_length(dcode)
-      cd[dsym] += 1
-    }
-  }
-  // ---- 构建码表 ----
-  let glens = vp8l_build_lengths(cg, 280, 15)
-  let rlens = vp8l_build_lengths(cr, 256, 15)
-  let blens = vp8l_build_lengths(cb, 256, 15)
-  let alens = vp8l_build_lengths(ca, 256, 15)
-  let dlens = vp8l_build_lengths(cd, 40, 15)
-  let gcodes = vp8l_canonical_codes(glens, 280)
-  let rcodes = vp8l_canonical_codes(rlens, 256)
-  let bcodes = vp8l_canonical_codes(blens, 256)
-  let acodes = vp8l_canonical_codes(alens, 256)
-  let dcodes = vp8l_canonical_codes(dlens, 40)
-  // ---- 写流 ----
   let bw = Vp8lBits::new()
   bw.write(0x2F, 8)
   bw.write(w - 1, 14)
   bw.write(h - 1, 14)
   bw.write(if alpha_solid { 0 } else { 1 }, 1)
   bw.write(0, 3)
-  bw.write(0, 1) // 无 transform
-  bw.write(0, 1) // 无色彩缓存
-  bw.write(0, 1) // 单组
-  let g_single = vp8l_is_single(glens, 280)
-  let r_single = vp8l_is_single(rlens, 256)
-  let b_single = vp8l_is_single(blens, 256)
-  let a_single = vp8l_is_single(alens, 256)
-  let d_single = vp8l_is_single(dlens, 40)
-  vp8l_write_prefix_table(bw, glens, 280)
-  vp8l_write_prefix_table(bw, rlens, 256)
-  vp8l_write_prefix_table(bw, blens, 256)
-  vp8l_write_prefix_table(bw, alens, 256)
-  vp8l_write_prefix_table(bw, dlens, 40)
-  for t in 0..<kinds.length() {
-    if kinds[t] == 0 {
-      let argb_v = v1[t]
-      let g = (argb_v >> 8) & 0xFF
-      let r = argb_v & 0xFF
-      let b = (argb_v >> 16) & 0xFF
-      let a = (argb_v >> 24) & 0xFF
-      if !g_single {
-        vp8l_write_code(bw, gcodes[g], glens[g])
-      }
-      if !r_single {
-        vp8l_write_code(bw, rcodes[r], rlens[r])
-      }
-      if !b_single {
-        vp8l_write_code(bw, bcodes[b], blens[b])
-      }
-      if !a_single {
-        vp8l_write_code(bw, acodes[a], alens[a])
-      }
-    } else {
-      let len = v1[t]
-      let (prefix, extra, ebits) = vp8l_encode_length(len)
-      if !g_single {
-        vp8l_write_code(bw, gcodes[256 + prefix], glens[256 + prefix])
-      }
-      bw.write(extra, ebits)
-      let dcode = vp8l_distance_code(v2[t], w)
-      let (dprefix, dextra, debits) = vp8l_encode_length(dcode)
-      if !d_single {
-        vp8l_write_code(bw, dcodes[dprefix], dlens[dprefix])
-      }
-      bw.write(dextra, debits)
-    }
-  }
+  bw.write(0, 1) // 无变换
+  vp8l_write_image_stream(bw, pixels, w, true)
   vp8l_wrap_riff(bw.finish())
 }
