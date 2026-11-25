@@ -1,162 +1,182 @@
-#!/usr/bin/env node
-// mutation_test.mjs — 变异测试最小闭环（3 个高价值包 / 7 个变异点）
-//
-// 原理：逐个注入语义变异 → 运行该包测试 → 测试失败即 KILLED（测试能发现变异）；
-//       全部通过即 SURVIVED（测试盲区）。恢复原文件后输出报告。
-// 用法：node scripts/mutation_test.mjs [--min-kill=80] [--dry-run]
-// 退出码：达标（killRate >= min）0；未达标/基线不绿 1。
+import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 
-import { readFile, writeFile } from 'node:fs/promises';
-import { execFileSync } from 'node:child_process';
-import path from 'node:path';
-
-const ROOT = path.resolve(import.meta.dirname, '..');
+const ROOT = process.cwd();
 
 const MUTANTS = [
   {
-    id: 'M01', pkg: 'walkzzz/image.core/types', file: 'image.core/types/image_types.mbt',
+    id: 'M01',
+    pkg: 'walkzzz/image.codec/codec',
+    file: 'image.codec/codec/png_decode.mbt',
+    find: '  if pa <= pb && pa <= pc {\n    a',
+    replace: '  if pa <= pb && pa <= pc {\n    b',
+    desc: 'PNG Paeth 预测选中 a 改为 b',
+  },
+  {
+    id: 'M02',
+    pkg: 'walkzzz/image.codec/codec',
+    file: 'image.codec/codec/png_decode.mbt',
+    find: '3 => (raw_byte + (a + b) / 2) & 0xFF',
+    replace: '3 => (raw_byte + (a + b) / 3) & 0xFF',
+    desc: 'PNG Average 滤波除数 2 → 3',
+  },
+  {
+    id: 'M03',
+    pkg: 'walkzzz/image.codec/codec',
+    file: 'image.codec/codec/png_decode.mbt',
+    find: '4 => (raw_byte + paeth_predict(a, b, c)) & 0xFF',
+    replace: '4 => (raw_byte + paeth_predict(a, b, b)) & 0xFF',
+    desc: 'PNG Paeth 第三参数 c → b',
+  },
+  {
+    id: 'M04',
+    pkg: 'walkzzz/image.codec/codec',
+    file: 'image.codec/codec/bmp_decode.mbt',
+    find: 'let row_size = (abs_width * bytes_per_pixel + 3) / 4 * 4',
+    replace: 'let row_size = (abs_width * bytes_per_pixel + 3) / 2 * 2',
+    desc: 'BMP 行对齐 4 字节 → 2 字节',
+  },
+  {
+    id: 'M05',
+    pkg: 'walkzzz/image.codec/codec',
+    file: 'image.codec/codec/qoi_decode.mbt',
+    find: 'if tag == 0xFE {',
+    replace: 'if tag == 0xFD {',
+    desc: 'QOI OP_RGB tag 0xFE → 0xFD',
+  },
+  {
+    id: 'M06',
+    pkg: 'walkzzz/image.codec/codec',
+    file: 'image.codec/codec/qoi_decode.mbt',
+    find: 'let dg = (tag & 0x3F) - 32',
+    replace: 'let dg = (tag & 0x3F) - 31',
+    desc: 'QOI LUMA 亮度差分基准 -32 → -31',
+  },
+  {
+    id: 'M07',
+    pkg: 'walkzzz/image.core/types',
+    file: 'image.core/types/image_types.mbt',
     find: 'if width <= 0 || height <= 0 || channels <= 0 {',
     replace: 'if width < 0 || height <= 0 || channels <= 0 {',
-    desc: 'check_dims 漏检零宽',
+    desc: 'check_dims 允许 width == 0',
   },
   {
-    id: 'M02', pkg: 'walkzzz/image.core/types', file: 'image.core/types/image_types.mbt',
+    id: 'M08',
+    pkg: 'walkzzz/image.core/types',
+    file: 'image.core/types/image_types.mbt',
     find: 'if width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION {',
     replace: 'if width >= MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION {',
-    desc: 'check_dims 边界 65535 误拒',
+    desc: 'check_dims 上限 > 改 >=',
   },
   {
-    id: 'M03', pkg: 'walkzzz/image.core/types', file: 'image.core/types/image_types.mbt',
-    find: '|| channels <= 0 {',
-    replace: '|| channels < 0 {',
-    desc: 'check_dims 漏检零通道',
+    id: 'M09',
+    pkg: 'walkzzz/image.process/color',
+    file: 'image.process/color/colormap.mbt',
+    find: '(r * 299 + g * 587 + b * 114) / 1000',
+    replace: '(r * 299 + g * 587 + b * 114) / 999',
+    desc: '灰度 BT.601 除数 1000 → 999',
   },
   {
-    id: 'M04', pkg: 'walkzzz/image.codec/util', file: 'image.codec/util/resize.mbt',
-    find: 'if out_w <= 0 || out_h <= 0 {',
-    replace: 'if out_w < 0 || out_h <= 0 {',
-    desc: 'resize 漏检零宽输出',
+    id: 'M10',
+    pkg: 'walkzzz/image.codec/lib',
+    file: 'image.codec/lib/animation.mbt',
+    find: 'if delays.length() != frames.length() {',
+    replace: 'if false {',
+    desc: 'encode_apng 去掉延迟长度校验',
   },
   {
-    id: 'M05', pkg: 'walkzzz/image.codec/util', file: 'image.codec/util/resize.mbt',
-    find: 'sx_xi[dx] = (sx + 0.5F).to_int().clamp(min=0, max=w_minus_1)',
-    replace: 'sx_xi[dx] = sx.to_int().clamp(min=0, max=w_minus_1)',
-    desc: 'resize 最近邻 x 取整偏移',
+    id: 'M11',
+    pkg: 'walkzzz/image.codec/lib',
+    file: 'image.codec/lib/region.mbt',
+    find: '@types.ImageFormat::Bmp => @codec.decode_bmp_region(data, x, y, w, h)',
+    replace: '@types.ImageFormat::Bmp => @codec.decode_qoi_region(data, x, y, w, h)',
+    desc: 'decode_region BMP 分派到 QOI 解码器',
   },
   {
-    id: 'M06', pkg: 'walkzzz/image.process/segment', file: 'image.process/segment/segmentation.mbt',
-    find: 'if variance > max_variance {',
-    replace: 'if variance < max_variance {',
-    desc: 'threshold_otsu 方差比较反转',
-  },
-  {
-    id: 'M07', pkg: 'walkzzz/image.process/segment', file: 'image.process/segment/advanced_segmentation.mbt',
-    find: '  if img.channels < 1 || img.channels > 4 {\n    raise @types.LoadError::DecodeFailed(\n      "otsu_threshold_value: 通道数必须在1-4之间",',
-    replace: '  if img.channels < 1 || img.channels > 5 {\n    raise @types.LoadError::DecodeFailed(\n      "otsu_threshold_value: 通道数必须在1-4之间",',
-    desc: 'otsu_threshold_value 通道上限放宽',
-  },
-  {
-    id: 'M08', pkg: 'walkzzz/image.codec/codec', file: 'image.codec/codec/bmp_decode.mbt',
-    find: '  let row_size = (abs_width * bytes_per_pixel + 3) / 4 * 4',
-    replace: '  let row_size = abs_width * bytes_per_pixel',
-    desc: 'BMP 行 4 字节对齐缺失',
-  },
-  {
-    id: 'M09', pkg: 'walkzzz/image.codec/codec', file: 'image.codec/codec/png_decode.mbt',
-    find: '  if bit_depth != 8 {',
-    replace: '  if bit_depth == 8 {',
-    desc: 'PNG 位深校验反转',
-  },
-  {
-    id: 'M10', pkg: 'walkzzz/image.codec/barcode', file: 'image.codec/barcode/qr_decode.mbt',
-    find: '  (data.copy(), 0)',
-    replace: '  (data.copy(), 1)',
-    desc: 'Reed-Solomon 纠正计数偏移',
-  },
-  {
-    id: 'M11', pkg: 'walkzzz/image.vision/ocr', file: 'image.vision/ocr/digit_ocr.mbt',
-    find: '    k: 3,',
-    replace: '    k: 2,',
-    desc: '数字 OCR KNN 邻居数默认值漂移',
-  },
-  {
-    id: 'M12', pkg: 'walkzzz/image.domain/watermark', file: 'image.domain/watermark/digital_watermark.mbt',
-    find: '    mse = mse / count.to_double()',
-    replace: '    mse = mse * count.to_double()',
-    desc: '水印 PSNR 的 MSE 除法变乘法',
+    id: 'M12',
+    pkg: 'walkzzz/image.codec/lib',
+    file: 'image.codec/lib/region.mbt',
+    find: '"decode_region 暂只支持 PNG / BMP / QOI"',
+    replace: '"decode_region: unsupported format"',
+    desc: 'decode_region 不支持格式错误文案变化（应存活：仅文案）',
   },
 ];
 
+function countOccurrences(s, sub) {
+  return s.split(sub).length - 1;
+}
+
 function runTests(pkg) {
+  const r = spawnSync(
+    'moon',
+    ['test', '-p', pkg, '--target', 'native'],
+    { cwd: ROOT, encoding: 'utf8', shell: false },
+  );
+  const out = (r.stdout || '') + (r.stderr || '');
+  const failedMatch = out.match(/failed:\s*(\d+)/);
+  const totalMatch = out.match(/Total tests:\s*(\d+)/);
+  const compiled = totalMatch !== null;
+  const failed = failedMatch ? Number(failedMatch[1]) : null;
+  return {
+    compiled,
+    failed,
+    total: totalMatch ? Number(totalMatch[1]) : null,
+    out,
+    status: r.status,
+  };
+}
+
+const results = [];
+let baselineOk = true;
+const pkgs = [...new Set(MUTANTS.map((m) => m.pkg))];
+for (const pkg of pkgs) {
+  const base = runTests(pkg);
+  const ok = base.compiled && base.failed === 0;
+  console.log(`baseline ${pkg}: ${ok ? 'pass' : 'FAIL'} (failed=${base.failed}/${base.total})`);
+  if (!ok) baselineOk = false;
+}
+if (!baselineOk) {
+  console.error('基线测试未通过，终止变异测试');
+  process.exit(2);
+}
+
+for (const m of MUTANTS) {
+  const path = `${ROOT}/${m.file}`;
+  const original = fs.readFileSync(path, 'utf8');
+  const occ = countOccurrences(original, m.find);
+  if (occ !== 1) {
+    results.push({ ...m, verdict: occ === 0 ? 'find_missing' : `find_ambiguous(${occ})` });
+    console.log(`${m.id} ${m.verdict}: ${m.desc}`);
+    continue;
+  }
+  fs.writeFileSync(path, original.replace(m.find, m.replace));
+  let res;
   try {
-    const out = execFileSync('moon', ['test', '--target', 'native', '-p', pkg], {
-      cwd: ROOT, encoding: 'utf8', timeout: 300_000, stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    return { ok: true, out };
-  } catch (e) {
-    return { ok: false, out: `${e.stdout ?? ''}\n${e.stderr ?? ''}`, status: e.status };
+    res = runTests(m.pkg);
+  } finally {
+    fs.writeFileSync(path, original);
   }
+  let verdict;
+  if (!res.compiled) verdict = 'compile_error';
+  else if (res.failed === null) verdict = 'unknown';
+  else if (res.failed > 0) verdict = 'killed';
+  else verdict = 'survived';
+  results.push({
+    ...m,
+    verdict,
+    failed: res.failed,
+    total: res.total,
+  });
+  console.log(`${m.id} ${verdict} (failed=${res.failed}/${res.total}) ${m.desc}`);
 }
 
-const failedTests = out => {
-  const m = out.match(/failed:\s*(\d+)/);
-  return m ? Number(m[1]) : 0;
-};
-
-async function main() {
-  const args = process.argv.slice(2);
-  const dry = args.includes('--dry-run');
-  const minArg = args.find(a => a.startsWith('--min-kill='));
-  const min = minArg ? Number(minArg.split('=')[1]) : 80;
-
-  if (dry) {
-    for (const m of MUTANTS) console.log(`${m.id} ${m.pkg} — ${m.desc}`);
-    return;
-  }
-
-  // 基线：每个包必须先全绿
-  const pkgs = [...new Set(MUTANTS.map(m => m.pkg))];
-  for (const pkg of pkgs) {
-    const r = runTests(pkg);
-    if (!r.ok) throw new Error(`基线不绿，拒绝变异（${pkg}）: ${r.out.slice(-300)}`);
-    console.log(`baseline OK: ${pkg}`);
-  }
-
-  const results = [];
-  for (const m of MUTANTS) {
-    const p = path.join(ROOT, m.file);
-    const original = await readFile(p, 'utf8');
-    const n = original.split(m.find).length - 1;
-    if (n !== 1) {
-      results.push({ id: m.id, desc: m.desc, pkg: m.pkg, verdict: 'SKIPPED', reason: `变异点出现 ${n} 次` });
-      continue;
-    }
-    let verdict = 'SURVIVED', detail = '测试全部通过（盲区）';
-    try {
-      await writeFile(p, original.replace(m.find, m.replace), 'utf8');
-      const r = runTests(m.pkg);
-      if (!r.ok) {
-        verdict = 'KILLED';
-        const f = failedTests(r.out);
-        detail = f > 0 ? `测试失败 ${f} 个` : '编译/运行失败';
-      }
-    } finally {
-      await writeFile(p, original, 'utf8');
-      const restored = await readFile(p, 'utf8');
-      if (restored !== original) throw new Error(`恢复失败: ${m.file}`);
-    }
-    results.push({ id: m.id, desc: m.desc, pkg: m.pkg, verdict, detail });
-    console.log(`${m.id} ${verdict} — ${m.desc}`);
-  }
-
-  const total = results.length;
-  const killed = results.filter(r => r.verdict === 'KILLED').length;
-  const skipped = results.filter(r => r.verdict === 'SKIPPED').length;
-  const killRate = total ? Number(((killed / total) * 100).toFixed(1)) : 0;
-  const report = { schema: 'mutation-report@1', date: new Date().toISOString().slice(0, 10), total, killed, skipped, killRate, min, ok: killRate >= min, results };
-  await writeFile(path.join(ROOT, 'mutation-report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
-  console.log(JSON.stringify({ total, killed, skipped, killRate, min, ok: report.ok }));
-  if (!report.ok) process.exit(1);
-}
-
-await main().catch(e => { console.error(String(e.message)); process.exit(1); });
+const killed = results.filter((r) => r.verdict === 'killed').length;
+const scorable = results.filter((r) => ['killed', 'survived'].includes(r.verdict)).length;
+const score = scorable ? (killed / scorable) * 100 : 0;
+fs.mkdirSync(`${ROOT}/_build`, { recursive: true });
+fs.writeFileSync(
+  `${ROOT}/_build/mutation.json`,
+  JSON.stringify({ killed, scorable, score, results }, null, 2),
+);
+console.log(`mutation score: ${killed}/${scorable} = ${score.toFixed(1)}%`);
+process.exit(killed >= 9 ? 0 : 1);

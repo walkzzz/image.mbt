@@ -94,3 +94,16 @@ test "apply_colormap: COPPER produces valid output" {
   assert_true(r >= g)
   assert_true(g >= b)
 }
+
+///|
+// BT.601 加权和恰为 999 的边界像素：22999 / 1000 = 22；除数误改为 999 则得 23
+test "apply_colormap: BT.601 加权和 999 边界" {
+  let img = @types.Image::{
+    width: 1,
+    height: 1,
+    channels: 3,
+    data: Bytes::from_array([b'\x00', b'\x05', b'\xB0']),
+  }
+  let result = @color.apply_colormap(img, @color.Colormap::GRAY)
+  assert_eq(result.data[0].to_int(), 22)
+}

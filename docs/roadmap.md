@@ -303,6 +303,13 @@
   **验收**：双帧 APNG（100/200ms）编码 → 解码，帧数与延迟一致；GIF 单帧经统一入口可读；
   空帧、`delays` 长度不一致报 `EncodeFailed`；静态 PNG 报 `DecodeFailed`。
   **口径**：GIF 只解码动画、编码仍为单帧（`encode_gif`），GIF 动画编码未承诺。
+- 🟡 **S18 变异测试（2026-11-26 部分完成）**：`scripts/mutation_test.mjs` 12 个变异点（PNG 反滤波 3、
+  BMP 行对齐、QOI 标签/差分 2、`check_dims` 2、灰度 BT.601、APNG 延迟校验、`decode_region` 分派/文案），
+  逐包基线先跑，变异后判定 `failed > 0` 为 killed，`finally` 无条件写回原文。
+  **结果**：11 killed / 1 survived（M12 为纯错误文案变异，预期存活），得分 91.7%（门槛 75%）。
+  **过程中补的真缺口**：`apply_colormap` 的 BT.601 加权和缺边界断言（补 `(0,5,176)`、加权和 22999 的用例）；
+  QOI run-length 变异与 `pixel_idx < pixel_count` 保护等价，换成 LUMA 差分基准。
+  **未完成**：覆盖率 90%（当前全库 82.3%，距目标约 3,200 行），见 `docs/mutation.md`。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -324,7 +331,7 @@
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
-| S18 | 覆盖率 90% + 变异测试 12 点 | 变异得分 ≥70% |
+| S18 🟡 | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 82.3%（进行中） |
 | S19 | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写能力表全部替换，CI 校验 |
 | S20 | 公开基准集（golden 20 张 + 6 类恶意样本） | 版权自查清单齐全，样本可分发 |
 | S21 | 0.1.21 收口 + 迁移指南 + 弃用策略 | 从 0.1.x 早期版本迁移只需 3 处改动 |
