@@ -169,9 +169,45 @@ moon add walkzzz/image.mbt
 
 > 🧩 **子模块按需安装**（workspace 六模块独立发布）：`moon add walkzzz/image.codec` 只装 18 格式编解码；`moon add walkzzz/image.process` 只装 90+ 算法子包；core / photography / vision / domain 同理。
 
-### 可运行示例（7 个，零外部依赖）
+### 先跑通一条真实链路（`examples/quickstart`）
 
 ```bash
+moon run examples/quickstart --target native
+```
+
+输出（`moon run` 直接跑，不需要文件系统）：
+
+```
+sample  64x48 ch=3
+webp    156 B
+decode  64x48 ch=4 digest=3811942400
+        WebP 无损往返像素一致（只比 RGB）
+resize  32x24
+png     158 B
+verify  32x24 ch=4 ok=true
+```
+
+对应的库代码（与示例逐行一致，抄走就能用）：
+
+```moonbit
+import {
+  "walkzzz/image.core/types",
+  "walkzzz/image.codec/lib",
+  "walkzzz/image.process/transform",
+}
+
+// 任何来源的字节都行：网络、文件、上游产物
+let back = @lib.load_from_bytes_auto(bytes) catch { e => { println("坏图: \{e}"); return } }
+// 编码：WebP 无损（体积小、逐像素可还原）；要给"人人能开"就出 PNG
+let webp = @lib.encode_webp_lossless(back)
+// 缩放：cover = 等比铺满后居中裁切；contain = 等比装入留白
+let small = @transform.resize_to_cover(back, 320, 180)
+```
+
+### 可运行示例（8 个，零外部依赖）
+
+```bash
+moon run examples/quickstart --target native         # 5 分钟链路：WebP 无损往返 → 缩放 → PNG
 moon run examples/raw_to_png --target native         # RAW RGB → PNG → 解码校验
 moon run examples/resize_demo --target native        # 上采样 / 下采样
 moon run examples/threshold_otsu --target native     # Otsu 二值化

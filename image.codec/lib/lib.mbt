@@ -345,6 +345,23 @@ pub fn encode_tga(img : @types.Image) -> Bytes {
 }
 
 ///|
+/// WebP 无损编码委托（VP8L）
+///
+/// 下游之所以需要这个别名：`save_image_auto(img, ImageFormat::Webp)` 能用，但很多人会先
+/// `import walkzzz/image.codec/lib` 写"只用 lib"的代码，再去文档里找 webp 编码函数——
+/// 而真正的实现在 `image.codec/codec`。这里给一条 `@lib` 就能拿到的入口，省一次 import。
+pub fn encode_webp_lossless(img : @types.Image) -> Bytes raise @types.LoadError {
+  @codec.encode_webp_lossless(img)
+}
+
+///|
+/// WebP 解码委托（统一走 RFC 9649 合规的 VP8L 路径，palette / predictor / cross-color 全支持；
+/// 有损 VP8 产物仍会报 `unsupported`，那是另一条待办）
+pub fn decode_webp(data : Bytes) -> @types.Image raise @types.LoadError {
+  @codec.decode_webp_pure(data)
+}
+
+///|
 /// 统一保存 API：按指定格式自动分派编码
 /// - 支持：PNG/JPEG/BMP/QOI/PNM/GIF/TGA/TIFF/ICO/CUR/ICNS/WebP
 /// - 不支持：HDR（需 ImageF，用 encode_hdr）、APNG（需 PngAnimation）、AVIF/HEIF/JPEG-XL/PSD（无编码器）

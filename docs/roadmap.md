@@ -243,6 +243,7 @@
 - ✅ **WebP 无损解码修通**：`scripts/dogfood.mjs` 跑真实输入时发现 `photo_1920.webp` 四个下游操作全失败，顺藤摸出 7 处 VP8L 缺陷（详见 `docs/known-gaps.md` GAP-28）。修完后自建回归 `scripts/proto/webp_battery.py` **321 例逐像素全等**（PIL method 0/4/6 × 9 类内容 × 12 尺寸 + ffmpeg `-lossless 1` 三种 lavfi 源），并加了 Kraft 完整性校验把静默全黑变成可定位错误。顺带补 `webp_decode_1024` bench：**15.68 ms / 66.8 MP/s**。
 - ✅ **CLI friction 4 条全修**：`help`/`version` 人类可读输出；`decode/encode/resize/crop/sanitize` 统一走 `out_format`（`--format` > 输出扩展名 > 子命令默认），`out.jpg` 真是 JPEG、`crop` 支持 `--format`、`sanitize out.png` 真是 PNG。MCP 的 `crop` 同步补 `format`/`quality`，冒烟 33/33。
 - ✅ **dogfood 收口**：`scripts/dogfood.mjs` 8 输入 × 6 步 = **48 操作全通过**、8 条摩擦探针 8/8 ok；记录写入 `docs/dogfood.md`；`scripts/bump_version.mjs` 固化了"一 Sprint 一 patch"的版本改动面（`check_version` 12 → 13 项）。
+- ✅ **下游可用性**：`examples/quickstart`（造图 → WebP 无损 → 解码 → 缩放 → PNG → 回读）四目标可编译、`moon run` 真跑通；README 快速上手与它逐行对齐；`image.codec/lib` 补 `encode_webp_lossless` / `decode_webp`，让"只 import 一个 lib"的下游也能编 WebP。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 

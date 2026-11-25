@@ -11,6 +11,8 @@
 - **`imgtool help` / `version`（S07 dogfood 第一号摩擦）**：`help`、`-h`、`--help` 打印人类可读用法（命令、每个子命令的必选/可选参数、格式推断规则、`--mem-budget`），退出码 0；`version`、`-v`、`--version` 打印 `imgtool 0.1.7 (walkzzz/image.mbt)`。两者都不再是"未知子命令"的 JSON 错误，但**不带任何参数**调用仍回 `{ok:false, code:"process/invalid_argument", ...}`，供脚本/agent 判定。
 - **`scripts/dogfood.mjs`**：8 个真实输入（ffmpeg 造的截图 / 有损照片 / 无损 WebP / 未压缩 BMP / 灰度 / 带 alpha / 4096² / 渐变）× 6 步流水线（info → decode → resize → sanitize → analyze → info）= 48 个操作，外加 8 条摩擦探针，输出 `dogfood@1` JSON。终态 `ops 48 / failed 0 / 探针 8/8 ok`，报告见 `docs/dogfood.md`。
 - **`docs/dogfood.md`**：流水线表、8 条探针的修前/修后对照、格式决策规则，以及"仍未解决"三条（VP8 有损、`max_ms` 无强制中断、发布链待授权）。
+- **`examples/quickstart`（5 分钟链路，四目标可编译）**：造图 → WebP 无损编码 → `load_from_bytes_auto` 解码 → `resize_to_cover` → PNG 出图 → 回读校验，全用子模块、不碰文件系统；README 的快速上手代码片段与它逐行一致，示例改坏 README 就直接编译失败。实测 `webp 156 B / png 158 B / verify ok=true`。
+- **`image.codec/lib` 补 `encode_webp_lossless` / `decode_webp` 两个委托**：此前下游只 import `@lib` 时找不到 WebP 编码入口（实现在 `image.codec/codec`），得再记一个 import；现在 `@lib.save_image_auto(Webp)` 与 `@lib.encode_webp_lossless` 都在一处。
 - **`scripts/bump_version.mjs`**：一 Sprint 一 patch 的版本升级脚本，一次改 7 个 `moon.mod` + 门面 + CLI + 双语徽章 + `known-gaps` 口径行；`--to` 指定目标、`-n` 预演。
 - `imgcli/imgtool_format_wbtest.mbt`：`format_from_ext`（含大写、`.tar.gz`、无扩展名）、`out_format` 优先级（`--format` > 扩展名 > fallback，`auto` 视为未给）、`help_text/version_text` 三条白盒测试。
 

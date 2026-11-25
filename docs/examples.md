@@ -3,10 +3,11 @@
 > 本页列出**真实可运行**的示例（`examples/` 目录），输出为 2026-11-20 native 实测。
 > 运行方式：`moon run examples/<name> --target native`（四目标通用，示例无目标限制）。
 
-## 7 个可运行示例
+## 8 个可运行示例
 
 | 示例 | 命令 | 覆盖 API | 实测输出（摘要） |
 |------|------|----------|------------------|
+| `quickstart` | `moon run examples/quickstart --target native` | `load_from_bytes_auto` / `encode_webp_lossless` / `resize_to_cover` / `encode_png` | `webp 156 B` / `resize 32x24` / `verify ok=true` |
 | `raw_to_png` | `moon run examples/raw_to_png --target native` | `encode_png_pure` / `decode_png_pure` | `PNG bytes: 82` / `pixel-exact roundtrip: true` |
 | `resize_demo` | `moon run examples/resize_demo --target native` | `resize_pure`（上采样/下采样） | `upscale: 8x8 first=0 last=96` / `downscale: 2x2` |
 | `threshold_otsu` | `moon run examples/threshold_otsu --target native` | `threshold_otsu` | `black=50 white=50` |
