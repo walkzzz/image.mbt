@@ -6,15 +6,15 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.7-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.7-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.8-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.8-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-6_701×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-83.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-75-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-76-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-Contest-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 简体中文 · [English](README.en.md)

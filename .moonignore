@@ -1,0 +1,30 @@
+# 发布归档裁剪（`.moonignore`，gitignore 语义；只影响 `moon package` / `moon publish` 生成的 zip）
+# 依据：docs/known-gaps、docs/release.md；`moon package --list` 可预检。
+# 目标：消费者拿到的 zip 里是库 + CLI + playground 导出层，不含开发工具链与测试。
+
+# 开发工具链：诊断/门禁/回归脚本，消费者不需要，且体积占 50+ 文件
+scripts/
+
+# 文档源：README 才是模块首页；docs/ 在 GitHub 上看，不必进 zip
+docs/
+
+# 示例与规格草稿：examples/ 已在 README 里给出代码片段
+examples/
+spec/
+
+# 根模块性能基准（依赖 bench 包，仅本仓开发用）
+bench_real.mbt
+
+# 测试源码：全仓无"只有测试文件的包"，因此排除后不会留下空包
+*_test.mbt
+*_wbtest.mbt
+
+# 本仓开发产物与内部文档：覆盖率输出、变异报告、工作区文件、内部规则/路线
+coverage*.txt
+coverage*.log
+mutation-report.json
+moon.work
+AGENTS.md
+TEST_REPORT.md
+rules.md
+image-mbt-*.md

@@ -6,15 +6,15 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.7-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.7-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.8-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.8-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-6_701×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-83.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-75-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-76-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-参赛项目-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 [English](README.en.md) · 简体中文
@@ -124,7 +124,7 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 </td>
 <td width="50%">
 
-### 🟢 75 个子包
+### 🟢 76 个子包
 
 6 子模块 (core/codec/process/photography/vision/domain) · 用户直接 import 子包 · 根包仅门面
 
@@ -167,19 +167,30 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 moon add walkzzz/image.mbt
 ```
 
-> ⚠️ **装根模块不等于能 import 子模块包**。如果你想直接写 `import "walkzzz/image.codec/lib"`，必须**再把那个子模块显式 add 一次**，否则报
-> `exists in global environment, but its containing module is not imported by <你的包>`。跑本仓 quickstart 那条链路，装法是：
+然后一个 import 就能拿到高频 API：
+
+```moonbit
+import "walkzzz/image.mbt/all"
+// @all.load_from_bytes_auto / @all.save_image_auto / @all.encode_webp_lossless
+// @all.resize_to_cover / @all.crop / @all.rotate / @all.encode_png ...
+```
+
+> ✅ **一条 add 就够用**。`walkzzz/image.mbt/all` 是根模块里的门面包，把 types + 编解码 + 变换的高频 API 用 `pub using` 再导出，
+> 所以不需要为这些 API 额外 add 任何子模块。
+
+> ⚠️ **但 import 权限不跟着依赖传递**（MoonBit 规则：`moon.mod` 声明模块依赖、`moon.pkg` 声明包依赖，只有**直接依赖**的包才能 import）。
+> 想直接写 `import "walkzzz/image.codec/lib"` / `"walkzzz/image.process/filter"` 这类**深层包**，那个子模块必须自己 add 一次，否则报
+> `exists in global environment, but its containing module is not imported by <你的包>`：
 >
 > ```bash
-> moon add walkzzz/image.mbt@0.1.7
-> moon add walkzzz/image.core@0.1.7
-> moon add walkzzz/image.codec@0.1.7
-> moon add walkzzz/image.process@0.1.7
+> moon add walkzzz/image.codec@0.1.8    # 只是例子：要用 codec 的深层子包才需要
 > ```
 
 > 🧩 **子模块按需安装**（workspace 六模块独立发布）：`moon add walkzzz/image.codec` 只装 18 格式编解码；`moon add walkzzz/image.process` 只装 90+ 算法子包；core / photography / vision / domain 同理。
 
 ### 先跑通一条真实链路（`examples/quickstart`）
+
+> 示例为了演示"子模块深挖"用的是 `@lib.load_from_bytes_auto` 这种显式包；如果你只想最快起步，用门面包 `@all` 的写法与它完全等价（见下方代码块第二段）。
 
 ```bash
 moon run examples/quickstart --target native
@@ -212,6 +223,16 @@ let back = @lib.load_from_bytes_auto(bytes) catch { e => { println("坏图: \{e}
 let webp = @lib.encode_webp_lossless(back)
 // 缩放：cover = 等比铺满后居中裁切；contain = 等比装入留白
 let small = @transform.resize_to_cover(back, 320, 180)
+```
+
+只 add 了根模块时，等价写法（`@all` 门面包，不用 add 子模块）：
+
+```moonbit
+import "walkzzz/image.mbt/all"
+
+let img = @all.load_from_bytes_auto(bytes)!
+let small = @all.resize_to_cover(img, 320, 180)
+let png = @all.encode_png(small)
 ```
 
 ### 可运行示例（8 个，零外部依赖）
@@ -481,7 +502,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | 文档 | 说明 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | 架构图、模块依赖、设计决策 |
-| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，76 包 / 3,806 fn）** |
+| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，77 包 / 3,832 fn）** |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
 | [docs/changelog.md](docs/changelog.md) | 版本变更历史 |

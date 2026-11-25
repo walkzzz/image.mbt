@@ -4,6 +4,19 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.8] - 2026-11-25
+
+### Added
+
+- **门面包 `walkzzz/image.mbt/all`**：`pub using` 再导出 9 个类型 + 17 个编解码函数 + 9 个变换函数。下游只 `moon add walkzzz/image.mbt` 一条，
+  然后 `import "walkzzz/image.mbt/all"` 即可用，不再需要为高频 API 额外 add 子模块。
+- **`.moonignore` 裁剪发布归档**：排掉 `scripts/ docs/ examples/ spec/ bench_real.mbt *_test.mbt *_wbtest.mbt` 与覆盖率/变异/工作区文件；
+  `moon package --list` 1142 → 627 文件，zip 605 个；`playground/`（网页 demo 导出层）按要求保留。
+
+### Changed
+
+- README 安装段改为「一条 add + `@all`」；深层包（`image.codec/lib`、`image.process/filter` 等）仍需按需 add 子模块，并在文中写明**原因**（MoonBit 只有直接依赖的包可 import）。
+
 ## [0.1.7] - 2026-11-25
 
 ### Added

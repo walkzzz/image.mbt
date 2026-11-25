@@ -1,0 +1,84 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.mbt/all"
+
+import {
+  "walkzzz/image.core/types",
+}
+
+// Values
+pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @types.ImageError
+
+pub fn crop(@types.Image, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn decode_webp(Bytes) -> @types.Image raise @types.LoadError
+
+pub fn decode_with_limits(Bytes, @types.DecodeLimits) -> @types.Image raise @types.ImageError
+
+pub fn detect_format(Bytes) -> @types.ImageFormat
+
+pub fn encode_bmp(@types.Image) -> Bytes
+
+pub fn encode_gif(@types.Image) -> Bytes raise @types.LoadError
+
+pub fn encode_jpeg(@types.Image) -> Bytes raise @types.LoadError
+
+pub fn encode_png(@types.Image) -> Bytes
+
+pub fn encode_qoi(@types.Image) -> Bytes raise @types.LoadError
+
+pub fn encode_tga(@types.Image) -> Bytes
+
+pub fn encode_webp_lossless(@types.Image) -> Bytes raise @types.LoadError
+
+pub fn flip_horizontal(@types.Image) -> @types.Image
+
+pub fn flip_vertical(@types.Image) -> @types.Image
+
+pub fn get_image_summary(Bytes) -> String raise @types.LoadError
+
+pub fn load_16_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image16 raise @types.LoadError
+
+pub fn load_any_f(Bytes) -> @types.ImageF raise @types.LoadError
+
+pub fn load_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image raise @types.LoadError
+
+pub fn resize_to_contain(@types.Image, Int32, Int32, Array[Byte]) -> @types.Image raise @types.LoadError
+
+pub fn resize_to_cover(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn rotate(@types.Image, Float) -> @types.Image
+
+pub fn rotate_180(@types.Image) -> @types.Image
+
+pub fn rotate_270(@types.Image) -> @types.Image
+
+pub fn rotate_90(@types.Image) -> @types.Image
+
+pub fn save_image_auto(@types.Image, @types.ImageFormat) -> Bytes raise @types.LoadError
+
+pub fn save_image_with_quality(@types.Image, @types.ImageFormat, Int32) -> Bytes raise @types.LoadError
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @types {type AnyImage}
+
+pub using @types {type DecodeLimits}
+
+pub using @types {type ErrorCode}
+
+pub using @types {type Image}
+
+pub using @types {type Image16}
+
+pub using @types {type ImageError}
+
+pub using @types {type ImageF}
+
+pub using @types {type ImageFormat}
+
+pub using @types {type LoadError}
+
+// Traits

@@ -117,3 +117,43 @@ downstream-ok=true
    `Import walkzzz/image.core/types@0.1.7 exists in global environment, but its containing module is not imported by demo/downstream@0.1.0`。
    处理：用哪个子模块就显式 add 哪个。这是 MoonBit 的模块边界，不是本库的缺陷，但新手必踩，README 已加粗提示。
 2. **`moon.mod` 不接受 `edition = "2024"` 键**（`Unexpected key 'edition' found in moon.mod`）；且用 PowerShell `Set-Content -Encoding utf8` 写的 `moon.mod` 带 BOM，会报 `Lexing error at 0..3`。写 `moon.mod` 要用无 BOM 的 UTF-8。
+
+## 七、门面包 `all/`：把"必须 add 子模块"这条摩擦消掉
+
+MoonBit 的规则是**两级声明**：`moon.mod` 声明模块依赖，`moon.pkg` 声明包依赖；只有**直接依赖模块**里的包才能被 import。
+`moon add walkzzz/image.mbt` 会把六个子模块全部下载（`moon tree` 可见整棵树），但它们是传递依赖，下游直接 import `walkzzz/image.codec/lib` 就会被拒：
+
+```
+Import walkzzz/image.core/types@0.1.8 exists in global environment,
+but its containing module is not imported by demo/two@0.1.0, thus cannot be imported by its package 'src'
+```
+
+**解法不是让下游多写几条 add，而是在根模块里放门面包。** `walkzzz/image.mbt/all` 用 `pub using` 把 types / 编解码 / 变换的高频 API 再导出一次
+（`pub using` 带 `pub` 即为重新导出，见 `docs/moonbit-language-overview.md` 第 4745 行）。下游 import 的是**直接依赖（根模块）里的包**，于是单条 add 就够。
+
+### 验证（workspace 双对照，2026-11-25）
+
+用 `moon.work` 组一个 workspace（成员含本仓七个模块 + 两个 demo），本地解析、不走 registry：
+
+| demo | `moon.mod` 只 import | `moon.pkg` import | 结果 |
+|------|----------------------|-------------------|------|
+| `demo` | `walkzzz/image.mbt@0.1.8` | `walkzzz/image.mbt/all` | ✅ 跑通：`webp=124B png=125B 16x12 fmt=png ok=true` |
+| `demo2` | `walkzzz/image.mbt@0.1.8` | `walkzzz/image.core/types` | ❌ `exists in global environment, but its containing module is not imported` |
+
+注意 demo2 里 `image.core` **也是 workspace 成员**（本地源码可见）却仍然被拒——证明这不是"版本没下到"，而是纯粹的直接依赖边界；demo 走 `all` 才通。
+
+## 八、发布包瘦身（`.moonignore`）
+
+`moon.mod` 里的 `include`/`exclude` 已弃用，官方推荐 `.moonignore`（gitignore 语义，只作用于 `moon package` / `moon publish` 的归档，可用 `moon package --list` 预检）。
+本仓 `.moonignore` 排掉了开发侧内容：
+
+| 排除 | 原因 |
+|------|------|
+| `scripts/` | 诊断/门禁/回归脚本，消费者不需要（51 个文件） |
+| `docs/`、`examples/`、`spec/` | 文档源与示例在 GitHub 上看；spec 是内部规约草稿 |
+| `bench_real.mbt` | 根模块性能基准，依赖 bench 包 |
+| `*_test.mbt`、`*_wbtest.mbt` | 测试源码（全仓已核查**无"只有测试文件的包"**，排除后不会留空包） |
+| `coverage*.txt`、`coverage*.log`、`mutation-report.json` | 本仓覆盖率/变异产物 |
+| `moon.work`、`AGENTS.md`、`TEST_REPORT.md`、`rules.md`、`image-mbt-*.md` | 工作区文件与内部规则/路线 |
+
+实测：`moon package --list` 从 **1142** 个文件降到 **627**；打成 zip 后 **605** 个；`playground/`（网页 demo 导出层）、`imgcli/`、`cmd/`、`mp4/`、`all/` 保留。
