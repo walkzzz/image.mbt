@@ -13,6 +13,7 @@ fn wve_make_rgb(w : Int32, h : Int32, seed : Int32) -> @types.Image {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy_full: 16x16 RGB 生成 RIFF/WEBP/VP8" {
   let img = wve_make_rgb(16, 16, 0)
   try {
@@ -35,6 +36,7 @@ test "encode_webp_lossy_full: 16x16 RGB 生成 RIFF/WEBP/VP8" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy_full: 8x8 quality 50" {
   let img = wve_make_rgb(8, 8, 3)
   try {
@@ -46,6 +48,7 @@ test "encode_webp_lossy_full: 8x8 quality 50" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy_full: 1x1 RGB 最小图" {
   let img = wve_make_rgb(1, 1, 9)
   try {
@@ -57,6 +60,7 @@ test "encode_webp_lossy_full: 1x1 RGB 最小图" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy_full: 奇数尺寸 3x3 不越界" {
   let img = wve_make_rgb(3, 3, 5)
   try {
@@ -70,6 +74,7 @@ test "encode_webp_lossy_full: 奇数尺寸 3x3 不越界" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy_full: 1 通道被拒" {
   let img = @types.Image::{
     width: 2,

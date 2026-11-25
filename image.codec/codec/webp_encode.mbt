@@ -177,6 +177,8 @@ fn build_vp8_frame_header(
 /// token 流长度。ffmpeg 报 `Invalid partitions`，浏览器同样无法解码。
 /// 本函数仅为占位实现，不得在任何能力宣称中使用；合法 VP8/VP8L 编码器列为后续工作。
 /// 本库解码器仅支持 lossless (VP8L)，也无法解此函数的输出。
+/// 自 S02 M3 起改用 [`encode_webp_lossless`]（VP8L，产物经 ffmpeg / libwebp 逐字节校验）。
+#deprecated("产物不符合 VP8 规范，请改用 encode_webp_lossless")
 pub fn encode_webp_lossy_pure(
   img : @types.Image,
   quality~ : Int32 = 75,

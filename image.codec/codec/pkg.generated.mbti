@@ -104,8 +104,10 @@ pub fn encode_tiff_pure(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn encode_webp_lossless(@types.Image) -> Bytes raise @types.LoadError
 
+#deprecated
 pub fn encode_webp_lossy_full(@types.Image, quality? : Int32) -> Bytes raise @types.LoadError
 
+#deprecated
 pub fn encode_webp_lossy_pure(@types.Image, quality? : Int32) -> Bytes raise @types.LoadError
 
 pub fn encode_webp_vp8l_literal(@types.Image) -> Bytes raise @types.LoadError

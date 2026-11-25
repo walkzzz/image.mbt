@@ -124,7 +124,7 @@
 
 下一步 M3：subtract-green 逆变换对齐 + predictor 14 模式（block 级）+ palette（libwebp 默认产物）+ 色彩缓存出码。M3 两侧已落地（2026-11-25）—— 解码侧（commit `c76f0079`）四类逆变换 + meta 多组 + palette + predictor，真实 libwebp 文件逐字节通过；编码侧重构出 `vp8l_write_image_stream` + `vp8l_forward_predictor` + `vp8l_try_palette`，对外单入口 `encode_webp_lossless`（候选实际编码一遍比长度取胜者）。过程中修掉三个 simple 码表坑（详见 [webp-encoder.md §4.5](webp-encoder.md)），修完后 ffmpeg 解码产物与 libwebp 逐字节 0 差异；体积：纯色 64² 38 B（44 B）、梯度 64² 66 B（70 B）、棋盘 256² 112 B（66 B）、噪声 64² 12422 B（12404 B）。
 
-下一步 M4 收口：`encode_webp_lossless` 进 `docs/performance.md` bench、`encode_webp_lossy_*` 标 `#deprecated`、README 能力表只留一个 WebP 编码入口、全包绿 + 零警告，而后 GAP-27 恢复 WebP 编码宣称。
+**状态：M1–M4 全部完成（2026-11-25，版本 0.1.2）** —— M4 收口内容：`bench_real.mbt` 的 WebP 项换成 `encode_webp_lossless`（1024² 梯度 244.83 ms / 4.28 MP/s，达标 ≥3 MP/s）；`docs/performance.md` 增行并改写"331 MP/s 可疑"结论；`encode_webp_lossy_pure` / `_full` 标 `#deprecated`，内部调用点加 `#warnings("-deprecated")`，`moon check --deny-warn` 零警告；README 中英能力表只留 VP8L 无损编码一行；GAP-27 恢复 WebP 编码宣称。
 
 ---
 

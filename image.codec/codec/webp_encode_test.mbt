@@ -1,6 +1,7 @@
 // WebP lossy 编码测试
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy: basic 2x2 RGB" {
   let img = @types.Image::{
     width: 2,
@@ -32,6 +33,7 @@ test "encode_webp_lossy: basic 2x2 RGB" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy: quality parameter" {
   let img = @types.Image::{
     width: 4,
@@ -50,6 +52,7 @@ test "encode_webp_lossy: quality parameter" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy: invalid dimensions raises" {
   let img = @types.Image::{ width: 0, height: 0, channels: 3, data: b"", }
   try {
@@ -61,6 +64,7 @@ test "encode_webp_lossy: invalid dimensions raises" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy: invalid channels raises" {
   let img = @types.Image::{
     width: 2,
@@ -77,6 +81,7 @@ test "encode_webp_lossy: invalid channels raises" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy: RGBA supported" {
   let img = @types.Image::{
     width: 2,
@@ -92,6 +97,7 @@ test "encode_webp_lossy: RGBA supported" {
 }
 
 ///|
+#warnings("-deprecated")
 test "encode_webp_lossy: VP8 frame header" {
   let img = @types.Image::{
     width: 16,

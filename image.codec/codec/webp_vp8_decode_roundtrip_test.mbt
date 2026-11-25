@@ -27,6 +27,7 @@ fn wvd_make_rgba(w : Int32, h : Int32, seed : Int32) -> @types.Image {
 }
 
 ///|
+#warnings("-deprecated")
 test "decode_webp_pure: 16x16 RGB VP8L 回环" {
   let img = wvd_make_rgb(16, 16, 0)
   let bytes = try @codec.encode_webp_vp8l_lz77(img) catch {
@@ -51,6 +52,7 @@ test "decode_webp_pure: 16x16 RGB VP8L 回环" {
 }
 
 ///|
+#warnings("-deprecated")
 test "decode_webp_pure: 16x16 RGBA VP8L 回环" {
   let img = wvd_make_rgba(16, 16, 3)
   let bytes = try @codec.encode_webp_vp8l_lz77(img) catch {
@@ -73,6 +75,7 @@ test "decode_webp_pure: 16x16 RGBA VP8L 回环" {
 }
 
 ///|
+#warnings("-deprecated")
 test "decode_webp_pure: 非法 VP8 lossy 产物在解码侧被拒绝" {
   let img = wvd_make_rgb(16, 16, 1)
   let bytes = @codec.encode_webp_lossy_full(img, quality=75)

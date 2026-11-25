@@ -121,4 +121,5 @@ test "webp lossless：噪声 64² 走原样或 subtract-green" {
   let img = vp8l_lossless_noise(64, 64)
   let (enc, bad) = vp8l_lossless_roundtrip("噪声 64²", img)
   assert_eq(bad, 0)
+  assert_true(enc.length() > 8000)
 }

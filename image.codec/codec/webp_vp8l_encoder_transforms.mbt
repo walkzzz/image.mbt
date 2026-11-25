@@ -98,12 +98,18 @@ fn vp8l_predict_pixel(
 }
 
 ///|
+/// 残差代价：四通道环差绝对值之和。四个通道手工展开 —— 这里在内层 14×像素 的循环里
+/// 每像素调用一次，用 `for shift in [...]` 会在每次调用分配一个数组。
 fn vp8l_residual_cost(orig : Int, pred : Int) -> Int {
   let mut c = 0
-  for shift in [24, 16, 8, 0] {
-    let v = (vp8l_ch(orig, shift) - vp8l_ch(pred, shift)) & 0xFF
-    c += if v < 128 { v } else { 256 - v }
-  }
+  let d0 = (vp8l_ch(orig, 24) - vp8l_ch(pred, 24)) & 0xFF
+  c += if d0 < 128 { d0 } else { 256 - d0 }
+  let d1 = (vp8l_ch(orig, 16) - vp8l_ch(pred, 16)) & 0xFF
+  c += if d1 < 128 { d1 } else { 256 - d1 }
+  let d2 = (vp8l_ch(orig, 8) - vp8l_ch(pred, 8)) & 0xFF
+  c += if d2 < 128 { d2 } else { 256 - d2 }
+  let d3 = (vp8l_ch(orig, 0) - vp8l_ch(pred, 0)) & 0xFF
+  c += if d3 < 128 { d3 } else { 256 - d3 }
   c
 }
 

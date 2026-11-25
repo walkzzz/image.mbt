@@ -26,7 +26,7 @@
 | `png_decode_4096` | 16.78 MP | 1.28 s ± 28 ms | 10 × 1 | **13.1 MP/s** | — |
 | `jpeg_encode_1024` | 1.048 MP | 534.56 ms ± 13 ms | 10 × 1 | **1.96 MP/s** | libjpeg-turbo ≈ 50–100 MP/s |
 | `jpeg_decode_1024` | 1.048 MP | 495.22 ms ± 9 ms | 10 × 1 | **2.12 MP/s** | libjpeg-turbo ≈ 100+ MP/s |
-| `webp_encode_1024` | 1.048 MP | 3.16 ms ± 88 µs | 10 × 31 | **331 MP/s**（**可疑**） | libwebp ≈ 10–30 MP/s |
+| `webp_encode_1024` | 1.048 MP | 244.83 ms ± 2.48 ms | 10 × 1 | **4.28 MP/s** | libwebp `-lossless -m 4` ≈ 1–3 MP/s |
 | `bmp_encode_1024` | 1.048 MP | 8.32 ms ± 255 µs | 10 × 13 | 126 MP/s | 内存带宽级，合理 |
 | `qoi_encode_1024` | 1.048 MP | 9.76 ms ± 256 µs | 10 × 11 | 107 MP/s | 合理 |
 | `gif_encode_512` | 0.262 MP | 590.53 ms ± 17 ms | 10 × 1 | **0.44 MP/s** | giflib 量级 |
@@ -43,7 +43,7 @@
 
    这是 S02 的唯一目标，靶子明确：编码 ≥8 MP/s、解码 ≥8 MP/s（12MP 落到 1.5s 级）。
 
-3. **WebP 编码的速度是 bug 信号。** 1MP 编码 3.16 ms（331 MP/s）比 libwebp 快一个量级，且代码注释自述"`decode_webp_pure` 会失败、仅外部工具可解"。合理推断：走的是退化路径 / 产物不是合法 VP8 码流。**先验产物有效性（外部解码器 + 码流结构），再谈性能**；在此之前 WebP 不计入能力清单。
+3. **WebP 编码原先的 331 MP/s 是产物非法导致的假数字**（旧 VP8 实现只写 container，ffmpeg 报 `Invalid partitions`）。S02 换成 VP8L 编码器 `encode_webp_lossless`（palette / predictor / subtract-green 三候选各编码一遍比长度）后，同一 1024² 梯度实测 **244.83 ms / 4.28 MP/s**，产物经 ffmpeg 与 libwebp 解码逐字节比对通过。
 
 ## 口径说明
 

@@ -13,6 +13,7 @@ fn wvd_wb_make_rgb(w : Int32, h : Int32) -> @types.Image {
 }
 
 ///|
+#warnings("-deprecated")
 test "wbtest: decode_vp8_inter_frame 关键帧输入走常规解码并更新参考帧" {
   let img = wvd_wb_make_rgb(16, 16)
   let bytes = encode_webp_lossy_full(img)
@@ -41,6 +42,7 @@ fn wvd_wb_make_inter_frame(first_part_size : Int32) -> Bytes {
 }
 
 ///|
+#warnings("-deprecated")
 test "wbtest: inter 帧使用参考帧尺寸解码" {
   let bytes = wvd_wb_make_inter_frame(64)
   let refs = Vp8ReferenceFrames::new(16, 16)

@@ -1,4 +1,4 @@
-/// ============================================================================
+﻿/// ============================================================================
 /// 真实尺寸基准 — 1024² / 4096² 的 PNG 编解码与缩放（B3 现代化，取代 128² 固定小图）
 /// ============================================================================
 
@@ -96,7 +96,7 @@ fn qoi_len(img : @types.Image) -> Int32 noraise {
 
 ///|
 fn webp_len(img : @types.Image) -> Int32 noraise {
-  @codec.encode_webp_lossy_pure(img).length() catch {
+  @codec.encode_webp_lossless(img).length() catch {
     _ => -1
   }
 }
@@ -132,3 +132,5 @@ test (b : @bench.T) {
   b.bench(name="qoi_encode_1024", fn() { b.keep(qoi_len(img_1024)) })
   b.bench(name="gif_encode_512", fn() { b.keep(gif_len(img_512)) })
 }
+
+

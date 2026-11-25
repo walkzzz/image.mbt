@@ -90,6 +90,7 @@ pub impl Codec for @types.ImageFormat with fn is_lossless(self) {
 }
 
 ///|
+#warnings("-deprecated")
 pub impl Codec for @types.ImageFormat with fn encode(self, img) {
   match self {
     @types.ImageFormat::Png => encode_png_pure(@types.any_image_to_u8(img))
