@@ -322,6 +322,8 @@ pub fn encode_webp_lossless(img : @types.Image) -> Bytes raise @types.LoadError 
   let pred = {
     let bw = Vp8lBits::new()
     vp8l_write_header(bw, w, h, alpha_solid)
+    // 变换列表按前向顺序书写：predictor forward → subtract-green forward；
+    // 解码端从末尾倒序做逆变换，因此实际是 SG 逆变换 → predictor 逆变换。
     bw.write(1, 1)
     bw.write(0, 2)
     bw.write(4 - 2, 3)

@@ -114,6 +114,11 @@ pub fn region_to_image(v : @types.ImageRegion) -> @types.Image {
 ///|
 /// 编解码（格式自动识别、按格式输出、WebP 无损）
 pub using @lib {
+  type EncodedImage,
+  has_alpha,
+  best_format,
+  encode_best,
+  encode_best_limited,
   load_from_bytes_auto,
   load_16_from_bytes_auto,
   load_any_f,

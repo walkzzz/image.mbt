@@ -2,11 +2,14 @@
 package "walkzzz/image.mbt/all"
 
 import {
+  "walkzzz/image.codec/lib",
   "walkzzz/image.core/types",
 }
 
 // Values
 pub fn alloc_budget_default() -> @types.AllocBudget
+
+pub fn best_format(@types.Image) -> @types.ImageFormat
 
 pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @types.ImageError
 
@@ -19,6 +22,10 @@ pub fn decode_webp(Bytes) -> @types.Image raise @types.LoadError
 pub fn decode_with_limits(Bytes, @types.DecodeLimits) -> @types.Image raise @types.ImageError
 
 pub fn detect_format(Bytes) -> @types.ImageFormat
+
+pub fn encode_best(@types.Image, Int32) -> @lib.EncodedImage raise @types.ImageError
+
+pub fn encode_best_limited(@types.Image, Int32, Int64) -> @lib.EncodedImage raise @types.ImageError
 
 pub fn encode_bmp(@types.Image) -> Bytes
 
@@ -39,6 +46,8 @@ pub fn flip_horizontal(@types.Image) -> @types.Image
 pub fn flip_vertical(@types.Image) -> @types.Image
 
 pub fn get_image_summary(Bytes) -> String raise @types.LoadError
+
+pub fn has_alpha(@types.Image) -> Bool
 
 pub fn load_16_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image16 raise @types.LoadError
 
@@ -96,6 +105,8 @@ pub using @types {type AllocBudget}
 pub using @types {type AnyImage}
 
 pub using @types {type DecodeLimits}
+
+pub using @lib {type EncodedImage}
 
 pub using @types {type ErrorCode}
 

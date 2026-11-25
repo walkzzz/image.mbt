@@ -64,7 +64,7 @@ fn vp8l_tokenize(pixels : Array[Int]) -> Vp8lTokenStream {
           while l < 4096 && i + l < n && j + l < n && pixels[j + l] == pixels[i + l] {
             l += 1
           }
-          if l >= 3 && l > best_len {
+          if l >= 3 && l > best_len && i - j <= 1048000 {
             best_len = l
             best_dist = i - j
           }
@@ -134,7 +134,7 @@ fn vp8l_write_image_stream(
       let (prefix, _, _) = vp8l_encode_length(tok.v1[t])
       cg[256 + prefix] += 1
       let dcode = vp8l_distance_code(tok.v2[t], width)
-      let (dsym, _, _) = vp8l_encode_length(dcode)
+      let (dsym, _, _) = vp8l_encode_distance(dcode)
       cd[dsym] += 1
     }
   }
@@ -184,7 +184,7 @@ fn vp8l_write_image_stream(
       }
       bw.write(extra, ebits)
       let dcode = vp8l_distance_code(tok.v2[t], width)
-      let (dsym, dextra, debits) = vp8l_encode_length(dcode)
+      let (dsym, dextra, debits) = vp8l_encode_distance(dcode)
       if !d_single {
         vp8l_write_code(bw, dcodes[dsym], dlens[dsym])
       }

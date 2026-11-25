@@ -8,6 +8,8 @@ import {
 }
 
 // Values
+pub fn best_format(@types.Image) -> @types.ImageFormat
+
 pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @types.ImageError
 
 pub fn decode_stream(Bytes, (Int32, Array[Byte]) -> Unit) -> StreamInfo raise @types.LoadError
@@ -21,6 +23,10 @@ pub fn decode_webp(Bytes) -> @types.Image raise @types.LoadError
 pub fn decode_with_limits(Bytes, @types.DecodeLimits) -> @types.Image raise @types.ImageError
 
 pub fn detect_format(Bytes) -> @types.ImageFormat
+
+pub fn encode_best(@types.Image, Int32) -> EncodedImage raise @types.ImageError
+
+pub fn encode_best_limited(@types.Image, Int32, Int64) -> EncodedImage raise @types.ImageError
 
 pub fn encode_bmp(@types.Image) -> Bytes
 
@@ -52,6 +58,8 @@ pub fn get_image_info(Bytes) -> UnifiedImageInfo raise @types.LoadError
 
 pub fn get_image_summary(Bytes) -> String raise @types.LoadError
 
+pub fn has_alpha(@types.Image) -> Bool
+
 pub fn info_dims(@codec.ImageInfoExtended) -> (Int64, Int64)
 
 pub fn load_16_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image16 raise @types.LoadError
@@ -69,6 +77,12 @@ pub fn save_image_with_quality(@types.Image, @types.ImageFormat, Int32) -> Bytes
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
+pub(all) struct EncodedImage {
+  format : @types.ImageFormat
+  bytes : Bytes
+}
+
 #derive(Default, Eq, @debug.Debug)
 pub(all) struct StreamInfo {
   width : Int32

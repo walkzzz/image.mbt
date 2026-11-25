@@ -385,6 +385,26 @@ fn vp8l_encode_length(len : Int) -> (Int, Int, Int) {
 }
 
 ///|
+/// 距离码值 → (距离前缀码 0..39, extra 值, extra 位数)（RFC 9649 §3.6.2.2.1 的 40 项前缀表）
+fn vp8l_encode_distance(d : Int) -> (Int, Int, Int) {
+  if d <= 4 {
+    (d - 1, 0, 0)
+  } else {
+    let mut p = 4
+    while p < 40 {
+      let eb = (p - 2) >> 1
+      let off = (2 + (p & 1)) << eb
+      if d >= off + 1 && d <= off + (1 << eb) {
+        return (p, d - off - 1, eb)
+      }
+      p += 1
+    }
+    // 上限 1048576，调用方已把距离裁到此范围内，这里只作兜底
+    (39, 0, 0)
+  }
+}
+
+///|
 /// 扫描行距离 → 距离码（先查 120 项邻域映射，命中用 1..120，否则 dist + 120）
 fn vp8l_distance_code(d : Int, width : Int) -> Int {
   for k in 0..<120 {

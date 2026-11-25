@@ -4,6 +4,34 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.12] - 2026-11-25
+
+### Added
+
+- **`best_format(img)`**：不编码的启发式选格（有透明 → `Webp`，否则 `Jpeg`）；`has_alpha(img)` 只认 4 通道且存在 alpha<255。
+- **`candidates(img)`**：带透明 `[Webp, Png, Qoi]`，不透明 `[Jpeg, Webp, Qoi, Png]`。
+- **`encode_best(img, quality)`**：逐候选实编取最小（失败跳过，全失败报 `ProcessFailed`）。
+- **`encode_best_limited(img, quality, max_bytes)`**：最小仍超限报 `ImageError::Budget(LimitBytes)`，`max_bytes<=0` 视为不限。
+- `EncodedImage{format, bytes}` 类型；门面包 `all` 再导出上述 5 个入口。
+- `webp_vp8l_far_distance_test.mbt`：3 个回归用例——三色横条 128×192（palette + 距离 6160）、
+  300 色行重复 128×192（原样 LZ77 + 距离 12288）、纵向渐变 256×192（predictor）。
+
+### Fixed
+
+- **WebP 无损编码的远距离反向引用写坏像素（真 bug）**：距离前缀此前复用长度前缀表（上限 4096），
+  距离 > 4096 时 `vp8l_encode_length` 退化成 `ebits = -1`（实测 `dextra=6279 debits=-1`），
+  写出的 extra 位非法——码流仍可被解析，但解码结果是别的颜色块。现改用 RFC 9649 §3.6.2.2.1 的
+  40 项距离前缀（`vp8l_encode_distance`），并把 tokenizer 的匹配距离上限收到 1,048,000
+  （保证 `d + 120 ≤ 1,048,576`）。128×192 三色横条此前 Pillow 解码错 12,288 像素，修复后 0 差异。
+
+### Verified
+
+- 12 类样本（256×192，quality 85）：PNG 默认合计 39,875 B → 最小格式合计 7,596 B，省 **80.95%**；
+  其中 10 个 WebP 样本本库与 Pillow 双向解码逐像素一致（JPEG 样本为有损，不参与无损校验）。
+- Pillow 12.3 交叉验证（0 差异）：三色横条（palette）、300 色行重复（原样 LZ77）、纵向渐变（predictor）、
+  64² 4 通道渐变（subtract-green）、256 色 RGBA 图标与 alpha 渐变（palette + alpha）。
+- 四目标全量 `moon test --target all`：**6721/6721 通过**。
+
 ## [0.1.11] - 2026-11-25
 
 ### Added

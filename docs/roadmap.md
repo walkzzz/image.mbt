@@ -255,6 +255,12 @@
   `thumbnail` 等比、`thumbnail_budgeted` 输出侧准入；4000×3000 → 512×384 只花 589,824 B。
   **口径修正**：所谓"20000² 出 512 缩略图峰值 ≤512MB"，瓶颈在**解码**（20000²×3=1.2 GB 底图），
   算子侧已做到零中间缓冲；真要压住峰值得靠 S14 区域/流式解码，S09 只保证"算子不再额外翻倍"。
+- ✅ **S10 自动选格式 + 出口限额（2026-11-25）**：`has_alpha` / `best_format`（不编码的启发式）/
+  `encode_best`（逐候选实编取最小，失败跳过）/ `encode_best_limited`（最小仍超 `max_bytes` 报
+  `ImageError::Budget(LimitBytes)`）；12 类样本 256×192 实测 PNG 合计 39,875 B → 最小格式 7,596 B，省 80.95%。
+  **顺带修掉一个真 bug**：WebP 无损的距离前缀误用了长度前缀表（上限 4096），距离 >4096 时 extra 位数非法，
+  码流可解析但像素被写成别的颜色块（128×192 三色横条错 12,288 像素）。现改用 RFC 9649 的 40 项距离前缀
+  （`vp8l_encode_distance`），tokenizer 距离上限收到 1,048,000；Pillow 12.3 与本库双向解码均为 0 差异。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
