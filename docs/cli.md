@@ -93,5 +93,6 @@ imgtool convert photo.jpg out.webp --best --dry-run
 ## 验收（0.1.13）
 
 - 四目标 `moon test --target all`：**6726/6726 通过**（wasm / wasm-gc / js / native）。
+- `node scripts/cli_smoke.mjs`：**15/15**（8 子命令 + `--dry-run` + stdin/stdout 管道 + 区域打码像素校验；样本现造 PPM，不依赖 Pillow）。
 - `moon check --deny-warn --target all`：零警告。
 - 实测：`--best` 404 B（PNG 2,386 B）；`-` 管道回读 320×240 RGB 一致；`--dry-run` 目标文件未创建。
