@@ -1,6 +1,6 @@
 name = "walkzzz/image.photography"
 
-version = "0.1.14"
+version = "0.1.15"
 
 license = "MIT"
 
@@ -13,7 +13,7 @@ repository = "https://github.com/walkzzz/image.mbt"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.14",
-  "walkzzz/image.codec@0.1.14",
-  "walkzzz/image.process@0.1.14",
+  "walkzzz/image.core@0.1.15",
+  "walkzzz/image.codec@0.1.15",
+  "walkzzz/image.process@0.1.15",
 }

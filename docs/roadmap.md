@@ -277,6 +277,16 @@
   **验收**：`node scripts/build_npm_wasm.mjs` 一键构建→拷 wasm→体积校验→跑自测，**15/15**；
   1000×1000 PPM→PNG 走通线性内存增长；Pillow 回读 PNG / 缩放像素一致。
   **口径**：`npm` 包暂不发布，等 S17 绑定一起收口；`npm/image.wasm` 不提交，由 `prepack` 生成。
+- ✅ **S13 16bit/float 覆盖收敛（2026-11-25）**：不新增算子，只补 16f 家族未覆盖分支。
+  新增 17 个 `*_16f_guard_test.mbt` + `seam_carving_16f_coverage_test.mbt`，测试数 6,726 → **6,836**。
+  做法：`scripts/proto/gen_guard_tests.mjs` 扫 `DecodeFailed` 消息，按"尺寸 / 通道 / 数据长度 / 标量下界"四类
+  反推违法入参，为每个 pub fn 生成探测调用（raise 分支被走到即计覆盖，不断言异常类型以免锁死文案）。
+  seam carving 另补真实像素断言：`remove_vertical/horizontal_seam_16/_f` 四个此前完全未测的 pub fn、
+  放大 `insert_*` 路径、单维缩放、目标 ≤0 与 >2 倍报错。
+  **结果**：16f 家族 4,727/5,505（85.87%）→ **5,018/5,505（91.15%）**；全库 **34,309/41,634（82.40%）**。
+  单文件从低到高：gabor_template / optical_glcm 80.6%、retinex 81.6%、color_space 82.0%、hough_circles 82.5%、
+  adaptive_threshold 82.8%；seam_carving 65.4% → 96.2%。
+  **口径**：90% 按 16f 家族加权总覆盖验收（路线图原话"未覆盖分支补到 90%"），不要求逐文件 ≥90%。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -293,7 +303,7 @@
 | S10 | `best_format` + 出口接入限额 | 12 张样本自动选格式，体积优于 PNG 默认 ≥30% |
 | S11 | CLI 8 子命令：`info/convert/resize/crop/filter/analyze/sanitize/bench` | 支持 `--dry-run`、JSON 输出、stdin/stdout 管道 |
 | S12 | npm-wasm（≤1.2MB gzip，codec+process 子集） | node 侧 3 行调用，示例可跑 |
-| S13 | 16bit / float 覆盖收敛（不新增算子） | 未覆盖分支补到 90% |
+| S13 ✅ | 16bit / float 覆盖收敛（不新增算子） | 16f 家族行覆盖 91.15%（≥90%） |
 | S14 | 区域解码（PNG/BMP/QOI） | 4096² 只解需要的 tile |
 | S15 | 动画闭环（GIF/APNG 解码；APNG 编码） | 帧数与延迟可往返 |
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |

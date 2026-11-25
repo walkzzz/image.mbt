@@ -4,6 +4,24 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.15] - 2026-11-25
+
+### Added
+
+- **16bit / float 覆盖收敛（S13）**：不新增算子，只补 16f 家族未覆盖分支。
+  新增 18 组守卫/边界测试（`image.process/**/*_16f_guard_test.mbt` 17 个 +
+  `seam_carving_16f_coverage_test.mbt`），测试数 6,726 → **6,836**。
+- **`scripts/proto/gen_guard_tests.mjs`**：从源文件 `DecodeFailed` 消息反推守卫参数，
+  自动为每个 pub fn 生成维度 / 通道 / 数据长度 / 标量下界四类探测调用，供后续 Sprint 复用。
+
+### Verified
+
+- 16f 家族行覆盖：4,727/5,505（85.87%）→ **5,018/5,505（91.15%）**。
+- 全库行覆盖：**34,309/41,634（82.40%）**（`check_coverage.mjs` 门槛 80.5 通过）。
+- 单文件：`seam_carving_16f` 65.4% → **96.2%**（补齐 `remove_vertical/horizontal_seam_16/_f` 四个未测 pub fn、
+  放大 `insert_*` 路径、目标 ≤0 与 >2 倍错误分支）；`advanced_16f` 71.7% → 98.1%；`tonemap_16f` 72.1% → 88.2%。
+- 四目标 `moon test` **6,836/6,836**；`moon check --deny-warn --target all` 零警告。
+
 ## [0.1.14] - 2026-11-25
 
 ### Added
