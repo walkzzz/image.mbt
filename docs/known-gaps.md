@@ -30,7 +30,7 @@
 | GAP-29 | `imgtool` CLI / MCP 依赖 native 文件系统（`moonbitlang/x/fs`） | 库包四目标仍可编译，wasm/js 下同签名返回 `decode/unsupported_format` | 浏览器侧出口列 S12；`docs/mcp.md` 已写明 |
 | GAP-30 | MCP 层无路径沙箱，读哪由进程用户权限决定 | 接不可信输入存在越权读文件可能 | 用容器/受限账号运行，并同时给 `--mem-budget` |
 | GAP-31 | `max_ms` 仍无强制中断（S04 遗留） | 纯同步解码循环无法中途 kill | 需要可让出/可取消的解码循环，未排期 |
-| GAP-32 | 根 `moon.mod` 依赖仍钉在已发布的 `@0.1.1`，与本地 0.1.6 子模块错配；`playground` 无条件 import `image.core/testgen` | `moon publish --dry-run` 报 `Cannot find import 'walkzzz/image.core/testgen'`；下游 `moon add` 拿到的子模块也停在旧版 | S07 按 core→codec→process→photography→vision→domain 发 0.1.6 后再把根依赖提到 `@0.1.6`；发布前确认 testgen 在 `image.core` 发布集内 |
+| GAP-32 | 根 `moon.mod` 依赖钉停在 `@0.1.1`，与工作区 0.1.7 错配 → `moon publish --dry-run` 拿旧版子模块编新代码，报 56 个 API 缺失 | **钉子部分已闭环（2026-11-25）**：`bump_version.mjs` 同步改写 7 个 `moon.mod` 的 `walkzzz/image.*@x.y.z` 钉，`check_version.mjs` 新增第 14 项守门。残余只差发布顺序：registry 里没有 0.1.7 子模块 | ✅ 钉子现为 `@0.1.7`、门禁 14 项全绿；⏳ 待发六个子模块 0.1.7 后根包 dry-run 转绿（详见 `docs/release.md`） |
 | GAP-18 | ~~QR 数据级往返未打通~~ **已闭环（2026-11-21）** | 修复 4 处解码器缺陷（垂直验证起点 / 重复计数与坐标语义 / 版本公式 / 格式信息位序） | ✅ testgen `render_qr` → `decode_qrcode_full` 往返 `hello` 成功 |
 | GAP-19 | ~~VP8 inter 帧尺寸取 header（恒 0 → 恒拒绝）~~ **已闭环（2026-11-21）** | inter 帧头无分辨率，改为回退参考帧宽高（保留偶数对齐守卫） | ✅ inter 帧解码 16×16 通过；覆盖率 +88 行 |
 | GAP-20 | ~~EAN-13 / UPC-A 无输入样本~~ **已闭环（2026-11-21）** | 解码器 `String` 索引（`data[0] == '0'`）恒为 false，UPC-A 包装层恒返回 None | ✅ 白盒生成器用同包编码表渲染条码；EAN-13 往返 `0490000123457`、UPC-A 往返 `490000123457` 均成功（改用 `[0:1].to_owned()` 比较） |

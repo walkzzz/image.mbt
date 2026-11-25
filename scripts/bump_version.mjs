@@ -2,9 +2,13 @@
 // bump_version.mjs — 一 Sprint 一 patch 的版本号升级（0.1.x 三段号，四段号被 mooncakes 拒绝）
 //
 // 改到的地方（全部由 `node scripts/check_version.mjs` 守护，漏一处就红）：
-//   moon.mod × 7（根 + 6 子模块）、image.mbt 门面 `pub let version`、
-//   imgcli/imgtool.mbt 的 CLI `pub let version`、
+//   moon.mod × 7（根 + 6 子模块）的 version、这 7 个 moon.mod 里 `walkzzz/image.*@x.y.z` 的依赖钉、
+//   image.mbt 门面 `pub let version`、imgcli/imgtool.mbt 的 CLI `pub let version`、
 //   README.md / README.en.md 的 version 与 mooncakes 徽章、docs/known-gaps.md 的「当前口径」行。
+//
+// 依赖钉必须同步：`moon publish --dry-run` 校验根包时，子模块是从 registry 缓存取的（不是工作区），
+// 钉在旧版就会拿旧 API 编新代码（2026-11-25 实测 56 个 error：ImageError / DecodeLimits /
+// decode_with_limits / encode_webp_lossless 全"找不到"）。
 //
 // 用法：
 //   node scripts/bump_version.mjs              # 当前 0.1.6 → 0.1.7
@@ -71,6 +75,18 @@ for (const { rel, re, make } of edits) {
     changed += 1;
     if (!dry) await write(rel, next);
     console.log(`${dry ? 'would change' : 'changed'}: ${rel}`);
+  }
+}
+
+// 依赖钉：`"walkzzz/image.*@x.y.z"` → @to（保留模块名，只换版本）
+const PIN = /("walkzzz\/image\.(?:core|codec|process|photography|vision|domain))@[\d.]+"/g;
+for (const rel of MODULES) {
+  const text = await read(rel);
+  const next = text.replace(PIN, (_, head) => `${head}@${to}"`);
+  if (next !== text) {
+    changed += 1;
+    if (!dry) await write(rel, next);
+    console.log(`${dry ? 'would change' : 'changed'}: ${rel} (dep pins)`);
   }
 }
 

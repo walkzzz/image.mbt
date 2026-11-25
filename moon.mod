@@ -29,11 +29,11 @@ preferred_target = "native"
 readme = "README.md"
 
 import {
-  "walkzzz/image.core@0.1.1",
-  "walkzzz/image.codec@0.1.1",
-  "walkzzz/image.process@0.1.1",
-  "walkzzz/image.photography@0.1.1",
-  "walkzzz/image.vision@0.1.1",
-  "walkzzz/image.domain@0.1.1",
+  "walkzzz/image.core@0.1.7",
+  "walkzzz/image.codec@0.1.7",
+  "walkzzz/image.process@0.1.7",
+  "walkzzz/image.photography@0.1.7",
+  "walkzzz/image.vision@0.1.7",
+  "walkzzz/image.domain@0.1.7",
   "moonbitlang/x@0.5.9",
 }

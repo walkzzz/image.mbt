@@ -13,8 +13,8 @@ repository = "https://github.com/walkzzz/image.mbt"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.1",
-  "walkzzz/image.codec@0.1.1",
-  "walkzzz/image.process@0.1.1",
-  "walkzzz/image.vision@0.1.1",
+  "walkzzz/image.core@0.1.7",
+  "walkzzz/image.codec@0.1.7",
+  "walkzzz/image.process@0.1.7",
+  "walkzzz/image.vision@0.1.7",
 }

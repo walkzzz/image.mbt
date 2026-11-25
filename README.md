@@ -471,7 +471,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | 文档 | 说明 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | 架构图、模块依赖、设计决策 |
-| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，72 包 / 3,760 fn）** |
+| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，76 包 / 3,806 fn）** |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
 | [docs/changelog.md](docs/changelog.md) | 版本变更历史 |
@@ -485,7 +485,8 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/performance-2026-08-arm.md](docs/performance-2026-08-arm.md) | 旧性能报告（ARM/128²，已归档） |
 | [docs/roadmap.md](docs/roadmap.md) | 远期路线图（Sprint 级） |
 | [docs/notes.md](docs/notes.md) | 使用说明与核心约束 |
-| [docs/examples.md](docs/examples.md) | 7 个可运行示例（含实测输出） |
+| [docs/examples.md](docs/examples.md) | 8 个可运行示例（含实测输出，`quickstart` 为下游视角的首选） |
+| [docs/release.md](docs/release.md) | 发布与分发：7 模块发布顺序、`publish --dry-run` 语义、未发布时的三种用法 |
 | [docs/features.md](docs/features.md) | 功能分类概览 |
 | [docs/known-gaps.md](docs/known-gaps.md) | 真话台账（边界与未完成项） |
 | [docs/contributing.md](docs/contributing.md) | 贡献指南 |
