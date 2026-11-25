@@ -207,11 +207,24 @@
 
 **目标**：第一个"一次调用解决一件事"，也是我自己最常用的功能。
 
-**交付**：`sanitize(bytes, policy)` = 剥离 EXIF/GPS/ICC/缩略图 + 已知区域打码；`examples/sanitize`。
+**状态：已完成（2026-11-25，版本 0.1.6）**
 
-**验收**：200 张样本脱敏后元数据 0 残留；打码区域复核无残留；文档给出 policy 三档（严格/常规/仅元数据）。
+**交付**：`sanitize_image(img, policy, regions, block, blur, format, quality)` = 剥离 EXIF/GPS/XMP/ICC/缩略图 + 已知区域块均值打码 + 可选整图模糊；CLI / MCP / 库三层共用 `imgcli/recipe.mbt`。
 
-**风险**：人脸检测召回不足 → 只承诺"redact 已知区域 + 可选保守全图模糊"，**不承诺检测到所有脸**。
+| 项 | 内容 | 验收 |
+|---|---|---|
+| 三档 policy | `metadata`（只剥壳、像素不变）/ `standard`（+区域打码）/ `strict`（+整图 box blur、强制 png） | 三档手动往返 + smoke 28/29/30 用例 ✅ |
+| 区域语法 | `"x,y,w,h"`，多块分号分隔；越界裁剪、完全在图外报 `process/invalid_argument` | smoke 32 + 白盒 parse_region 正反例 ✅ |
+| 元数据扫描 | 输出字节签名表 Exif/GPS/XMP/ICC_PROFILE/Photoshop 3.0/`<x:xmpmeta`/Thumbnail → `metadata_free` + `metadata_hits` | 200 张样本 residue 0 ✅ |
+| 批量验收 | `scripts/mcp/sanitize_batch.mjs`：200 张注入元数据 JPEG，三档全跑 | `samples 200 / runs 200 / dirtyInputs 200 / residue 0 / failed 0` ✅ |
+| MCP 同步 | `sanitize` schema 增 policy/regions/block/blur；冒烟 27 → **33** 条 | 33/33 ✅ |
+| 文档 | `docs/sanitize.md`（policy 语义、区域语法、失败模式、已知限制） | 双语 README 挂链，B5 无死链 ✅ |
+
+**顺带修掉的两个真 bug**（不修则 sanitize 等于往用户手里塞坏文件）：
+1. `crc32` 用 Int32 算术右移 → PNG chunk CRC 全错，PIL / ffmpeg 拒开；加逻辑右移掩码修复。
+2. PNG 编码器为 stored deflate + filter 0，640×360 输出 691,678 B（比源文件大 26 倍）；换成 fixed Huffman + LZ77 + 逐行 5 种 filter 择优后 30,243 B（**22.9×**），PIL 逐像素 maxdiff 0，RGB/RGBA/灰度均逐像素一致。代价：1MP 编码 48 → 95 ms，仍属可用，已回写 `docs/performance.md`。
+
+**风险兑现**：人脸检测召回不足 → 按预案只承诺"redact 已知区域 + 可选整图模糊"，**不承诺检测到所有脸**，并在 `docs/sanitize.md` 写成设计边界而非待办。
 
 ---
 
@@ -225,6 +238,8 @@
 **验收**：全新项目 `moon add` 后 30 分钟跑出 PNG/JPEG 往返；根 `moon publish --dry-run` 通过；dogfood 记录入库。
 
 **风险**：发布链 7 环不可逆 → 先分步 dry-run（注意 `scripts/publish.sh --dry-run` 全链会在 codec 处失败，属 dry-run 语义所限，不是脚本 bug）。
+
+**S07 前置诊断（2026-11-25 记）**：`moon publish --dry-run` 当前失败，报 `Cannot find import 'walkzzz/image.core/testgen' in walkzzz/image.mbt/playground@0.1.1`。根因是版本错配——根 `moon.mod` 仍 import `walkzzz/image.core@0.1.1` 等已发布版本，而 dry-run 的验证包会用这些缓存版本重解依赖；本地 `image.core` 里的 `testgen` 包若没随 0.1.1 发出去，playground 的 import 就悬空。收口顺序因此必须固定：先按 `core → codec → process → photography → vision → domain` 发 0.1.6（确认 `testgen` 在 `image.core` 发布集内），再把根 `moon.mod` 的 6 条依赖全部改到 `@0.1.6`，最后才跑根 dry-run。
 
 ---
 

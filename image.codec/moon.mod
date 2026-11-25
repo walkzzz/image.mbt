@@ -1,6 +1,6 @@
 name = "walkzzz/image.codec"
 
-version = "0.1.5"
+version = "0.1.6"
 
 license = "MIT"
 

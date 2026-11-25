@@ -1,6 +1,6 @@
 name = "walkzzz/image.domain"
 
-version = "0.1.5"
+version = "0.1.6"
 
 license = "MIT"
 

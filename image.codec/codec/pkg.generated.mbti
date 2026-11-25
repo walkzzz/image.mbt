@@ -200,6 +200,8 @@ pub fn tiff_packbits_decode(Bytes) -> Array[Byte] raise @types.LoadError
 
 pub fn webp_info_extended(Bytes) -> WebpInfoExtended raise @types.LoadError
 
+pub fn zlib_compress(Bytes) -> Bytes
+
 // Errors
 
 // Types and methods

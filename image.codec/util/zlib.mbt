@@ -9,12 +9,20 @@
 
 ///|
 /// CRC-32 查表法
+///
+/// 注意：Int32 的 `>>` 是**算术右移**，高位会被符号位填 1。CRC 要求的是逻辑右移，
+/// 因此每次右移后必须把高 8/31 位清零，否则表项与整条校验和都错（曾导致本库产出的
+/// PNG CRC 全部非法，PIL/ffmpeg 拒绝打开）。
 fn crc32_table() -> Array[Int32] {
   let table : Array[Int32] = Array::make(256, 0)
   for i in 0..<256 {
     let mut crc = i
     for _ in 0..<8 {
-      crc = if (crc & 1) != 0 { (crc >> 1) ^ 0xEDB88320 } else { crc >> 1 }
+      crc = if (crc & 1) != 0 {
+        ((crc >> 1) & 0x7FFFFFFF) ^ 0xEDB88320
+      } else {
+        (crc >> 1) & 0x7FFFFFFF
+      }
     }
     table[i] = crc
   }
@@ -27,7 +35,7 @@ pub fn crc32(data : Bytes) -> Int32 {
   let table = crc32_table()
   let mut crc = 0xFFFFFFFF
   for i in 0..<data.length() {
-    crc = (crc >> 8) ^ table[(crc ^ data[i].to_int()) & 0xFF]
+    crc = ((crc >> 8) & 0x00FFFFFF) ^ table[(crc ^ data[i].to_int()) & 0xFF]
   }
   crc ^ 0xFFFFFFFF
 }

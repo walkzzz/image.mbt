@@ -332,16 +332,15 @@ fn cmd_analyze(flags : Flags) -> Out raise @types.ImageError {
 }
 
 ///|
-/// `sanitize` — 重编码剥离元数据（EXIF/GPS/XMP 不进入输出容器）。
-/// - `--policy metadata`（默认）：重编码，像素不动；
-/// - `--policy strict`：强制输出 PNG，保证不存在 APP1/EXIF 段。
+/// `sanitize` — 三档脱敏（metadata / standard / strict）：
+/// 重编码剥元数据 + 已知区域块均值打码 + strict 全图 box blur。
 fn cmd_sanitize(flags : Flags) -> Out raise @types.ImageError {
   let src = flags.positional[0]
   let dst = flags.positional[1]
   let img = read_image(src, limits_of(flags))
   let policy = flags.str("policy", "metadata")
   let src_fmt = @lib.detect_format(read_bytes(src))
-  let fmt = if policy == "strict" {
+  let fmt = if policy == "strict" && !flags.values.contains("format") {
     @types.ImageFormat::Png
   } else {
     match flags.values.get("format") {
@@ -354,16 +353,38 @@ fn cmd_sanitize(flags : Flags) -> Out raise @types.ImageError {
         }
     }
   }
-  let size = save_image(img, dst, fmt, flags.int("quality", 90))
-  let out_bytes = read_bytes(dst)
-  let dirty = contains_ascii(out_bytes, "Exif") || contains_ascii(out_bytes, "GPS")
+  let raw_regions = match flags.values.get("regions") {
+    Some(v) => v
+    None =>
+      match flags.values.get("region") {
+        Some(v) => v
+        None => ""
+      }
+  }
+  let regions = parse_regions(raw_regions)
+  let block = flags.int("block", 12)
+  let blur = flags.int("blur", 8)
+  let quality = flags.int("quality", 90)
+  let res = sanitize_image(img, policy, regions, block, blur, fmt, quality)
+  write_bytes(dst, res.bytes)
+  let hits = metadata_hits(res.bytes)
+  let mut hit_text = ""
+  for h in hits {
+    if hit_text.length() > 0 {
+      hit_text = hit_text + ";"
+    }
+    hit_text = hit_text + h
+  }
   result({
     "src": jstr(src),
     "dst": jstr(dst),
     "policy": jstr(policy),
-    "format": jstr(format_name(fmt)),
-    "bytes": jnum(size.to_int()),
-    "metadata_free": jbool(!dirty),
+    "format": jstr(format_name(res.format)),
+    "bytes": jnum(res.bytes.length().to_int()),
+    "regions_redacted": jnum(res.redacted),
+    "blurred": jbool(res.blurred),
+    "metadata_free": jbool(hits.length() == 0),
+    "metadata_hits": jstr(hit_text),
   })
 }
 

@@ -7,39 +7,54 @@
 // 使用 filter type 0 (None) + zlib stored blocks（无压缩但有效）
 
 ///|
-/// 简单 zlib deflate（stored blocks，无压缩）
-fn zlib_deflate_stored(data : Bytes) -> Bytes {
-  let out : Array[Byte] = []
-  // zlib header: CMF=0x78, FLG=0x01 (check: 0x78*256+0x01 = 30721, 30721%31=0)
-  out.push(b'\x78')
-  out.push(b'\x01')
-  // DEFLATE stored blocks
-  let len = data.length()
-  let mut pos = 0
-  while pos < len {
-    let block_len = if len - pos > 65535 { 65535 } else { len - pos }
-    let is_final = if pos + block_len >= len { 1 } else { 0 }
-    // BFINAL + BTYPE = 0b?00, aligned to byte → 0x01 for final, 0x00 for non-final
-    out.push(is_final.to_byte())
-    // LEN (little-endian)
-    out.push((block_len & 0xFF).to_byte())
-    out.push(((block_len >> 8) & 0xFF).to_byte())
-    // NLEN (one's complement of LEN)
-    out.push((block_len & 0xFF).to_byte() ^ b'\xFF')
-    out.push(((block_len >> 8) & 0xFF).to_byte() ^ b'\xFF')
-    // Data
-    for i in 0..<block_len {
-      out.push(data[pos + i])
+/// PNG 行过滤（RFC 2083 §9）：0 None / 1 Sub / 2 Up / 3 Average / 4 Paeth。
+fn png_filter_row(
+  raw : Array[Byte],
+  prev : Array[Byte],
+  bpp : Int32,
+  ft : Int32,
+) -> Array[Byte] {
+  let n = raw.length()
+  let out : Array[Byte] = Array::make(n, b'\x00')
+  for i in 0..<n {
+    let cur = raw[i].to_int()
+    let left = if i >= bpp { raw[i - bpp].to_int() } else { 0 }
+    let up = prev[i].to_int()
+    let ul = if i >= bpp { prev[i - bpp].to_int() } else { 0 }
+    let pred = match ft {
+      1 => left
+      2 => up
+      3 => (left + up) / 2
+      4 => {
+        // Paeth predictor
+        let p = left + up - ul
+        let pa = if p > left { p - left } else { left - p }
+        let pb = if p > up { p - up } else { up - p }
+        let pc = if p > ul { p - ul } else { ul - p }
+        if pa <= pb && pa <= pc {
+          left
+        } else if pb <= pc {
+          up
+        } else {
+          ul
+        }
+      }
+      _ => 0
     }
-    pos += block_len
+    out[i] = ((cur - pred) & 0xFF).to_byte()
   }
-  // ADLER32 (big-endian)
-  let adler = @util.adler32(data)
-  out.push(((adler >> 24) & 0xFF).to_byte())
-  out.push(((adler >> 16) & 0xFF).to_byte())
-  out.push(((adler >> 8) & 0xFF).to_byte())
-  out.push((adler & 0xFF).to_byte())
-  Bytes::from_array(out)
+  out
+}
+
+///|
+/// 过滤结果的启发式代价：按「有符号字节」取绝对值求和（PNG 规范推荐）。
+fn png_filter_score(row : Array[Byte]) -> Int32 {
+  let mut s = 0
+  for i in 0..<row.length() {
+    let v = row[i].to_int()
+    s += if v < 128 { v } else { 256 - v }
+  }
+  s
 }
 
 ///|
@@ -130,31 +145,51 @@ pub fn encode_png_pure(img : @types.Image) -> Bytes {
   ihdr.push(b'\x00') // filter = 0
   ihdr.push(b'\x00') // interlace = 0
   write_chunk(out, "IHDR", Bytes::from_array(ihdr))
-  // 构建过滤后的图像数据
+  // 构建过滤后的图像数据：逐行在 5 种 filter 里选绝对值和最小的那个
+  let bpp = out_ch
+  let row_len = width * out_ch
   let filtered : Array[Byte] = []
+  let prev_row : Array[Byte] = Array::make(row_len, b'\x00')
   for y in 0..<height {
-    filtered.push(b'\x00') // filter type 0 (None)
+    let raw : Array[Byte] = Array::make(row_len, b'\x00')
     for x in 0..<width {
       let src_off = (y * width + x) * ch
       if ch == out_ch {
-        // 直接拷贝
         for c in 0..<ch {
-          filtered.push(img.data[src_off + c])
+          raw[x * out_ch + c] = img.data[src_off + c]
         }
       } else {
-        // 通道数不匹配时，取前 out_ch 个通道
         for c in 0..<out_ch {
-          if c < ch {
-            filtered.push(img.data[src_off + c])
+          raw[x * out_ch + c] = if c < ch {
+            img.data[src_off + c]
           } else {
-            filtered.push(b'\xFF')
+            b'\xFF'
           }
         }
       }
     }
+    let mut best_type = 0
+    let mut best_score = 0x7FFFFFFF
+    let mut best_row : Array[Byte] = raw
+    for ft in 0..<5 {
+      let cand = png_filter_row(raw, prev_row, bpp, ft)
+      let score = png_filter_score(cand)
+      if score < best_score {
+        best_score = score
+        best_type = ft
+        best_row = cand
+      }
+    }
+    filtered.push(best_type.to_byte())
+    for i in 0..<row_len {
+      filtered.push(best_row[i])
+    }
+    for i in 0..<row_len {
+      prev_row[i] = raw[i]
+    }
   }
-  // zlib deflate
-  let compressed = zlib_deflate_stored(Bytes::from_array(filtered))
+  // zlib deflate（fixed Huffman + LZ77，RFC 1950/1951 合法流）
+  let compressed = zlib_compress(Bytes::from_array(filtered))
   // IDAT chunk
   write_chunk(out, "IDAT", compressed)
   // IEND chunk

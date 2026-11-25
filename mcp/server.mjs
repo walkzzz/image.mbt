@@ -189,13 +189,16 @@ const TOOLS = [
   {
     name: "sanitize",
     description:
-      "重编码剥离元数据（EXIF/GPS/XMP）。policy=metadata 保留像素只换容器；policy=strict 强制输出 png。",
+      "脱敏：重编码剥元数据（EXIF/GPS/XMP/ICC/缩略图）+ 对已知区域做块均值打码 + strict 档整图模糊。policy=metadata/standard/strict。",
     inputSchema: {
       type: "object",
       properties: {
         input: str("输入图像路径"),
-        policy: str("metadata（默认）或 strict"),
-        format: str("policy=metadata 时的输出格式，默认沿用输入"),
+        policy: str("metadata（默认，只剥元数据）/ standard（+已知区域打码）/ strict（+整图模糊）"),
+        regions: str("打码区域，逗号分隔可多块：\"x,y,w,h\" 或 \"x,y,w,h;x,y,w,h\""),
+        block: int("打码块边长像素（默认 12）", 1),
+        blur: int("strict 档 box blur 半径（默认 8）", 1),
+        format: str("policy=metadata/standard 时的输出格式，默认沿用输入"),
         quality: int("有损格式质量 1-100（默认 90）", 1),
         output: outProp,
       },
@@ -290,6 +293,9 @@ async function callTool(name, params, budget) {
       sub = "sanitize";
       rest = [params.input, target];
       if (params.policy) rest.push("--policy", params.policy);
+      if (params.regions) rest.push("--regions", params.regions);
+      if (params.block) rest.push("--block", String(params.block));
+      if (params.blur) rest.push("--blur", String(params.blur));
       if (params.format) rest.push("--format", params.format);
       if (params.quality) rest.push("--quality", String(params.quality));
       break;

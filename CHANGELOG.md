@@ -4,6 +4,27 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.6] - 2026-11-25
+
+### Added
+
+- **sanitize Recipe（S06）**：`imgcli/recipe.mbt` 提供 `sanitize_image(img, policy, regions, block, blur, format, quality)` 与 `Region / parse_region / parse_regions / clamp_region / redact_region / redact_all / blur_whole / metadata_hits / SanitizeResult`。三档 policy：`metadata`（只剥壳不动像素）、`standard`（剥壳 + 已知区域块均值打码）、`strict`（再加整图 box blur 并强制 png）。
+- **CLI `sanitize` 重写**：`--policy metadata|standard|strict`、`--regions "x,y,w,h;x,y,w,h"`（越界裁剪、完全在图外报错）、`--block`、`--blur`；输出新增 `regions_redacted / blurred / metadata_free / metadata_hits`。
+- **`docs/sanitize.md`**：三档 policy 语义、区域语法、打码方式、失败模式表、已知限制（不承诺人脸检测）。
+- **`scripts/mcp/sanitize_batch.mjs`**：200 张注入 EXIF/GPS/XMP/ICC/缩略图签名的 JPEG，三档 policy 全跑 → `residue 0 / failed 0`，并复核输出可解码、尺寸不变。
+- **MCP `sanitize` 工具扩展**：schema 增 `policy=standard`、`regions`、`block`、`blur`；冒烟新增 6 条用例（standard 打码块数、strict 整图模糊 + png、默认不动像素、PNG 真压缩、非法 region、非法 policy），共 **33/33**。
+- `image.codec/codec/png_deflate_wbtest.mbt`：CRC 回归、重复数据压缩后可 inflate 还原、伪随机数据可还原 三条白盒测试。
+
+### Fixed
+
+- **PNG chunk CRC 全错**（致命）：`image.codec/util/zlib.mbt` 的 `crc32_table` 生成与 `crc32` 用 `>>` 算术右移，高位污染导致所有 chunk CRC 非法，产物 PIL / ffmpeg 拒开。改为逻辑右移掩码后 CRC 全绿、外部工具可读。
+- **PNG 输出几乎不压缩**：编码器原是 stored deflate + filter 0，640×360 输出 **691,678 B**（比源文件大 26 倍）。新增 `png_deflate.mbt`（fixed Huffman + 32KB hash-chain LZ77 + `zlib_compress`）与逐行 5 种 filter 择优（含 Paeth），同一图降到 **30,243 B（22.9×）**，PIL 逐像素 maxdiff 0；RGB / RGBA / 灰度三种通道组合均逐像素一致，1024² 输出 129,762 B（ffmpeg 同源 111,803 B，1.16×）。
+
+### Changed
+
+- **性能口径更新**：`docs/performance.md` 的 PNG 数字换成新压缩器实测（`png_encode_1024` 95.25 ms / 11.0 MP/s、`png_decode_1024` 132.34 ms / 7.9 MP/s），并注明旧数字对应 stored 流、已失效。
+- 测试总数 6,691 → **6,697**；包数不变 75；版本 0.1.5 → **0.1.6**。
+
 ## 展示页（2026-11-23）
 
 ### Added

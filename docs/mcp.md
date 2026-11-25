@@ -53,7 +53,7 @@ Host 配置（Claude Code / Cursor / 任意 MCP stdio host）：
 | `encode` | `input`、`format` | `quality`、`output` | 显式指定输出格式 |
 | `resize` | `input`、`width`、`height` | `mode`(cover/contain)、`format`、`quality`、`output` | 缩放；cover 铺满后居中裁切，contain 等比装入留白 |
 | `crop` | `input`、`x`、`y`、`width`、`height` | `output` | 矩形裁剪，越界**直接报错** |
-| `sanitize` | `input` | `policy`(metadata/strict)、`format`、`quality`、`output` | 重编码剥离 EXIF/GPS/XMP；strict 强制 png |
+| `sanitize` | `input` | `policy`(metadata/standard/strict)、`regions`、`block`、`blur`、`format`、`quality`、`output` | 剥 EXIF/GPS/XMP/ICC/缩略图；standard 按 regions 打码；strict 整图模糊并强制 png。细则见 [sanitize.md](sanitize.md) |
 
 省略 `output` 时，结果以 MCP image content 直接返回（base64 + mimeType），一次调用即可看到图；给了 `output` 则落盘并只回 JSON。
 
@@ -89,7 +89,9 @@ imgtool analyze   in.png
 imgtool decode    in.png out.jpg --format jpeg --quality 88
 imgtool resize    in.png small.png --width 128 --height 72 --mode cover
 imgtool crop      in.png cut.png --x 10 --y 10 --width 100 --height 60
-imgtool sanitize  photo.jpg clean.jpg --policy strict
+imgtool sanitize  photo.jpg clean.jpg                          # 只剥元数据
+imgtool sanitize  photo.jpg clean.jpg --policy standard --regions "120,80,220,260"
+imgtool sanitize  photo.jpg clean.png --policy strict --blur 10
 ```
 
 约定：结果恒为 **stdout 单行 JSON**；失败退出码 1。可用 `jq`、PowerShell `ConvertFrom-Json` 直接消费。
@@ -98,10 +100,17 @@ imgtool sanitize  photo.jpg clean.jpg --policy strict
 
 ```bash
 node scripts/mcp/smoke.mjs
-# Total: 27, passed: 27, failed: 0
+# Total: 33, passed: 33, failed: 0
 ```
 
-27 条用例覆盖：initialize/capabilities、tools/list 结构与数量、7 个工具的正常路径（含内联图片与 mime）、越界裁剪、缺参、非法格式、非图像文件、截断 PNG、未知工具、`--mem-budget` 拒绝、qoi 回读、ping。
+33 条用例覆盖：initialize/capabilities、tools/list 结构与数量、7 个工具的正常路径（含内联图片与 mime）、越界裁剪、缺参、非法格式、非图像文件、截断 PNG、未知工具、`--mem-budget` 拒绝、qoi 回读、ping、脱敏三档（standard 打码块数 / strict 整图模糊 / 默认不动像素）、PNG 真压缩、非法 region 与非法 policy 被拒。
+
+批量脱敏验收（200 张带 EXIF/GPS/XMP/ICC/缩略图的样本，三档 policy 全跑）：
+
+```bash
+node scripts/mcp/sanitize_batch.mjs
+# {"ok":true,"samples":200,"runs":200,"dirtyInputs":200,"residue":0,"failed":0}
+```
 
 ## 已知限制
 

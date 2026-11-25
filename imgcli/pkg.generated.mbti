@@ -7,6 +7,8 @@ import {
 }
 
 // Values
+pub fn blur_whole(@types.Image, Int32) -> @types.Image raise @types.ImageError
+
 pub fn contains_ascii(Bytes, String) -> Bool
 
 pub fn dispatch(Array[String]) -> Map[String, @json.Json] raise @types.ImageError
@@ -15,11 +17,23 @@ pub fn error_json(@types.ImageError) -> Map[String, @json.Json]
 
 pub fn limits_of(Flags) -> @types.DecodeLimits
 
+pub fn metadata_hits(Bytes) -> Array[String]
+
 pub fn parse_flags(Array[String]) -> Flags
+
+pub fn parse_region(String) -> Region?
+
+pub fn parse_regions(String) -> Array[Region] raise @types.ImageError
 
 pub fn read_bytes(String) -> Bytes raise @types.ImageError
 
+pub fn redact_all(@types.Image, Int32) -> @types.Image raise @types.ImageError
+
+pub fn redact_region(@types.Image, Region, Int32) -> @types.Image raise @types.ImageError
+
 pub fn run() -> Unit
+
+pub fn sanitize_image(@types.Image, String, Array[Region], Int32, Int32, @types.ImageFormat, Int32) -> SanitizeResult raise @types.ImageError
 
 pub fn write_bytes(String, Bytes) -> Unit raise @types.ImageError
 
@@ -27,6 +41,23 @@ pub fn write_bytes(String, Bytes) -> Unit raise @types.ImageError
 
 // Types and methods
 type Flags
+
+pub struct Region {
+  x : Int32
+  y : Int32
+  w : Int32
+  h : Int32
+}
+pub fn Region::to_string(Self) -> String
+
+pub struct SanitizeResult {
+  image : @types.Image
+  bytes : Bytes
+  format : @types.ImageFormat
+  redacted : Int32
+  blurred : Bool
+  quality : Int32
+}
 
 // Type aliases
 

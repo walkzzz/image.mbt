@@ -12,7 +12,7 @@ You can browse and install extra skills here:
 | 属性 | 值 |
 |------|-----|
 | 版本 | 0.1.1（包重命名重构版：walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀） |
-| 测试 | 6691 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
+| 测试 | 6697 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
 | 架构 | 6 子模块工作空间 (image.core/image.codec/image.process/image.photography/image.vision/image.domain)，子模块独立发布（各 0.1.0，按依赖顺序 core → codec → process → photography/vision → domain） |
 | 格式 | 18 种编解码 (PNG/JPEG/BMP/GIF/QOI/TGA/PSD/HDR/PNM/TIFF/ICO/CUR/ICNS/APNG/WebP/AVIF/HEIF/JPEG-XL) |
 | 形式化验证 | core/safe_math `moon prove` **8 goals proved**（safe_mul_ok/clamp_pixel_ok/dims_valid_pred/int_max_ok/int_min_ok/valid_index/valid_2d_index/rotate90_identity）；另有 8 条谓词预留（SMT 超时与前端限制，见 safe_math.mbtp 注释） |
@@ -217,7 +217,7 @@ moon check --target wasm-gc
 moon check --target js
 moon check --target wasm
 
-# 运行测试（四目标各 6,691）
+# 运行测试（四目标各 6,697）
 moon test --target native
 moon test --target wasm-gc
 moon test --target js

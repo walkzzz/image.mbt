@@ -195,6 +195,46 @@ const main = async () => {
   const st = await c.call("sanitize", { input: exifJpeg, policy: "strict" });
   check("15 sanitize strict 强制 png", st.result?.isError === false && hasImage(st));
 
+  const sanStd = await c.call("sanitize", {
+    input: exifJpeg,
+    policy: "standard",
+    regions: "40,40,200,120",
+    block: 10,
+    output: path.join(WORK, "redacted.jpg"),
+  });
+  const sanStdP = payloadOf(sanStd);
+  check(
+    "28 sanitize standard 打码 1 块且无元数据",
+    sanStdP?.ok === true && sanStdP.regions_redacted === 1 && sanStdP.metadata_free === true && sanStdP.blurred === false,
+    JSON.stringify(sanStdP),
+  );
+
+  const sanStrict = await c.call("sanitize", { input: exifJpeg, policy: "strict", blur: 8, output: path.join(WORK, "blur.png") });
+  const sanStrictP = payloadOf(sanStrict);
+  check(
+    "29 sanitize strict 整图打码 + 模糊",
+    sanStrictP?.ok === true && sanStrictP.blurred === true && sanStrictP.format === "png",
+    JSON.stringify(sanStrictP),
+  );
+
+  const sanMeta = await c.call("sanitize", { input: exifJpeg, output: path.join(WORK, "meta_only.jpg") });
+  const sanMetaP = payloadOf(sanMeta);
+  check("30 默认 policy=metadata 不动像素", sanMetaP?.regions_redacted === 0 && sanMetaP?.blurred === false, JSON.stringify(sanMetaP));
+
+  const pngOut = await c.call("decode", { input: sample, format: "png", output: path.join(WORK, "compressed.png") });
+  const pngP = payloadOf(pngOut);
+  check(
+    "31 PNG 输出真压缩（< 原始像素 1/4）",
+    pngP?.ok === true && pngP.bytes < (640 * 360 * 3) / 4,
+    JSON.stringify(pngP),
+  );
+
+  const badRegion = await c.call("sanitize", { input: exifJpeg, policy: "standard", regions: "1,2,3" });
+  check("32 非法 region 格式被拒", badRegion.result?.isError === true, JSON.stringify(payloadOf(badRegion)));
+
+  const badPolicy = await c.call("sanitize", { input: exifJpeg, policy: "loose" });
+  check("33 非法 policy 被拒", badPolicy.result?.isError === true, JSON.stringify(payloadOf(badPolicy)));
+
   const qoi = await c.call("decode", { input: sample, format: "qoi", output: path.join(WORK, "out.qoi") });
   const qoiP = payloadOf(qoi);
   check("16 decode→qoi", qoiP?.ok === true && fs.existsSync(path.join(WORK, "out.qoi")), JSON.stringify(qoiP));
