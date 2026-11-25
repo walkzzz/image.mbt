@@ -142,18 +142,74 @@ but its containing module is not imported by demo/two@0.1.0, thus cannot be impo
 
 注意 demo2 里 `image.core` **也是 workspace 成员**（本地源码可见）却仍然被拒——证明这不是"版本没下到"，而是纯粹的直接依赖边界；demo 走 `all` 才通。
 
-## 八、发布包瘦身（`.moonignore`）
+## 八、发布包瘦身（`.moonignore`）与 `[0029]` 根治
 
 `moon.mod` 里的 `include`/`exclude` 已弃用，官方推荐 `.moonignore`（gitignore 语义，只作用于 `moon package` / `moon publish` 的归档，可用 `moon package --list` 预检）。
 本仓 `.moonignore` 排掉了开发侧内容：
 
 | 排除 | 原因 |
 |------|------|
-| `scripts/` | 诊断/门禁/回归脚本，消费者不需要（51 个文件） |
-| `docs/`、`examples/`、`spec/` | 文档源与示例在 GitHub 上看；spec 是内部规约草稿 |
-| `bench_real.mbt` | 根模块性能基准，依赖 bench 包 |
-| `*_test.mbt`、`*_wbtest.mbt` | 测试源码（全仓已核查**无"只有测试文件的包"**，排除后不会留空包） |
+| `scripts/` | 诊断/门禁/回归脚本，消费者不需要 |
+| `docs/`、`examples/`、`spec/`、`benchmarks/` | 文档源、示例、内部规约；基准包含 bench 依赖 |
 | `coverage*.txt`、`coverage*.log`、`mutation-report.json` | 本仓覆盖率/变异产物 |
 | `moon.work`、`AGENTS.md`、`TEST_REPORT.md`、`rules.md`、`image-mbt-*.md` | 工作区文件与内部规则/路线 |
 
-实测：`moon package --list` 从 **1142** 个文件降到 **627**；打成 zip 后 **605** 个；`playground/`（网页 demo 导出层）、`imgcli/`、`cmd/`、`mp4/`、`all/` 保留。
+### 8.1 `[0029] unused_package` 刷屏（2026-11-25，0.1.8 发布时）
+
+第一版 `.moonignore` 连 `*_test.mbt` / `*_wbtest.mbt` 一起排了。结果各包 `moon.pkg` 里 `for "test"` 那段还在、测试文件不在了，
+verify 阶段就把这些测试依赖当成**没用到的包**，根包一次刷 5 条、子模块各 1–6 条：
+
+```
+Warning: [0029]  Unused package 'moonbitlang/core/bench'
+Warning: [0029]  Unused package 'walkzzz/image.core/testgen'
+```
+
+**四条修法（0.1.9 落地）**：
+
+1. **测试文件留在包里**——测试既是"测试依赖的使用者"，也让下游能 `moon test` 复跑本库测试。
+2. **根包不再 import 任何子包**。根包原本只有 `image.mbt`（文档 + 版本号），那几个 import 全是为了 `bench_real.mbt`；
+   把基准拆成独立包 `benchmarks/`（`moon.pkg` 自己 import bench/types/lib/codec/transform），根 `moon.pkg` 清空导入。
+3. **删掉重复导入**。有 9 个包在 plain 块和 `for "test"` 块里各导了一次同一个包
+   （`barcode` / `production_utils` / `advanced_imaging` / `computational_imaging` / `neural_rendering` /
+   `photo_enhance` / `intelligent_vision` / `scene_understanding` / `vlm_multimodal`，全是 `walkzzz/image.core/types`）。
+   plain 导入对测试同样可见，所以测试块里那条纯属冗余；发布归档一旦裁掉测试，冗余就变成 `[0029]`。
+   常驻门禁 `node scripts/check_pkg_imports.mjs`（`--fix` 可自动清）。
+4. **子模块源码目录不排除**（见 8.2 的反例）。
+
+### 8.2 反例：按目录名排除子模块会排空子模块自己
+
+根模块 `source = "."`，根包 zip 会再带一份六个子模块的源码（约 570–1000 个文件）。
+直觉修法是 `.moonignore` 加 `image.core/` … `image.domain/`。**实测这是致命的**：
+
+```
+$ cd image.core && moon package
+Package to ...\walkzzz-image.core-0.1.9.zip
+$ (Get-Item ...\walkzzz-image.core-0.1.9.zip).Length
+22        # 22 字节 = 空 zip，发布必然失败
+```
+
+原因：子模块在 workspace 里执行 `moon package` 时**同样读根级 `.moonignore`**，路径按 workspace 根计算，
+一条 `image.core/` 匹配掉该模块自己的全部文件。体积换不来正确性，所以这条排除已撤销并写进 `.moonignore` 注释。
+
+### 8.3 归档零警告自检（`scripts/verify_publish_warnings.mjs`）
+
+不再靠"发布时看运气"。脚本对七个模块逐个：
+`moon package` → 解压到 `_build/proto/v2/` → 写一份本地 `moon.work`（其余六个模块当 workspace 成员，绕开未发布的依赖钉）
+→ `moon check --deny-warn` → 统计 warning/error。
+
+0.1.9 实测（2026-11-25）：
+
+| 模块 | 归档文件数 | warning | error |
+|------|-----------|---------|-------|
+| `walkzzz/image.core` | 933 | 0 | 0 |
+| `walkzzz/image.codec` | 1115 | 0 | 0 |
+| `walkzzz/image.process` | 1169 | 0 | 0 |
+| `walkzzz/image.photography` | 983 | 0 | 0 |
+| `walkzzz/image.vision` | 1132 | 0 | 0 |
+| `walkzzz/image.domain` | 1078 | 0 | 0 |
+| `walkzzz/image.mbt`（根） | 1013 条目 | 0 | 0 |
+
+根包 1013 个条目里约 974 个是子模块源码副本，其余是 `all/`、`imgcli/`、`cmd/`、`mp4/`、`playground/`、`mcp/`、
+`image.mbt`、`moon.mod`、`moon.pkg`、`pkg.generated.mbti` 与 README/LICENSE 等；无 `_build` / `.mooncakes` 污染。
+
+保留项不变：`playground/`（网页 demo 导出层）、`imgcli/`（CLI + 其测试）、`cmd/`、`mp4/`、`all/`、`mcp/`、README/LICENSE/CHANGELOG。

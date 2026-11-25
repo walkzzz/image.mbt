@@ -4,6 +4,24 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.9] - 2026-11-25
+
+### Fixed
+
+- **`moon publish` verify 的 `[0029] unused_package` 刷屏**：根因是 `.moonignore` 排掉了 `*_test.mbt` / `*_wbtest.mbt`，
+  而各包 `moon.pkg` 的 `for "test"` 导入块仍在，测试依赖被当成未使用。改为**测试文件随包发布**（下游也能 `moon test`），警告归零。
+- **根包 `moon.pkg` 导入全部清空**：根包只剩 `image.mbt`（门面文档 + 版本号），原有 import 全为 `bench_real.mbt` 服务。
+
+### Changed
+
+- 基准从根包拆出为 `benchmarks/` 包（`moon bench` 用法不变）；`benchmarks/` 不进发布包。
+- **删掉 9 个包的重复导入**（plain 块与 `for "test"` 块各导一次 `walkzzz/image.core/types`）：plain 导入对测试同样可见，
+  `for "test"` 里那条是冗余，归档一旦裁掉测试就变 `[0029]`。新增常驻门禁 `scripts/check_pkg_imports.mjs`（`--fix` 自动清）。
+- 新增 `scripts/verify_publish_warnings.mjs`：七个模块逐个 `moon package` → 解压 → `moon check --deny-warn` → 统计警告；
+  0.1.9 实测 **7/7 归档 0 warning 0 error**。
+- 撤销「按目录名排除六个子模块源码」：子模块在 workspace 里 `moon package` 同样读根级 `.moonignore`，
+  一条 `image.core/` 会把该模块自己的归档排成 22 字节空包，发布必然失败。根包 zip 因此仍带子模块源码副本（1013 个条目）。
+
 ## [0.1.8] - 2026-11-25
 
 ### Added

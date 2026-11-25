@@ -245,6 +245,7 @@
 - ✅ **dogfood 收口**：`scripts/dogfood.mjs` 8 输入 × 6 步 = **48 操作全通过**、8 条摩擦探针 8/8 ok；记录写入 `docs/dogfood.md`；`scripts/bump_version.mjs` 固化了"一 Sprint 一 patch"的版本改动面（`check_version` 12 → 13 项）。
 - ✅ **下游可用性**：`examples/quickstart`（造图 → WebP 无损 → 解码 → 缩放 → PNG → 回读）四目标可编译、`moon run` 真跑通；README 快速上手与它逐行对齐；`image.codec/lib` 补 `encode_webp_lossless` / `decode_webp`，让"只 import 一个 lib"的下游也能编 WebP。
 - ✅ **发布链诊断（2026-11-25）**：`moon publish --dry-run` 的 verify 是在解压目录里用 **registry 已发布包**重编，所谓 `testgen` 报错已被证伪（0.1.1 的 zip 里确实含 testgen；0.1.0 才是缺的）。真因是根依赖钉停在 `@0.1.1`；钉子已随版本走并由 `check_version` 第 14 项守护，流程与坑点沉淀进 `docs/release.md`。
+- ✅ **S07.5 发布包去噪（2026-11-25）**：测试随包发布 + 删掉 9 个包的 plain/`for "test"` 重复导入 → `[0029]` 归零；基准拆 `benchmarks/`、根 `moon.pkg` 清空导入；新增 `scripts/check_pkg_imports.mjs` 与 `scripts/verify_publish_warnings.mjs`，七模块归档实测 7/7 零警告零错误。**反例存档**：按目录名排子模块会把子模块自己的归档排成 22 字节空包，已撤销。详见 `docs/release.md` 第八节。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 

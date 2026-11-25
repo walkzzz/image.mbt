@@ -1,7 +1,4 @@
-import {
-  "moonbitlang/core/bench",
-  "walkzzz/image.core/types",
-  "walkzzz/image.codec/lib",
-  "walkzzz/image.codec/codec",
-  "walkzzz/image.process/transform",
-}
+// 根模块包：只放门面文档与版本号。
+// 高频 API 的再导出在 `all/` 包（`pub using`）；测算基准在 `bench/` 包。
+// 这里刻意不 import 任何子包——消费者拿到的根包里没有代码需要它们，
+// 留着导入会在 `moon publish` 的 verify 阶段报 `unused_package [0029]`。

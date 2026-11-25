@@ -1,6 +1,6 @@
 # image.mbt 架构文档
 
-> 版本 0.1.5（S05 出口：MCP + CLI）| 3,760+ 公开函数 + 710 公开类型（.mbti 口径，76 包）| 6,691 测试 × 4 目标 (native/wasm-gc/js/wasm)
+> 版本 0.1.5（S05 出口：MCP + CLI）| 3,760+ 公开函数 + 710 公开类型（.mbti 口径，77 包）| 6,691 测试 × 4 目标 (native/wasm-gc/js/wasm)
 
 ## 概述
 

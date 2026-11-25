@@ -1,25 +1,15 @@
 # 发布归档裁剪（`.moonignore`，gitignore 语义；只影响 `moon package` / `moon publish` 生成的 zip）
-# 依据：docs/known-gaps、docs/release.md；`moon package --list` 可预检。
-# 目标：消费者拿到的 zip 里是库 + CLI + playground 导出层，不含开发工具链与测试。
+# 依据：docs/release.md 与 docs/moonbitlang 在线文档「使用 .moonignore 控制发布文件」（module.html）。
+# `moon package --list` 可预检。
 
-# 开发工具链：诊断/门禁/回归脚本，消费者不需要，且体积占 50+ 文件
+# ── 开发侧内容：消费者不需要 ──
 scripts/
-
-# 文档源：README 才是模块首页；docs/ 在 GitHub 上看，不必进 zip
 docs/
-
-# 示例与规格草稿：examples/ 已在 README 里给出代码片段
 examples/
 spec/
+benchmarks/
 
-# 根模块性能基准（依赖 bench 包，仅本仓开发用）
-bench_real.mbt
-
-# 测试源码：全仓无"只有测试文件的包"，因此排除后不会留下空包
-*_test.mbt
-*_wbtest.mbt
-
-# 本仓开发产物与内部文档：覆盖率输出、变异报告、工作区文件、内部规则/路线
+# ── 本仓产物与内部文档 ──
 coverage*.txt
 coverage*.log
 mutation-report.json
@@ -28,3 +18,15 @@ AGENTS.md
 TEST_REPORT.md
 rules.md
 image-mbt-*.md
+
+# 两条「反直觉」的保留，都是发布链踩出来的：
+#
+# 1) `*_test.mbt` / `*_wbtest.mbt` 故意**不排除**。
+#    排掉测试文件后，各包 `moon.pkg` 里 `for "test"` 的导入就变成
+#    `Warning: [0029] unused_package`（0.1.8 发布时根包 5 条、子模块各 1–6 条）。
+#    保留测试既消噪，也让下游能 `moon test` 复跑本库用例。
+#
+# 2) 子模块源码目录（`image.core/` 等）也**不排除**，尽管它们占了根包 zip 570/605 个文件。
+#    子模块自己在 workspace 里执行 `moon package` 时同样读这份根级 `.moonignore`，
+#    路径按 workspace 根计算；写一条 `image.core/` 会把 image.core 自己的归档排成
+#    22 字节空包（实测 2026-11-25），发布直接失败。体积换不来正确性。
