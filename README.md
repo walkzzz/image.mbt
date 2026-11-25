@@ -21,7 +21,7 @@
 
 **[亮点](#-亮点)** · **[格式](#-格式支持-18-种)** · **[快速上手](#-快速上手)** · **[架构](#-架构)** · **[功能](#-功能一览)** · **[文档](#-文档)**
 
-**[在线演示](https://walkzzz.github.io/image.mbt/)**：QR 生成 / 滤镜 / PNG 解读，全部在浏览器内计算。
+**在线演示**：迁移中（旧地址暂不可访问）。本地可跑 `examples/` 下 7 个示例，全部在浏览器内计算。
 
 </div>
 
@@ -421,7 +421,9 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/proposal.md](docs/proposal.md) | 季度评选申报书 |
 | [docs/pitfall-catalog.md](docs/pitfall-catalog.md) | MoonBit 语法演进 + 工程实测陷阱（15 条） |
 | [docs/comparison.md](docs/comparison.md) | mooncakes.io 图像库对比 |
-| [docs/performance_report.md](docs/performance_report.md) | 性能基准报告 |
+| [docs/performance.md](docs/performance.md) | 性能基线（x86 release 实测，当前口径） |
+| [docs/performance-2026-08-arm.md](docs/performance-2026-08-arm.md) | 旧性能报告（ARM/128²，已归档） |
+| [docs/roadmap.md](docs/roadmap.md) | 远期路线图（Sprint 级） |
 | [docs/notes.md](docs/notes.md) | 使用说明与核心约束 |
 | [docs/examples.md](docs/examples.md) | 7 个可运行示例（含实测输出） |
 | [docs/features.md](docs/features.md) | 功能分类概览 |
@@ -444,8 +446,8 @@ moon test --target wasm-gc
 moon test --target js
 moon test --target wasm
 
-# 性能基准
-moon run --target native
+# 性能基准（数字见 docs/performance.md）
+moon bench --release --target native
 
 # API 接口生成
 moon info

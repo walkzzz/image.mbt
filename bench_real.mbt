@@ -70,3 +70,65 @@ test (b : @bench.T) {
     b.keep(png_roundtrip(img_4096) catch { _ => -1 })
   })
 }
+
+///| 各编码器的字节长度（失败 -1），供 bench 闭包内使用（闭包不可 raise）。
+
+///|
+fn jpeg_len(img : @types.Image) -> Int32 noraise {
+  @lib.encode_jpeg(img).length() catch {
+    _ => -1
+  }
+}
+
+///|
+fn gif_len(img : @types.Image) -> Int32 noraise {
+  @lib.encode_gif(img).length() catch {
+    _ => -1
+  }
+}
+
+///|
+fn qoi_len(img : @types.Image) -> Int32 noraise {
+  @lib.encode_qoi(img).length() catch {
+    _ => -1
+  }
+}
+
+///|
+fn webp_len(img : @types.Image) -> Int32 noraise {
+  @codec.encode_webp_lossy_pure(img).length() catch {
+    _ => -1
+  }
+}
+
+///| 自动识别解码后的 width+height（失败 -1）。
+
+///|
+fn auto_dims(bytes : Bytes) -> Int32 noraise {
+  try {
+    let d = @lib.load_from_bytes_auto(bytes)
+    d.width + d.height
+  } catch {
+    _ => -1
+  }
+}
+
+///| 非 PNG 格式编解码基准。GIF 用 512² 以控制单次耗时（旧 ARM 报告 23.4 KP/s 量级过慢）。
+
+///|
+/// Non-PNG codec benchmarks. GIF uses 512² to keep a single run bounded.
+test (b : @bench.T) {
+  let img_1024 = make_gradient(1024, 1024)
+  let img_512 = make_gradient(512, 512)
+  let jpeg_1024 : Bytes = @lib.encode_jpeg(img_1024) catch {
+    _ => Bytes::make(0, b'\x00')
+  }
+  b.bench(name="jpeg_encode_1024", fn() { b.keep(jpeg_len(img_1024)) })
+  b.bench(name="jpeg_decode_1024", fn() { b.keep(auto_dims(jpeg_1024)) })
+  b.bench(name="webp_encode_1024", fn() { b.keep(webp_len(img_1024)) })
+  b.bench(name="bmp_encode_1024", fn() {
+    b.keep(@lib.encode_bmp(img_1024).length())
+  })
+  b.bench(name="qoi_encode_1024", fn() { b.keep(qoi_len(img_1024)) })
+  b.bench(name="gif_encode_512", fn() { b.keep(gif_len(img_512)) })
+}
