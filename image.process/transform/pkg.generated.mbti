@@ -116,6 +116,8 @@ pub fn resize_16(@types.Image16, Int32, Int32) -> @types.Image16
 
 pub fn resize_f(@types.ImageF, Int32, Int32) -> @types.ImageF
 
+pub fn resize_subsample(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
 pub fn resize_to_contain(@types.Image, Int32, Int32, Array[Byte]) -> @types.Image raise @types.LoadError
 
 pub fn resize_to_cover(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
@@ -145,6 +147,12 @@ pub fn seam_carve_resize(@types.Image, Int32, Int32) -> @types.Image raise @type
 pub fn seam_carve_resize_16(@types.Image16, Int32, Int32) -> @types.Image16 raise @types.LoadError
 
 pub fn seam_carve_resize_f(@types.ImageF, Int32, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn thumbnail(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn thumbnail_budgeted(@types.Image, Int32, @types.AllocBudget) -> @types.Image raise @types.ImageError
+
+pub fn thumbnail_dims(Int32, Int32, Int32) -> (Int32, Int32)
 
 pub fn transpose_16(@types.Image16) -> @types.Image16
 

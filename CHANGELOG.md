@@ -4,6 +4,23 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.11] - 2026-11-25
+
+### Added
+
+- **`resize_subsample(img, out_w, out_h)`**：面积平均重采样，直接从底图读数，
+  中间只有一个长度 = 通道数的累加器，**唯一分配是输出图**（上采样退化为最近邻）。
+- **`thumbnail(img, max_side)` / `thumbnail_dims(w, h, max_side)`**：等比缩略图；两边都不超 `max_side` 时零分配原样返回。
+- **`thumbnail_budgeted(img, max_side, budget)`**：先算输出字节再按 `AllocBudget` 准入，超预算直接拒（不分配）；
+  拒绝走 `ImageError::Budget(LimitBytes)`，与解码期的 `DecodeLimits` 分工明确（解码管底图，算子在输出侧把关）。
+- 门面包 `all` 再导出 `resize_subsample` / `thumbnail` / `thumbnail_budgeted` / `thumbnail_dims` / `AllocBudget` + `alloc_budget_default()`。
+- `tile_test.mbt`：9 个用例（面积平均、同尺寸等价、上采样、等比尺寸、极小图、4000×3000→512、预算拒绝/放行、非法参数）。
+
+### Verified
+
+- 4000×3000×3（36,000,000 B）→ `thumbnail(img, 512)` 输出 512×384 = 589,824 B：
+  只分配输出图，不建同量级中间缓冲；逐像素同值时输出与输入一致。
+
 ## [0.1.10] - 2026-11-25
 
 ### Added

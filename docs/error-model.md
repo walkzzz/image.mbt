@@ -95,5 +95,8 @@ try {
 ## 6. 还没做的
 
 - `max_ms` 没有真正的超时中断（需要把解码器改成可让出/可取消的循环，属后续 Sprint）；
-- 处理算子（resize/crop/滤镜）还没有逐个接 `AllocBudget`，目前只提供准入函数；
+- 处理算子接入现状（2026-11-25）：`transform::thumbnail_budgeted` 已在**输出侧**接 `AllocBudget`
+  （超预算 `Budget(LimitBytes)`，不分配）；`crop` / `crop_region` / `resize_subsample` 仍是纯 `LoadError` 语义，
+  调用方用 `ImageRegion::to_image` 前可自行 `budget.check_image(...)` 预检；其余滤镜尚未逐个接入。
+
 - S05 出口会把 `{code, message, hint}` 原样透传，届时 `ImageError` 成为唯一的对外错误面。

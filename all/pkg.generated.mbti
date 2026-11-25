@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn alloc_budget_default() -> @types.AllocBudget
+
 pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @types.ImageError
 
 pub fn crop(@types.Image, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
@@ -60,6 +62,8 @@ pub fn region_width(@types.ImageRegion) -> Int32
 
 pub fn region_with(@types.Image, @types.Region) -> @types.ImageRegion
 
+pub fn resize_subsample(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
 pub fn resize_to_contain(@types.Image, Int32, Int32, Array[Byte]) -> @types.Image raise @types.LoadError
 
 pub fn resize_to_cover(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
@@ -76,11 +80,19 @@ pub fn save_image_auto(@types.Image, @types.ImageFormat) -> Bytes raise @types.L
 
 pub fn save_image_with_quality(@types.Image, @types.ImageFormat, Int32) -> Bytes raise @types.LoadError
 
+pub fn thumbnail(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn thumbnail_budgeted(@types.Image, Int32, @types.AllocBudget) -> @types.Image raise @types.ImageError
+
+pub fn thumbnail_dims(Int32, Int32, Int32) -> (Int32, Int32)
+
 // Errors
 
 // Types and methods
 
 // Type aliases
+pub using @types {type AllocBudget}
+
 pub using @types {type AnyImage}
 
 pub using @types {type DecodeLimits}

@@ -22,6 +22,7 @@ pub using @types {
   type DecodeLimits,
   type Region,
   type ImageRegion,
+  type AllocBudget,
 }
 
 ///|
@@ -77,6 +78,34 @@ pub fn region_pixel(v : @types.ImageRegion, x : Int32, y : Int32) -> Array[Byte]
 }
 
 ///|
+/// 默认分配预算（512 MiB）。
+pub fn alloc_budget_default() -> @types.AllocBudget {
+  @types.AllocBudget::default_budget()
+}
+
+///|
+/// 大图直接出缩略图（面积平均重采样，唯一分配 = 输出图）。
+pub fn thumbnail(img : @types.Image, max_side : Int32) -> @types.Image raise @types.LoadError {
+  @transform.thumbnail(img, max_side)
+}
+
+///|
+/// 带预算的缩略图：输出超预算直接拒（不分配）。
+pub fn thumbnail_budgeted(
+  img : @types.Image,
+  max_side : Int32,
+  budget : @types.AllocBudget,
+) -> @types.Image raise @types.ImageError {
+  @transform.thumbnail_budgeted(img, max_side, budget)
+}
+
+///|
+/// 缩略图输出尺寸（先算后分配）。
+pub fn thumbnail_dims(width : Int32, height : Int32, max_side : Int32) -> (Int32, Int32) {
+  @transform.thumbnail_dims(width, height, max_side)
+}
+
+///|
 /// 把区域视图物化为独立 `Image`（唯一一次分配）。
 pub fn region_to_image(v : @types.ImageRegion) -> @types.Image {
   v.to_image()
@@ -111,6 +140,7 @@ pub using @transform {
   resize_to_contain,
   crop,
   crop_region,
+  resize_subsample,
   rotate,
   rotate_90,
   rotate_180,
