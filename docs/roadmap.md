@@ -120,7 +120,9 @@
 
 **风险**：码长码与位序最易错 → 已用 Node 原型 + ffmpeg 逐阶段验证（阶段 A 已通过，见 webp-encoder.md 日志）；**每个里程碑必须 ffmpeg 判定后才算完成**，不接受"看起来对"。
 
-**状态**：M1 已完成（2026-11-25）—— `encode_webp_vp8l_literal` 落地，内环 5 项 + ffmpeg 逐字节复核 + 全包 558 项无回归；新增 RFC 合规解码路径 `decode_webp_vp8l_rfc`（顺带修掉"单符号码表仍消耗 1 位"的错位 bug，记 GAP-28）。M2 解码侧已完成（LZ77 长度/距离 + 120 项距离映射 + 色彩缓存索引，ffmpeg 生成的样本与本库解码结果字节一致）；下一步 M2 编码侧：直方图 + Huffman 码表写入 + 贪心匹配。
+**状态**：M1 已完成（2026-11-25）—— `encode_webp_vp8l_literal` 落地，内环 5 项 + ffmpeg 逐字节复核 + 全包 558 项无回归；新增 RFC 合规解码路径 `decode_webp_vp8l_rfc`（顺带修掉"单符号码表仍消耗 1 位"的错位 bug，记 GAP-28）。M2 已完成（2026-11-25）—— `encode_webp_vp8l_lz77`（哈希链贪心匹配 + 频次驱动长度受限 Huffman + normal 码表零游程），内环回环与 ffmpeg 外环均 0 字节差异；体积基线：纯色 64² 36 B（libwebp 44 B）、棋盘 256² 154 B（66 B）、噪声 256² 196702 B（37258 B）。结论：LZ77 只吃重复结构，熵编码竞争力由 M3 变换决定，M3 已提为体积主战场。
+
+下一步 M3：subtract-green 逆变换对齐 + predictor 14 模式（block 级）+ palette（libwebp 默认产物）+ 色彩缓存出码。
 
 ---
 

@@ -108,6 +108,8 @@ pub fn encode_webp_lossy_pure(@types.Image, quality? : Int32) -> Bytes raise @ty
 
 pub fn encode_webp_vp8l_literal(@types.Image) -> Bytes raise @types.LoadError
 
+pub fn encode_webp_vp8l_lz77(@types.Image) -> Bytes raise @types.LoadError
+
 pub fn get_image_info_extended(Bytes) -> ImageInfoExtended raise @types.LoadError
 
 pub fn gif_info_extended(Bytes) -> GifInfoExtended raise @types.LoadError
