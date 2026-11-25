@@ -167,6 +167,16 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 moon add walkzzz/image.mbt
 ```
 
+> ⚠️ **装根模块不等于能 import 子模块包**。如果你想直接写 `import "walkzzz/image.codec/lib"`，必须**再把那个子模块显式 add 一次**，否则报
+> `exists in global environment, but its containing module is not imported by <你的包>`。跑本仓 quickstart 那条链路，装法是：
+>
+> ```bash
+> moon add walkzzz/image.mbt@0.1.7
+> moon add walkzzz/image.core@0.1.7
+> moon add walkzzz/image.codec@0.1.7
+> moon add walkzzz/image.process@0.1.7
+> ```
+
 > 🧩 **子模块按需安装**（workspace 六模块独立发布）：`moon add walkzzz/image.codec` 只装 18 格式编解码；`moon add walkzzz/image.process` 只装 90+ 算法子包；core / photography / vision / domain 同理。
 
 ### 先跑通一条真实链路（`examples/quickstart`）

@@ -14,6 +14,7 @@
 - **`examples/quickstart`（5 分钟链路，四目标可编译）**：造图 → WebP 无损编码 → `load_from_bytes_auto` 解码 → `resize_to_cover` → PNG 出图 → 回读校验，全用子模块、不碰文件系统；README 的快速上手代码片段与它逐行一致，示例改坏 README 就直接编译失败。实测 `webp 156 B / png 158 B / verify ok=true`。
 - **`image.codec/lib` 补 `encode_webp_lossless` / `decode_webp` 两个委托**：此前下游只 import `@lib` 时找不到 WebP 编码入口（实现在 `image.codec/codec`），得再记一个 import；现在 `@lib.save_image_auto(Webp)` 与 `@lib.encode_webp_lossless` 都在一处。
 - **版本钉随版本走（发布链结构性修复）**：`scripts/bump_version.mjs` 现在会同时改写 7 个 `moon.mod` 里 `walkzzz/image.*@x.y.z` 的依赖钉；`scripts/check_version.mjs` 从 13 项扩到 **14 项**，钉子与版本不一致直接红并打印定位串。起因是 `moon publish --dry-run` 的 verify 用 registry 里的 `@0.1.1` 编 0.1.7 代码，一次 56 个 API 缺失。新增 `docs/release.md` 记录发布顺序、verify 语义与残余阻塞。
+- **0.1.7 已发布到 mooncakes（七个模块齐发）**：`image.core / image.codec / image.process / image.photography / image.vision / image.domain / image.mbt` 全部 0.1.7，根包 verify `Check passed` + `Server status: 200 OK`。下游空项目 `moon add` 验收通过：`webp 124 B diff=0` / `png 125 B` / `downstream-ok=true`。安装摩擦（根模块 ≠ 子模块 import 权限；`moon.mod` 不收 `edition` 键、PowerShell 写文件带 BOM 会 lex 失败）已写进 README 与 `docs/release.md`。
 - **`scripts/bump_version.mjs`**：一 Sprint 一 patch 的版本升级脚本，一次改 7 个 `moon.mod` + 门面 + CLI + 双语徽章 + `known-gaps` 口径行；`--to` 指定目标、`-n` 预演。
 - `imgcli/imgtool_format_wbtest.mbt`：`format_from_ext`（含大写、`.tar.gz`、无扩展名）、`out_format` 优先级（`--format` > 扩展名 > fallback，`auto` 视为未给）、`help_text/version_text` 三条白盒测试。
 

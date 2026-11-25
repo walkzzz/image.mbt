@@ -1,7 +1,7 @@
 # 发布与分发
 
 > 本页只讲**怎么把 `walkzzz/image.*` 发到 mooncakes 让下游 `moon add` 能用**，以及 `moon publish --dry-run` 到底在校验什么。
-> 当前状态：**未发布**。dry-run 的结构性阻塞已定位到版本钉（见下文），剩下的只差"先发子模块"这一步。
+> 当前状态：**已发布 0.1.7**（2026-11-25，七个模块齐发，根包 `Server status: 200 OK`）。dry-run 结构性阻塞（依赖钉）已闭环，下游验收见文末。
 
 ## 一、七个模块与发布顺序
 
@@ -88,3 +88,32 @@ zip 里会带上非库代码：`bench_real.mbt`、`examples/quickstart/`、`imgc
 | 工作区共享 | 把自己的包放进本 workspace | 多模块联调最快 |
 
 `examples/quickstart` 就是"下游视角"的最小验证：只 import `image.core/types` + `image.codec/lib` + `image.process/transform` 三个包，不碰根门面、不碰文件系统。
+
+## 六、下游验收记录（2026-11-25，0.1.7 首发）
+
+在一个**空的非工作区项目**里装公开包，验证"别人拿到的是能用的组合"：
+
+```powershell
+mkdir downstream\src
+# moon.mod: name = "demo/downstream" / version = "0.1.0"（注意：不能写 edition 键，moon 会报 Unexpected key）
+moon add walkzzz/image.mbt@0.1.7
+moon add walkzzz/image.core@0.1.7
+moon add walkzzz/image.codec@0.1.7
+moon add walkzzz/image.process@0.1.7
+moon run src --target native
+```
+
+实测输出（`src/moon.pkg` 只 import `types` / `codec/lib` / `transform` 三个包）：
+
+```
+webp    124 B  ch=4  diff=0
+png     125 B  16x12 ch=4
+downstream-ok=true
+```
+
+### 验收中发现的两条下游摩擦（已写进 README）
+
+1. **只 `moon add` 根模块，不能直接 import 子模块包**。错误原文：
+   `Import walkzzz/image.core/types@0.1.7 exists in global environment, but its containing module is not imported by demo/downstream@0.1.0`。
+   处理：用哪个子模块就显式 add 哪个。这是 MoonBit 的模块边界，不是本库的缺陷，但新手必踩，README 已加粗提示。
+2. **`moon.mod` 不接受 `edition = "2024"` 键**（`Unexpected key 'edition' found in moon.mod`）；且用 PowerShell `Set-Content -Encoding utf8` 写的 `moon.mod` 带 BOM，会报 `Lexing error at 0..3`。写 `moon.mod` 要用无 BOM 的 UTF-8。
