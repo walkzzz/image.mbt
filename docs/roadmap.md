@@ -287,6 +287,16 @@
   单文件从低到高：gabor_template / optical_glcm 80.6%、retinex 81.6%、color_space 82.0%、hough_circles 82.5%、
   adaptive_threshold 82.8%；seam_carving 65.4% → 96.2%。
   **口径**：90% 按 16f 家族加权总覆盖验收（路线图原话"未覆盖分支补到 90%"），不要求逐文件 ≥90%。
+- ✅ **S14 区域解码（2026-11-25）**：`image.codec/codec/region_decode.mbt` 新增
+  `decode_png_region / decode_bmp_region / decode_qoi_region`，入口 `image.codec/lib` 的
+  `decode_region(data, x, y, w, h)` 按魔数自动分派（仅 PNG / BMP / QOI，其余格式报
+  `DecodeFailed("decode_region 暂只支持 PNG / BMP / QOI")`）。
+  **内存形态**：PNG 的 IDAT 仍整条 inflate（zlib 无流式接口），但反滤波只保留 `prev + cur` 两行、
+  输出按 tile 尺寸分配；BMP 无压缩按行直接寻址；QOI 顺序解码、区域外像素只推进状态不落内存。
+  **验收**：tile 与"整图解码后裁切"逐字节一致（PNG RGB/RGBA/全图/1×1、BMP 24/32 上下行、QOI 3/4 通道），
+  越界 / 零尺寸 / 负坐标 / 非支持格式四类错误各有断言。
+  **口径**：4096² 输出侧不再分配整图（PNG 的 64 MB 级输出缓冲降为 tile），但 inflate 中间缓冲仍在；
+  真正的流式 inflate 需要 zlib 增量 API，留到后续。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -304,7 +314,7 @@
 | S11 | CLI 8 子命令：`info/convert/resize/crop/filter/analyze/sanitize/bench` | 支持 `--dry-run`、JSON 输出、stdin/stdout 管道 |
 | S12 | npm-wasm（≤1.2MB gzip，codec+process 子集） | node 侧 3 行调用，示例可跑 |
 | S13 ✅ | 16bit / float 覆盖收敛（不新增算子） | 16f 家族行覆盖 91.15%（≥90%） |
-| S14 | 区域解码（PNG/BMP/QOI） | 4096² 只解需要的 tile |
+| S14 ✅ | 区域解码（PNG/BMP/QOI） | 输出只分配 tile，与整图裁切逐字节一致 |
 | S15 | 动画闭环（GIF/APNG 解码；APNG 编码） | 帧数与延迟可往返 |
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |

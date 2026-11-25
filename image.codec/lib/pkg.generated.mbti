@@ -12,6 +12,8 @@ pub fn best_format(@types.Image) -> @types.ImageFormat
 
 pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @types.ImageError
 
+pub fn decode_region(Bytes, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
 pub fn decode_stream(Bytes, (Int32, Array[Byte]) -> Unit) -> StreamInfo raise @types.LoadError
 
 pub fn decode_stream_channels(Bytes, Int32, (Int32, Array[Byte]) -> Unit) -> StreamInfo raise @types.LoadError

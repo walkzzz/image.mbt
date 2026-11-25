@@ -4,6 +4,23 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.16] - 2026-11-25
+
+### Added
+
+- **区域解码（S14）**：`decode_png_region / decode_bmp_region / decode_qoi_region`
+  （`image.codec/codec/region_decode.mbt`），入口 `decode_region(data, x, y, w, h)`
+  （`image.codec/lib/region.mbt`），按魔数自动分派 PNG / BMP / QOI。
+  PNG 反滤波只保留上一行 + 当前行、输出按 tile 分配；BMP 无压缩按行直接寻址；
+  QOI 顺序解码但区域外像素只推进状态不落内存。
+
+### Verified
+
+- 与"整图解码后裁切"逐字节一致：PNG RGB/RGBA/全图/1×1、BMP 24/32 上下行、QOI 3/4 通道。
+- 错误路径：区域越界、零尺寸、负坐标、非支持格式（JPEG 魔数）各 1 项断言。
+- 测试数 6,836 → **6,847**；全库行覆盖 **34,463/41,854（82.3%）**。
+- 四目标 `moon test` 全绿；`moon check --deny-warn --target all` 零警告。
+
 ## [0.1.15] - 2026-11-25
 
 ### Added

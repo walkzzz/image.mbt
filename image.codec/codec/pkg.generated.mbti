@@ -26,6 +26,8 @@ pub fn decode_apng_pure(Bytes) -> @types.PngAnimation raise @types.LoadError
 
 pub fn decode_bmp_pure(Bytes) -> @types.Image raise @types.LoadError
 
+pub fn decode_bmp_region(Bytes, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
 pub fn decode_cur_pure(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn decode_gif_animation_pure(Bytes) -> @types.GifAnimation raise @types.LoadError
@@ -44,6 +46,8 @@ pub fn decode_png_16_pure(Bytes, req_channels? : Int32?) -> @types.Image16 raise
 
 pub fn decode_png_pure(Bytes, req_channels? : Int32?) -> @types.Image raise @types.LoadError
 
+pub fn decode_png_region(Bytes, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
 pub fn decode_pnm_16_pure(Bytes) -> @types.Image16 raise @types.LoadError
 
 pub fn decode_pnm_pure(Bytes) -> @types.Image raise @types.LoadError
@@ -51,6 +55,8 @@ pub fn decode_pnm_pure(Bytes) -> @types.Image raise @types.LoadError
 pub fn decode_psd_pure(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn decode_qoi_pure(Bytes) -> @types.Image raise @types.LoadError
+
+pub fn decode_qoi_region(Bytes, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
 
 pub fn decode_tga_pure(Bytes) -> @types.Image raise @types.LoadError
 

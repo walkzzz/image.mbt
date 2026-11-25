@@ -1,6 +1,6 @@
 name = "walkzzz/image.vision"
 
-version = "0.1.15"
+version = "0.1.16"
 
 license = "MIT"
 
@@ -13,7 +13,7 @@ repository = "https://github.com/walkzzz/image.mbt"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.15",
-  "walkzzz/image.codec@0.1.15",
-  "walkzzz/image.process@0.1.15",
+  "walkzzz/image.core@0.1.16",
+  "walkzzz/image.codec@0.1.16",
+  "walkzzz/image.process@0.1.16",
 }
