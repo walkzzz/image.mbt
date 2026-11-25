@@ -6,15 +6,15 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.13-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.13-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.14-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.14-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-6_726×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-83.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-77-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-78-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-参赛项目-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 [English](README.en.md) · 简体中文
@@ -124,7 +124,7 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 </td>
 <td width="50%">
 
-### 🟢 77 个子包
+### 🟢 78 个子包
 
 6 子模块 (core/codec/process/photography/vision/domain) · 用户直接 import 子包 · 根包仅门面
 
@@ -355,6 +355,27 @@ node mcp/server.mjs
 
 CLI 8 个子命令（`info / convert / resize / crop / filter / analyze / sanitize / bench`，`decode`/`encode` 是 `convert` 别名），统一单行 JSON、`--dry-run`、`-` 管道；MCP 侧 6 个工具、JSON Schema、`{code,message,hint}` 结构化错误、`--mem-budget` 解码前限额。CLI 全参数与 JSON 字段见 [docs/cli.md](docs/cli.md)；MCP 详见 [docs/mcp.md](docs/mcp.md)；脱敏三档 policy、区域语法与 200 张样本验收见 [docs/sanitize.md](docs/sanitize.md)。
 
+### Node / npm：三行调用
+
+```js
+import { readFileSync, writeFileSync } from 'node:fs';
+import { convert } from '@walkzzz/image-mbt';
+
+writeFileSync('out.jpg', convert(readFileSync('in.png'), { format: 'jpeg', quality: 85 }));
+```
+
+包内自带 `image.wasm`（248 KiB raw / 111 KiB gzip，0 import，Node ≥18），不需要原生编译：
+
+| 方法 | 作用 |
+|---|---|
+| `info(buf)` | 读头部：格式 / 宽高 / 字节数 |
+| `convert(buf, {format, quality})` | 解码后重编码，`format='best'` 取最小 |
+| `convertMeta(buf, opts)` | 同上，另带输出元信息 |
+| `resize(buf, {width, height, mode, format})` | `cover` 裁切 / `contain` 白底 |
+| `resizeMeta(buf, opts)` | 同上，另带输出元信息 |
+
+输入输出都是 `Buffer`；失败抛 `Error`，带 `code`（如 `decode/unsupported_format`）与中文 `hint`。从源码构建与 ABI 说明见 [npm/README.md](npm/README.md)。
+
 ### 高级：SIFT 特征匹配
 
 ```moonbit
@@ -528,7 +549,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | 文档 | 说明 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | 架构图、模块依赖、设计决策 |
-| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，77 包 / 3,832 fn）** |
+| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，78 包 / 3,888 fn）** |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
 | [docs/changelog.md](docs/changelog.md) | 版本变更历史 |

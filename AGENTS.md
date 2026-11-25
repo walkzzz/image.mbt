@@ -226,6 +226,9 @@ moon test --target wasm
 # 重新生成 API 接口
 moon info
 
+# npm 的 wasm 产物（构建 → 拷到 npm/ → 体积校验 → 跑 npm 自测）
+node scripts/build_npm_wasm.mjs
+
 # 格式化
 moon fmt
 

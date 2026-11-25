@@ -1,7 +1,7 @@
 # API 索引（自动生成）
 
 > 由 `node scripts/gen_api_index.mjs` 从各包 `pkg.generated.mbti` 生成，请勿手工编辑。
-> 生成日期口径：每次运行覆盖；当前共 **78** 个包、**3885** 个 `pub fn`、**718** 个公开类型/trait。
+> 生成日期口径：每次运行覆盖；当前共 **79** 个包、**3888** 个 `pub fn`、**718** 个公开类型/trait。
 > 详细用法见各包 `.mbti` 与 [api_reference.md](api_reference.md)（后者为历史快照，以本索引与 `.mbti` 为准）。
 
 | 包 | pub fn | 公开类型/trait |
@@ -84,4 +84,5 @@
 | `imgcli` | 30 | 2 |
 | `mp4` | 2 | 4 |
 | `playground` | 4 | 0 |
-| **合计** | **3885** | **718** |
+| `wasm` | 3 | 0 |
+| **合计** | **3888** | **718** |

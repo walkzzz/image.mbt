@@ -1,0 +1,19 @@
+pkgtype(kind: "foreign_library")
+
+import {
+  "walkzzz/image.core/types",
+  "walkzzz/image.codec/lib",
+  "walkzzz/image.process/transform",
+  "moonbitlang/core/json",
+  "moonbitlang/core/encoding/base64",
+}
+
+options(
+  link: {
+    "wasm-gc": {
+      "use-js-builtin-string": true,
+      "imported-string-constants": "_",
+    },
+    "wasm": { "export-memory-name": "memory", "heap-start-address": 4096 },
+  },
+)

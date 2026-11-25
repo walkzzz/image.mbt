@@ -266,6 +266,17 @@
   `--max-bytes` 接出口限额；`filter` 覆盖 box/gaussian/sharpen/median/bilateral/nlm；`bench` 给 decode/encode/resize 的每轮均值（微秒）。
   **口径**：管道靠 `imgcli/stdio_stub.c`（native）实现，wasm/js 返回 `UnsupportedFormat`；`bench` 是耗时参考，不是跨机基准。
   **实测（320×240 PNG）**：`convert --best` 404 B（PNG 2,386 B）；`--dry-run` 返回 `wrote:false` 且目标不存在；`< in.png > out.png` 管道回读 320×240 RGB 一致。
+- ✅ **S12 npm-wasm（2026-11-25）**：`wasm/` 导出包 + `npm/@walkzzz/image-mbt` 封装。
+  **形态定案：wasm MVP 字节 ABI**（`abi_alloc / abi_info / abi_convert / abi_resize` + `abi_last_*` 读元信息），
+  不是 wasm-gc：wasm-gc 把每个字符串常量编成 `"_"` 模块的 `(ref extern)` 全局导入（本包 460 条），
+  Node 无法创建非空 externref 全局，只能在 MoonBit 自有 host 里实例化；MVP 导出 `memory`，
+  `Bytes` 入参/返回值就是 i32 指针，JS 直接写输入、读输出，零 shim。
+  **体积**：248.3 KiB raw / 110.6 KiB gzip（阈值 1.2 MiB gzip），`WebAssembly.Module.imports` 为 0。
+  **API**：`info / convert / convertMeta / resize / resizeMeta / formats`，输入 `Buffer`，输出 `Buffer`，
+  失败带 `code / hint`（如 `decode/unsupported_format`）。
+  **验收**：`node scripts/build_npm_wasm.mjs` 一键构建→拷 wasm→体积校验→跑自测，**15/15**；
+  1000×1000 PPM→PNG 走通线性内存增长；Pillow 回读 PNG / 缩放像素一致。
+  **口径**：`npm` 包暂不发布，等 S17 绑定一起收口；`npm/image.wasm` 不提交，由 `prepack` 生成。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 

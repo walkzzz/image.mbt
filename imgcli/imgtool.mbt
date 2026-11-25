@@ -122,10 +122,7 @@ fn out_format(
   fallback : @types.ImageFormat,
 ) -> @types.ImageFormat raise @types.ImageError {
   match flags.values.get("format") {
-    Some(f) =>
-      if f != "auto" {
-        return parse_format(f)
-      }
+    Some(f) => if f != "auto" { return parse_format(f) }
     None => ()
   }
   match format_from_ext(dst) {
@@ -172,18 +169,13 @@ pub fn parse_flags(args : Array[String]) -> Flags {
       i += 1
     }
   }
-  { positional: pos, values: vals }
+  { positional: pos, values: vals, }
 }
 
 ///|
 fn Flags::int(self : Flags, key : String, default : Int32) -> Int32 {
   match self.values.get(key) {
-    Some(v) =>
-      try {
-        @string.parse_int(v)
-      } catch {
-        _ => default
-      }
+    Some(v) => @string.parse_int(v) catch { _ => default }
     None => default
   }
 }
@@ -205,9 +197,7 @@ fn Flags::str(self : Flags, key : String, default : String) -> String {
 fn Flags::float(self : Flags, key : String, default : Float) -> Float {
   match self.values.get(key) {
     Some(v) =>
-      try {
-        Float::from_double(@string.parse_double(v))
-      } catch {
+      Float::from_double(@string.parse_double(v)) catch {
         _ => default
       }
     None => default
@@ -221,10 +211,14 @@ pub fn limits_of(flags : Flags) -> @types.DecodeLimits {
   let mut l = base
   if budget > 0 {
     let b = budget.to_int64()
-    l = { max_pixels: b / 8L, max_bytes: b, max_ms: base.max_ms }
+    l = { max_pixels: b / 8L, max_bytes: b, max_ms: base.max_ms, }
   }
   if flags.has("max-pixels") {
-    l = { max_pixels: flags.int("max-pixels", 0).to_int64(), max_bytes: l.max_bytes, max_ms: l.max_ms }
+    l = {
+      max_pixels: flags.int("max-pixels", 0).to_int64(),
+      max_bytes: l.max_bytes,
+      max_ms: l.max_ms,
+    }
   }
   l
 }
@@ -311,9 +305,7 @@ fn cmd_crop(flags : Flags) -> Out raise @types.ImageError {
   let y = flags.int("y", 0)
   let w = flags.int("width", 0)
   let h = flags.int("height", 0)
-  let out = try {
-    @transform.crop(img, x, y, w, h)
-  } catch {
+  let out = @transform.crop(img, x, y, w, h) catch {
     e => raise @types.image_error_from_load(e)
   }
   let fmt = out_format(flags, dst, src_out_format(input))
@@ -369,7 +361,9 @@ fn cmd_analyze(flags : Flags) -> Out raise @types.ImageError {
     let m = sums[c] / n.to_double()
     mean_json.push(@json.Json::number(m))
     let variance = sq[c] / n.to_double() - m * m
-    std_json.push(@json.Json::number(if variance > 0.0 { variance.sqrt() } else { 0.0 }))
+    std_json.push(
+      @json.Json::number(if variance > 0.0 { variance.sqrt() } else { 0.0 }),
+    )
     min_json.push(jnum(mins[c]))
     max_json.push(jnum(maxs[c]))
   }
@@ -486,7 +480,7 @@ pub fn error_json(e : @types.ImageError) -> Out {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.13"
+pub let version : String = "0.1.14"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。
@@ -590,11 +584,7 @@ pub fn run() -> Unit {
     println(version_text())
     return
   }
-  let out = try {
-    dispatch(args)
-  } catch {
-    e => error_json(e)
-  }
+  let out = dispatch(args) catch { e => error_json(e) }
   // stdout 已经被二进制占用（dst 写 `-`）时，JSON 结果改走 stderr，
   // 否则 `imgtool convert in.png - | ...` 的管道会把 JSON 混进图片字节。
   let line = @json.Json::object(out).stringify()

@@ -1,0 +1,39 @@
+{
+  "name": "@walkzzz/image-mbt",
+  "version": "0.1.14",
+  "description": "MoonBit 纯图像库的 Node 绑定（WebAssembly）：PNG/JPEG/WebP/BMP/QOI/PNM/TGA/GIF 解码、编码、缩放，零原生依赖。",
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./image.wasm": "./image.wasm"
+  },
+  "files": [
+    "index.mjs",
+    "image.wasm",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test.mjs",
+    "prepack": "node ../scripts/build_npm_wasm.mjs --no-test"
+  },
+  "keywords": [
+    "image",
+    "png",
+    "jpeg",
+    "webp",
+    "qoi",
+    "wasm",
+    "moonbit",
+    "resize",
+    "codec"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/walkzzz/image.mbt"
+  }
+}

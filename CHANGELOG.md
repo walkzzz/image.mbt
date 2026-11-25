@@ -4,6 +4,35 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.14] - 2026-11-25
+
+### Added
+
+- **npm 包 `@walkzzz/image-mbt`（S12）**：`npm/` 下 ESM 封装 + 随包 `image.wasm`，
+  Node ≥18 直接 `import`，零原生依赖、零 install 脚本。
+  API：`info / convert / convertMeta / resize / resizeMeta / formats`；输入 `Buffer/Uint8Array/ArrayBuffer`，
+  输出 `Buffer`；错误抛 `Error` 并带 `code / hint`。
+- **wasm MVP 字节 ABI**（`wasm/abi.mbt`）：`abi_alloc` 分配输入缓冲并导出 `memory`，
+  `abi_info / abi_convert / abi_resize` 返回输出指针，`abi_last_len/ok/format/width/height/channels/error`
+  读元信息与错误。`Bytes` 在 wasm32 上就是 i32 指针，Node 侧直接读写，**0 个 WebAssembly import**。
+- **`scripts/build_npm_wasm.mjs`**：构建 → 拷 `npm/image.wasm` → gzip 体积校验（≤1.2 MiB）→
+  校验导出/零 import → 同步 `package.json` 版本 → 跑 npm 自测，一条命令完成。
+- **`npm/test.mjs`**：15 项自测（PPM→PNG/JPEG/WebP/QOI/BMP、`best` 选最小、元信息、
+  cover/contain 缩放、错误码、空输入、1000×1000 触发内存增长）。
+
+### Verified
+
+- `image.wasm`：**248.3 KiB raw / 110.6 KiB gzip**，`WebAssembly.Module.imports` = 0；导出含 `memory` 与 12 个 ABI 函数。
+- `node scripts/build_npm_wasm.mjs` → **15/15 passed**。
+- Pillow 回读：PPM 4×3 → PNG 83 B、像素 `(0,7,14)` 一致；8×6 cover 缩放像素渐变正确。
+- 反例：非图片输入抛 `decode/unsupported_format`，带中文 hint。
+
+### Notes
+
+- wasm-gc 导出路径不可用于 Node：字符串常量被编成 `"_"` 模块 460 条 `(ref extern)` 全局导入，
+  JS 无法创建非空 externref 全局（`LinkError`）。npm 因此走 wasm MVP，详见 GAP-33。
+- `npm` 暂不发布，`npm/image.wasm` 不提交，由 `prepack` 构建。
+
 ## [0.1.13] - 2026-11-25
 
 ### Added
