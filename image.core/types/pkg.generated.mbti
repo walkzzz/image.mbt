@@ -40,6 +40,10 @@ pub fn hdr_from_u8(Image) -> ImageF
 
 pub fn image16_to_any(Image16) -> AnyImage
 
+pub fn image_error_from_load(LoadError) -> ImageError
+
+pub fn image_error_hint(String) -> String
+
 pub fn image_to_any(Image) -> AnyImage
 
 pub fn imagef_to_any(ImageF) -> AnyImage
@@ -53,6 +57,16 @@ pub fn safe_mul(Int32, Int32) -> Int32?
 pub fn safe_mul3(Int32, Int32, Int32) -> Int32?
 
 // Errors
+pub(all) suberror ImageError {
+  Decode(ErrorCode, String)
+  Encode(ErrorCode, String)
+  Process(ErrorCode, String)
+  Budget(ErrorCode, String)
+  Cancelled(String)
+}
+pub fn ImageError::code(Self) -> String
+pub fn ImageError::message(Self) -> String
+
 pub(all) suberror LoadError {
   FileIO(String)
   UnsupportedFormat(String)
@@ -64,6 +78,12 @@ pub fn LoadError::to_string(Self) -> String
 pub impl Show for LoadError
 
 // Types and methods
+pub(all) struct AllocBudget {
+  max_bytes : Int64
+}
+pub fn AllocBudget::check_image(Self, Int64, Int64, Int64, String) -> Unit raise ImageError
+pub fn AllocBudget::default_budget() -> Self
+
 #non_exhaustive
 #derive(Eq, @debug.Debug)
 pub(all) enum AnyImage {
@@ -85,6 +105,35 @@ pub fn AnyImage::pixel_count(Self) -> Int32
 pub fn AnyImage::to_repr(Self) -> @debug.Repr
 pub fn AnyImage::width(Self) -> Int32
 pub impl ImageLike for AnyImage
+
+pub(all) struct DecodeLimits {
+  max_pixels : Int64
+  max_bytes : Int64
+  max_ms : Int64
+}
+pub fn DecodeLimits::check_bytes(Self, Int64) -> Unit raise ImageError
+pub fn DecodeLimits::check_pixels(Self, Int64, Int64) -> Unit raise ImageError
+pub fn DecodeLimits::default_limits() -> Self
+pub fn DecodeLimits::strict_limits() -> Self
+pub fn DecodeLimits::with_max_pixels(Int64) -> Self
+
+#derive(Eq, @debug.Debug)
+pub(all) enum ErrorCode {
+  UnsupportedFormat
+  InvalidHeader
+  InvalidDimensions
+  InvalidArgument
+  Truncated
+  DecodeFailed
+  EncodeFailed
+  ProcessFailed
+  LimitBytes
+  LimitPixels
+  LimitTime
+  Cancelled
+}
+pub fn ErrorCode::is_budget(Self) -> Bool
+pub fn ErrorCode::to_string(Self) -> String
 
 #derive(Eq, @debug.Debug)
 pub(all) struct GifAnimation {

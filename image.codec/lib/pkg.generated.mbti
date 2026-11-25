@@ -3,15 +3,20 @@ package "walkzzz/image.codec/lib"
 
 import {
   "moonbitlang/core/debug",
+  "walkzzz/image.codec/codec",
   "walkzzz/image.core/types",
 }
 
 // Values
+pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @types.ImageError
+
 pub fn decode_stream(Bytes, (Int32, Array[Byte]) -> Unit) -> StreamInfo raise @types.LoadError
 
 pub fn decode_stream_channels(Bytes, Int32, (Int32, Array[Byte]) -> Unit) -> StreamInfo raise @types.LoadError
 
 pub fn decode_stream_chunked(Bytes, Int32, (Int32, @types.Image) -> Unit) -> StreamInfo raise @types.LoadError
+
+pub fn decode_with_limits(Bytes, @types.DecodeLimits) -> @types.Image raise @types.ImageError
 
 pub fn detect_format(Bytes) -> @types.ImageFormat
 
@@ -42,6 +47,8 @@ pub fn format_supports_float(@types.ImageFormat) -> Bool
 pub fn get_image_info(Bytes) -> UnifiedImageInfo raise @types.LoadError
 
 pub fn get_image_summary(Bytes) -> String raise @types.LoadError
+
+pub fn info_dims(@codec.ImageInfoExtended) -> (Int64, Int64)
 
 pub fn load_16_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image16 raise @types.LoadError
 

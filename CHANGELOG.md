@@ -12,6 +12,18 @@
 - **`playground/` 导出层**：4 个函数（版本、QR PNG、滤镜 PNG、PNG 摘要），PNG 以十六进制字符串跨 JS 边界，无需后端。
 - **`scripts/check_pages.mjs`**：49 项门禁（构建产物、导出、QR/滤镜/摘要语义、页面结构、模块链接、口径数字）。
 
+## [0.1.4] - 2026-11-25
+
+### Added
+
+- **`ImageError` + stable codes**: `Decode / Encode / Process / Budget / Cancelled`, `code()` returns `decode/truncated`, `budget/limit_pixels` and similar; `ErrorCode::is_budget()`, `ImageError::message()`, `image_error_hint(code)`, and `image_error_from_load` to project legacy `LoadError` without touching its signature.
+- **`DecodeLimits`** (`max_pixels / max_bytes / max_ms`, plus `default_limits` / `strict_limits` / `with_max_pixels`) and **`AllocBudget`** admission checks for pixel operators.
+- **`@lib.decode_with_limits(bytes, limits)`** / **`check_decode_budget`**: byte budget → header-declared pixel budget → decode, so a decode bomb is rejected *before* allocation. Plus `docs/error-model.md` (code table, budgets, usage, verified attack surface).
+
+### Note
+
+- `max_ms` is admission + post-hoc only: a synchronous pure-MoonBit loop cannot be killed mid-flight, so OOM protection rests on the byte/pixel caps.
+
 ## [0.1.3] - 2026-11-25
 
 ### Added

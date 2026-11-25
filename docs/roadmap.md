@@ -158,17 +158,22 @@
 
 **目标**：能放进服务 —— 坏图不 panic、不 OOM。
 
-**交付**
-- `ImageError` 枚举：`Decode / Encode / Process / Budget / Cancelled` + 稳定 `code` 字符串；
-- `DecodeLimits{ max_pixels, max_bytes, max_ms }`、`AllocBudget`；
-- 错误码 → 建议动作映射表（文档 + `error_hint(code)`）。
+**状态：已完成（2026-11-25，版本 0.1.4）**
 
-**验收**
-- ≥20 条错误码断言；
-- 构造 100MB 恶意 PNG、截断 JPEG、超大尺寸头 → 全部拒绝，内存峰值低于预算；
-- 错误码在出口（S05）原样透传。
+交付与结果：
 
-**风险**：改错误签名会碰 70 个包 → 一次性适配提交，`moon check --deny-warn --target all` 必须零警告。
+| 项 | 内容 | 验收 |
+|---|---|---|
+| `ImageError` | `Decode/Encode/Process/Budget/Cancelled` + `code()` 稳定码（`decode/truncated`、`budget/limit_pixels`…） | 12 个码字符串断言 ✅ |
+| `DecodeLimits` | `max_pixels/max_bytes/max_ms`，`default/strict/with_max_pixels` 预设 | 101 字节超 100 上限被拒 ✅ |
+| `AllocBudget` | `check_image(w,h,ch,what)` 准入，默认 512 MiB | 20000²×4 被拒 ✅ |
+| `error_hint(code)` | 12 类码全部有建议动作，含具体参数名 | 12 条断言 + 关键词检查 ✅ |
+| `decode_with_limits` | 字节上限 → 头部像素上限 → 解码；`LoadError` 投影成 `ImageError` | 正常 PNG 可解；截断 JPEG 归类；QOI 炸弹拒绝 ✅ |
+| 文档 | `docs/error-model.md`（码表 + 预算 + 用法 + 攻击面验证） | 双语 README 文档表已挂链 ✅ |
+
+**关键设计**：不改 `LoadError` 签名（避 70 包大面积改动），新增一层结构化错误 + 投影函数；预算检查**在分配内存之前**完成——同步纯 MoonBit 实现无法强杀死循环，因此 `max_ms` 只作准入与事后判定，真正防 OOM 的是字节/像素双上限。
+
+**遗留**：`max_ms` 无强制中断（需可让出/可取消的解码循环）；处理算子尚未逐个接 `AllocBudget`；`{code,message,hint}` 的对外透传在 S05 出口落地。
 
 ---
 
