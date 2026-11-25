@@ -43,16 +43,18 @@ pub fn encode_image(
   format : @types.ImageFormat,
   quality : Int32,
 ) -> Bytes raise @types.ImageError {
-  try {
-    @lib.save_image_with_quality(img, format, quality)
-  } catch {
+  @lib.save_image_with_quality(img, format, quality) catch {
     e => raise @types.image_error_from_load(e)
   }
 }
 
 ///|
 /// 写出：`-` 走 stdout，`--dry-run` 只算不写。返回是否写到了 stdout。
-pub fn emit_bytes(dst : String, data : Bytes, dry : Bool) -> Bool raise @types.ImageError {
+pub fn emit_bytes(
+  dst : String,
+  data : Bytes,
+  dry : Bool,
+) -> Bool raise @types.ImageError {
   if dry {
     return false
   }
@@ -130,7 +132,7 @@ fn cmd_convert(flags : Flags) -> Out raise @types.ImageError {
     }
   } else {
     let fmt = out_format(flags, dst, @types.ImageFormat::Png)
-    { format: fmt, bytes: encode_image(img, fmt, quality) }
+    { format: fmt, bytes: encode_image(img, fmt, quality), }
   }
   let to_stdout = emit_bytes(dst, enc.bytes, dry)
   result({
@@ -187,8 +189,9 @@ fn apply_filter(
       "gaussian" => @filter.gaussian_blur(img, radius, sigma_eff)
       "sharpen" => @filter.sharpen(img, amount)
       "median" => @filter.median_blur(img, ksize)
-      "bilateral" => @filter.bilateral_filter(img, radius, sigma_eff, sigma_color)
-      _ => @filter.nlm_denoise(img, patch_size=patch, search_size=search, h=h)
+      "bilateral" =>
+        @filter.bilateral_filter(img, radius, sigma_eff, sigma_color)
+      _ => @filter.nlm_denoise(img, patch_size=patch, search_size=search, h~)
     }
   } catch {
     e => raise @types.image_error_from_load(e)
@@ -232,16 +235,7 @@ fn cmd_filter(flags : Flags) -> Out raise @types.ImageError {
   let search = flags.int("search", 7)
   let h = flags.int("h", 10)
   let out = apply_filter(
-    img,
-    op,
-    radius,
-    sigma,
-    amount,
-    ksize,
-    sigma_color,
-    patch,
-    search,
-    h,
+    img, op, radius, sigma, amount, ksize, sigma_color, patch, search, h,
   )
   let fmt = out_format(flags, dst, writable_format_of(input))
   let quality = quality_of(flags)
@@ -300,9 +294,7 @@ fn resize_checked(
   w : Int32,
   h : Int32,
 ) -> @types.Image raise @types.ImageError {
-  try {
-    @transform.resize_to_cover(img, w, h)
-  } catch {
+  @transform.resize_to_cover(img, w, h) catch {
     e => raise @types.image_error_from_load(e)
   }
 }
@@ -325,9 +317,7 @@ fn cmd_bench(flags : Flags) -> Out raise @types.ImageError {
   let decode_us = bench_decode(input, limits, iters)
   let encode_json : Out = Map([])
   for name in parse_format_list(flags.str("formats", "png,jpeg,webp")) {
-    let parsed : @types.ImageFormat? = try {
-      Some(parse_format(name))
-    } catch {
+    let parsed : @types.ImageFormat? = Some(parse_format(name)) catch {
       _ => None
     }
     match parsed {
@@ -389,7 +379,13 @@ pub fn json_to_stderr(args : Array[String]) -> Bool {
   }
   let sub = args[0]
   let write_sub = match sub {
-    "convert" | "decode" | "encode" | "resize" | "crop" | "filter" | "sanitize" => true
+    "convert"
+    | "decode"
+    | "encode"
+    | "resize"
+    | "crop"
+    | "filter"
+    | "sanitize" => true
     _ => false
   }
   if !write_sub {

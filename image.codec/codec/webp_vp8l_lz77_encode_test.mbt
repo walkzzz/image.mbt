@@ -14,25 +14,20 @@ fn vp8l_lz77_test_image(width : Int32, height : Int32) -> @types.Image {
       src.push(255)
     }
   }
-  @types.Image::{
-    width,
-    height,
-    channels: 4,
-    data: Bytes::from_array(src),
-  }
+  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(src), }
 }
 
 ///|
 test "vp8l LZ77 编码: 64x64 回环逐字节一致" {
   let img = vp8l_lz77_test_image(64, 64)
-  let encoded = try @codec.encode_webp_vp8l_lz77(img) catch {
+  let encoded = @codec.encode_webp_vp8l_lz77(img) catch {
     e => {
       fail("LZ77 编码失败：\{e}")
       Bytes::from_array([])
     }
   }
   assert_true(encoded.length() > 16)
-  let decoded = try @codec.decode_webp_vp8l_rfc(encoded) catch {
+  let decoded = @codec.decode_webp_vp8l_rfc(encoded) catch {
     e => {
       fail("回环解码失败：\{e}")
       @types.Image::{
@@ -58,10 +53,10 @@ test "vp8l LZ77 编码: 64x64 回环逐字节一致" {
 ///|
 test "vp8l LZ77 编码: 体积小于 literal-only" {
   let img = vp8l_lz77_test_image(64, 64)
-  let lz = try @codec.encode_webp_vp8l_lz77(img) catch {
+  let lz = @codec.encode_webp_vp8l_lz77(img) catch {
     _ => Bytes::from_array([])
   }
-  let lit = try @codec.encode_webp_vp8l_literal(img) catch {
+  let lit = @codec.encode_webp_vp8l_literal(img) catch {
     _ => Bytes::from_array([])
   }
   println("LZ77=\{lz.length()} 字节, literal=\{lit.length()} 字节")
@@ -71,7 +66,7 @@ test "vp8l LZ77 编码: 体积小于 literal-only" {
 ///|
 test "vp8l LZ77 编码: dump 64x64 hex（外部 ffmpeg 校验）" {
   let img = vp8l_lz77_test_image(64, 64)
-  let encoded = try @codec.encode_webp_vp8l_lz77(img) catch {
+  let encoded = @codec.encode_webp_vp8l_lz77(img) catch {
     _ => Bytes::from_array([])
   }
   println("LZ77_HEX=" + vp8l_to_hex(encoded))

@@ -19,15 +19,30 @@ test "format_from_ext 按扩展名推断（大小写不敏感、未知扩展名�
 ///|
 test "out_format 优先级：--format > 输出扩展名 > fallback" {
   let dst_flag = parse_flags(["in.png", "out.jpg", "--format", "webp"])
-  inspect(format_name(out_format(dst_flag, "out.jpg", @types.ImageFormat::Png)), content="webp")
+  inspect(
+    format_name(out_format(dst_flag, "out.jpg", @types.ImageFormat::Png)),
+    content="webp",
+  )
   let dst_ext = parse_flags(["in.png", "out.jpg"])
-  inspect(format_name(out_format(dst_ext, "out.jpg", @types.ImageFormat::Png)), content="jpeg")
+  inspect(
+    format_name(out_format(dst_ext, "out.jpg", @types.ImageFormat::Png)),
+    content="jpeg",
+  )
   let dst_none = parse_flags(["in.png", "out"])
-  inspect(format_name(out_format(dst_none, "out", @types.ImageFormat::Bmp)), content="bmp")
+  inspect(
+    format_name(out_format(dst_none, "out", @types.ImageFormat::Bmp)),
+    content="bmp",
+  )
   let auto = parse_flags(["in.png", "out.webp", "--format", "auto"])
-  inspect(format_name(out_format(auto, "out.webp", @types.ImageFormat::Png)), content="webp")
+  inspect(
+    format_name(out_format(auto, "out.webp", @types.ImageFormat::Png)),
+    content="webp",
+  )
   let unknown_ext = parse_flags(["in.png", "out.zzz"])
-  inspect(format_name(out_format(unknown_ext, "out.zzz", @types.ImageFormat::Qoi)), content="qoi")
+  inspect(
+    format_name(out_format(unknown_ext, "out.zzz", @types.ImageFormat::Qoi)),
+    content="qoi",
+  )
 }
 
 ///|

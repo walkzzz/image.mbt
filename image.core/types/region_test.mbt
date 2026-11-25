@@ -16,7 +16,12 @@ fn make_rgb() -> @types.Image {
       data[o + 2] = (x + y).to_byte()
     }
   }
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|
@@ -99,8 +104,8 @@ test "region: to_image 与原图像素一致" {
   for y in 0..<2 {
     for x in 0..<3 {
       for c in 0..<3 {
-        let a = m.data[((y * 3) + x) * 3 + c]
-        let b = img.data[((y * img.width) + x + 1) * 3 + c]
+        let a = m.data[(y * 3 + x) * 3 + c]
+        let b = img.data[(y * img.width + x + 1) * 3 + c]
         assert_eq(a, b)
       }
     }

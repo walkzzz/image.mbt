@@ -1,4 +1,4 @@
-﻿///|
+///|
 /// # 区域视图 Region / ImageRegion
 ///
 /// 一张大图上的矩形兴趣区（ROI）。`ImageRegion` 只持有 `Image` 的引用与坐标，
@@ -21,7 +21,7 @@ pub(all) struct Region {
 ///|
 /// 构造区域。不做边界检查（越界由使用方或 `clamp` 处理）。
 pub fn Region::new(x : Int32, y : Int32, w : Int32, h : Int32) -> Region {
-  { x, y, w, h }
+  { x, y, w, h, }
 }
 
 ///|
@@ -45,16 +45,16 @@ pub fn Region::is_empty(self : Region) -> Bool {
 /// 负宽/负高视为空；部分越界时保留交集。
 pub fn Region::clamp(self : Region, width : Int32, height : Int32) -> Region {
   if self.w <= 0 || self.h <= 0 || width <= 0 || height <= 0 {
-    return { x: 0, y: 0, w: 0, h: 0 }
+    return { x: 0, y: 0, w: 0, h: 0, }
   }
   let x0 = if self.x < 0 { 0 } else { self.x }
   let y0 = if self.y < 0 { 0 } else { self.y }
   let x1 = if self.x + self.w > width { width } else { self.x + self.w }
   let y1 = if self.y + self.h > height { height } else { self.y + self.h }
   if x1 <= x0 || y1 <= y0 {
-    { x: 0, y: 0, w: 0, h: 0 }
+    { x: 0, y: 0, w: 0, h: 0, }
   } else {
-    { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }
+    { x: x0, y: y0, w: x1 - x0, h: y1 - y0, }
   }
 }
 
@@ -77,13 +77,13 @@ pub fn Image::region(
   h : Int32,
 ) -> ImageRegion {
   let r = Region::new(x, y, w, h).clamp(self.width, self.height)
-  { base: self, region: r }
+  { base: self, region: r, }
 }
 
 ///|
 /// 用现成的 `Region` 取区域视图（同样自动裁剪）。
 pub fn Image::region_with(self : Image, region : Region) -> ImageRegion {
-  { base: self, region: region.clamp(self.width, self.height) }
+  { base: self, region: region.clamp(self.width, self.height), }
 }
 
 ///|
@@ -132,14 +132,19 @@ pub fn ImageRegion::get(
     channel >= self.base.channels {
     return b'\x00'
   }
-  let idx = (((self.region.y + y) * self.base.width) + self.region.x + x) *
-    self.base.channels + channel
+  let idx = ((self.region.y + y) * self.base.width + self.region.x + x) *
+    self.base.channels +
+    channel
   self.base.data[idx]
 }
 
 ///|
 /// 读区域内一个像素的全部通道，返回长度 `channels` 的数组。
-pub fn ImageRegion::pixel(self : ImageRegion, x : Int32, y : Int32) -> Array[Byte] {
+pub fn ImageRegion::pixel(
+  self : ImageRegion,
+  x : Int32,
+  y : Int32,
+) -> Array[Byte] {
   let ch = self.base.channels
   let out : Array[Byte] = Array::make(ch, b'\x00')
   for c in 0..<ch {
@@ -156,16 +161,20 @@ pub fn ImageRegion::to_image(self : ImageRegion) -> Image {
   let w = self.region.w
   let h = self.region.h
   if w <= 0 || h <= 0 {
-    return Image::{ width: 0, height: 0, channels: ch, data: Bytes::make(0, b'\x00') }
+    return Image::{
+      width: 0,
+      height: 0,
+      channels: ch,
+      data: Bytes::make(0, b'\x00'),
+    }
   }
   let out : Array[Byte] = Array::make(w * h * ch, b'\x00')
   for row in 0..<h {
-    let src_off = (((self.region.y + row) * self.base.width) + self.region.x) * ch
+    let src_off = ((self.region.y + row) * self.base.width + self.region.x) * ch
     let dst_off = row * w * ch
     for i in 0..<(w * ch) {
       out[dst_off + i] = self.base.data[src_off + i]
     }
   }
-  Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(out) }
+  Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(out), }
 }
-

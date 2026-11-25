@@ -1,4 +1,4 @@
-﻿///|
+///|
 /// # VP8L 通用解码：图像流 + 四种逆变换
 ///
 /// 按 RFC 9649 §3.5 / §3.6 / §3.7 实现：
@@ -25,11 +25,15 @@ fn vp8l_div_round_up(num : Int32, den : Int32) -> Int32 {
 
 ///|
 /// 读色彩缓存信息：返回 (code_bits, size)，未启用时都返回 0
-fn vp8l_read_cache_info(br : BitReader) -> (Int32, Int32) raise @types.LoadError {
+fn vp8l_read_cache_info(
+  br : BitReader,
+) -> (Int32, Int32) raise @types.LoadError {
   if br.read_bit() == 1 {
     let bits = br.read_bits(4)
     if bits < 1 || bits > 11 {
-      raise @types.LoadError::DecodeFailed("VP8L：色彩缓存位宽非法（" + bits.to_string() + "）")
+      raise @types.LoadError::DecodeFailed(
+        "VP8L：色彩缓存位宽非法（" + bits.to_string() + "）",
+      )
     }
     (bits, 1 << bits)
   } else {
@@ -38,13 +42,16 @@ fn vp8l_read_cache_info(br : BitReader) -> (Int32, Int32) raise @types.LoadError
 }
 
 ///|
-fn vp8l_read_group(br : BitReader, cache_size : Int32) -> Vp8lGroup raise @types.LoadError {
+fn vp8l_read_group(
+  br : BitReader,
+  cache_size : Int32,
+) -> Vp8lGroup raise @types.LoadError {
   let green = vp8l_read_prefix_code(br, 256 + 24 + cache_size)
   let red = vp8l_read_prefix_code(br, 256)
   let blue = vp8l_read_prefix_code(br, 256)
   let alpha = vp8l_read_prefix_code(br, 256)
   let dist = vp8l_read_prefix_code(br, 40)
-  Vp8lGroup::{ green, red, blue, alpha, dist }
+  Vp8lGroup::{ green, red, blue, alpha, dist, }
 }
 
 ///|
@@ -91,7 +98,7 @@ fn vp8l_decode_stream(
     let x = i % width
     let y = i / width
     let gi = if prefix_bits > 0 {
-      ((y >> prefix_bits) * prefix_w + (x >> prefix_bits))
+      (y >> prefix_bits) * prefix_w + (x >> prefix_bits)
     } else {
       0
     }
@@ -138,7 +145,9 @@ fn vp8l_decode_stream(
       }
     } else {
       if cache_size == 0 {
-        raise @types.LoadError::DecodeFailed("VP8L：出现色彩缓存索引但未启用缓存")
+        raise @types.LoadError::DecodeFailed(
+          "VP8L：出现色彩缓存索引但未启用缓存",
+        )
       }
       let idx = sym - 280
       if idx < 0 || idx >= cache_size {
@@ -171,9 +180,9 @@ fn vp8l_c1(argb : Int32, shift : Int32) -> Int32 {
 
 ///|
 fn vp8l_avg2(a : Int32, b : Int32) -> Int32 {
-  (((vp8l_c1(a, 24) + vp8l_c1(b, 24)) >> 1) << 24) |
-  (((vp8l_c1(a, 16) + vp8l_c1(b, 16)) >> 1) << 16) |
-  (((vp8l_c1(a, 8) + vp8l_c1(b, 8)) >> 1) << 8) |
+  ((vp8l_c1(a, 24) + vp8l_c1(b, 24)) >> 1 << 24) |
+  ((vp8l_c1(a, 16) + vp8l_c1(b, 16)) >> 1 << 16) |
+  ((vp8l_c1(a, 8) + vp8l_c1(b, 8)) >> 1 << 8) |
   ((vp8l_c1(a, 0) + vp8l_c1(b, 0)) >> 1)
 }
 
@@ -206,10 +215,15 @@ fn vp8l_clamp_add_half(a : Int32, b : Int32) -> Int32 {
 
 ///|
 fn vp8l_abs32(v : Int32) -> Int32 {
-  if v < 0 { -v } else { v }
+  if v < 0 {
+    -v
+  } else {
+    v
+  }
 }
 
 ///|
+
 ///|
 /// Predictor 11 的 Select（RFC §3.5.1 / libwebp `Select(top, left, top_left)`）：
 /// |top-top_left| <= |left-top_left| 时取 top，否则取 left。
@@ -234,11 +248,19 @@ fn vp8l_select(l : Int32, t : Int32, tl : Int32) -> Int32 {
   let pr = lr + tr - tlr
   let pg = lg + tg - tlg
   let pb = lb + tb - tlb
-  let dist_l = vp8l_abs32(pa - la) + vp8l_abs32(pr - lr) + vp8l_abs32(pg - lg) +
+  let dist_l = vp8l_abs32(pa - la) +
+    vp8l_abs32(pr - lr) +
+    vp8l_abs32(pg - lg) +
     vp8l_abs32(pb - lb)
-  let dist_t = vp8l_abs32(pa - ta) + vp8l_abs32(pr - tr) + vp8l_abs32(pg - tg) +
+  let dist_t = vp8l_abs32(pa - ta) +
+    vp8l_abs32(pr - tr) +
+    vp8l_abs32(pg - tg) +
     vp8l_abs32(pb - tb)
-  if dist_l < dist_t { l } else { t }
+  if dist_l < dist_t {
+    l
+  } else {
+    t
+  }
 }
 
 ///|
@@ -253,7 +275,7 @@ fn vp8l_inverse_predictor(
 ) -> Unit {
   for y in 0..<height {
     for x in 0..<width {
-      let i = (y * width + x)
+      let i = y * width + x
       let residual = pixels[i]
       let left = if x > 0 { pixels[i - 1] } else { 0 }
       let top = if y > 0 { pixels[i - width] } else { 0 }
@@ -273,7 +295,7 @@ fn vp8l_inverse_predictor(
       } else if x == 0 && y > 0 {
         pred = top
       } else if y > 0 && x > 0 {
-        let mi = ((y >> block_bits) * mode_width + (x >> block_bits))
+        let mi = (y >> block_bits) * mode_width + (x >> block_bits)
         let mode = if mi < modes.length() { (modes[mi] >> 8) & 0xFF } else { 0 }
         pred = match mode {
           0 => 0xFF000000
@@ -332,9 +354,16 @@ fn vp8l_inverse_color_transform(
       let argb = pixels[i]
       let g = vp8l_c1(argb, 8)
       let r = (vp8l_c1(argb, 16) + vp8l_color_delta(green_to_red, g)) & 0xFF
-      let b = (vp8l_c1(argb, 0) + vp8l_color_delta(green_to_blue, g) +
-        vp8l_color_delta(red_to_blue, r)) & 0xFF
-      pixels[i] = (vp8l_c1(argb, 24) << 24) | (r << 16) | (vp8l_c1(argb, 8) << 8) | b
+      let b = (
+          vp8l_c1(argb, 0) +
+          vp8l_color_delta(green_to_blue, g) +
+          vp8l_color_delta(red_to_blue, r)
+        ) &
+        0xFF
+      pixels[i] = (vp8l_c1(argb, 24) << 24) |
+        (r << 16) |
+        (vp8l_c1(argb, 8) << 8) |
+        b
     }
   }
 }
@@ -366,14 +395,18 @@ fn vp8l_inverse_color_indexing(
   // 关键：还原宽度是**原图宽**，不是 width * bundle——最后一组可能只用了前几个槽
   // （4 像素图 + width_bits=3 时 subsample 宽 1，展开应是 4 而不是 8）。
   let out_width = orig_width
-  let out : Array[Int32] = Array::make((out_width * height), 0)
+  let out : Array[Int32] = Array::make(out_width * height, 0)
   for y in 0..<height {
     for x in 0..<out_width {
       let sx = x / bundle
       let j = x % bundle
-      let packed = vp8l_c1(pixels[(y * width + sx)], 8)
+      let packed = vp8l_c1(pixels[y * width + sx], 8)
       let idx = (packed >> (j * bits_per)) & mask
-      out[(y * out_width + x)] = if idx < palette.length() { palette[idx] } else { 0 }
+      out[y * out_width + x] = if idx < palette.length() {
+        palette[idx]
+      } else {
+        0
+      }
     }
   }
   (out, out_width)
@@ -386,7 +419,9 @@ fn vp8l_inverse_color_indexing(
 /// + 四类逆变换（predictor / cross-color / subtract-green / color indexing）。
 ///
 /// 返回 channels = 4（本实现始终输出 RGBA）。
-pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError {
+pub fn decode_webp_vp8l_rfc(
+  data : Bytes,
+) -> @types.Image raise @types.LoadError {
   let len = data.length()
   if len < 16 {
     raise @types.LoadError::DecodeFailed("VP8L：数据过短")
@@ -444,7 +479,7 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
       let nc = br.read_bits(8) + 1
       let table = vp8l_decode_stream(br, nc, 1, false)
       for k in 1..<nc {
-        let prev = table[(k - 1)]
+        let prev = table[k - 1]
         let cur0 = table[k]
         let a = ((vp8l_c1(cur0, 24) + vp8l_c1(prev, 24)) & 0xFF) << 24
         let r = ((vp8l_c1(cur0, 16) + vp8l_c1(prev, 16)) & 0xFF) << 16
@@ -452,7 +487,15 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
         let b = (vp8l_c1(cur0, 0) + vp8l_c1(prev, 0)) & 0xFF
         table[k] = a | r | g | b
       }
-      let wb = if nc <= 2 { 3 } else if nc <= 4 { 2 } else if nc <= 16 { 1 } else { 0 }
+      let wb = if nc <= 2 {
+        3
+      } else if nc <= 4 {
+        2
+      } else if nc <= 16 {
+        1
+      } else {
+        0
+      }
       kinds.push(3)
       block_bits.push(0)
       mode_widths.push(0)
@@ -468,9 +511,23 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
   while k >= 0 {
     let kind = kinds[k]
     if kind == 0 {
-      vp8l_inverse_predictor(pixels, w, height, aux[k], block_bits[k], mode_widths[k])
+      vp8l_inverse_predictor(
+        pixels,
+        w,
+        height,
+        aux[k],
+        block_bits[k],
+        mode_widths[k],
+      )
     } else if kind == 1 {
-      vp8l_inverse_color_transform(pixels, w, height, aux[k], block_bits[k], mode_widths[k])
+      vp8l_inverse_color_transform(
+        pixels,
+        w,
+        height,
+        aux[k],
+        block_bits[k],
+        mode_widths[k],
+      )
     } else if kind == 2 {
       for i in 0..<(w * height) {
         let argb = pixels[i]
@@ -499,7 +556,7 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
   let _ = alpha_used
   @types.check_dims(width, height, 4)
   let digit = width * height
-  let out : Array[Byte] = Array::make((digit * 4), b'\x00')
+  let out : Array[Byte] = Array::make(digit * 4, b'\x00')
   for i in 0..<digit {
     let argb = pixels[i]
     out[i * 4] = vp8l_c1(argb, 16).to_byte()
@@ -507,7 +564,7 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
     out[i * 4 + 2] = vp8l_c1(argb, 0).to_byte()
     out[i * 4 + 3] = vp8l_c1(argb, 24).to_byte()
   }
-  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(out) }
+  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(out), }
 }
 
 ///|
@@ -515,5 +572,3 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
 pub fn decode_webp_pure(data : Bytes) -> @types.Image raise @types.LoadError {
   decode_webp_vp8l_rfc(data)
 }
-
-

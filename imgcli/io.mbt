@@ -6,9 +6,7 @@
 ///|
 #cfg(target="native")
 pub fn read_bytes(path : String) -> Bytes raise @types.ImageError {
-  try {
-    @fs.read_file(path)
-  } catch {
+  @fs.read_file(path) catch {
     _ =>
       raise @types.ImageError::Decode(
         @types.ErrorCode::InvalidArgument,
@@ -20,9 +18,7 @@ pub fn read_bytes(path : String) -> Bytes raise @types.ImageError {
 ///|
 #cfg(target="native")
 pub fn write_bytes(path : String, data : Bytes) -> Unit raise @types.ImageError {
-  try {
-    @fs.write_file(path, data)
-  } catch {
+  @fs.write_file(path, data) catch {
     _ =>
       raise @types.ImageError::Process(
         @types.ErrorCode::InvalidArgument,

@@ -47,11 +47,7 @@ pub fn best_format(img : @types.Image) -> @types.ImageFormat {
 /// 不透明走 JPEG / WebP / QOI / PNG。
 fn candidates(img : @types.Image) -> Array[@types.ImageFormat] {
   if has_alpha(img) {
-    [
-      @types.ImageFormat::Webp,
-      @types.ImageFormat::Png,
-      @types.ImageFormat::Qoi,
-    ]
+    [@types.ImageFormat::Webp, @types.ImageFormat::Png, @types.ImageFormat::Qoi]
   } else {
     [
       @types.ImageFormat::Jpeg,
@@ -73,9 +69,7 @@ pub fn encode_best(
   let cands = candidates(img)
   let mut best : (Int32, Bytes, @types.ImageFormat)? = None
   for fmt in cands {
-    let encoded = try {
-      Some(save_image_with_quality(img, fmt, quality))
-    } catch {
+    let encoded = Some(save_image_with_quality(img, fmt, quality)) catch {
       _ => None
     }
     match encoded {
@@ -83,16 +77,17 @@ pub fn encode_best(
         let size = bytes.length()
         match best {
           None => best = Some((size, bytes, fmt))
-          Some((best_size, _, _)) => if size < best_size {
-            best = Some((size, bytes, fmt))
-          }
+          Some((best_size, _, _)) =>
+            if size < best_size {
+              best = Some((size, bytes, fmt))
+            }
         }
       }
       None => ()
     }
   }
   match best {
-    Some((_, bytes, fmt)) => { format: fmt, bytes }
+    Some((_, bytes, fmt)) => { format: fmt, bytes, }
     None =>
       raise @types.ImageError::Process(
         @types.ErrorCode::ProcessFailed,

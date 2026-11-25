@@ -16,18 +16,18 @@
 /// VP8L 位写入器（LSB-first）
 priv struct Vp8lBits {
   bytes : Array[Byte]
-  mut cur : Int
-  mut nbits : Int
+  mut cur : Int32
+  mut nbits : Int32
 }
 
 ///|
 fn Vp8lBits::new() -> Vp8lBits {
-  { bytes: [], cur: 0, nbits: 0 }
+  { bytes: [], cur: 0, nbits: 0, }
 }
 
 ///|
 /// 写入 `n` 位（低位先出）
-fn Vp8lBits::write(self : Vp8lBits, value : Int, n : Int) -> Unit {
+fn Vp8lBits::write(self : Vp8lBits, value : Int32, n : Int32) -> Unit {
   for i in 0..<n {
     let bit = (value >> i) & 1
     self.cur = self.cur | (bit << self.nbits)
@@ -53,7 +53,7 @@ fn Vp8lBits::finish(self : Vp8lBits) -> Bytes {
 
 ///|
 /// 8 位反转（canonical 码按 MSB-first 由解码器累积，写入前需反转）
-fn vp8l_reverse8(v : Int) -> Int {
+fn vp8l_reverse8(v : Int32) -> Int32 {
   let mut r = 0
   for i in 0..<8 {
     r = r | (((v >> i) & 1) << (7 - i))
@@ -63,7 +63,7 @@ fn vp8l_reverse8(v : Int) -> Int {
 
 ///|
 /// 码长码的写入顺序（RFC 9649 §3.2.1）
-let vp8l_code_length_order : Array[Int] = [
+let vp8l_code_length_order : Array[Int32] = [
   17, 18, 0, 1, 2, 3, 4, 5, 16, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 ]
 
@@ -73,7 +73,7 @@ let vp8l_code_length_order : Array[Int] = [
 /// 码长码只用 `{8, 18}` 两个符号：`8` 表示长度 8，`18` 表示 11–138 个长度为 0 的符号。
 /// 两符号各 1 位，Kraft 和 = 1，解码器可直接建表。
 /// `alphabet_size` 为绿树时传 280，红/蓝树传 256。
-fn vp8l_write_flat8_normal_code(w : Vp8lBits, alphabet_size : Int) -> Unit {
+fn vp8l_write_flat8_normal_code(w : Vp8lBits, alphabet_size : Int32) -> Unit {
   w.write(0, 1)
   // num_code_lengths = 4 + ReadBits(4)；写 8 得到 12，覆盖 order[0..11]（含 16 与 8）
   w.write(8, 4)
@@ -100,7 +100,7 @@ fn vp8l_write_flat8_normal_code(w : Vp8lBits, alphabet_size : Int) -> Unit {
 ///|
 /// 写一棵单符号 simple 码表（0 位/符号）。
 /// 符号 >1 时必须用 8 位写，否则会被截断成 1 位值。
-fn vp8l_write_simple_single(w : Vp8lBits, symbol : Int) -> Unit {
+fn vp8l_write_simple_single(w : Vp8lBits, symbol : Int32) -> Unit {
   w.write(1, 1)
   w.write(0, 1)
   if symbol > 1 {
@@ -152,14 +152,18 @@ fn vp8l_wrap_riff(payload : Bytes) -> Bytes {
 /// ```moonbit nocheck
 /// let bytes = @codec.encode_webp_vp8l_literal(img)
 /// ```
-pub fn encode_webp_vp8l_literal(img : @types.Image) -> Bytes raise @types.LoadError {
+pub fn encode_webp_vp8l_literal(
+  img : @types.Image,
+) -> Bytes raise @types.LoadError {
   let w = img.width.to_int()
   let h = img.height.to_int()
   if w <= 0 || h <= 0 {
     raise @types.LoadError::DecodeFailed("WebP 编码：图像尺寸无效")
   }
   if w > 16384 || h > 16384 {
-    raise @types.LoadError::DecodeFailed("WebP 编码：尺寸超出 VP8L 上限 16384")
+    raise @types.LoadError::DecodeFailed(
+      "WebP 编码：尺寸超出 VP8L 上限 16384",
+    )
   }
   let ch = img.channels.to_int()
   if ch != 3 && ch != 4 {

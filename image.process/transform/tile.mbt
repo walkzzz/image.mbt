@@ -20,17 +20,19 @@ pub fn resize_subsample(
     raise @types.LoadError::DecodeFailed("resize_subsample: 尺寸无效")
   }
   if img.data.length() < img.width * img.height * ch {
-    raise @types.LoadError::DecodeFailed("resize_subsample: 像素数据长度不足")
+    raise @types.LoadError::DecodeFailed(
+      "resize_subsample: 像素数据长度不足",
+    )
   }
   let out : Array[Byte] = Array::make(out_w * out_h * ch, b'\x00')
   let acc : Array[Double] = Array::make(ch, 0.0)
   for oy in 0..<out_h {
-    let y0 = (oy * img.height) / out_h
-    let y1_raw = ((oy + 1) * img.height) / out_h
+    let y0 = oy * img.height / out_h
+    let y1_raw = (oy + 1) * img.height / out_h
     let y1 = if y1_raw <= y0 { y0 + 1 } else { y1_raw }
     for ox in 0..<out_w {
-      let x0 = (ox * img.width) / out_w
-      let x1_raw = ((ox + 1) * img.width) / out_w
+      let x0 = ox * img.width / out_w
+      let x1_raw = (ox + 1) * img.width / out_w
       let x1 = if x1_raw <= x0 { x0 + 1 } else { x1_raw }
       for c in 0..<ch {
         acc[c] = 0.0
@@ -54,13 +56,21 @@ pub fn resize_subsample(
       }
     }
   }
-  @types.Image::{ width: out_w, height: out_h, channels: ch, data: Bytes::from_array(out) }
+  @types.Image::{
+    width: out_w,
+    height: out_h,
+    channels: ch,
+    data: Bytes::from_array(out),
+  }
 }
 
 ///|
 /// 等比缩略图：长边压到 `max_side`，短边按比例（四舍五入，至少 1 像素）。
 /// 原图两边都不超过 `max_side` 时原样返回（零分配）。
-pub fn thumbnail(img : @types.Image, max_side : Int32) -> @types.Image raise @types.LoadError {
+pub fn thumbnail(
+  img : @types.Image,
+  max_side : Int32,
+) -> @types.Image raise @types.LoadError {
   if max_side <= 0 {
     raise @types.LoadError::DecodeFailed("thumbnail: max_side 必须为正")
   }
@@ -75,7 +85,11 @@ pub fn thumbnail(img : @types.Image, max_side : Int32) -> @types.Image raise @ty
 
 ///|
 /// 等比缩略图的输出尺寸（不分配内存，供预算检查先算）。
-pub fn thumbnail_dims(width : Int32, height : Int32, max_side : Int32) -> (Int32, Int32) {
+pub fn thumbnail_dims(
+  width : Int32,
+  height : Int32,
+  max_side : Int32,
+) -> (Int32, Int32) {
   if width <= 0 || height <= 0 || max_side <= 0 {
     return (0, 0)
   }
@@ -111,10 +125,13 @@ pub fn thumbnail_budgeted(
       "thumbnail: 图像尺寸无效",
     )
   }
-  budget.check_image(ow.to_int64(), oh.to_int64(), img.channels.to_int64(), "thumbnail")
-  let out = try {
-    resize_subsample(img, ow, oh)
-  } catch {
+  budget.check_image(
+    ow.to_int64(),
+    oh.to_int64(),
+    img.channels.to_int64(),
+    "thumbnail",
+  )
+  let out = resize_subsample(img, ow, oh) catch {
     @types.LoadError::DecodeFailed(msg) =>
       raise @types.ImageError::Process(@types.ErrorCode::InvalidArgument, msg)
     _ =>

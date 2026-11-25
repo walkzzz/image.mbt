@@ -19,7 +19,11 @@
 /// "其余码长为 0、唯一符号码长写作 1" 的 normal 码表达）解码时都**不消耗任何比特**。
 /// 早期实现按普通 canonical 树走 1 位，导致后续比特流整体错位——真实 libwebp
 /// 产物几乎每张图都会触发这个错位。
-fn vp8l_build_canonical_tree(lens : Array[Int32], alphabet_size : Int32, zero_leaf~ : Bool = true) -> HuffmanTree {
+fn vp8l_build_canonical_tree(
+  lens : Array[Int32],
+  alphabet_size : Int32,
+  zero_leaf~ : Bool = true,
+) -> HuffmanTree {
   let tree = HuffmanTree::new()
   let mut max_len = 0
   let mut nonzero = 0
@@ -34,7 +38,7 @@ fn vp8l_build_canonical_tree(lens : Array[Int32], alphabet_size : Int32, zero_le
     }
   }
   if max_len == 0 || (nonzero == 1 && zero_leaf) {
-    tree.codes.push(HuffmanCode::{ value: only_symbol, left: -1, right: -1 })
+    tree.codes.push(HuffmanCode::{ value: only_symbol, left: -1, right: -1, })
     return tree
   }
   let bl_count : Array[Int32] = Array::make(max_len + 1, 0)
@@ -62,7 +66,10 @@ fn vp8l_build_canonical_tree(lens : Array[Int32], alphabet_size : Int32, zero_le
 
 ///|
 /// 读一棵 RFC 9649 §3.2 前缀码（simple 或 normal），字母表大小由调用方给出
-fn vp8l_read_prefix_code(br : BitReader, alphabet_size : Int32) -> HuffmanTree raise @types.LoadError {
+fn vp8l_read_prefix_code(
+  br : BitReader,
+  alphabet_size : Int32,
+) -> HuffmanTree raise @types.LoadError {
   let tree = HuffmanTree::new()
   let is_simple = br.read_bit()
   if is_simple == 1 {
@@ -82,7 +89,7 @@ fn vp8l_read_prefix_code(br : BitReader, alphabet_size : Int32) -> HuffmanTree r
       tree.add_code(1, 1, hi)
     } else {
       // 单符号：根节点直接持值，解码时零比特
-      tree.codes.push(HuffmanCode::{ value: sym0, left: -1, right: -1 })
+      tree.codes.push(HuffmanCode::{ value: sym0, left: -1, right: -1, })
     }
     return tree
   }
@@ -146,7 +153,10 @@ fn vp8l_read_prefix_code(br : BitReader, alphabet_size : Int32) -> HuffmanTree r
       }
     } else {
       // 19 及以上不合法，直接放弃本棵树
-      return vp8l_build_canonical_tree(Array::make(alphabet_size, 0), alphabet_size)
+      return vp8l_build_canonical_tree(
+        Array::make(alphabet_size, 0),
+        alphabet_size,
+      )
     }
   }
   // RFC 9649 §3.7.2.1：码长描述出的必须是**完整**二叉树（Kraft 和 = 1）。
@@ -203,30 +213,21 @@ fn vp8l_find_chunk(data : Bytes, target : Int32) -> Int32 {
 ///|
 /// 距离映射表 X 偏移（RFC 9649 §3.6.2.2.1，120 项，由 scripts/proto/gen_distance_table.mjs 从 RFC 原文生成）
 let vp8l_distance_dx : Array[Int32] = [
-  0, 1, 1, -1, 0, 2, 1, -1, 2, -2, 2, -2,
-  0, 3, 1, -1, 3, -3, 2, -2, 3, -3, 0, 4,
-  1, -1, 4, -4, 3, -3, 2, -2, 4, -4, 0, 3,
-  -3, 4, -4, 5, 1, -1, 5, -5, 2, -2, 5, -5,
-  4, -4, 3, -3, 5, -5, 0, 6, 1, -1, 6, -6,
-  2, -2, 6, -6, 4, -4, 5, -5, 3, -3, 6, -6,
-  0, 7, 1, -1, 5, -5, 7, -7, 4, -4, 6, -6,
-  2, -2, 7, -7, 3, -3, 7, -7, 5, -5, 6, -6,
-  8, 4, -4, 7, -7, 8, 8, 6, -6, 8, 5, -5,
-  7, -7, 8, 6, -6, 7, -7, 8, 7, -7, 8, 8,
+  0, 1, 1, -1, 0, 2, 1, -1, 2, -2, 2, -2, 0, 3, 1, -1, 3, -3, 2, -2, 3, -3, 0, 4,
+  1, -1, 4, -4, 3, -3, 2, -2, 4, -4, 0, 3, -3, 4, -4, 5, 1, -1, 5, -5, 2, -2, 5,
+  -5, 4, -4, 3, -3, 5, -5, 0, 6, 1, -1, 6, -6, 2, -2, 6, -6, 4, -4, 5, -5, 3, -3,
+  6, -6, 0, 7, 1, -1, 5, -5, 7, -7, 4, -4, 6, -6, 2, -2, 7, -7, 3, -3, 7, -7, 5,
+  -5, 6, -6, 8, 4, -4, 7, -7, 8, 8, 6, -6, 8, 5, -5, 7, -7, 8, 6, -6, 7, -7, 8, 7,
+  -7, 8, 8,
 ]
 
 ///|
 /// 距离映射表 Y 偏移
 let vp8l_distance_dy : Array[Int32] = [
-  1, 0, 1, 1, 2, 0, 2, 2, 1, 1, 2, 2,
-  3, 0, 3, 3, 1, 1, 3, 3, 2, 2, 4, 0,
-  4, 4, 1, 1, 3, 3, 4, 4, 2, 2, 5, 4,
-  4, 3, 3, 0, 5, 5, 1, 1, 5, 5, 2, 2,
-  4, 4, 5, 5, 3, 3, 6, 0, 6, 6, 1, 1,
-  6, 6, 2, 2, 5, 5, 4, 4, 6, 6, 3, 3,
-  7, 0, 7, 7, 5, 5, 1, 1, 6, 6, 4, 4,
-  7, 7, 2, 2, 7, 7, 3, 3, 6, 6, 5, 5,
-  0, 7, 7, 4, 4, 1, 2, 6, 6, 3, 7, 7,
+  1, 0, 1, 1, 2, 0, 2, 2, 1, 1, 2, 2, 3, 0, 3, 3, 1, 1, 3, 3, 2, 2, 4, 0, 4, 4, 1,
+  1, 3, 3, 4, 4, 2, 2, 5, 4, 4, 3, 3, 0, 5, 5, 1, 1, 5, 5, 2, 2, 4, 4, 5, 5, 3, 3,
+  6, 0, 6, 6, 1, 1, 6, 6, 2, 2, 5, 5, 4, 4, 6, 6, 3, 3, 7, 0, 7, 7, 5, 5, 1, 1, 6,
+  6, 4, 4, 7, 7, 2, 2, 7, 7, 3, 3, 6, 6, 5, 5, 0, 7, 7, 4, 4, 1, 2, 6, 6, 3, 7, 7,
   5, 5, 4, 7, 7, 6, 6, 5, 7, 7, 6, 7,
 ]
 
@@ -252,5 +253,9 @@ fn vp8l_map_distance(code : Int32, width : Int32) -> Int32 {
     return 1
   }
   let d = vp8l_distance_dx[idx] + vp8l_distance_dy[idx] * width
-  if d < 1 { 1 } else { d }
+  if d < 1 {
+    1
+  } else {
+    d
+  }
 }

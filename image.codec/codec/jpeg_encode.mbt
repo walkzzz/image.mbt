@@ -1,4 +1,4 @@
-﻿///|
+///|
 /// # JPEG 编码 JPEG Encode
 ///
 /// JPEG baseline 编码实现 JPEG baseline encoding implementation
@@ -177,22 +177,45 @@ fn std_ac_chr_vals() -> Array[Int32] {
 
 ///|
 /// IDCT/FDCT 余弦表
+
 ///|
 /// 8x8 正向 DCT（整数 AAN 型，等价 libjpeg `jfdctint`）
 ///
 /// 13 位定点常数 + `PASS1_BITS=2`：输出比真实 DCT **放大 8 倍**，
 /// 所以量化时除数用 `quant * 8`。全程整数乘加，无浮点、无临时分配。
 const FIX_0_298631336 : Int32 = 2446
+
+///|
 const FIX_0_390180644 : Int32 = 3196
+
+///|
 const FIX_0_541196100 : Int32 = 4433
+
+///|
 const FIX_0_765366865 : Int32 = 6270
+
+///|
 const FIX_0_899976223 : Int32 = 7373
+
+///|
 const FIX_1_175875602 : Int32 = 9633
+
+///|
 const FIX_1_501321110 : Int32 = 12299
+
+///|
 const FIX_1_847759065 : Int32 = 15137
+
+///|
 const FIX_1_961570560 : Int32 = 16069
+
+///|
 const FIX_2_053119869 : Int32 = 16819
+
+///|
 const FIX_2_562915447 : Int32 = 20995
+
+///|
 const FIX_3_072711026 : Int32 = 25172
 
 ///|
@@ -204,11 +227,11 @@ fn jpeg_descale(x : Int32, n : Int32) -> Int32 {
 /// 行/列共用的一维 DCT。`d` 步长 `s`，输出到 `dst` 步长 `sd`。
 fn jpeg_fdct_1d(
   d : Array[Int32],
-  o : Int,
-  s : Int,
+  o : Int32,
+  s : Int32,
   dst : Array[Int32],
-  od : Int,
-  sd : Int,
+  od : Int32,
+  sd : Int32,
   pass1 : Bool,
 ) -> Unit {
   let b0 = d[o]
@@ -267,7 +290,11 @@ fn jpeg_fdct_1d(
 
 ///|
 /// 8×8 整数 FDCT：先行后列，输出放大于真实 DCT 的 8 倍。
-fn jpeg_fdct_int(block : Array[Int32], tmp : Array[Int32], out : Array[Int32]) -> Unit {
+fn jpeg_fdct_int(
+  block : Array[Int32],
+  tmp : Array[Int32],
+  out : Array[Int32],
+) -> Unit {
   for y in 0..<8 {
     jpeg_fdct_1d(block, y * 8, 1, tmp, y * 8, 1, true)
   }
@@ -326,6 +353,7 @@ fn jpeg_zigzag() -> Array[Int32] {
 
 ///|
 /// 编码一个 8x8 块
+
 ///|
 /// 单个 8×8 块的编码：DCT → 量化 → 之字形 → Huffman 写位。
 /// 所有暂存数组由调用方复用（GP 全图只分配一次）。
@@ -572,16 +600,16 @@ pub fn encode_jpeg_with_quality(
         }
       }
       jpeg_encode_block(
-        writer, y_block, dc_lum_enc, ac_lum_enc, prev_dc_y, inv_lum, zz,
-        tmp_i, shifted, coeffs, qzz,
+        writer, y_block, dc_lum_enc, ac_lum_enc, prev_dc_y, inv_lum, zz, tmp_i, shifted,
+        coeffs, qzz,
       )
       jpeg_encode_block(
-        writer, cb_block, dc_chr_enc, ac_chr_enc, prev_dc_cb, inv_chr, zz,
-        tmp_i, shifted, coeffs, qzz,
+        writer, cb_block, dc_chr_enc, ac_chr_enc, prev_dc_cb, inv_chr, zz, tmp_i,
+        shifted, coeffs, qzz,
       )
       jpeg_encode_block(
-        writer, cr_block, dc_chr_enc, ac_chr_enc, prev_dc_cr, inv_chr, zz,
-        tmp_i, shifted, coeffs, qzz,
+        writer, cr_block, dc_chr_enc, ac_chr_enc, prev_dc_cr, inv_chr, zz, tmp_i,
+        shifted, coeffs, qzz,
       )
     }
   }
@@ -591,6 +619,3 @@ pub fn encode_jpeg_with_quality(
   writer.out.push(b'\xD9')
   Bytes::from_array(writer.out)
 }
-
-
-

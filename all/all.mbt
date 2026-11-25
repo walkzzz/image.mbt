@@ -67,13 +67,22 @@ pub fn region_channels(v : @types.ImageRegion) -> Int32 {
 
 ///|
 /// 读区域内单通道字节（坐标相对区域左上角，越界返回 0）。
-pub fn region_get(v : @types.ImageRegion, x : Int32, y : Int32, c : Int32) -> Byte {
+pub fn region_get(
+  v : @types.ImageRegion,
+  x : Int32,
+  y : Int32,
+  c : Int32,
+) -> Byte {
   v.get(x, y, c)
 }
 
 ///|
 /// 读区域内一个像素的全部通道。
-pub fn region_pixel(v : @types.ImageRegion, x : Int32, y : Int32) -> Array[Byte] {
+pub fn region_pixel(
+  v : @types.ImageRegion,
+  x : Int32,
+  y : Int32,
+) -> Array[Byte] {
   v.pixel(x, y)
 }
 
@@ -85,7 +94,10 @@ pub fn alloc_budget_default() -> @types.AllocBudget {
 
 ///|
 /// 大图直接出缩略图（面积平均重采样，唯一分配 = 输出图）。
-pub fn thumbnail(img : @types.Image, max_side : Int32) -> @types.Image raise @types.LoadError {
+pub fn thumbnail(
+  img : @types.Image,
+  max_side : Int32,
+) -> @types.Image raise @types.LoadError {
   @transform.thumbnail(img, max_side)
 }
 
@@ -101,7 +113,11 @@ pub fn thumbnail_budgeted(
 
 ///|
 /// 缩略图输出尺寸（先算后分配）。
-pub fn thumbnail_dims(width : Int32, height : Int32, max_side : Int32) -> (Int32, Int32) {
+pub fn thumbnail_dims(
+  width : Int32,
+  height : Int32,
+  max_side : Int32,
+) -> (Int32, Int32) {
   @transform.thumbnail_dims(width, height, max_side)
 }
 

@@ -143,12 +143,13 @@ fn idct_cos_table() -> Array[Float] {
   for u in 0..<8 {
     let cu = if u == 0 { 0.70710678F } else { 1.0F }
     for x in 0..<8 {
-      table[u * 8 + x] = cu * @math.cosf(
-        (2.0F * Float::from_int(x) + 1.0F) *
-        Float::from_int(u) *
-        3.14159265F /
-        16.0F,
-      )
+      table[u * 8 + x] = cu *
+        @math.cosf(
+          (2.0F * Float::from_int(x) + 1.0F) *
+          Float::from_int(u) *
+          3.14159265F /
+          16.0F,
+        )
     }
   }
   table

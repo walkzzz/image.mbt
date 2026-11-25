@@ -7,13 +7,18 @@ fn jpeg_sq_gradient(w : Int32, h : Int32) -> @types.Image {
   for y in 0..<hi {
     for x in 0..<wi {
       let i = (y * wi + x) * 4
-      src[i] = ((x * 4) % 256).to_byte()
-      src[i + 1] = ((y * 4) % 256).to_byte()
-      src[i + 2] = (((x + y) * 2) % 256).to_byte()
+      src[i] = (x * 4 % 256).to_byte()
+      src[i + 1] = (y * 4 % 256).to_byte()
+      src[i + 2] = ((x + y) * 2 % 256).to_byte()
       src[i + 3] = (255).to_byte()
     }
   }
-  @types.Image::{ width: w, height: h, channels: 4, data: Bytes::from_array(src) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 4,
+    data: Bytes::from_array(src),
+  }
 }
 
 ///|
@@ -30,12 +35,23 @@ fn jpeg_smooth_gradient(w : Int32, h : Int32) -> @types.Image {
       src[i + 2] = ((x + y) * 255 / (wi + hi)).to_byte()
     }
   }
-  @types.Image::{ width: w, height: h, channels: 3, data: Bytes::from_array(src) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(src),
+  }
 }
 
 ///|
 /// 纯色图，用于守护"量化表共享引用"这类回归（色彩必须基本不变）。
-fn jpeg_solid(w : Int32, h : Int32, r : Int32, g : Int32, b : Int32) -> @types.Image {
+fn jpeg_solid(
+  w : Int32,
+  h : Int32,
+  r : Int32,
+  g : Int32,
+  b : Int32,
+) -> @types.Image {
   let n = w.to_int() * h.to_int()
   let src : Array[Byte] = Array::make(n * 3, b'\x00')
   for i in 0..<n {
@@ -43,12 +59,20 @@ fn jpeg_solid(w : Int32, h : Int32, r : Int32, g : Int32, b : Int32) -> @types.I
     src[i * 3 + 1] = g.to_byte()
     src[i * 3 + 2] = b.to_byte()
   }
-  @types.Image::{ width: w, height: h, channels: 3, data: Bytes::from_array(src) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(src),
+  }
 }
 
 ///|
 /// 编码 → 解码 → 与源图逐像素最大通道差
-fn jpeg_roundtrip_max_diff(img : @types.Image, quality : Int32) -> Int32 raise @types.LoadError {
+fn jpeg_roundtrip_max_diff(
+  img : @types.Image,
+  quality : Int32,
+) -> Int32 raise @types.LoadError {
   let enc = @codec.encode_jpeg_with_quality(img, quality)
   let dec = @codec.decode_jpeg_pure(enc)
   let n = img.width * img.height
@@ -57,11 +81,7 @@ fn jpeg_roundtrip_max_diff(img : @types.Image, quality : Int32) -> Int32 raise @
     for c in 0..<3 {
       let a = dec.data[i * dec.channels + c].to_int()
       let b = img.data[i * img.channels + c].to_int()
-      let d = if a > b {
-        a - b
-      } else {
-        b - a
-      }
+      let d = if a > b { a - b } else { b - a }
       if d > max_diff {
         max_diff = d
       }

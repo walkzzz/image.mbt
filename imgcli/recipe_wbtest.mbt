@@ -6,9 +6,7 @@ test "redact_region 把区域压成块均值" {
     width: 16,
     height: 16,
     channels: 1,
-    data: Bytes::from_array(
-      Array::make(256, b'\x00').map(fn(_) { b'\x00' }),
-    ),
+    data: Bytes::from_array(Array::make(256, b'\x00').map(fn(_) { b'\x00' })),
   }
   let data : Array[Byte] = []
   for i in 0..<(w * w) {
@@ -20,7 +18,7 @@ test "redact_region 把区域压成块均值" {
     channels: 1,
     data: Bytes::from_array(data),
   }
-  let out = redact_region(g, { x: 0, y: 0, w: 16, h: 16 }, 4)
+  let out = redact_region(g, { x: 0, y: 0, w: 16, h: 16, }, 4)
   // 第一个 4x4 块内 16 个像素必须相等
   let first = out.data[0]
   let mut same = true

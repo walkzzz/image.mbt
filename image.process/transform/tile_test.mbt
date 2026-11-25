@@ -4,12 +4,17 @@
 ///|
 fn solid(w : Int32, h : Int32, ch : Int32, v : Byte) -> @types.Image {
   let data : Array[Byte] = Array::make(w * h * ch, v)
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|
 fn pixel(img : @types.Image, x : Int32, y : Int32, c : Int32) -> Byte {
-  img.data[((y * img.width) + x) * img.channels + c]
+  img.data[(y * img.width + x) * img.channels + c]
 }
 
 ///|
@@ -19,7 +24,11 @@ test "tile: 面积平均 = 2x2 块各自的灰度" {
   for y in 0..<4 {
     for x in 0..<4 {
       let v = if y < 2 {
-        if x < 2 { 10 } else { 20 }
+        if x < 2 {
+          10
+        } else {
+          20
+        }
       } else if x < 2 {
         30
       } else {
@@ -28,7 +37,12 @@ test "tile: 面积平均 = 2x2 块各自的灰度" {
       data[y * 4 + x] = v.to_byte()
     }
   }
-  let img = @types.Image::{ width: 4, height: 4, channels: 1, data: Bytes::from_array(data) }
+  let img = @types.Image::{
+    width: 4,
+    height: 4,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
   let t = @transform.resize_subsample(img, 2, 2)
   assert_eq(t.width, 2)
   assert_eq(t.height, 2)
@@ -101,7 +115,7 @@ test "tile: 大图出缩略图——4000x3000 -> 512 长边" {
 test "tile: 输出超预算直接拒绝（不分配）" {
   let img = solid(800, 400, 3, b'\x01')
   // 预算 1000 B，而 200x100x3 = 60,000 B
-  let budget : @types.AllocBudget = { max_bytes: 1000L }
+  let budget : @types.AllocBudget = { max_bytes: 1000L, }
   let rejected = try {
     let _ = @transform.thumbnail_budgeted(img, 200, budget)
     false
@@ -115,7 +129,11 @@ test "tile: 输出超预算直接拒绝（不分配）" {
 ///|
 test "tile: 预算内正常出图" {
   let img = solid(800, 400, 3, b'\x05')
-  let t = @transform.thumbnail_budgeted(img, 200, @types.AllocBudget::default_budget())
+  let t = @transform.thumbnail_budgeted(
+    img,
+    200,
+    @types.AllocBudget::default_budget(),
+  )
   assert_eq(t.width, 200)
   assert_eq(t.height, 100)
   assert_eq(t.data.length(), 200 * 100 * 3)

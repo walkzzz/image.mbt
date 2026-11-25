@@ -1,6 +1,6 @@
 name = "walkzzz/image.process"
 
-version = "0.1.13"
+version = "0.1.14"
 
 license = "MIT"
 
@@ -13,6 +13,6 @@ repository = "https://github.com/walkzzz/image.mbt"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.13",
-  "walkzzz/image.codec@0.1.13",
+  "walkzzz/image.core@0.1.14",
+  "walkzzz/image.codec@0.1.14",
 }

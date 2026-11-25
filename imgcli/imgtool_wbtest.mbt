@@ -1,6 +1,8 @@
 ///|
 test "parse_flags 分离位置参数与 --key value" {
-  let f = parse_flags(["in.png", "out.png", "--format", "jpeg", "--quality", "88"])
+  let f = parse_flags([
+    "in.png", "out.png", "--format", "jpeg", "--quality", "88",
+  ])
   inspect(f.positional.length(), content="2")
   inspect(f.positional[0], content="in.png")
   inspect(f.str("format", "png"), content="jpeg")
@@ -37,5 +39,8 @@ test "limits_of 把 --mem-budget 折成像素与字节上限" {
   inspect(l.max_bytes, content="1048576")
   inspect(l.max_pixels, content="131072")
   let d = limits_of(parse_flags(([] : Array[String])))
-  inspect(d.max_bytes == @types.DecodeLimits::default_limits().max_bytes, content="true")
+  inspect(
+    d.max_bytes == @types.DecodeLimits::default_limits().max_bytes,
+    content="true",
+  )
 }

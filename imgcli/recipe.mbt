@@ -34,17 +34,13 @@ pub fn parse_region(s : String) -> Region? {
     if t.length() == 0 {
       return None
     }
-    let v = try {
-      @string.parse_int(t)
-    } catch {
-      _ => return None
-    }
+    let v = @string.parse_int(t) catch { _ => return None }
     nums.push(v)
   }
   if nums.length() != 4 {
     return None
   }
-  Some({ x: nums[0], y: nums[1], w: nums[2], h: nums[3] })
+  Some({ x: nums[0], y: nums[1], w: nums[2], h: nums[3], })
 }
 
 ///|
@@ -69,7 +65,10 @@ pub fn parse_regions(s : String) -> Array[Region] raise @types.ImageError {
 }
 
 ///|
-fn clamp_region(img : @types.Image, r : Region) -> Region raise @types.ImageError {
+fn clamp_region(
+  img : @types.Image,
+  r : Region,
+) -> Region raise @types.ImageError {
   if r.w <= 0 || r.h <= 0 {
     raise @types.ImageError::Process(
       @types.ErrorCode::InvalidArgument,
@@ -86,7 +85,7 @@ fn clamp_region(img : @types.Image, r : Region) -> Region raise @types.ImageErro
       "打码区域完全在图外（图 \{img.width}x\{img.height}，区域 \{r.to_string()})",
     )
   }
-  { x, y, w: x2 - x, h: y2 - y }
+  { x, y, w: x2 - x, h: y2 - y, }
 }
 
 ///|
@@ -137,7 +136,12 @@ pub fn redact_region(
     }
     bx += br
   }
-  { width: img.width, height: img.height, channels: ch, data: Bytes::from_array(dst) }
+  {
+    width: img.width,
+    height: img.height,
+    channels: ch,
+    data: Bytes::from_array(dst),
+  }
 }
 
 ///|
@@ -146,7 +150,7 @@ pub fn redact_all(
   img : @types.Image,
   block : Int32,
 ) -> @types.Image raise @types.ImageError {
-  redact_region(img, { x: 0, y: 0, w: img.width, h: img.height }, block)
+  redact_region(img, { x: 0, y: 0, w: img.width, h: img.height, }, block)
 }
 
 ///|
@@ -156,9 +160,7 @@ pub fn blur_whole(
   radius : Int32,
 ) -> @types.Image raise @types.ImageError {
   let r = if radius < 1 { 1 } else { radius }
-  try {
-    @filter.box_blur(img, r)
-  } catch {
+  @filter.box_blur(img, r) catch {
     e => raise @types.image_error_from_load(e)
   }
 }
@@ -166,7 +168,9 @@ pub fn blur_whole(
 ///|
 /// 元数据签名：出现在输出容器里就说明没剥干净。
 fn metadata_signatures() -> Array[String] {
-  ["Exif", "GPS", "XMP", "ICC_PROFILE", "Photoshop 3.0", "<x:xmpmeta", "Thumbnail"]
+  [
+    "Exif", "GPS", "XMP", "ICC_PROFILE", "Photoshop 3.0", "<x:xmpmeta", "Thumbnail",
+  ]
 }
 
 ///|
@@ -229,17 +233,8 @@ pub fn sanitize_image(
   if use_blur {
     work = blur_whole(work, blur)
   }
-  let bytes = try {
-    @lib.save_image_with_quality(work, format, quality)
-  } catch {
+  let bytes = @lib.save_image_with_quality(work, format, quality) catch {
     e => raise @types.image_error_from_load(e)
   }
-  {
-    image: work,
-    bytes,
-    format,
-    redacted,
-    blurred: use_blur,
-    quality,
-  }
+  { image: work, bytes, format, redacted, blurred: use_blur, quality, }
 }

@@ -2,7 +2,12 @@
 /// # VP8L 编码变换：palette / predictor / subtract-green 与对外单入口
 
 ///|
-fn vp8l_write_header(bw : Vp8lBits, w : Int, h : Int, alpha_solid : Bool) -> Unit {
+fn vp8l_write_header(
+  bw : Vp8lBits,
+  w : Int32,
+  h : Int32,
+  alpha_solid : Bool,
+) -> Unit {
   bw.write(0x2F, 8)
   bw.write(w - 1, 14)
   bw.write(h - 1, 14)
@@ -11,7 +16,7 @@ fn vp8l_write_header(bw : Vp8lBits, w : Int, h : Int, alpha_solid : Bool) -> Uni
 }
 
 ///|
-fn vp8l_alpha_solid(pixels : Array[Int]) -> Bool {
+fn vp8l_alpha_solid(pixels : Array[Int32]) -> Bool {
   for i in 0..<pixels.length() {
     if vp8l_ch(pixels[i], 24) != 255 {
       return false
@@ -23,8 +28,8 @@ fn vp8l_alpha_solid(pixels : Array[Int]) -> Bool {
 // ==================== 变换：subtract-green ====================
 
 ///|
-fn vp8l_apply_subtract_green(pixels : Array[Int]) -> Array[Int] {
-  let out : Array[Int] = Array::make(pixels.length(), 0)
+fn vp8l_apply_subtract_green(pixels : Array[Int32]) -> Array[Int32] {
+  let out : Array[Int32] = Array::make(pixels.length(), 0)
   for i in 0..<pixels.length() {
     let argb = pixels[i]
     let g = vp8l_ch(argb, 8)
@@ -38,7 +43,13 @@ fn vp8l_apply_subtract_green(pixels : Array[Int]) -> Array[Int] {
 // ==================== 变换：predictor ====================
 
 ///|
-fn vp8l_predict_value(mode : Int, l : Int, t : Int, tl : Int, tr : Int) -> Int {
+fn vp8l_predict_value(
+  mode : Int32,
+  l : Int32,
+  t : Int32,
+  tl : Int32,
+  tr : Int32,
+) -> Int32 {
   if mode == 0 {
     0xFF000000
   } else if mode == 1 {
@@ -73,12 +84,12 @@ fn vp8l_predict_value(mode : Int, l : Int, t : Int, tl : Int, tr : Int) -> Int {
 ///|
 /// 按 RFC 边界规则取预测值（编码侧邻居用原图，解码侧邻居是已重建像素，两者等价）
 fn vp8l_predict_pixel(
-  pixels : Array[Int],
-  w : Int,
-  x : Int,
-  y : Int,
-  mode : Int,
-) -> Int {
+  pixels : Array[Int32],
+  w : Int32,
+  x : Int32,
+  y : Int32,
+  mode : Int32,
+) -> Int32 {
   let i = y * w + x
   if y == 0 {
     if x == 0 {
@@ -100,7 +111,7 @@ fn vp8l_predict_pixel(
 ///|
 /// 残差代价：四通道环差绝对值之和。四个通道手工展开 —— 这里在内层 14×像素 的循环里
 /// 每像素调用一次，用 `for shift in [...]` 会在每次调用分配一个数组。
-fn vp8l_residual_cost(orig : Int, pred : Int) -> Int {
+fn vp8l_residual_cost(orig : Int32, pred : Int32) -> Int32 {
   let mut c = 0
   let d0 = (vp8l_ch(orig, 24) - vp8l_ch(pred, 24)) & 0xFF
   c += if d0 < 128 { d0 } else { 256 - d0 }
@@ -116,15 +127,15 @@ fn vp8l_residual_cost(orig : Int, pred : Int) -> Int {
 ///|
 /// 前向 predictor：逐 16² 块选模式，返回 (残差像素, 模式图)
 fn vp8l_forward_predictor(
-  pixels : Array[Int],
-  w : Int,
-  h : Int,
-  block_bits : Int,
-) -> (Array[Int], Array[Int], Int) {
+  pixels : Array[Int32],
+  w : Int32,
+  h : Int32,
+  block_bits : Int32,
+) -> (Array[Int32], Array[Int32], Int32) {
   let bs = 1 << block_bits
   let bx = (w + bs - 1) / bs
   let by = (h + bs - 1) / bs
-  let modes : Array[Int] = Array::make(bx * by, 0)
+  let modes : Array[Int32] = Array::make(bx * by, 0)
   for bloc_y in 0..<by {
     for bloc_x in 0..<bx {
       let x0 = bloc_x * bs
@@ -150,12 +161,12 @@ fn vp8l_forward_predictor(
       modes[bloc_y * bx + bloc_x] = best_mode
     }
   }
-  let resid : Array[Int] = Array::make(w * h, 0)
+  let resid : Array[Int32] = Array::make(w * h, 0)
   for y in 0..<h {
     for x in 0..<w {
       let i = y * w + x
-      let mode = if y < (by * bs) && x < (bx * bs) {
-        modes[(y / bs) * bx + (x / bs)]
+      let mode = if y < by * bs && x < bx * bs {
+        modes[y / bs * bx + x / bs]
       } else {
         1
       }
@@ -174,19 +185,19 @@ fn vp8l_forward_predictor(
 
 ///|
 priv struct Vp8lPalette {
-  colors : Array[Int]
-  packed : Array[Int]
-  packed_width : Int
+  colors : Array[Int32]
+  packed : Array[Int32]
+  packed_width : Int32
 }
 
 ///|
-fn vp8l_try_palette(pixels : Array[Int], w : Int) -> Option[Vp8lPalette] {
-  let table : Array[Int] = Array::make(1024, -1)
-  let colors : Array[Int] = []
-  let indices : Array[Int] = Array::make(pixels.length(), 0)
+fn vp8l_try_palette(pixels : Array[Int32], w : Int32) -> Vp8lPalette? {
+  let table : Array[Int32] = Array::make(1024, -1)
+  let colors : Array[Int32] = []
+  let indices : Array[Int32] = Array::make(pixels.length(), 0)
   for i in 0..<pixels.length() {
     let argb = pixels[i]
-    let mut slot = ((argb * 0x9E3779B1) & 0x3FF)
+    let mut slot = (argb * 0x9E3779B1) & 0x3FF
     let mut found = -1
     while table[slot] >= 0 {
       if colors[table[slot]] == argb {
@@ -206,7 +217,15 @@ fn vp8l_try_palette(pixels : Array[Int], w : Int) -> Option[Vp8lPalette] {
     indices[i] = found
   }
   let n = colors.length()
-  let mut width_bits = if n <= 2 { 3 } else if n <= 4 { 2 } else if n <= 16 { 1 } else { 0 }
+  let mut width_bits = if n <= 2 {
+    3
+  } else if n <= 4 {
+    2
+  } else if n <= 16 {
+    1
+  } else {
+    0
+  }
   // 宽度不能整除时退回不打包，避免解码侧展开后宽度越界
   if width_bits > 0 && w % (1 << width_bits) != 0 {
     width_bits = 0
@@ -214,7 +233,10 @@ fn vp8l_try_palette(pixels : Array[Int], w : Int) -> Option[Vp8lPalette] {
   let bundle = 1 << width_bits
   let bits_per = 8 >> width_bits
   let packed_width = (w + bundle - 1) / bundle
-  let packed : Array[Int] = Array::make(packed_width * (pixels.length() / w), 0)
+  let packed : Array[Int32] = Array::make(
+    packed_width * (pixels.length() / w),
+    0,
+  )
   for y in 0..<(pixels.length() / w) {
     for sx in 0..<packed_width {
       let mut v = 0
@@ -228,13 +250,13 @@ fn vp8l_try_palette(pixels : Array[Int], w : Int) -> Option[Vp8lPalette] {
       packed[y * packed_width + sx] = (255 << 24) | (v << 8)
     }
   }
-  Some(Vp8lPalette::{ colors, packed, packed_width })
+  Some(Vp8lPalette::{ colors, packed, packed_width, })
 }
 
 ///|
 /// 调色板子图：1×N，delta 编码
-fn vp8l_palette_delta(colors : Array[Int]) -> Array[Int] {
-  let out : Array[Int] = Array::make(colors.length(), 0)
+fn vp8l_palette_delta(colors : Array[Int32]) -> Array[Int32] {
+  let out : Array[Int32] = Array::make(colors.length(), 0)
   out[0] = 0
   let mut prev = 0
   for k in 0..<colors.length() {
@@ -253,8 +275,8 @@ fn vp8l_palette_delta(colors : Array[Int]) -> Array[Int] {
 
 ///|
 fn vp8l_encode_palette_variant(
-  w : Int,
-  h : Int,
+  w : Int32,
+  h : Int32,
   pal : Vp8lPalette,
   alpha_solid : Bool,
 ) -> Bytes {
@@ -263,7 +285,12 @@ fn vp8l_encode_palette_variant(
   bw.write(1, 1)
   bw.write(3, 2)
   bw.write(pal.colors.length() - 1, 8)
-  vp8l_write_image_stream(bw, vp8l_palette_delta(pal.colors), pal.colors.length(), false)
+  vp8l_write_image_stream(
+    bw,
+    vp8l_palette_delta(pal.colors),
+    pal.colors.length(),
+    false,
+  )
   bw.write(0, 1)
   vp8l_write_image_stream(bw, pal.packed, pal.packed_width, true)
   bw.finish()
@@ -314,7 +341,7 @@ pub fn encode_webp_lossless(img : @types.Image) -> Bytes raise @types.LoadError 
   }
   // 候选 4：predictor（+subtract-green）
   let (resid, modes, mode_w) = vp8l_forward_predictor(pixels, w, h, 4)
-  let mode_pixels : Array[Int] = Array::make(modes.length(), 0)
+  let mode_pixels : Array[Int32] = Array::make(modes.length(), 0)
   for i in 0..<modes.length() {
     mode_pixels[i] = (255 << 24) | (modes[i] << 8)
   }

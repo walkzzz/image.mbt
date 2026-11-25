@@ -14,7 +14,7 @@ fn vp8l_probe_solid(width : Int32, height : Int32) -> @types.Image {
       src.push(255)
     }
   }
-  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(src) }
+  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(src), }
 }
 
 ///|
@@ -24,14 +24,14 @@ fn vp8l_probe_repeat(width : Int32, height : Int32) -> @types.Image {
   let src : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
-      let v = ((x / 8) + (y / 8)) % 2
+      let v = (x / 8 + y / 8) % 2
       src.push(if v == 0 { 30 } else { 220 })
       src.push(if v == 0 { 60 } else { 190 })
       src.push(if v == 0 { 90 } else { 160 })
       src.push(255)
     }
   }
-  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(src) }
+  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(src), }
 }
 
 ///|
@@ -51,7 +51,7 @@ fn vp8l_probe_noise(width : Int32, height : Int32) -> @types.Image {
       src.push(255)
     }
   }
-  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(src) }
+  @types.Image::{ width, height, channels: 4, data: Bytes::from_array(src), }
 }
 
 ///|
@@ -63,16 +63,22 @@ test "vp8l M2 体积探针" {
     ("噪声 256x256", vp8l_probe_noise(256, 256)),
   ]
   for (name, img) in cases {
-    let lz = try @codec.encode_webp_vp8l_lz77(img) catch {
+    let lz = @codec.encode_webp_vp8l_lz77(img) catch {
       _ => Bytes::from_array([])
     }
-    let lit = try @codec.encode_webp_vp8l_literal(img) catch {
+    let lit = @codec.encode_webp_vp8l_literal(img) catch {
       _ => Bytes::from_array([])
     }
     let png = @codec.encode_png_pure(img)
     let px = img.width.to_int() * img.height.to_int()
-    let ratio = if lz.length() > 0 { 100.0 * lz.length().to_double() / (px * 4).to_double() } else { 0.0 }
-    println("\{name}: LZ77=\{lz.length()} literal=\{lit.length()} png=\{png.length()} 原始=\{px * 4} 占比=\{ratio}%")
+    let ratio = if lz.length() > 0 {
+      100.0 * lz.length().to_double() / (px * 4).to_double()
+    } else {
+      0.0
+    }
+    println(
+      "\{name}: LZ77=\{lz.length()} literal=\{lit.length()} png=\{png.length()} 原始=\{px * 4} 占比=\{ratio}%",
+    )
   }
 }
 
@@ -82,8 +88,15 @@ test "vp8l RGBA dump" {
   for i in 0..<1024 {
     src.push(((i * 7 + 3) % 256).to_byte())
   }
-  let img = @types.Image::{ width: 16, height: 16, channels: 4, data: Bytes::from_array(src) }
-  let enc = try @codec.encode_webp_vp8l_lz77(img) catch { _ => Bytes::from_array([]) }
+  let img = @types.Image::{
+    width: 16,
+    height: 16,
+    channels: 4,
+    data: Bytes::from_array(src),
+  }
+  let enc = @codec.encode_webp_vp8l_lz77(img) catch {
+    _ => Bytes::from_array([])
+  }
   println("RGBA_HEX=" + vp8l_to_hex(enc))
 }
 
@@ -95,14 +108,23 @@ test "vp8l RGBA 尺寸阶梯回环" {
     for i in 0..<n {
       src.push(((i * 7 + 3) % 256).to_byte())
     }
-    let img = @types.Image::{ width: side, height: side, channels: 4, data: Bytes::from_array(src) }
-    let enc = try @codec.encode_webp_vp8l_lz77(img) catch { _ => Bytes::from_array([]) }
-    let dec = try @codec.decode_webp_vp8l_rfc(enc) catch { _ => img }
+    let img = @types.Image::{
+      width: side,
+      height: side,
+      channels: 4,
+      data: Bytes::from_array(src),
+    }
+    let enc = @codec.encode_webp_vp8l_lz77(img) catch {
+      _ => Bytes::from_array([])
+    }
+    let dec = @codec.decode_webp_vp8l_rfc(enc) catch { _ => img }
     let mut bad = 0
     let mut first = -1
     for i in 0..<n {
       if dec.data[i] != src[i] {
-        if first < 0 { first = i }
+        if first < 0 {
+          first = i
+        }
         bad += 1
       }
     }

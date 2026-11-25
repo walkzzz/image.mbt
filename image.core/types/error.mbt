@@ -89,7 +89,8 @@ pub fn ImageError::code(self : ImageError) -> String {
 /// 错误消息（面向人，含具体数值）。Human-readable message (may include concrete numbers).
 pub fn ImageError::message(self : ImageError) -> String {
   match self {
-    Decode(_, m) | Encode(_, m) | Process(_, m) | Budget(_, m) | Cancelled(m) => m
+    Decode(_, m) | Encode(_, m) | Process(_, m) | Budget(_, m) | Cancelled(m) =>
+      m
   }
 }
 
@@ -107,7 +108,8 @@ pub fn image_error_hint(code : String) -> String {
     "格式无对应编解码器：先用 detect_format 确认格式，或转成 PNG/JPEG/QOI 再处理。"
   } else if code.contains("truncated") {
     "输入被截断：丢弃该输入（不要重试同一份坏数据），并记录来源。"
-  } else if code.contains("invalid_header") || code.contains("invalid_dimensions") {
+  } else if code.contains("invalid_header") ||
+    code.contains("invalid_dimensions") {
     "文件头/尺寸非法：当作坏图拒绝，不要按头部声明去预分配内存。"
   } else if code.contains("invalid_argument") {
     "调用参数非法：检查尺寸/通道/质量/策略取值范围。"
@@ -132,9 +134,13 @@ pub fn image_error_from_load(e : LoadError) -> ImageError {
     DecodeFailed(m) =>
       if m.contains("截断") || m.contains("过短") || m.contains("truncated") {
         Decode(Truncated, m)
-      } else if m.contains("超过") || m.contains("溢出") || m.contains("exceed") {
+      } else if m.contains("超过") ||
+        m.contains("溢出") ||
+        m.contains("exceed") {
         Decode(InvalidDimensions, m)
-      } else if m.contains("尺寸无效") || m.contains("标记") || m.contains("marker") ||
+      } else if m.contains("尺寸无效") ||
+        m.contains("标记") ||
+        m.contains("marker") ||
         m.contains("header") {
         Decode(InvalidHeader, m)
       } else if m.contains("不支持") || m.contains("unsupported") {
@@ -160,13 +166,13 @@ pub(all) struct DecodeLimits {
 ///|
 /// 默认预算。Default limits.
 pub fn DecodeLimits::default_limits() -> DecodeLimits {
-  { max_pixels: 500000000L, max_bytes: 268435456L, max_ms: 10000L }
+  { max_pixels: 500000000L, max_bytes: 268435456L, max_ms: 10000L, }
 }
 
 ///|
 /// 严格预算（面向不可信输入的批处理/服务端）。Strict limits for untrusted input.
 pub fn DecodeLimits::strict_limits() -> DecodeLimits {
-  { max_pixels: 67108864L, max_bytes: 67108864L, max_ms: 3000L }
+  { max_pixels: 67108864L, max_bytes: 67108864L, max_ms: 3000L, }
 }
 
 ///|
@@ -174,7 +180,7 @@ pub fn DecodeLimits::strict_limits() -> DecodeLimits {
 /// Build limits overriding only the pixel budget.
 pub fn DecodeLimits::with_max_pixels(max_pixels : Int64) -> DecodeLimits {
   let d = DecodeLimits::default_limits()
-  { ..d, max_pixels }
+  { ..d, max_pixels, }
 }
 
 ///|
@@ -222,7 +228,7 @@ pub(all) struct AllocBudget {
 ///|
 /// 默认分配预算（512 MiB）。Default allocation budget.
 pub fn AllocBudget::default_budget() -> AllocBudget {
-  { max_bytes: 536870912L }
+  { max_bytes: 536870912L, }
 }
 
 ///|
@@ -235,7 +241,10 @@ pub fn AllocBudget::check_image(
   what : String,
 ) -> Unit raise ImageError {
   if width <= 0L || height <= 0L || channels <= 0L {
-    raise Process(InvalidArgument, "\{what}: 尺寸/通道无效 (\{width}×\{height}×\{channels})")
+    raise Process(
+      InvalidArgument,
+      "\{what}: 尺寸/通道无效 (\{width}×\{height}×\{channels})",
+    )
   }
   let need = width * height * channels
   if need > self.max_bytes {

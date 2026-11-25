@@ -10,7 +10,7 @@
 
 ///|
 /// 位数反转（写码时用：流里是 canonical 码的 MSB-first 顺序，写入器是 LSB-first）
-fn vp8l_rev_bits(v : Int, n : Int) -> Int {
+fn vp8l_rev_bits(v : Int32, n : Int32) -> Int32 {
   let mut r = 0
   for i in 0..<n {
     r = r | (((v >> i) & 1) << (n - 1 - i))
@@ -20,8 +20,8 @@ fn vp8l_rev_bits(v : Int, n : Int) -> Int {
 
 ///|
 /// 由码长表算 canonical 码值表（与解码侧同一规则）
-fn vp8l_canonical_codes(lens : Array[Int], alphabet : Int) -> Array[Int] {
-  let codes : Array[Int] = Array::make(alphabet, 0)
+fn vp8l_canonical_codes(lens : Array[Int32], alphabet : Int32) -> Array[Int32] {
+  let codes : Array[Int32] = Array::make(alphabet, 0)
   let mut max_len = 0
   for i in 0..<alphabet {
     if lens[i] > max_len {
@@ -31,13 +31,13 @@ fn vp8l_canonical_codes(lens : Array[Int], alphabet : Int) -> Array[Int] {
   if max_len == 0 {
     return codes
   }
-  let bl_count : Array[Int] = Array::make(max_len + 1, 0)
+  let bl_count : Array[Int32] = Array::make(max_len + 1, 0)
   for i in 0..<alphabet {
     if lens[i] > 0 {
       bl_count[lens[i]] += 1
     }
   }
-  let next_code : Array[Int] = Array::make(max_len + 1, 0)
+  let next_code : Array[Int32] = Array::make(max_len + 1, 0)
   let mut code = 0
   for bits in 1..<=max_len {
     code = (code + bl_count[bits - 1]) << 1
@@ -59,13 +59,13 @@ fn vp8l_canonical_codes(lens : Array[Int], alphabet : Int) -> Array[Int] {
 /// 做法：先建普通 Huffman 得深度，再按 JPEG Annex K.3 的"深度钳制 + Kraft 补偿"把
 /// 超过 `max_bits` 的部分压回，最后按频次降序重新分配长度。
 fn vp8l_build_lengths(
-  counts : Array[Int],
-  alphabet : Int,
-  max_bits : Int,
-) -> Array[Int] {
-  let lens : Array[Int] = Array::make(alphabet, 0)
+  counts : Array[Int32],
+  alphabet : Int32,
+  max_bits : Int32,
+) -> Array[Int32] {
+  let lens : Array[Int32] = Array::make(alphabet, 0)
   // 收集使用中的符号
-  let used : Array[Int] = []
+  let used : Array[Int32] = []
   for s in 0..<alphabet {
     if counts[s] > 0 {
       used.push(s)
@@ -80,14 +80,14 @@ fn vp8l_build_lengths(
     return lens
   }
   // 普通 Huffman：反复合并两个最小频次，记录每个符号的深度
-  let weights : Array[Int] = Array::make(2 * nu - 1, 0)
-  let parents : Array[Int] = Array::make(2 * nu - 1, -1)
-  let symbols : Array[Int] = Array::make(2 * nu - 1, -1)
+  let weights : Array[Int32] = Array::make(2 * nu - 1, 0)
+  let parents : Array[Int32] = Array::make(2 * nu - 1, -1)
+  let symbols : Array[Int32] = Array::make(2 * nu - 1, -1)
   for k in 0..<nu {
     weights[k] = counts[used[k]]
     symbols[k] = used[k]
   }
-  let mut active : Array[Int] = []
+  let mut active : Array[Int32] = []
   for k in 0..<nu {
     active.push(k)
   }
@@ -119,7 +119,7 @@ fn vp8l_build_lengths(
     parents[nb] = node
     let hi = if a > b { a } else { b }
     let lo = if a > b { b } else { a }
-    let rebuilt : Array[Int] = []
+    let rebuilt : Array[Int32] = []
     for k in 0..<active.length() {
       if k != lo && k != hi {
         rebuilt.push(active[k])
@@ -129,7 +129,7 @@ fn vp8l_build_lengths(
     active = rebuilt
   }
   // 由父链算深度（先钳到 max_bits）
-  let depths : Array[Int] = Array::make(nu, 0)
+  let depths : Array[Int32] = Array::make(nu, 0)
   for s in 0..<nu {
     let mut d = 0
     let mut p = parents[s]
@@ -193,13 +193,17 @@ fn vp8l_build_lengths(
 
 ///|
 /// 写一个符号的 canonical 码（位反转后按 LSB-first 写入）
-fn vp8l_write_code(w : Vp8lBits, code : Int, len : Int) -> Unit {
+fn vp8l_write_code(w : Vp8lBits, code : Int32, len : Int32) -> Unit {
   w.write(vp8l_rev_bits(code, len), len)
 }
 
 ///|
 /// 统计长度码 token（0..18）的使用次数，用于构建码长码
-fn vp8l_count_length_tokens(lens : Array[Int], alphabet : Int, out : Array[Int]) -> Unit {
+fn vp8l_count_length_tokens(
+  lens : Array[Int32],
+  alphabet : Int32,
+  out : Array[Int32],
+) -> Unit {
   let mut i = 0
   let mut prev = -1
   while i < alphabet {
@@ -254,8 +258,12 @@ fn vp8l_count_length_tokens(lens : Array[Int], alphabet : Int, out : Array[Int])
 
 ///|
 /// 真正把码长表写进流：simple（1/2 个符号）或 normal（码长码 + 零游程）
-fn vp8l_write_prefix_table(w : Vp8lBits, lens : Array[Int], alphabet : Int) -> Unit {
-  let used : Array[Int] = []
+fn vp8l_write_prefix_table(
+  w : Vp8lBits,
+  lens : Array[Int32],
+  alphabet : Int32,
+) -> Unit {
+  let used : Array[Int32] = []
   for s in 0..<alphabet {
     if lens[s] > 0 {
       used.push(s)
@@ -291,7 +299,7 @@ fn vp8l_write_prefix_table(w : Vp8lBits, lens : Array[Int], alphabet : Int) -> U
     return
   }
   // normal：先构建码长码
-  let tokens : Array[Int] = Array::make(19, 0)
+  let tokens : Array[Int32] = Array::make(19, 0)
   vp8l_count_length_tokens(lens, alphabet, tokens)
   let cl_lens = vp8l_build_lengths(tokens, 19, 7)
   // num_code_lengths：覆盖所有非零码长码符号在 order 中的位置
@@ -362,7 +370,7 @@ fn vp8l_write_prefix_table(w : Vp8lBits, lens : Array[Int], alphabet : Int) -> U
 
 ///|
 /// 长度值 → (前缀码, extra 值, extra 位数)
-fn vp8l_encode_length(len : Int) -> (Int, Int, Int) {
+fn vp8l_encode_length(len : Int32) -> (Int32, Int32, Int32) {
   if len <= 4 {
     (len - 1, 0, 0)
   } else {
@@ -386,7 +394,7 @@ fn vp8l_encode_length(len : Int) -> (Int, Int, Int) {
 
 ///|
 /// 距离码值 → (距离前缀码 0..39, extra 值, extra 位数)（RFC 9649 §3.6.2.2.1 的 40 项前缀表）
-fn vp8l_encode_distance(d : Int) -> (Int, Int, Int) {
+fn vp8l_encode_distance(d : Int32) -> (Int32, Int32, Int32) {
   if d <= 4 {
     (d - 1, 0, 0)
   } else {
@@ -406,7 +414,7 @@ fn vp8l_encode_distance(d : Int) -> (Int, Int, Int) {
 
 ///|
 /// 扫描行距离 → 距离码（先查 120 项邻域映射，命中用 1..120，否则 dist + 120）
-fn vp8l_distance_code(d : Int, width : Int) -> Int {
+fn vp8l_distance_code(d : Int32, width : Int32) -> Int32 {
   for k in 0..<120 {
     let xi = vp8l_distance_dx[k].to_int()
     let yi = vp8l_distance_dy[k].to_int()
@@ -420,7 +428,7 @@ fn vp8l_distance_code(d : Int, width : Int) -> Int {
 
 ///|
 /// 判断码表是否只有一个符号（单符号树的符号位宽为 0，编码时不得写任何比特）
-fn vp8l_is_single(lens : Array[Int], alphabet : Int) -> Bool {
+fn vp8l_is_single(lens : Array[Int32], alphabet : Int32) -> Bool {
   let mut count = 0
   for i in 0..<alphabet {
     if lens[i] > 0 {
@@ -432,7 +440,7 @@ fn vp8l_is_single(lens : Array[Int], alphabet : Int) -> Bool {
 
 ///|
 /// 32 位像素哈希（4096 槽）
-fn vp8l_hash_pixel(argb : Int) -> Int {
+fn vp8l_hash_pixel(argb : Int32) -> Int32 {
   (((argb * 0x1E35A7BD) & 0xFFFFFFFF) >> 20) & 0xFFF
 }
 
@@ -440,7 +448,9 @@ fn vp8l_hash_pixel(argb : Int) -> Int {
 /// M2 编码器：贪心 LZ77 + 频次驱动 Huffman（无变换）。
 ///
 /// 变换版本见 encode_webp_lossless。
-pub fn encode_webp_vp8l_lz77(img : @types.Image) -> Bytes raise @types.LoadError {
+pub fn encode_webp_vp8l_lz77(
+  img : @types.Image,
+) -> Bytes raise @types.LoadError {
   let (pixels, w, h) = vp8l_pack_argb(img)
   let mut alpha_solid = true
   for i in 0..<pixels.length() {

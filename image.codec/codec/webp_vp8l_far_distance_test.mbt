@@ -7,15 +7,16 @@
 /// 1. 三色横条：颜色数 ≤ 256，走 palette；
 /// 2. 300 色行重复：颜色数 > 256，palette 被拒，走原样 LZ77，且第二半为
 ///    距离 12288 的反向引用。
+
 ///|
-fn vp8l_regr_bands(w : Int32, h : Int32, band_h : Int) -> @types.Image {
+fn vp8l_regr_bands(w : Int32, h : Int32, band_h : Int32) -> @types.Image {
   let wi = w.to_int()
   let hi = h.to_int()
   let data : Array[Byte] = Array::make(wi * hi * 3, b'\x00')
   for y in 0..<hi {
     for x in 0..<wi {
       let o = (y * wi + x) * 3
-      let band = (y / band_h) % 3
+      let band = y / band_h % 3
       let v = if band == 0 {
         [200, 30, 30]
       } else if band == 1 {
@@ -28,7 +29,12 @@ fn vp8l_regr_bands(w : Int32, h : Int32, band_h : Int) -> @types.Image {
       }
     }
   }
-  @types.Image::{ width: w, height: h, channels: 3, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|
@@ -40,11 +46,7 @@ fn vp8l_regr_many_colors(w : Int32, h : Int32) -> @types.Image {
     // 96 行一个循环：下半部与上半部完全相同，形成距离约 w*96 的反向引用；
     // 行颜色取 300 种，超过调色板上限，强制走原样 LZ77。
     let row = y % 96
-    let v = [
-      row % 300,
-      (row * 7) % 300,
-      (row * 13) % 300,
-    ]
+    let v = [row % 300, row * 7 % 300, row * 13 % 300]
     for x in 0..<wi {
       let o = (y * wi + x) * 3
       for c in 0..<3 {
@@ -52,11 +54,19 @@ fn vp8l_regr_many_colors(w : Int32, h : Int32) -> @types.Image {
       }
     }
   }
-  @types.Image::{ width: w, height: h, channels: 3, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|
-fn vp8l_regr_diff(img : @types.Image, bytes : Bytes) -> Int raise @types.LoadError {
+fn vp8l_regr_diff(
+  img : @types.Image,
+  bytes : Bytes,
+) -> Int32 raise @types.LoadError {
   let back = @codec.decode_webp_pure(bytes)
   if back.width != img.width || back.height != img.height {
     return -1
@@ -100,7 +110,7 @@ test "webp lossless 回归：256x192 纵向渐变（predictor 路径）" {
     for x in 0..<wi {
       let o = (y * wi + x) * 3
       data[o] = v.to_byte()
-      data[o + 1] = ((v * 2) % 256).to_byte()
+      data[o + 1] = (v * 2 % 256).to_byte()
       data[o + 2] = (255 - v).to_byte()
     }
   }

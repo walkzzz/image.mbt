@@ -26,10 +26,16 @@ test "parse_format_list 跳过空段与空白" {
 ///|
 test "json_to_stderr 只在真的写二进制到 stdout 时为真" {
   inspect(json_to_stderr(["convert", "in.png", "-"]), content="true")
-  inspect(json_to_stderr(["convert", "--quality", "80", "in.png", "-"]), content="true")
+  inspect(
+    json_to_stderr(["convert", "--quality", "80", "in.png", "-"]),
+    content="true",
+  )
   inspect(json_to_stderr(["sanitize", "in.png", "-"]), content="true")
   // --dry-run 不写二进制，JSON 仍回 stdout
-  inspect(json_to_stderr(["convert", "in.png", "-", "--dry-run"]), content="false")
+  inspect(
+    json_to_stderr(["convert", "in.png", "-", "--dry-run"]),
+    content="false",
+  )
   // 只读子命令永远不占用 stdout
   inspect(json_to_stderr(["analyze", "-"]), content="false")
   inspect(json_to_stderr(["bench", "in.png"]), content="false")

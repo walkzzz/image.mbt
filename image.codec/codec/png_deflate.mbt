@@ -18,7 +18,7 @@ priv struct BitWriter {
 
 ///|
 fn BitWriter::new() -> BitWriter {
-  { out: [], buf: 0, cnt: 0 }
+  { out: [], buf: 0, cnt: 0, }
 }
 
 ///|
@@ -171,7 +171,7 @@ fn hash3(data : Bytes, pos : Int32) -> Int32 {
   let a = data[pos].to_int()
   let b = data[pos + 1].to_int()
   let c = data[pos + 2].to_int()
-  ((a * 0x9E37 + b * 0x1B1 + c) & 0x7FFF)
+  (a * 0x9E37 + b * 0x1B1 + c) & 0x7FFF
 }
 
 ///|

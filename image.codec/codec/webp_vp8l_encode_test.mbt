@@ -3,30 +3,33 @@
 /// 外部解码器（ffmpeg）验证由 scripts/proto/*.mjs 承担，这里只锁内环。
 
 ///|
-fn vp8l_test_image(width : Int32, height : Int32, channels : Int32) -> @types.Image {
+fn vp8l_test_image(
+  width : Int32,
+  height : Int32,
+  channels : Int32,
+) -> @types.Image {
   let src : Array[Byte] = []
   for y in 0..<height {
     for x in 0..<width {
-      src.push((x * 255 / (if width > 1 { width.to_int() - 1 } else { 1 })).to_byte())
-      src.push((y * 255 / (if height > 1 { height.to_int() - 1 } else { 1 })).to_byte())
+      src.push(
+        (x * 255 / (if width > 1 { width.to_int() - 1 } else { 1 })).to_byte(),
+      )
+      src.push(
+        (y * 255 / (if height > 1 { height.to_int() - 1 } else { 1 })).to_byte(),
+      )
       src.push(((x + y) * 3 % 256).to_byte())
       if channels.to_int() == 4 {
         src.push((200 + x % 56).to_byte())
       }
     }
   }
-  @types.Image::{
-    width,
-    height,
-    channels,
-    data: Bytes::from_array(src),
-  }
+  @types.Image::{ width, height, channels, data: Bytes::from_array(src), }
 }
 
 ///|
 test "vp8l M1: 16x16 RGBA 编解码逐字节一致" {
   let img = vp8l_test_image(16, 16, 4)
-  let encoded = try @codec.encode_webp_vp8l_literal(img) catch {
+  let encoded = @codec.encode_webp_vp8l_literal(img) catch {
     e => {
       fail("编码失败：\{e}")
       Bytes::from_array([])
@@ -38,7 +41,7 @@ test "vp8l M1: 16x16 RGBA 编解码逐字节一致" {
   assert_eq(encoded[8].to_int(), 0x57)
   assert_eq(encoded[12].to_int(), 0x56) // 'V'
   assert_eq(encoded[13].to_int(), 0x50) // 'P'
-  let decoded = try @codec.decode_webp_vp8l_rfc(encoded) catch {
+  let decoded = @codec.decode_webp_vp8l_rfc(encoded) catch {
     e => {
       fail("解码失败：\{e}")
       vp8l_test_image(1, 1, 4)
@@ -60,10 +63,10 @@ test "vp8l M1: 16x16 RGBA 编解码逐字节一致" {
 ///|
 test "vp8l M1: 3 通道输入补 alpha=255" {
   let img = vp8l_test_image(8, 8, 3)
-  let encoded = try @codec.encode_webp_vp8l_literal(img) catch {
+  let encoded = @codec.encode_webp_vp8l_literal(img) catch {
     _ => Bytes::from_array([])
   }
-  let decoded = try @codec.decode_webp_vp8l_rfc(encoded) catch {
+  let decoded = @codec.decode_webp_vp8l_rfc(encoded) catch {
     e => {
       fail("解码失败：\{e}")
       vp8l_test_image(1, 1, 4)
@@ -90,10 +93,10 @@ test "vp8l M1: 3 通道输入补 alpha=255" {
 ///|
 test "vp8l M1: 1x1 边界" {
   let img = vp8l_test_image(1, 1, 4)
-  let encoded = try @codec.encode_webp_vp8l_literal(img) catch {
+  let encoded = @codec.encode_webp_vp8l_literal(img) catch {
     _ => Bytes::from_array([])
   }
-  let decoded = try @codec.decode_webp_vp8l_rfc(encoded) catch {
+  let decoded = @codec.decode_webp_vp8l_rfc(encoded) catch {
     _ => vp8l_test_image(2, 2, 4)
   }
   assert_eq(decoded.width, 1)
@@ -120,7 +123,7 @@ fn vp8l_to_hex(bytes : Bytes) -> String {
 ///|
 test "vp8l M1: dump 16x16 产物 hex（外部 ffmpeg 校验用）" {
   let img = vp8l_test_image(16, 16, 4)
-  let encoded = try @codec.encode_webp_vp8l_literal(img) catch {
+  let encoded = @codec.encode_webp_vp8l_literal(img) catch {
     _ => Bytes::from_array([])
   }
   println("VP8L_HEX=" + vp8l_to_hex(encoded))

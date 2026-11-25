@@ -11,7 +11,12 @@ fn em_solid_png(w : Int32, h : Int32) -> Bytes {
     src.push(90)
     src.push(40)
   }
-  @lib.encode_png(@types.Image::{ width: w, height: h, channels: 3, data: Bytes::from_array(src) })
+  @lib.encode_png(@types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(src),
+  })
 }
 
 ///|
@@ -39,9 +44,15 @@ fn em_fake_huge_qoi(w : Int32, h : Int32) -> Bytes {
 
 ///|
 test "error model: 错误码稳定字符串" {
-  assert_eq(@types.ErrorCode::UnsupportedFormat.to_string(), "unsupported_format")
+  assert_eq(
+    @types.ErrorCode::UnsupportedFormat.to_string(),
+    "unsupported_format",
+  )
   assert_eq(@types.ErrorCode::InvalidHeader.to_string(), "invalid_header")
-  assert_eq(@types.ErrorCode::InvalidDimensions.to_string(), "invalid_dimensions")
+  assert_eq(
+    @types.ErrorCode::InvalidDimensions.to_string(),
+    "invalid_dimensions",
+  )
   assert_eq(@types.ErrorCode::InvalidArgument.to_string(), "invalid_argument")
   assert_eq(@types.ErrorCode::Truncated.to_string(), "truncated")
   assert_eq(@types.ErrorCode::DecodeFailed.to_string(), "decode_failed")
@@ -56,8 +67,14 @@ test "error model: 错误码稳定字符串" {
 ///|
 test "error model: 分类前缀与预算判定" {
   let e1 : @types.ImageError = @types.Decode(@types.ErrorCode::Truncated, "x")
-  let e2 : @types.ImageError = @types.Encode(@types.ErrorCode::EncodeFailed, "y")
-  let e3 : @types.ImageError = @types.Process(@types.ErrorCode::InvalidArgument, "z")
+  let e2 : @types.ImageError = @types.Encode(
+    @types.ErrorCode::EncodeFailed,
+    "y",
+  )
+  let e3 : @types.ImageError = @types.Process(
+    @types.ErrorCode::InvalidArgument,
+    "z",
+  )
   let e4 : @types.ImageError = @types.Budget(@types.ErrorCode::LimitPixels, "p")
   let e5 : @types.ImageError = @types.Cancelled("c")
   assert_eq(e1.code(), "decode/truncated")
@@ -76,31 +93,43 @@ test "error model: 分类前缀与预算判定" {
 ///|
 test "error model: 建议动作映射覆盖全部码" {
   let codes = [
-    "decode/truncated", "decode/invalid_header", "decode/invalid_dimensions",
-    "decode/invalid_argument", "decode/unsupported_format", "decode/decode_failed",
-    "encode/encode_failed", "process/process_failed", "budget/limit_pixels",
-    "budget/limit_bytes", "budget/limit_time", "cancelled",
+    "decode/truncated", "decode/invalid_header", "decode/invalid_dimensions", "decode/invalid_argument",
+    "decode/unsupported_format", "decode/decode_failed", "encode/encode_failed",
+    "process/process_failed", "budget/limit_pixels", "budget/limit_bytes", "budget/limit_time",
+    "cancelled",
   ]
   for c in codes {
     let hint = @types.image_error_hint(c)
     assert_true(hint.length() > 8)
   }
-  assert_true(@types.image_error_hint("budget/limit_pixels").contains("max_pixels"))
-  assert_true(@types.image_error_hint("budget/limit_bytes").contains("max_bytes"))
+  assert_true(
+    @types.image_error_hint("budget/limit_pixels").contains("max_pixels"),
+  )
+  assert_true(
+    @types.image_error_hint("budget/limit_bytes").contains("max_bytes"),
+  )
   assert_true(@types.image_error_hint("decode/truncated").contains("截断"))
   assert_true(@types.image_error_hint("cancelled").contains("取消"))
 }
 
 ///|
 test "error model: LoadError 投影" {
-  let e1 = @types.image_error_from_load(@types.LoadError::UnsupportedFormat("no webp"))
+  let e1 = @types.image_error_from_load(
+    @types.LoadError::UnsupportedFormat("no webp"),
+  )
   assert_eq(e1.code(), "decode/unsupported_format")
-  let e2 = @types.image_error_from_load(@types.LoadError::DecodeFailed("数据过短"))
+  let e2 = @types.image_error_from_load(
+    @types.LoadError::DecodeFailed("数据过短"),
+  )
   assert_eq(e2.code(), "decode/truncated")
-  let e3 = @types.image_error_from_load(@types.LoadError::DecodeFailed("图像尺寸无效: 0x0"))
+  let e3 = @types.image_error_from_load(
+    @types.LoadError::DecodeFailed("图像尺寸无效: 0x0"),
+  )
   assert_eq(e3.code(), "decode/invalid_header")
   let e3b = @types.image_error_from_load(
-    @types.LoadError::DecodeFailed("图像像素总数超过内存安全上限 500000000"),
+    @types.LoadError::DecodeFailed(
+      "图像像素总数超过内存安全上限 500000000",
+    ),
   )
   assert_eq(e3b.code(), "decode/invalid_dimensions")
   let e4 = @types.image_error_from_load(@types.LoadError::EncodeFailed("bad"))
@@ -125,7 +154,11 @@ test "budget: 默认/严格预算取值" {
 ///|
 test "budget: 字节/像素准入拒绝" {
   let l = @types.DecodeLimits::with_max_pixels(1000000L)
-  let tight = @types.DecodeLimits::{ max_pixels: l.max_pixels, max_bytes: 100L, max_ms: 10L }
+  let tight = @types.DecodeLimits::{
+    max_pixels: l.max_pixels,
+    max_bytes: 100L,
+    max_ms: 10L,
+  }
   try {
     tight.check_bytes(101L)
     fail("check_bytes 应拒绝")
@@ -144,7 +177,8 @@ test "budget: 字节/像素准入拒绝" {
     l.check_pixels(0L, 10L)
     fail("0 宽应拒绝")
   } catch {
-    @types.ImageError::Decode(c, _) => assert_eq(c.to_string(), "invalid_dimensions")
+    @types.ImageError::Decode(c, _) =>
+      assert_eq(c.to_string(), "invalid_dimensions")
     _ => fail("错误类型不对")
   }
   l.check_pixels(1000L, 1000L)
@@ -166,7 +200,8 @@ test "budget: 分配预算准入" {
     b.check_image(-1L, 10L, 3L, "crop")
     fail("负宽应拒绝")
   } catch {
-    @types.ImageError::Process(c, _) => assert_eq(c.to_string(), "invalid_argument")
+    @types.ImageError::Process(c, _) =>
+      assert_eq(c.to_string(), "invalid_argument")
     _ => fail("错误类型不对")
   }
 }
@@ -182,7 +217,11 @@ test "budget: 正常 PNG 在默认预算内可解" {
 ///|
 test "budget: 字节超限直接拒绝（不进解码器）" {
   let png = em_solid_png(256, 256)
-  let limits = @types.DecodeLimits::{ max_pixels: 500000000L, max_bytes: 64L, max_ms: 1000L }
+  let limits = @types.DecodeLimits::{
+    max_pixels: 500000000L,
+    max_bytes: 64L,
+    max_ms: 1000L,
+  }
   try {
     let _ = @lib.decode_with_limits(png, limits)
     fail("超字节预算应拒绝")
@@ -231,7 +270,11 @@ test "budget: 截断 JPEG 归类为 truncated" {
     fail("截断输入应拒绝")
   } catch {
     @types.ImageError::Decode(c, m) => {
-      assert_true(c.to_string() == "truncated" || c.to_string() == "decode_failed" || c.to_string() == "invalid_header")
+      assert_true(
+        c.to_string() == "truncated" ||
+        c.to_string() == "decode_failed" ||
+        c.to_string() == "invalid_header",
+      )
       assert_true(m.length() > 0)
     }
     _ => fail("错误类型不对")

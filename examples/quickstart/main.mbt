@@ -16,15 +16,15 @@ fn make_sample(width : Int32, height : Int32) -> @types.Image {
   let data : Array[Byte] = []
   for y in 0..<height {
     for x in 0..<width {
-      let r = (x * 255) / (width - 1)
-      let g = (y * 255) / (height - 1)
+      let r = x * 255 / (width - 1)
+      let g = y * 255 / (height - 1)
       let b = if (x / 8 + y / 8) % 2 == 0 { 40 } else { 200 }
       data.push(r.to_byte())
       data.push(g.to_byte())
       data.push(b.to_byte())
     }
   }
-  @types.Image::{ width, height, channels: 3, data: Bytes::from_array(data) }
+  @types.Image::{ width, height, channels: 3, data: Bytes::from_array(data), }
 }
 
 ///|
@@ -37,11 +37,7 @@ fn pixel_digest(img : @types.Image) -> Int64 {
     let base = i * img.channels
     let r = img.data[base].to_int()
     let g = img.data[base + 1].to_int()
-    let b = if img.channels >= 3 {
-      img.data[base + 2].to_int()
-    } else {
-      r
-    }
+    let b = if img.channels >= 3 { img.data[base + 2].to_int() } else { r }
     h = (h * 16777213L + (r * 65536 + g * 256 + b).to_int64()) % 4294967296L
   }
   h
@@ -68,7 +64,9 @@ fn main {
       return
     }
   }
-  println("decode  \{back.width}x\{back.height} ch=\{back.channels} digest=\{pixel_digest(back)}")
+  println(
+    "decode  \{back.width}x\{back.height} ch=\{back.channels} digest=\{pixel_digest(back)}",
+  )
   if pixel_digest(back) != pixel_digest(src) {
     println("!! WebP 往返像素不一致")
     return
@@ -95,5 +93,7 @@ fn main {
       return
     }
   }
-  println("verify  \{again.width}x\{again.height} ch=\{again.channels} ok=\{pixel_digest(again) == pixel_digest(small)}")
+  println(
+    "verify  \{again.width}x\{again.height} ch=\{again.channels} ok=\{pixel_digest(again) == pixel_digest(small)}",
+  )
 }

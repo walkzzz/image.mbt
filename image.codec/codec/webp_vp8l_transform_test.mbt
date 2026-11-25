@@ -12,7 +12,7 @@ fn vp8l_hex_bytes(hex : String) -> Bytes {
     if k % 2 == 0 {
       hi = v
     } else {
-      out[k / 2] = ((hi * 16 + v).to_byte())
+      out[k / 2] = (hi * 16 + v).to_byte()
     }
     k += 1
   }
@@ -20,7 +20,7 @@ fn vp8l_hex_bytes(hex : String) -> Bytes {
 }
 
 ///|
-fn vp8l_nibble(c : Char) -> Int {
+fn vp8l_nibble(c : Char) -> Int32 {
   let code = c.to_int()
   if code >= 48 && code <= 57 {
     code - 48
@@ -42,10 +42,15 @@ test "VP8L 解码：libwebp 纯色 256²（palette + 像素打包）" {
   println(bytes[14].to_int().to_string())
   println(bytes[15].to_int().to_string())
   println(hex.length().to_string())
-  let img = try @codec.decode_webp_vp8l_rfc(bytes) catch {
+  let img = @codec.decode_webp_vp8l_rfc(bytes) catch {
     e => {
       fail("解码失败：\{e}")
-      @types.Image::{ width: 0, height: 0, channels: 4, data: Bytes::from_array([]) }
+      @types.Image::{
+        width: 0,
+        height: 0,
+        channels: 4,
+        data: Bytes::from_array([]),
+      }
     }
   }
   assert_eq(img.width, 256)
@@ -69,17 +74,22 @@ test "VP8L 解码：libwebp 纯色 256²（palette + 像素打包）" {
 test "VP8L 解码：libwebp 棋盘 256²（palette）" {
   let hex = "524946463a000000574542505650384c2d0000002fffc03f000f701ec17bf8de486bfe83074202c2ffd3268822faaf206d03a63b0aaa02eb5fea7fffbdfb3fef0000"
   let bytes = vp8l_hex_bytes(hex)
-  let img = try @codec.decode_webp_vp8l_rfc(bytes) catch {
+  let img = @codec.decode_webp_vp8l_rfc(bytes) catch {
     e => {
       fail("解码失败：\{e}")
-      @types.Image::{ width: 0, height: 0, channels: 4, data: Bytes::from_array([]) }
+      @types.Image::{
+        width: 0,
+        height: 0,
+        channels: 4,
+        data: Bytes::from_array([]),
+      }
     }
   }
   assert_eq(img.width, 256)
   let mut bad = 0
   for y in 0..<256 {
     for x in 0..<256 {
-      let v = ((x / 8) + (y / 8)) % 2
+      let v = (x / 8 + y / 8) % 2
       let want_r = if v == 0 { 30 } else { 220 }
       let want_g = if v == 0 { 60 } else { 190 }
       let want_b = if v == 0 { 90 } else { 160 }

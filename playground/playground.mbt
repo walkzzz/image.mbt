@@ -1,13 +1,12 @@
 ///|
 /// 浏览器演示导出层（JavaScript 后端）。
 /// 只使用 f64 / Int32 / String 参数，PNG 以十六进制字符串跨边界，避免复杂 ABI。
-
 let hex_chars : Array[Char] = [
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
 ]
 
 ///|
-fn hex_value(c : Char) -> Int {
+fn hex_value(c : Char) -> Int32 {
   if c >= '0' && c <= '9' {
     c.to_int() - '0'.to_int()
   } else if c >= 'a' && c <= 'f' {
@@ -59,8 +58,8 @@ pub fn img_qr_png_hex(
 ) -> String {
   let image = @testgen.render_qr(
     @encoding/utf8.encode(text),
-    module_px=module_px,
-    quiet_zone=quiet_zone,
+    module_px~,
+    quiet_zone~,
   )
   bytes_to_hex(@lib.encode_png(image))
 }
@@ -74,7 +73,11 @@ pub fn img_qr_filter_png_hex(
   blur_radius : Int32,
 ) -> String {
   try {
-    let image = @testgen.render_qr(@encoding/utf8.encode(text), module_px=6, quiet_zone=2)
+    let image = @testgen.render_qr(
+      @encoding/utf8.encode(text),
+      module_px=6,
+      quiet_zone=2,
+    )
     let bright = @color.adjust_brightness(image, brightness)
     let filtered = @filter.box_blur(bright, blur_radius)
     bytes_to_hex(@lib.encode_png(filtered))
@@ -90,9 +93,7 @@ pub fn img_png_summary(png_hex : String) -> String {
   if png_hex.length() == 0 {
     return ""
   }
-  try {
-    @lib.get_image_summary(hex_to_bytes(png_hex))
-  } catch {
+  @lib.get_image_summary(hex_to_bytes(png_hex)) catch {
     _ => ""
   }
 }

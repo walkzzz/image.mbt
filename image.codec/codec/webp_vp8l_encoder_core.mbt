@@ -9,14 +9,16 @@
 
 ///|
 priv struct Vp8lTokenStream {
-  kinds : Array[Int]
-  v1 : Array[Int]
-  v2 : Array[Int]
+  kinds : Array[Int32]
+  v1 : Array[Int32]
+  v2 : Array[Int32]
 }
 
 ///|
 /// 打包为 RFC 顺序 ARGB（alpha 31..24、red 23..16、green 15..8、blue 7..0）
-fn vp8l_pack_argb(img : @types.Image) -> (Array[Int], Int, Int) raise @types.LoadError {
+fn vp8l_pack_argb(
+  img : @types.Image,
+) -> (Array[Int32], Int32, Int32) raise @types.LoadError {
   let w = img.width.to_int()
   let h = img.height.to_int()
   let ch = img.channels.to_int()
@@ -24,13 +26,15 @@ fn vp8l_pack_argb(img : @types.Image) -> (Array[Int], Int, Int) raise @types.Loa
     raise @types.LoadError::DecodeFailed("WebP 编码：图像尺寸无效")
   }
   if w > 16384 || h > 16384 {
-    raise @types.LoadError::DecodeFailed("WebP 编码：尺寸超出 VP8L 上限 16384")
+    raise @types.LoadError::DecodeFailed(
+      "WebP 编码：尺寸超出 VP8L 上限 16384",
+    )
   }
   if ch != 3 && ch != 4 {
     raise @types.LoadError::DecodeFailed("WebP 编码：仅支持 3/4 通道")
   }
   let n = w * h
-  let out : Array[Int] = Array::make(n, 0)
+  let out : Array[Int32] = Array::make(n, 0)
   for i in 0..<n {
     let base = i * ch
     let r = img.data[base].to_int()
@@ -43,13 +47,13 @@ fn vp8l_pack_argb(img : @types.Image) -> (Array[Int], Int, Int) raise @types.Loa
 }
 
 ///|
-fn vp8l_tokenize(pixels : Array[Int]) -> Vp8lTokenStream {
+fn vp8l_tokenize(pixels : Array[Int32]) -> Vp8lTokenStream {
   let n = pixels.length()
-  let kinds : Array[Int] = []
-  let v1 : Array[Int] = []
-  let v2 : Array[Int] = []
-  let head : Array[Int] = Array::make(4096, -1)
-  let chain : Array[Int] = Array::make(n, -1)
+  let kinds : Array[Int32] = []
+  let v1 : Array[Int32] = []
+  let v2 : Array[Int32] = []
+  let head : Array[Int32] = Array::make(4096, -1)
+  let chain : Array[Int32] = Array::make(n, -1)
   let mut i = 0
   while i < n {
     let mut best_len = 0
@@ -61,7 +65,10 @@ fn vp8l_tokenize(pixels : Array[Int]) -> Vp8lTokenStream {
       while j >= 0 && steps < 16 {
         if pixels[j] == pixels[i] {
           let mut l = 1
-          while l < 4096 && i + l < n && j + l < n && pixels[j + l] == pixels[i + l] {
+          while l < 4096 &&
+                i + l < n &&
+                j + l < n &&
+                pixels[j + l] == pixels[i + l] {
             l += 1
           }
           if l >= 3 && l > best_len && i - j <= 1048000 {
@@ -97,11 +104,11 @@ fn vp8l_tokenize(pixels : Array[Int]) -> Vp8lTokenStream {
       i += 1
     }
   }
-  Vp8lTokenStream::{ kinds, v1, v2 }
+  Vp8lTokenStream::{ kinds, v1, v2, }
 }
 
 ///|
-fn vp8l_ch(argb : Int, shift : Int) -> Int {
+fn vp8l_ch(argb : Int32, shift : Int32) -> Int32 {
   (argb >> shift) & 0xFF
 }
 
@@ -109,8 +116,8 @@ fn vp8l_ch(argb : Int, shift : Int) -> Int {
 /// 写一条图像流。`level0 = true` 时写 meta 位（主图），子分辨率图像不写。
 fn vp8l_write_image_stream(
   bw : Vp8lBits,
-  pixels : Array[Int],
-  width : Int,
+  pixels : Array[Int32],
+  width : Int32,
   level0 : Bool,
 ) -> Unit {
   let tok = vp8l_tokenize(pixels)
@@ -118,11 +125,11 @@ fn vp8l_write_image_stream(
   if level0 {
     bw.write(0, 1) // 单组前缀码
   }
-  let cg : Array[Int] = Array::make(280, 0)
-  let cr : Array[Int] = Array::make(256, 0)
-  let cb : Array[Int] = Array::make(256, 0)
-  let ca : Array[Int] = Array::make(256, 0)
-  let cd : Array[Int] = Array::make(40, 0)
+  let cg : Array[Int32] = Array::make(280, 0)
+  let cr : Array[Int32] = Array::make(256, 0)
+  let cb : Array[Int32] = Array::make(256, 0)
+  let ca : Array[Int32] = Array::make(256, 0)
+  let cd : Array[Int32] = Array::make(40, 0)
   for t in 0..<tok.kinds.length() {
     if tok.kinds[t] == 0 {
       let argb = tok.v1[t]
