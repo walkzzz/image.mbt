@@ -135,14 +135,10 @@ fn out_format(
 }
 
 ///|
-/// 读源文件并给出「原样另存时该用的格式」：源格式可写就沿用，否则退回 PNG。
-fn src_out_format(src : String) -> @types.ImageFormat raise @types.ImageError {
-  let f = @lib.detect_format(read_bytes(src))
-  if is_writable_format(f) {
-    f
-  } else {
-    @types.ImageFormat::Png
-  }
+/// 读源字节并给出「原样另存时该用的格式」：源格式可写就沿用，否则退回 PNG。
+/// 注意入参是字节而不是路径——源可能是 stdin，只能读一次。
+fn src_out_format(data : Bytes) -> @types.ImageFormat {
+  writable_format_of(data)
 }
 
 ///|
@@ -206,6 +202,19 @@ fn Flags::str(self : Flags, key : String, default : String) -> String {
 }
 
 ///|
+fn Flags::float(self : Flags, key : String, default : Float) -> Float {
+  match self.values.get(key) {
+    Some(v) =>
+      try {
+        Float::from_double(@string.parse_double(v))
+      } catch {
+        _ => default
+      }
+    None => default
+  }
+}
+
+///|
 pub fn limits_of(flags : Flags) -> @types.DecodeLimits {
   let base = @types.DecodeLimits::default_limits()
   let budget = flags.int("mem-budget", 0)
@@ -221,25 +230,6 @@ pub fn limits_of(flags : Flags) -> @types.DecodeLimits {
 }
 
 ///|
-fn read_image(path : String, limits : @types.DecodeLimits) -> @types.Image raise @types.ImageError {
-  @lib.decode_with_limits(read_bytes(path), limits)
-}
-
-///|
-fn save_image(
-  img : @types.Image,
-  path : String,
-  format : @types.ImageFormat,
-  quality : Int32,
-) -> Int raise @types.ImageError {
-  let bytes = try {
-    @lib.save_image_with_quality(img, format, quality)
-  } catch {
-    e => raise @types.image_error_from_load(e)
-  }
-  write_bytes(path, bytes)
-  bytes.length()
-}
 
 ///|
 fn result(pairs : Out) -> Out {
@@ -248,10 +238,10 @@ fn result(pairs : Out) -> Out {
 }
 
 ///|
-/// `info` — 只读头部，不整图解码，超大图也能秒回。
+/// `info` — 只读头部，不整图解码，超大图也能秒回；`-` 读 stdin。
 fn cmd_info(flags : Flags) -> Out raise @types.ImageError {
   let path = flags.positional[0]
-  let bytes = read_bytes(path)
+  let bytes = src_bytes(path)
   let (w, h) = @lib.check_decode_budget(bytes, limits_of(flags))
   result({
     "path": jstr(path),
@@ -260,31 +250,6 @@ fn cmd_info(flags : Flags) -> Out raise @types.ImageError {
     "height": jnum(h.to_int()),
     "bytes": jnum(bytes.length().to_int()),
   })
-}
-
-///|
-/// `decode` — 解码后重写，输出格式取自 `--format` 或**输出扩展名**（都没有则 PNG）。
-fn cmd_decode(flags : Flags) -> Out raise @types.ImageError {
-  let src = flags.positional[0]
-  let dst = flags.positional[1]
-  let img = read_image(src, limits_of(flags))
-  let fmt = out_format(flags, dst, @types.ImageFormat::Png)
-  let size = save_image(img, dst, fmt, flags.int("quality", 90))
-  result({
-    "src": jstr(src),
-    "dst": jstr(dst),
-    "format": jstr(format_name(fmt)),
-    "width": jnum(img.width),
-    "height": jnum(img.height),
-    "channels": jnum(img.channels),
-    "bytes": jnum(size.to_int()),
-  })
-}
-
-///|
-/// `encode` — 与 `decode` 同路径；语义上强调输出去哪，便于 agent 选词。
-fn cmd_encode(flags : Flags) -> Out raise @types.ImageError {
-  cmd_decode(flags)
 }
 
 ///|
@@ -300,7 +265,8 @@ fn cmd_resize(flags : Flags) -> Out raise @types.ImageError {
       "resize 需要正整数 --width 与 --height（当前 \{w}x\{h}）",
     )
   }
-  let img = read_image(src, limits_of(flags))
+  let input = src_bytes(src)
+  let img = @lib.decode_with_limits(input, limits_of(flags))
   let mode = flags.str("mode", "cover")
   let out = try {
     if mode == "contain" {
@@ -315,8 +281,11 @@ fn cmd_resize(flags : Flags) -> Out raise @types.ImageError {
   } catch {
     e => raise @types.image_error_from_load(e)
   }
-  let fmt = out_format(flags, dst, src_out_format(src))
-  let size = save_image(out, dst, fmt, flags.int("quality", 90))
+  let fmt = out_format(flags, dst, src_out_format(input))
+  let quality = quality_of(flags)
+  let data = encode_image(out, fmt, quality)
+  let dry = flags.has("dry-run")
+  let to_stdout = emit_bytes(dst, data, dry)
   result({
     "src": jstr(src),
     "dst": jstr(dst),
@@ -324,7 +293,10 @@ fn cmd_resize(flags : Flags) -> Out raise @types.ImageError {
     "height": jnum(out.height),
     "mode": jstr(mode),
     "format": jstr(format_name(fmt)),
-    "bytes": jnum(size.to_int()),
+    "bytes": jnum(data.length().to_int()),
+    "dry_run": jbool(dry),
+    "wrote": jbool(!dry),
+    "to_stdout": jbool(to_stdout),
   })
 }
 
@@ -333,7 +305,8 @@ fn cmd_resize(flags : Flags) -> Out raise @types.ImageError {
 fn cmd_crop(flags : Flags) -> Out raise @types.ImageError {
   let src = flags.positional[0]
   let dst = flags.positional[1]
-  let img = read_image(src, limits_of(flags))
+  let input = src_bytes(src)
+  let img = @lib.decode_with_limits(input, limits_of(flags))
   let x = flags.int("x", 0)
   let y = flags.int("y", 0)
   let w = flags.int("width", 0)
@@ -343,8 +316,11 @@ fn cmd_crop(flags : Flags) -> Out raise @types.ImageError {
   } catch {
     e => raise @types.image_error_from_load(e)
   }
-  let fmt = out_format(flags, dst, src_out_format(src))
-  let size = save_image(out, dst, fmt, flags.int("quality", 90))
+  let fmt = out_format(flags, dst, src_out_format(input))
+  let quality = quality_of(flags)
+  let data = encode_image(out, fmt, quality)
+  let dry = flags.has("dry-run")
+  let to_stdout = emit_bytes(dst, data, dry)
   result({
     "src": jstr(src),
     "dst": jstr(dst),
@@ -353,7 +329,10 @@ fn cmd_crop(flags : Flags) -> Out raise @types.ImageError {
     "width": jnum(out.width),
     "height": jnum(out.height),
     "format": jstr(format_name(fmt)),
-    "bytes": jnum(size.to_int()),
+    "bytes": jnum(data.length().to_int()),
+    "dry_run": jbool(dry),
+    "wrote": jbool(!dry),
+    "to_stdout": jbool(to_stdout),
   })
 }
 
@@ -361,7 +340,7 @@ fn cmd_crop(flags : Flags) -> Out raise @types.ImageError {
 /// `analyze` — 尺寸/通道/均值/极值/标准差，供 agent 判断过曝、全黑、低对比。
 fn cmd_analyze(flags : Flags) -> Out raise @types.ImageError {
   let src = flags.positional[0]
-  let bytes_in = read_bytes(src)
+  let bytes_in = src_bytes(src)
   let img = @lib.decode_with_limits(bytes_in, limits_of(flags))
   let ch = img.channels
   let n = img.width * img.height
@@ -413,7 +392,8 @@ fn cmd_analyze(flags : Flags) -> Out raise @types.ImageError {
 fn cmd_sanitize(flags : Flags) -> Out raise @types.ImageError {
   let src = flags.positional[0]
   let dst = flags.positional[1]
-  let img = read_image(src, limits_of(flags))
+  let input = src_bytes(src)
+  let img = @lib.decode_with_limits(input, limits_of(flags))
   let policy = flags.str("policy", "metadata")
   // 格式优先级：`--format` > 输出扩展名 > policy 默认（strict 强制 png，其余沿用源格式能写的那支）。
   // 早先只有 `--format` 与「源格式」两条路，`sanitize a.jpg out.png` 会写出 JPEG 字节，
@@ -421,7 +401,7 @@ fn cmd_sanitize(flags : Flags) -> Out raise @types.ImageError {
   let base = if policy == "strict" {
     @types.ImageFormat::Png
   } else {
-    match @lib.detect_format(read_bytes(src)) {
+    match @lib.detect_format(input) {
       @types.ImageFormat::Jpeg => @types.ImageFormat::Jpeg
       @types.ImageFormat::Webp => @types.ImageFormat::Webp
       _ => @types.ImageFormat::Png
@@ -441,7 +421,8 @@ fn cmd_sanitize(flags : Flags) -> Out raise @types.ImageError {
   let blur = flags.int("blur", 8)
   let quality = flags.int("quality", 90)
   let res = sanitize_image(img, policy, regions, block, blur, fmt, quality)
-  write_bytes(dst, res.bytes)
+  let dry = flags.has("dry-run")
+  let to_stdout = emit_bytes(dst, res.bytes, dry)
   let hits = metadata_hits(res.bytes)
   let mut hit_text = ""
   for h in hits {
@@ -460,6 +441,9 @@ fn cmd_sanitize(flags : Flags) -> Out raise @types.ImageError {
     "blurred": jbool(res.blurred),
     "metadata_free": jbool(hits.length() == 0),
     "metadata_hits": jstr(hit_text),
+    "dry_run": jbool(dry),
+    "wrote": jbool(!dry),
+    "to_stdout": jbool(to_stdout),
   })
 }
 
@@ -502,7 +486,7 @@ pub fn error_json(e : @types.ImageError) -> Out {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.12"
+pub let version : String = "0.1.13"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。
@@ -510,16 +494,25 @@ pub fn help_text() -> String {
   "imgtool \{version} — 图像命令行（结果走单行 JSON，错误也走 JSON 并以退出码 1 结束）\n\n" +
   "用法:\n" +
   "  imgtool info     <in>\n" +
-  "  imgtool decode   <in> <out> [--format auto|png|jpeg|webp|bmp|qoi|pnm|tga|gif] [--quality 1-100]\n" +
-  "  imgtool encode   <in> <out> [--format ...] [--quality 1-100]\n" +
-  "  imgtool resize   <in> <out> --width N --height N [--mode cover|contain] [--format ...]\n" +
-  "  imgtool crop     <in> <out> --x N --y N --width N --height N [--format ...]\n" +
+  "  imgtool convert  <in> <out> [--format auto|png|jpeg|webp|bmp|qoi|pnm|tga|gif] [--quality 1-100]\n" +
+  "                             [--best] [--max-bytes N] [--dry-run]\n" +
+  "  imgtool resize   <in> <out> --width N --height N [--mode cover|contain] [--format ...] [--dry-run]\n" +
+  "  imgtool crop     <in> <out> --x N --y N --width N --height N [--format ...] [--dry-run]\n" +
+  "  imgtool filter   <in> <out> --op box|gaussian|sharpen|median|bilateral|nlm\n" +
+  "                             [--radius N] [--sigma F] [--amount F] [--ksize N]\n" +
+  "                             [--sigma-color F] [--patch N] [--search N] [--h N]\n" +
+  "                             [--format ...] [--quality 1-100] [--dry-run]\n" +
   "  imgtool analyze  <in>\n" +
   "  imgtool sanitize <in> <out> [--policy metadata|standard|strict] [--regions \"x,y,w,h;...\"]\n" +
-  "                             [--block N] [--blur N] [--format ...] [--quality 1-100]\n" +
+  "                             [--block N] [--blur N] [--format ...] [--quality 1-100] [--dry-run]\n" +
+  "  imgtool bench    <in> [--iters N] [--formats png,jpeg,webp] [--quality 1-100]\n" +
+  "                             [--width N --height N]\n" +
   "  imgtool help | version\n\n" +
+  "  decode / encode 是 convert 的同义别名（旧的脚本继续可用）。\n\n" +
   "通用:\n" +
+  "  <in> / <out> 写 - 表示 stdin / stdout（此时 JSON 结果改走 stderr）\n" +
   "  --format 省略时按**输出扩展名**推断，再无则 PNG（resize/crop 退回源格式）\n" +
+  "  --dry-run 只算不写：仍然完整编码，返回体积与格式，但不落盘\n" +
   "  --mem-budget BYTES  解码前设内存上限（含 max_pixels = BYTES/8）\n" +
   "  --max-pixels N      单独限制像素数\n"
 }
@@ -535,7 +528,9 @@ fn usage() -> Out {
   {
     "ok": jbool(false),
     "code": jstr("process/invalid_argument"),
-    "message": jstr("未知子命令。可用: info decode encode resize crop analyze sanitize help version"),
+    "message": jstr(
+      "未知子命令。可用: info convert resize crop filter analyze sanitize bench help version（decode/encode 为 convert 别名）",
+    ),
     "hint": jstr(
       "跑 `imgtool help` 看完整用法；每个子命令都输出单行 JSON；省略 --format 时按输出扩展名推断",
     ),
@@ -555,12 +550,13 @@ pub fn dispatch(args : Array[String]) -> Out raise @types.ImageError {
   let flags = parse_flags(rest)
   match sub {
     "info" => cmd_info(flags)
-    "decode" => cmd_decode(flags)
-    "encode" => cmd_encode(flags)
+    "convert" | "decode" | "encode" => cmd_convert(flags)
     "resize" => cmd_resize(flags)
     "crop" => cmd_crop(flags)
+    "filter" => cmd_filter(flags)
     "analyze" => cmd_analyze(flags)
     "sanitize" => cmd_sanitize(flags)
+    "bench" => cmd_bench(flags)
     _ => usage()
   }
 }
@@ -599,7 +595,14 @@ pub fn run() -> Unit {
   } catch {
     e => error_json(e)
   }
-  println(@json.Json::object(out).stringify())
+  // stdout 已经被二进制占用（dst 写 `-`）时，JSON 结果改走 stderr，
+  // 否则 `imgtool convert in.png - | ...` 的管道会把 JSON 混进图片字节。
+  let line = @json.Json::object(out).stringify()
+  if json_to_stderr(args) {
+    eprintln(line)
+  } else {
+    println(line)
+  }
   let ok = match out.get("ok") {
     Some(@json.Json::True) => true
     _ => false

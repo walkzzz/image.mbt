@@ -6,10 +6,10 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.12-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.12-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.13-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.13-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_701×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_726×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-83.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
@@ -42,7 +42,7 @@ Beyond feature development, this project built a **self_evolve closed loop** (do
 - **Evolution recommendation engine**: recommends the next evolution step from current state (v298)
 - **Coverage blind-spot analysis**: automatically locates test coverage blind spots (v297)
 
-> The test count growth visible across versions (3378 → 6574 → 6,701, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
+> The test count growth visible across versions (3378 → 6574 → 6,726, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
 
 ---
 
@@ -61,7 +61,7 @@ Fully pure MoonBit, no C compiler needed. `moon add walkzzz/image.mbt` and you'r
 
 ### 🟢 Four Targets Native
 
-native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,701 tests × 4 targets all green.
+native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,726 tests × 4 targets all green.
 
 </td>
 </tr>
@@ -227,16 +227,25 @@ moon build --release cmd/imgtool
 
 # CLI: always one-line JSON on stdout
 imgtool analyze photo.jpg
+imgtool convert photo.jpg out.webp --best          # pick the smallest of PNG/JPEG/WebP/QOI by real encoded size
 imgtool resize photo.jpg thumb.png --width 320 --height 180 --mode cover
+imgtool filter photo.jpg soft.png --op gaussian --radius 2 --sigma 1.5
 imgtool sanitize photo.jpg clean.jpg                # strip EXIF/GPS/XMP/ICC only
 imgtool sanitize photo.jpg clean.jpg --policy standard --regions "120,80,220,260"  # redact known face area
 imgtool sanitize photo.jpg clean.png --policy strict                                # whole-image blur fallback
+imgtool bench photo.jpg --iters 5                   # mean per iteration (us) for decode / encode / resize
+
+# Pipes: "-" means stdin / stdout; the JSON result moves to stderr
+imgtool convert - - --format png < in.png > out.png
+
+# Dry run: full encode, report size/format, write nothing
+imgtool convert photo.jpg out.webp --best --dry-run
 
 # MCP: for Claude Code / Cursor and any stdio host
 node mcp/server.mjs
 ```
 
-Six tools (`decode / encode / resize / crop / analyze / sanitize`), JSON Schema, `{code,message,hint}` structured errors, and a decode-time `--mem-budget`. See [docs/mcp.md](docs/mcp.md); the three sanitize policies, region syntax and the 200-sample acceptance are in [docs/sanitize.md](docs/sanitize.md).
+CLI ships 8 subcommands (`info / convert / resize / crop / filter / analyze / sanitize / bench`; `decode`/`encode` are aliases of `convert`) with one-line JSON, `--dry-run` and `-` pipes; the MCP side keeps six tools, JSON Schema, `{code,message,hint}` errors and a decode-time `--mem-budget`. CLI reference (flags and JSON fields): [docs/cli.md](docs/cli.md); MCP: [docs/mcp.md](docs/mcp.md); the three sanitize policies, region syntax and the 200-sample acceptance are in [docs/sanitize.md](docs/sanitize.md).
 
 ### Advanced: SIFT Feature Matching
 
@@ -367,10 +376,10 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 
 | Target | Backend | Tests | Status |
 |:------:|:-------:|------:|:------:|
-| **native** | Pure MoonBit | 6,701 | ✅ |
-| **wasm-gc** | Pure MoonBit | 6,701 | ✅ |
-| **js** | Pure MoonBit | 6,701 | ✅ |
-| **wasm** | Pure MoonBit | 6,701 | ✅ |
+| **native** | Pure MoonBit | 6,726 | ✅ |
+| **wasm-gc** | Pure MoonBit | 6,726 | ✅ |
+| **js** | Pure MoonBit | 6,726 | ✅ |
+| **wasm** | Pure MoonBit | 6,726 | ✅ |
 
 > Same codebase, **no conditional compilation**, all four targets share all source files.
 
@@ -427,7 +436,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 # Compile check (four targets)
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# Run tests (6,701 × 4 targets)
+# Run tests (6,726 × 4 targets)
 moon test --target native
 moon test --target wasm-gc
 moon test --target js

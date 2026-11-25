@@ -1,7 +1,7 @@
 ﻿# 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-25）：版本 0.1.12 · 6,701 测试 × 4 目标 · 77 包 · 覆盖率 83.4% · prove 8 goals。
+> 当前口径（2026-11-25）：版本 0.1.13 · 6,726 测试 × 4 目标 · 77 包 · 覆盖率 83.4% · prove 8 goals。
 
 ## 功能边界
 
@@ -27,7 +27,7 @@
 | GAP-13 | ~~示例集缺失~~ **已闭环（2026-11-20）** | `examples/` 7 个可运行示例 | ✅ `raw_to_png` / `resize_demo` / `threshold_otsu` / `format_detect` / `lossless_roundtrip` / `canny_edges` / `gaussian_blur`，内嵌合成数据、零外部依赖 |
 | GAP-14 | ~~无 tag / Release~~ **已闭环（2026-11-20）** | tag `v0.1.1` + GitHub Release 已创建；`scripts/publish.sh` 按依赖序发布（上传由维护者执行） | ✅ 版本门禁 `scripts/check_version.mjs`（12 项一致）；mooncakes 0.1.1 上传仍待维护者执行 |
 | GAP-17 | VP8 解码要求偶数宽高（YUV420 色度平面对齐）；奇数尺寸返回明确 `DecodeFailed` | 编码器已支持奇数（UV ceil）；解码器正确 ceil 平面支持列入后续 | 已消除 panic；文档注明限制 |
-| GAP-29 | `imgtool` CLI / MCP 依赖 native 文件系统（`moonbitlang/x/fs`） | 库包四目标仍可编译，wasm/js 下同签名返回 `decode/unsupported_format` | 浏览器侧出口列 S12；`docs/mcp.md` 已写明 |
+| GAP-29 | `imgtool` CLI / MCP 依赖 native 文件系统（`moonbitlang/x/fs`），`-` 管道另依赖 `imgcli/stdio_stub.c` | 库包四目标仍可编译，wasm/js 下同签名返回 `decode/unsupported_format` | 浏览器侧出口列 S12；`docs/mcp.md` 与 CLI `help` 已写明 |
 | GAP-30 | MCP 层无路径沙箱，读哪由进程用户权限决定 | 接不可信输入存在越权读文件可能 | 用容器/受限账号运行，并同时给 `--mem-budget` |
 | GAP-31 | `max_ms` 仍无强制中断（S04 遗留） | 纯同步解码循环无法中途 kill | 需要可让出/可取消的解码循环，未排期 |
 | GAP-32 | 根 `moon.mod` 依赖钉停在 `@0.1.1`，与工作区 0.1.7 错配 → `moon publish --dry-run` 拿旧版子模块编新代码，报 56 个 API 缺失 | **钉子部分已闭环（2026-11-25）**：`bump_version.mjs` 同步改写 7 个 `moon.mod` 的 `walkzzz/image.*@x.y.z` 钉，`check_version.mjs` 新增第 14 项守门。残余只差发布顺序：registry 里没有 0.1.7 子模块 | ✅ 钉子现为 `@0.1.7`、门禁 14 项全绿；⏳ 待发六个子模块 0.1.7 后根包 dry-run 转绿（详见 `docs/release.md`） |
@@ -52,7 +52,7 @@
 
 ## 测试口径
 
-- **6,701 为 native 实测**（2026-11-25）；四目标由 CI `test` job 矩阵实测。
+- **6,726 为 native 实测**（2026-11-25）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 

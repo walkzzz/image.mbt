@@ -13,21 +13,39 @@ pub fn contains_ascii(Bytes, String) -> Bool
 
 pub fn dispatch(Array[String]) -> Map[String, @json.Json] raise @types.ImageError
 
+pub fn emit_bytes(String, Bytes, Bool) -> Bool raise @types.ImageError
+
+pub fn encode_image(@types.Image, @types.ImageFormat, Int32) -> Bytes raise @types.ImageError
+
 pub fn error_json(@types.ImageError) -> Map[String, @json.Json]
 
 pub fn help_text() -> String
+
+pub fn is_stdin_path(String) -> Bool
+
+pub fn is_stdout_path(String) -> Bool
+
+pub fn json_to_stderr(Array[String]) -> Bool
 
 pub fn limits_of(Flags) -> @types.DecodeLimits
 
 pub fn metadata_hits(Bytes) -> Array[String]
 
+pub fn normalize_filter_op(String) -> String?
+
 pub fn parse_flags(Array[String]) -> Flags
+
+pub fn parse_format_list(String) -> Array[String]
 
 pub fn parse_region(String) -> Region?
 
 pub fn parse_regions(String) -> Array[Region] raise @types.ImageError
 
+pub fn quality_of(Flags) -> Int32 raise @types.ImageError
+
 pub fn read_bytes(String) -> Bytes raise @types.ImageError
+
+pub fn read_stdin_bytes() -> Bytes?
 
 pub fn redact_all(@types.Image, Int32) -> @types.Image raise @types.ImageError
 
@@ -37,11 +55,17 @@ pub fn run() -> Unit
 
 pub fn sanitize_image(@types.Image, String, Array[Region], Int32, Int32, @types.ImageFormat, Int32) -> SanitizeResult raise @types.ImageError
 
+pub fn src_bytes(String) -> Bytes raise @types.ImageError
+
 pub let version : String
 
 pub fn version_text() -> String
 
+pub fn writable_format_of(Bytes) -> @types.ImageFormat
+
 pub fn write_bytes(String, Bytes) -> Unit raise @types.ImageError
+
+pub fn write_stdout_bytes(Bytes) -> Bool
 
 // Errors
 

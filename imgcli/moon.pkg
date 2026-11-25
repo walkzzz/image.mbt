@@ -6,9 +6,14 @@ import {
   "moonbitlang/core/json",
   "moonbitlang/core/env",
   "moonbitlang/core/string",
+  "moonbitlang/core/bench",
 }
 
 #cfg(target="native")
 import {
   "moonbitlang/x/fs",
 }
+
+options(
+  "native-stub": [ "stdio_stub.c" ],
+)

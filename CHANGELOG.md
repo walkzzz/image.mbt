@@ -4,6 +4,32 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.13] - 2026-11-25
+
+### Added
+
+- **CLI 扩到 8 个子命令**：`info / convert / resize / crop / filter / analyze / sanitize / bench`。
+  `decode` / `encode` 保留为 `convert` 的同义别名，旧脚本不用改。
+- **`convert --best`**：接 S10 的 `encode_best`（逐候选实编取最小）；`--max-bytes N` 接 `encode_best_limited`，
+  超限报 `budget/limit_bytes`。`--best` 与显式 `--format` 互斥（避免"说要 PNG 又偷偷换格式"）。
+- **`filter`**：box / gaussian / sharpen / median / bilateral / nlm 六种算子，
+  参数 `--radius / --sigma / --amount / --ksize / --sigma-color / --patch / --search / --h`。
+- **`bench`**：解码、逐格式编码、可选缩放的每轮均值（微秒），`--iters` 限 1-1000。
+- **`--dry-run`**：convert / resize / crop / filter / sanitize 统一支持——完整解码、处理、编码，
+  返回体积与格式但**不落盘**，便于脚本先算预算。
+- **stdin / stdout 管道**：路径写 `-` 即 stdin 或 stdout（与 ImageMagick/ffmpeg 同约定），
+  此时 JSON 结果自动改走 stderr。底层由 `imgcli/stdio_stub.c` + `pipe.mbt` 提供（native；
+  Windows 下把 stdio 切到二进制模式，否则 0x1A 会被当成文本 EOF）。
+
+### Verified
+
+- 320×240 PNG（Pillow 生成、三色块）：`convert --best` 得 WebP **404 B**，同图 PNG 为 2,386 B；
+  `--best --max-bytes 100` 正确报 `budget/limit_bytes`。
+- 管道：`imgtool convert - - --format png < sample.png > pipe.png`，Pillow 回读 320×240 RGB 与原图一致，JSON 落在 stderr。
+- `--dry-run`：`sanitize ... --dry-run` 返回 `regions_redacted=1, wrote=false`，目标文件未被创建。
+- `filter` 六个算子各跑一遍均成功；`bench` 在 320×240 上给出 decode ≈2.3 ms、qoi 编码 ≈0.23 ms（本机参考值，不作跨机基准）。
+- 四目标 `moon test --target all`：**6726/6726 通过**（wasm / wasm-gc / js / native 各 6726，failed 0）。
+
 ## [0.1.12] - 2026-11-25
 
 ### Added

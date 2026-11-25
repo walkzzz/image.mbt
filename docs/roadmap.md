@@ -261,6 +261,11 @@
   **顺带修掉一个真 bug**：WebP 无损的距离前缀误用了长度前缀表（上限 4096），距离 >4096 时 extra 位数非法，
   码流可解析但像素被写成别的颜色块（128×192 三色横条错 12,288 像素）。现改用 RFC 9649 的 40 项距离前缀
   （`vp8l_encode_distance`），tokenizer 距离上限收到 1,048,000；Pillow 12.3 与本库双向解码均为 0 差异。
+- ✅ **S11 CLI 8 子命令（2026-11-25）**：`info/convert/resize/crop/filter/analyze/sanitize/bench`（`decode`/`encode` 保留为 `convert` 别名）；
+  `--dry-run` 完整编码但不落盘；路径 `-` 走 stdin/stdout（JSON 改走 stderr）；`convert --best` 接 S10 选格式、
+  `--max-bytes` 接出口限额；`filter` 覆盖 box/gaussian/sharpen/median/bilateral/nlm；`bench` 给 decode/encode/resize 的每轮均值（微秒）。
+  **口径**：管道靠 `imgcli/stdio_stub.c`（native）实现，wasm/js 返回 `UnsupportedFormat`；`bench` 是耗时参考，不是跨机基准。
+  **实测（320×240 PNG）**：`convert --best` 404 B（PNG 2,386 B）；`--dry-run` 返回 `wrote:false` 且目标不存在；`< in.png > out.png` 管道回读 320×240 RGB 一致。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 

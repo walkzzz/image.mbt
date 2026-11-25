@@ -6,10 +6,10 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.12-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.12-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.13-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.13-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_701×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_726×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-83.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
@@ -44,7 +44,7 @@
 - **演化推荐引擎**：根据当前状态推荐下一步演化方向（v298）
 - **覆盖盲区分析**：自动定位测试覆盖盲区（v297）
 
-> 意义：评审看到的每个版本测试数增长（3378 → 6574 → 6,701，含包重命名重构期与 mp4 包修复期）背后，有一条**可复现的自动化工程流水线**——这是"工程质量"维度最硬的证据，也是 stb_image.h 等 C 参照项目不具备的能力。
+> 意义：评审看到的每个版本测试数增长（3378 → 6574 → 6,726，含包重命名重构期与 mp4 包修复期）背后，有一条**可复现的自动化工程流水线**——这是"工程质量"维度最硬的证据，也是 stb_image.h 等 C 参照项目不具备的能力。
 
 ---
 
@@ -67,7 +67,7 @@
 
 ### 🟢 四目标原生
 
-native / wasm-gc / js / wasm 共用同一代码库，**无条件编译**。6,701 测试 × 4 目标全绿。形式化验证 8 goals proved（另有 8 条预留谓词，SMT 超时与前端限制清单见 core/safe_math）。
+native / wasm-gc / js / wasm 共用同一代码库，**无条件编译**。6,726 测试 × 4 目标全绿。形式化验证 8 goals proved（另有 8 条预留谓词，SMT 超时与前端限制清单见 core/safe_math）。
 
 </td>
 </tr>
@@ -335,16 +335,25 @@ moon build --release cmd/imgtool
 imgtool analyze photo.jpg
 # {"path":"photo.jpg","format":"jpeg","width":1920,"height":1080,"channels":3,"mean":[…],"ok":true}
 
+imgtool convert photo.jpg out.webp --best          # 在 PNG/JPEG/WebP/QOI 里按实际编码体积选最小
 imgtool resize photo.jpg thumb.png --width 320 --height 180 --mode cover
+imgtool filter photo.jpg soft.png --op gaussian --radius 2 --sigma 1.5
 imgtool sanitize photo.jpg clean.jpg                # 只剥 EXIF/GPS/XMP/ICC
 imgtool sanitize photo.jpg clean.jpg --policy standard --regions "120,80,220,260"  # 打码已知人脸区
 imgtool sanitize photo.jpg clean.png --policy strict                                # 整图模糊兜底
+imgtool bench photo.jpg --iters 5                   # decode / encode / resize 每轮均值（微秒）
+
+# 管道：路径写 - 即 stdin / stdout，JSON 结果改走 stderr
+imgtool convert - - --format png < in.png > out.png
+
+# 只算不写：完整编码后返回体积与格式，但不落盘
+imgtool convert photo.jpg out.webp --best --dry-run
 
 # MCP：给 Claude Code / Cursor 等 host 用
 node mcp/server.mjs
 ```
 
-6 个工具（`decode / encode / resize / crop / analyze / sanitize`）、JSON Schema、`{code,message,hint}` 结构化错误、`--mem-budget` 解码前限额。详见 [docs/mcp.md](docs/mcp.md)；脱敏三档 policy、区域语法与 200 张样本验收见 [docs/sanitize.md](docs/sanitize.md)。
+CLI 8 个子命令（`info / convert / resize / crop / filter / analyze / sanitize / bench`，`decode`/`encode` 是 `convert` 别名），统一单行 JSON、`--dry-run`、`-` 管道；MCP 侧 6 个工具、JSON Schema、`{code,message,hint}` 结构化错误、`--mem-budget` 解码前限额。CLI 全参数与 JSON 字段见 [docs/cli.md](docs/cli.md)；MCP 详见 [docs/mcp.md](docs/mcp.md)；脱敏三档 policy、区域语法与 200 张样本验收见 [docs/sanitize.md](docs/sanitize.md)。
 
 ### 高级：SIFT 特征匹配
 
@@ -486,10 +495,10 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 
 | 目标 | 后端 | 测试 | 状态 |
 |:----:|:----:|-----:|:----:|
-| **native** | 纯 MoonBit | 6,701 | ✅ |
-| **wasm-gc** | 纯 MoonBit | 6,701 | ✅ |
-| **js** | 纯 MoonBit | 6,701 | ✅ |
-| **wasm** | 纯 MoonBit | 6,701 | ✅ |
+| **native** | 纯 MoonBit | 6,726 | ✅ |
+| **wasm-gc** | 纯 MoonBit | 6,726 | ✅ |
+| **js** | 纯 MoonBit | 6,726 | ✅ |
+| **wasm** | 纯 MoonBit | 6,726 | ✅ |
 
 > 同一代码库，**无条件编译**，四目标共用所有源码。
 
@@ -549,7 +558,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 # 编译检查（四目标）
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# 运行测试（6,701 × 4 目标）
+# 运行测试（6,726 × 4 目标）
 moon test --target native
 moon test --target wasm-gc
 moon test --target js
