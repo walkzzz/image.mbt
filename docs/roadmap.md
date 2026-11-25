@@ -181,11 +181,25 @@
 
 **目标**：非 MoonBit 用户（包括 agent）能调。
 
+**状态：已完成（2026-11-25，版本 0.1.5）**
+
 **交付**：MCP server，6 个工具起步：`decode / encode / resize / crop / analyze / sanitize`；JSON Schema + 结构化错误；一条 stdio 启动命令。
 
-**验收**：20 条脚本化用例 ≥95% 通过；启动 ≤1s；失败返回 `{code, message, hint}`；`--mem-budget` 生效。
+| 项 | 内容 | 验收 |
+|---|---|---|
+| MoonBit CLI | `imgcli` 库包（可测）+ `cmd/imgtool` 入口；7 个子命令：`info/decode/encode/resize/crop/analyze/sanitize`；结果单行 JSON | 7 子命令手动往返全通过；5 条 whitebox 测试 ✅ |
+| MCP 协议层 | `mcp/server.mjs`：`initialize / tools/list / tools/call / ping`，newline-delimited JSON-RPC，零第三方依赖 | 27/27 用例通过，冷启动 **73 ms** ✅ |
+| 6 工具 schema | 每个工具 `inputSchema` 为 object + required 数组；省略 `output` 时直接内联 base64 图片 + mimeType | 04/07/08 用例断言 ✅ |
+| 结构化错误 | imgtool 失败 → `{ok:false, code, message, hint}`；MCP 侧 `isError:true` 原样透传 | 18/19/20/22/24/25 用例 ✅ |
+| `--mem-budget` | MCP `mem_budget` 或环境 `IMGTOOL_MEM_BUDGET` → CLI `--mem-budget` → `DecodeLimits`（像素按 8 字节/像素换算） | 1 KiB 预算下正常 PNG 被 `budget/limit_bytes` 拒绝 ✅ |
+| 文档 | `docs/mcp.md`（协议、6 工具、错误契约、Claude/Cursor 配置片段、CLI 直用） | 双语 README 已挂链 ✅ |
+
+**关键设计**：MCP 进程只做协议/参数校验/文件桥接，图像逻辑全部在 MoonBit 侧——CLI 与 MCP 共用一条代码路径，行为不会漂移；因此 `moon test` 与 `smoke.mjs` 覆盖的是同一份实现。`moonbitlang/x` 只为 CLI 的文件读写引入，库用户不受影响。
+
+**验收结果**：20 条门槛 → 实交 **27 条脚本化用例全绿**（`node scripts/mcp/smoke.mjs`）；启动 73 ms（门槛 1 s）。
 
 **风险**：工具一次上太多 → 先 6 个，schema 稳定后再加。**npm-wasm 出口推到 S12，不同时做两个出口。**
+
 
 ---
 

@@ -1,0 +1,5 @@
+import {
+  "walkzzz/image.mbt/imgcli",
+}
+
+pkgtype(kind: "executable")

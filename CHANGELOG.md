@@ -12,6 +12,20 @@
 - **`playground/` 导出层**：4 个函数（版本、QR PNG、滤镜 PNG、PNG 摘要），PNG 以十六进制字符串跨 JS 边界，无需后端。
 - **`scripts/check_pages.mjs`**：49 项门禁（构建产物、导出、QR/滤镜/摘要语义、页面结构、模块链接、口径数字）。
 
+## [0.1.5] - 2026-11-25
+
+### Added
+
+- **CLI `imgtool`**：`imgcli` 库包（可 whitebox 测试）+ `cmd/imgtool` 入口，7 个子命令 `info / decode / encode / resize / crop / analyze / sanitize`；结果恒为 stdout 单行 JSON，失败退出码 1。
+- **MCP server**（`mcp/server.mjs`）：stdio JSON-RPC 2.0（`initialize / tools/list / tools/call / ping`），6 个工具（`decode / encode / resize / crop / analyze / sanitize`）+ JSON Schema；省略 `output` 时直接以内联 base64 图片返回。零第三方依赖，冷启动 73 ms。
+- **`--mem-budget` 全链路生效**：MCP `mem_budget` / `IMGTOOL_MEM_BUDGET` / CLI `--mem-budget` → `DecodeLimits`（`max_bytes = N`，`max_pixels = N/8`），仍在解码分配前拒绝。
+- **`scripts/mcp/smoke.mjs`**：27 条端到端用例（正常 7 工具 + 9 类失败 + 协议面），当前 27/27。
+- **`docs/mcp.md`**：启动、6 工具表、错误契约、限额三入口、CLI 直用、验证与已知限制。
+
+### Changed
+
+- 新增根模块依赖 `moonbitlang/x@0.5.9`，**仅供 CLI 文件读写**（`imgcli/io.mbt` 用 `#cfg(target="native")` 分叉，wasm/js 下保留同签名的拒绝实现，四目标编译门禁不受影响）。
+
 ## [0.1.4] - 2026-11-25
 
 ### Added

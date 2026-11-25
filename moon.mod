@@ -1,6 +1,6 @@
 name = "walkzzz/image.mbt"
 
-version = "0.1.4"
+version = "0.1.5"
 
 license = "MIT"
 
@@ -35,4 +35,5 @@ import {
   "walkzzz/image.photography@0.1.1",
   "walkzzz/image.vision@0.1.1",
   "walkzzz/image.domain@0.1.1",
+  "moonbitlang/x@0.5.9",
 }

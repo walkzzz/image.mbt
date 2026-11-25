@@ -1,7 +1,7 @@
 ﻿# 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-25）：版本 0.1.4 · 6,686 测试 × 4 目标 · 73 包 · 覆盖率 83.4% · prove 8 goals。
+> 当前口径（2026-11-25）：版本 0.1.5 · 6,691 测试 × 4 目标 · 75 包 · 覆盖率 83.4% · prove 8 goals。
 
 ## 功能边界
 
@@ -27,6 +27,9 @@
 | GAP-13 | ~~示例集缺失~~ **已闭环（2026-11-20）** | `examples/` 7 个可运行示例 | ✅ `raw_to_png` / `resize_demo` / `threshold_otsu` / `format_detect` / `lossless_roundtrip` / `canny_edges` / `gaussian_blur`，内嵌合成数据、零外部依赖 |
 | GAP-14 | ~~无 tag / Release~~ **已闭环（2026-11-20）** | tag `v0.1.1` + GitHub Release 已创建；`scripts/publish.sh` 按依赖序发布（上传由维护者执行） | ✅ 版本门禁 `scripts/check_version.mjs`（12 项一致）；mooncakes 0.1.1 上传仍待维护者执行 |
 | GAP-17 | VP8 解码要求偶数宽高（YUV420 色度平面对齐）；奇数尺寸返回明确 `DecodeFailed` | 编码器已支持奇数（UV ceil）；解码器正确 ceil 平面支持列入后续 | 已消除 panic；文档注明限制 |
+| GAP-29 | `imgtool` CLI / MCP 依赖 native 文件系统（`moonbitlang/x/fs`） | 库包四目标仍可编译，wasm/js 下同签名返回 `decode/unsupported_format` | 浏览器侧出口列 S12；`docs/mcp.md` 已写明 |
+| GAP-30 | MCP 层无路径沙箱，读哪由进程用户权限决定 | 接不可信输入存在越权读文件可能 | 用容器/受限账号运行，并同时给 `--mem-budget` |
+| GAP-31 | `max_ms` 仍无强制中断（S04 遗留） | 纯同步解码循环无法中途 kill | 需要可让出/可取消的解码循环，未排期 |
 | GAP-18 | ~~QR 数据级往返未打通~~ **已闭环（2026-11-21）** | 修复 4 处解码器缺陷（垂直验证起点 / 重复计数与坐标语义 / 版本公式 / 格式信息位序） | ✅ testgen `render_qr` → `decode_qrcode_full` 往返 `hello` 成功 |
 | GAP-19 | ~~VP8 inter 帧尺寸取 header（恒 0 → 恒拒绝）~~ **已闭环（2026-11-21）** | inter 帧头无分辨率，改为回退参考帧宽高（保留偶数对齐守卫） | ✅ inter 帧解码 16×16 通过；覆盖率 +88 行 |
 | GAP-20 | ~~EAN-13 / UPC-A 无输入样本~~ **已闭环（2026-11-21）** | 解码器 `String` 索引（`data[0] == '0'`）恒为 false，UPC-A 包装层恒返回 None | ✅ 白盒生成器用同包编码表渲染条码；EAN-13 往返 `0490000123457`、UPC-A 往返 `490000123457` 均成功（改用 `[0:1].to_owned()` 比较） |
@@ -48,7 +51,7 @@
 
 ## 测试口径
 
-- **6,686 为 native 实测**（2026-11-25）；四目标由 CI `test` job 矩阵实测。
+- **6,691 为 native 实测**（2026-11-25）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 

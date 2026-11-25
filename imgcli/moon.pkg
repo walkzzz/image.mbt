@@ -1,0 +1,13 @@
+import {
+  "walkzzz/image.core/types",
+  "walkzzz/image.codec/lib",
+  "walkzzz/image.process/transform",
+  "moonbitlang/core/json",
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+}
+
+#cfg(target="native")
+import {
+  "moonbitlang/x/fs",
+}

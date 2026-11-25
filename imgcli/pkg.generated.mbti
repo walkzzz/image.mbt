@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.mbt/imgcli"
+
+import {
+  "moonbitlang/core/json",
+  "walkzzz/image.core/types",
+}
+
+// Values
+pub fn contains_ascii(Bytes, String) -> Bool
+
+pub fn dispatch(Array[String]) -> Map[String, @json.Json] raise @types.ImageError
+
+pub fn error_json(@types.ImageError) -> Map[String, @json.Json]
+
+pub fn limits_of(Flags) -> @types.DecodeLimits
+
+pub fn parse_flags(Array[String]) -> Flags
+
+pub fn read_bytes(String) -> Bytes raise @types.ImageError
+
+pub fn run() -> Unit
+
+pub fn write_bytes(String, Bytes) -> Unit raise @types.ImageError
+
+// Errors
+
+// Types and methods
+type Flags
+
+// Type aliases
+
+// Traits

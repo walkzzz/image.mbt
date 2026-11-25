@@ -1,7 +1,7 @@
 ﻿import fs from "node:fs";
 
-const FROM = "0.1.3";
-const TO = "0.1.4";
+const FROM = "0.1.4";
+const TO = "0.1.5";
 const mods = [
   "moon.mod",
   "image.core/moon.mod",

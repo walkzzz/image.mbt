@@ -6,15 +6,15 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.4-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.4-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.5-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.5-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_686×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_691×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-83.4%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-73-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-75-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-Contest-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 简体中文 · [English](README.en.md)
@@ -42,7 +42,7 @@ Beyond feature development, this project built a **self_evolve closed loop** (do
 - **Evolution recommendation engine**: recommends the next evolution step from current state (v298)
 - **Coverage blind-spot analysis**: automatically locates test coverage blind spots (v297)
 
-> The test count growth visible across versions (3378 → 6574 → 6,686, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
+> The test count growth visible across versions (3378 → 6574 → 6,691, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
 
 ---
 
@@ -61,7 +61,7 @@ Fully pure MoonBit, no C compiler needed. `moon add walkzzz/image.mbt` and you'r
 
 ### 🟢 Four Targets Native
 
-native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,686 tests × 4 targets all green.
+native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,691 tests × 4 targets all green.
 
 </td>
 </tr>
@@ -219,6 +219,23 @@ try {
 }
 ```
 
+### Use It Without Writing MoonBit: CLI & MCP
+
+```bash
+# Build (native)
+moon build --release cmd/imgtool
+
+# CLI: always one-line JSON on stdout
+imgtool analyze photo.jpg
+imgtool resize photo.jpg thumb.png --width 320 --height 180 --mode cover
+imgtool sanitize photo.jpg clean.jpg --policy strict   # strip EXIF/GPS
+
+# MCP: for Claude Code / Cursor and any stdio host
+node mcp/server.mjs
+```
+
+Six tools (`decode / encode / resize / crop / analyze / sanitize`), JSON Schema, `{code,message,hint}` structured errors, and a decode-time `--mem-budget`. See [docs/mcp.md](docs/mcp.md).
+
 ### Advanced: SIFT Feature Matching
 
 ```moonbit
@@ -348,10 +365,10 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 
 | Target | Backend | Tests | Status |
 |:------:|:-------:|------:|:------:|
-| **native** | Pure MoonBit | 6,686 | ✅ |
-| **wasm-gc** | Pure MoonBit | 6,686 | ✅ |
-| **js** | Pure MoonBit | 6,686 | ✅ |
-| **wasm** | Pure MoonBit | 6,686 | ✅ |
+| **native** | Pure MoonBit | 6,691 | ✅ |
+| **wasm-gc** | Pure MoonBit | 6,691 | ✅ |
+| **js** | Pure MoonBit | 6,691 | ✅ |
+| **wasm** | Pure MoonBit | 6,691 | ✅ |
 
 > Same codebase, **no conditional compilation**, all four targets share all source files.
 
@@ -390,6 +407,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | [docs/comparison.md](docs/comparison.md) | mooncakes.io image library comparison |
 | [docs/performance.md](docs/performance.md) | Performance benchmark report |
 | [docs/error-model.md](docs/error-model.md) | Error codes, budgets and suggested actions |
+| [docs/mcp.md](docs/mcp.md) | MCP server / CLI exit: 6 tool schemas, stdio launch, budgets and error contract |
 | [docs/notes.md](docs/notes.md) | Usage notes and core constraints |
 | [docs/examples.md](docs/examples.md) | 7 runnable examples (measured output) |
 | [docs/features.md](docs/features.md) | Feature category overview |
@@ -406,7 +424,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 # Compile check (four targets)
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# Run tests (6,686 × 4 targets)
+# Run tests (6,691 × 4 targets)
 moon test --target native
 moon test --target wasm-gc
 moon test --target js
