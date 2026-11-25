@@ -15,6 +15,8 @@ pub fn dispatch(Array[String]) -> Map[String, @json.Json] raise @types.ImageErro
 
 pub fn error_json(@types.ImageError) -> Map[String, @json.Json]
 
+pub fn help_text() -> String
+
 pub fn limits_of(Flags) -> @types.DecodeLimits
 
 pub fn metadata_hits(Bytes) -> Array[String]
@@ -34,6 +36,10 @@ pub fn redact_region(@types.Image, Region, Int32) -> @types.Image raise @types.I
 pub fn run() -> Unit
 
 pub fn sanitize_image(@types.Image, String, Array[Region], Int32, Int32, @types.ImageFormat, Int32) -> SanitizeResult raise @types.ImageError
+
+pub let version : String
+
+pub fn version_text() -> String
 
 pub fn write_bytes(String, Bytes) -> Unit raise @types.ImageError
 

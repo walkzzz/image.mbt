@@ -127,7 +127,7 @@ const TOOLS = [
       type: "object",
       properties: {
         input: str("输入图像路径"),
-        format: str("输出格式: png|jpeg|webp|bmp|qoi（默认 png）"),
+        format: str("输出格式: png|jpeg|webp|bmp|qoi|auto；省略时按输出扩展名推断，再无则 png"),
         quality: int("jpeg/webp 质量 1-100（默认 90）", 1),
         output: outProp,
       },
@@ -161,7 +161,7 @@ const TOOLS = [
         width: int("目标宽（像素）", 1),
         height: int("目标高（像素）", 1),
         mode: str("cover（默认）或 contain"),
-        format: str("输出格式，默认沿用输入格式"),
+        format: str("输出格式；省略时按输出扩展名推断，再无则沿用输入格式"),
         quality: int("有损格式质量 1-100（默认 90）", 1),
         output: outProp,
       },
@@ -180,6 +180,8 @@ const TOOLS = [
         y: int("左上角 y", 0),
         width: int("裁切宽", 1),
         height: int("裁切高", 1),
+        format: str("输出格式；省略时按输出扩展名推断，再无则沿用输入格式"),
+        quality: int("有损格式质量 1-100（默认 90）", 1),
         output: outProp,
       },
       required: ["input", "x", "y", "width", "height"],
@@ -198,7 +200,7 @@ const TOOLS = [
         regions: str("打码区域，逗号分隔可多块：\"x,y,w,h\" 或 \"x,y,w,h;x,y,w,h\""),
         block: int("打码块边长像素（默认 12）", 1),
         blur: int("strict 档 box blur 半径（默认 8）", 1),
-        format: str("policy=metadata/standard 时的输出格式，默认沿用输入"),
+        format: str("输出格式；省略时按输出扩展名推断，再无则按 policy 默认（strict 强制 png）"),
         quality: int("有损格式质量 1-100（默认 90）", 1),
         output: outProp,
       },
@@ -288,6 +290,8 @@ async function callTool(name, params, budget) {
         "--width", String(params.width),
         "--height", String(params.height),
       ];
+      if (params.format) rest.push("--format", params.format);
+      if (params.quality) rest.push("--quality", String(params.quality));
       break;
     case "sanitize":
       sub = "sanitize";

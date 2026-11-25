@@ -239,12 +239,14 @@
 
 **风险**：发布链 7 环不可逆 → 先分步 dry-run（注意 `scripts/publish.sh --dry-run` 全链会在 codec 处失败，属 dry-run 语义所限，不是脚本 bug）。
 
-**S07 进展（2026-11-25，版本仍是 0.1.6，未发布）**
+**S07 进展（2026-11-25，版本 0.1.7，未发布）**
 - ✅ **WebP 无损解码修通**：`scripts/dogfood.mjs` 跑真实输入时发现 `photo_1920.webp` 四个下游操作全失败，顺藤摸出 7 处 VP8L 缺陷（详见 `docs/known-gaps.md` GAP-28）。修完后自建回归 `scripts/proto/webp_battery.py` **321 例逐像素全等**（PIL method 0/4/6 × 9 类内容 × 12 尺寸 + ffmpeg `-lossless 1` 三种 lavfi 源），并加了 Kraft 完整性校验把静默全黑变成可定位错误。顺带补 `webp_decode_1024` bench：**15.68 ms / 66.8 MP/s**。
-- ⬜ CLI friction 4 条（`--help`/`version`、decode 按扩展名推断、`crop --format`、`sanitize` 输出格式一致性）→ 本轮开始做。
-- ⬜ `docs/dogfood.md` 入库、发布链 7 环分步 dry-run。
+- ✅ **CLI friction 4 条全修**：`help`/`version` 人类可读输出；`decode/encode/resize/crop/sanitize` 统一走 `out_format`（`--format` > 输出扩展名 > 子命令默认），`out.jpg` 真是 JPEG、`crop` 支持 `--format`、`sanitize out.png` 真是 PNG。MCP 的 `crop` 同步补 `format`/`quality`，冒烟 33/33。
+- ✅ **dogfood 收口**：`scripts/dogfood.mjs` 8 输入 × 6 步 = **48 操作全通过**、8 条摩擦探针 8/8 ok；记录写入 `docs/dogfood.md`；`scripts/bump_version.mjs` 固化了"一 Sprint 一 patch"的版本改动面（`check_version` 12 → 13 项）。
+- ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
+- ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
-**发布前诊断（2026-11-25 记）**：`moon publish --dry-run` 当前失败，报 `Cannot find import 'walkzzz/image.core/testgen' in walkzzz/image.mbt/playground@0.1.1`。根因是版本错配——根 `moon.mod` 仍 import `walkzzz/image.core@0.1.1` 等已发布版本，而 dry-run 的验证包会用这些缓存版本重解依赖；本地 `image.core` 里的 `testgen` 包若没随 0.1.1 发出去，playground 的 import 就悬空。收口顺序因此必须固定：先按 `core → codec → process → photography → vision → domain` 发 0.1.6（确认 `testgen` 在 `image.core` 发布集内），再把根 `moon.mod` 的 6 条依赖全部改到 `@0.1.6`，最后才跑根 dry-run。
+**发布前诊断（2026-11-25 记）**：`moon publish --dry-run` 当前失败，报 `Cannot find import 'walkzzz/image.core/testgen' in walkzzz/image.mbt/playground@0.1.1`。根因是版本错配——根 `moon.mod` 仍 import `walkzzz/image.core@0.1.1` 等已发布版本，而 dry-run 的验证包会用这些缓存版本重解依赖；本地 `image.core` 里的 `testgen` 包若没随 0.1.1 发出去，playground 的 import 就悬空。收口顺序因此必须固定：先按 `core → codec → process → photography → vision → domain` 发 0.1.7（确认 `testgen` 在 `image.core` 发布集内），再把根 `moon.mod` 的 6 条依赖全部改到 `@0.1.7`，最后才跑根 dry-run。
 
 ---
 

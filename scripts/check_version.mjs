@@ -33,6 +33,7 @@ for (const rel of MODULES) {
   versions[rel] = cap(/^version = "([^"]+)"/m, await readText(rel), rel, 'version');
 }
 versions['image.mbt (facade)'] = cap(/pub let version : String = "([^"]+)"/, await readText('image.mbt'), 'image.mbt', 'facade version');
+versions['imgcli (CLI --version)'] = cap(/pub let version : String = "([^"]+)"/, await readText('imgcli/imgtool.mbt'), 'imgcli/imgtool.mbt', 'cli version');
 const zh = await readText('README.md');
 const en = await readText('README.en.md');
 versions['README.md version badge'] = cap(/version-([\d.]+)-orange/, zh, 'README.md', 'version badge');

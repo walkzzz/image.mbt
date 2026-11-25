@@ -26,7 +26,7 @@ function run(args, opts = {}) {
   } catch {
     json = null;
   }
-  return { ms: Math.round(ms), code: r.status, json, stderr: (r.stderr || "").trim().slice(0, 300) };
+  return { ms: Math.round(ms), code: r.status, json, stdout: r.stdout || "", stderr: (r.stderr || "").trim().slice(0, 300) };
 }
 
 const findings = [];
@@ -98,11 +98,15 @@ const failed = pipeline.flatMap((p) => p.steps.filter((s) => !s.ok).map((s) => `
 const p1a = run([]);
 const p1b = run(["--help"]);
 const p1c = run(["version"]);
+// 期望：`help`/`--help` 打出人类可读用法且退出码 0，`version` 打出 `imgtool <semver>`；
+// 什么子命令都不给时仍回 JSON 错误（给机器/agent 一条可判定的路）。
+const p1HelpOk = p1b.code === 0 && p1b.stdout.includes("用法") && p1b.stdout.includes("--format");
+const p1VerOk = p1c.code === 0 && /imgtool \d+\.\d+\.\d+/.test(p1c.stdout);
 note(
-  p1a.json?.code === "process/invalid_argument" && p1c.json?.ok !== true ? "friction" : "ok",
+  p1HelpOk && p1VerOk && p1a.json?.code === "process/invalid_argument" ? "ok" : "friction",
   "P1",
-  "没有 help/version：新用户第一件事就是敲 --help / version",
-  { argv0: p1a.json, help: p1b.json, version: p1c.json },
+  "help/version 可用，且空参数仍回 JSON 错误（agent 可判定）",
+  { argv0: p1a.json, helpHead: p1b.stdout.split("\n").slice(0, 2).join(" / "), version: p1c.stdout.trim() },
 );
 
 // P2 输出格式推断：out.jpg 但没 --format
@@ -112,19 +116,19 @@ const p2IsPng = p2f.subarray(1, 4).toString("latin1") === "PNG";
 note(
   p2IsPng ? "friction" : "ok",
   "P2",
-  "扩展名不参与决策：decode x.png out.jpg 写出的是 PNG 字节（扩展名骗人）",
+  "decode 按输出扩展名决定格式（out.jpg 必须真是 JPEG 字节）",
   { json: p2.json, sniffed: p2f.toString("hex") },
 );
 
 // P3 crop 恒写 png，无论扩展名
 const p3 = run(["crop", path.join(WORK, "shot_640.png"), path.join(WORK, "p3_cut.jpg"), "--x", "0", "--y", "0", "--width", "200", "--height", "100"]);
 const p3f = fs.existsSync(path.join(WORK, "p3_cut.jpg")) ? fs.readFileSync(path.join(WORK, "p3_cut.jpg")).subarray(1, 4).toString("latin1") : "";
-note(p3.json?.ok === true && p3f === "PNG" ? "friction" : "ok", "P3", "crop 不接受 --format，恒输出 png（下游要做 jpeg 得再跑一次 decode）", { json: p3.json });
+note(p3.json?.ok === true && p3f === "PNG" ? "friction" : "ok", "P3", "crop 支持 --format 且按输出扩展名推断（p3_cut.jpg 必须真是 JPEG）", { json: p3.json });
 
 // P4 sanitize 输出扩展名与输入冲突
 const p4 = run(["sanitize", path.join(WORK, "photo_1920.jpg"), path.join(WORK, "p4_clean.png")]);
 const p4f = fs.existsSync(path.join(WORK, "p4_clean.png")) ? fs.readFileSync(path.join(WORK, "p4_clean.png")).subarray(0, 3).toString("hex") : "";
-note(p4.json?.format === "jpeg" && p4f.startsWith("ffd8") ? "friction" : "ok", "P4", "sanitize out.png 实际写 jpeg 字节（policy 默认沿用输入格式，扩展名被忽略）", { json: p4.json, head: p4f });
+note(p4.json?.format === "jpeg" && p4f.startsWith("ffd8") ? "friction" : "ok", "P4", "sanitize 输出扩展名优先（p4_clean.png 必须真是 PNG 字节，且元数据已剥）", { json: p4.json, head: p4f });
 
 // P5 错误消息的可操作性
 const p5a = run(["decode", path.join(WORK, "nope.png"), path.join(WORK, "x.png")]);

@@ -67,6 +67,85 @@ fn parse_format(s : String) -> @types.ImageFormat raise @types.ImageError {
 }
 
 ///|
+/// 是否为 CLI 能写出的格式（读得进但写不出的容器如 TIFF/ICO 不参与输出推断）。
+fn is_writable_format(f : @types.ImageFormat) -> Bool {
+  match f {
+    @types.ImageFormat::Png
+    | @types.ImageFormat::Jpeg
+    | @types.ImageFormat::Bmp
+    | @types.ImageFormat::Webp
+    | @types.ImageFormat::Qoi
+    | @types.ImageFormat::Pnm
+    | @types.ImageFormat::Tga
+    | @types.ImageFormat::Gif => true
+    _ => false
+  }
+}
+
+///|
+/// 按输出文件扩展名推断格式（大小写不敏感）。写不出或不认识的扩展名返回 None。
+///
+/// 这条是 S07 dogfood 的第一号 friction：`decode a.png b.jpg` 早先恒写 PNG，
+/// 下游拿到 `.jpg` 里装着 PNG 字节，再被别的工具按扩展名当 JPEG 读就会报错。
+fn format_from_ext(path : String) -> @types.ImageFormat? {
+  let lower = path.to_lower()
+  let table : Array[(String, @types.ImageFormat)] = [
+    (".png", @types.ImageFormat::Png),
+    (".jpg", @types.ImageFormat::Jpeg),
+    (".jpeg", @types.ImageFormat::Jpeg),
+    (".jpe", @types.ImageFormat::Jpeg),
+    (".webp", @types.ImageFormat::Webp),
+    (".bmp", @types.ImageFormat::Bmp),
+    (".qoi", @types.ImageFormat::Qoi),
+    (".pnm", @types.ImageFormat::Pnm),
+    (".ppm", @types.ImageFormat::Pnm),
+    (".pgm", @types.ImageFormat::Pnm),
+    (".tga", @types.ImageFormat::Tga),
+    (".gif", @types.ImageFormat::Gif),
+  ]
+  let mut i = 0
+  while i < table.length() {
+    let (ext, fmt) = table[i]
+    if lower.has_suffix(ext) {
+      return Some(fmt)
+    }
+    i += 1
+  }
+  None
+}
+
+///|
+/// 决定输出格式，优先级：`--format`（显式，`auto` 视为未指定）> 输出扩展名 > `fallback`。
+fn out_format(
+  flags : Flags,
+  dst : String,
+  fallback : @types.ImageFormat,
+) -> @types.ImageFormat raise @types.ImageError {
+  match flags.values.get("format") {
+    Some(f) =>
+      if f != "auto" {
+        return parse_format(f)
+      }
+    None => ()
+  }
+  match format_from_ext(dst) {
+    Some(f) => f
+    None => fallback
+  }
+}
+
+///|
+/// 读源文件并给出「原样另存时该用的格式」：源格式可写就沿用，否则退回 PNG。
+fn src_out_format(src : String) -> @types.ImageFormat raise @types.ImageError {
+  let f = @lib.detect_format(read_bytes(src))
+  if is_writable_format(f) {
+    f
+  } else {
+    @types.ImageFormat::Png
+  }
+}
+
+///|
 /// 极简 flag 解析：位置参数收集 + `--key value` 表。
 struct Flags {
   positional : Array[String]
@@ -184,12 +263,12 @@ fn cmd_info(flags : Flags) -> Out raise @types.ImageError {
 }
 
 ///|
-/// `decode` — 解码后按 `--format` 重写（默认 PNG），用于格式归一化。
+/// `decode` — 解码后重写，输出格式取自 `--format` 或**输出扩展名**（都没有则 PNG）。
 fn cmd_decode(flags : Flags) -> Out raise @types.ImageError {
   let src = flags.positional[0]
   let dst = flags.positional[1]
   let img = read_image(src, limits_of(flags))
-  let fmt = parse_format(flags.str("format", "png"))
+  let fmt = out_format(flags, dst, @types.ImageFormat::Png)
   let size = save_image(img, dst, fmt, flags.int("quality", 90))
   result({
     "src": jstr(src),
@@ -236,12 +315,7 @@ fn cmd_resize(flags : Flags) -> Out raise @types.ImageError {
   } catch {
     e => raise @types.image_error_from_load(e)
   }
-  let fmt = parse_format(
-    match flags.values.get("format") {
-      Some(f) => f
-      None => format_name(@lib.detect_format(read_bytes(src)))
-    },
-  )
+  let fmt = out_format(flags, dst, src_out_format(src))
   let size = save_image(out, dst, fmt, flags.int("quality", 90))
   result({
     "src": jstr(src),
@@ -269,7 +343,8 @@ fn cmd_crop(flags : Flags) -> Out raise @types.ImageError {
   } catch {
     e => raise @types.image_error_from_load(e)
   }
-  let size = save_image(out, dst, @types.ImageFormat::Png, flags.int("quality", 90))
+  let fmt = out_format(flags, dst, src_out_format(src))
+  let size = save_image(out, dst, fmt, flags.int("quality", 90))
   result({
     "src": jstr(src),
     "dst": jstr(dst),
@@ -277,6 +352,7 @@ fn cmd_crop(flags : Flags) -> Out raise @types.ImageError {
     "y": jnum(y),
     "width": jnum(out.width),
     "height": jnum(out.height),
+    "format": jstr(format_name(fmt)),
     "bytes": jnum(size.to_int()),
   })
 }
@@ -339,20 +415,19 @@ fn cmd_sanitize(flags : Flags) -> Out raise @types.ImageError {
   let dst = flags.positional[1]
   let img = read_image(src, limits_of(flags))
   let policy = flags.str("policy", "metadata")
-  let src_fmt = @lib.detect_format(read_bytes(src))
-  let fmt = if policy == "strict" && !flags.values.contains("format") {
+  // 格式优先级：`--format` > 输出扩展名 > policy 默认（strict 强制 png，其余沿用源格式能写的那支）。
+  // 早先只有 `--format` 与「源格式」两条路，`sanitize a.jpg out.png` 会写出 JPEG 字节，
+  // 下游按扩展名当 PNG 读就炸——这是 S07 dogfood 的第四号 friction。
+  let base = if policy == "strict" {
     @types.ImageFormat::Png
   } else {
-    match flags.values.get("format") {
-      Some(f) => parse_format(f)
-      None =>
-        match src_fmt {
-          @types.ImageFormat::Jpeg => @types.ImageFormat::Jpeg
-          @types.ImageFormat::Webp => @types.ImageFormat::Webp
-          _ => @types.ImageFormat::Png
-        }
+    match @lib.detect_format(read_bytes(src)) {
+      @types.ImageFormat::Jpeg => @types.ImageFormat::Jpeg
+      @types.ImageFormat::Webp => @types.ImageFormat::Webp
+      _ => @types.ImageFormat::Png
     }
   }
+  let fmt = out_format(flags, dst, base)
   let raw_regions = match flags.values.get("regions") {
     Some(v) => v
     None =>
@@ -426,13 +501,43 @@ pub fn error_json(e : @types.ImageError) -> Out {
 }
 
 ///|
+/// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
+pub let version : String = "0.1.7"
+
+///|
+/// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。
+pub fn help_text() -> String {
+  "imgtool \{version} — 图像命令行（结果走单行 JSON，错误也走 JSON 并以退出码 1 结束）\n\n" +
+  "用法:\n" +
+  "  imgtool info     <in>\n" +
+  "  imgtool decode   <in> <out> [--format auto|png|jpeg|webp|bmp|qoi|pnm|tga|gif] [--quality 1-100]\n" +
+  "  imgtool encode   <in> <out> [--format ...] [--quality 1-100]\n" +
+  "  imgtool resize   <in> <out> --width N --height N [--mode cover|contain] [--format ...]\n" +
+  "  imgtool crop     <in> <out> --x N --y N --width N --height N [--format ...]\n" +
+  "  imgtool analyze  <in>\n" +
+  "  imgtool sanitize <in> <out> [--policy metadata|standard|strict] [--regions \"x,y,w,h;...\"]\n" +
+  "                             [--block N] [--blur N] [--format ...] [--quality 1-100]\n" +
+  "  imgtool help | version\n\n" +
+  "通用:\n" +
+  "  --format 省略时按**输出扩展名**推断，再无则 PNG（resize/crop 退回源格式）\n" +
+  "  --mem-budget BYTES  解码前设内存上限（含 max_pixels = BYTES/8）\n" +
+  "  --max-pixels N      单独限制像素数\n"
+}
+
+///|
+/// `imgtool version` / `--version` / `-v` 打印版本行（不输出 JSON）。
+pub fn version_text() -> String {
+  "imgtool \{version} (walkzzz/image.mbt)"
+}
+
+///|
 fn usage() -> Out {
   {
     "ok": jbool(false),
     "code": jstr("process/invalid_argument"),
-    "message": jstr("未知子命令。可用: info decode encode resize crop analyze sanitize"),
+    "message": jstr("未知子命令。可用: info decode encode resize crop analyze sanitize help version"),
     "hint": jstr(
-      "用法: imgtool <sub> <in> [out] [--format png|jpeg|webp|bmp|qoi] [--quality 1-100] [--mem-budget BYTES]",
+      "跑 `imgtool help` 看完整用法；每个子命令都输出单行 JSON；省略 --format 时按输出扩展名推断",
     ),
   }
 }
@@ -468,6 +573,26 @@ pub fn run() -> Unit {
   while i < argv.length() {
     args.push(argv[i])
     i += 1
+  }
+  // help / version 走人类可读输出（其余子命令一律单行 JSON，方便 agent 解析）。
+  // 这两个是 S07 dogfood 的第一号 friction：早先连 `imgtool --help` 都只回一句 JSON 报错。
+  let mut want_help = false
+  let mut want_version = false
+  for a in args {
+    if a == "help" || a == "--help" || a == "-h" {
+      want_help = true
+    }
+    if a == "version" || a == "--version" || a == "-v" {
+      want_version = true
+    }
+  }
+  if want_help {
+    println(help_text())
+    return
+  }
+  if want_version {
+    println(version_text())
+    return
   }
   let out = try {
     dispatch(args)

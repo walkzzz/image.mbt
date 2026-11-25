@@ -4,6 +4,22 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.7] - 2026-11-25
+
+### Added
+
+- **`imgtool help` / `version`（S07 dogfood 第一号摩擦）**：`help`、`-h`、`--help` 打印人类可读用法（命令、每个子命令的必选/可选参数、格式推断规则、`--mem-budget`），退出码 0；`version`、`-v`、`--version` 打印 `imgtool 0.1.7 (walkzzz/image.mbt)`。两者都不再是"未知子命令"的 JSON 错误，但**不带任何参数**调用仍回 `{ok:false, code:"process/invalid_argument", ...}`，供脚本/agent 判定。
+- **`scripts/dogfood.mjs`**：8 个真实输入（ffmpeg 造的截图 / 有损照片 / 无损 WebP / 未压缩 BMP / 灰度 / 带 alpha / 4096² / 渐变）× 6 步流水线（info → decode → resize → sanitize → analyze → info）= 48 个操作，外加 8 条摩擦探针，输出 `dogfood@1` JSON。终态 `ops 48 / failed 0 / 探针 8/8 ok`，报告见 `docs/dogfood.md`。
+- **`docs/dogfood.md`**：流水线表、8 条探针的修前/修后对照、格式决策规则，以及"仍未解决"三条（VP8 有损、`max_ms` 无强制中断、发布链待授权）。
+- **`scripts/bump_version.mjs`**：一 Sprint 一 patch 的版本升级脚本，一次改 7 个 `moon.mod` + 门面 + CLI + 双语徽章 + `known-gaps` 口径行；`--to` 指定目标、`-n` 预演。
+- `imgcli/imgtool_format_wbtest.mbt`：`format_from_ext`（含大写、`.tar.gz`、无扩展名）、`out_format` 优先级（`--format` > 扩展名 > fallback，`auto` 视为未给）、`help_text/version_text` 三条白盒测试。
+
+### Changed
+
+- **输出格式决策统一（S07 P2/P3/P4）**：新增 `out_format(flags, dst, fallback)`，优先级 `--format`（`auto` 视为未给）> 输出扩展名 > 子命令默认。`decode`/`encode` 默认 PNG，`resize`/`crop` 回退源格式，`sanitize` 回退"`strict` 强制 PNG、其余沿用 JPEG/WebP 源"。修前 `decode in.png out.jpg` 会写出 PNG 字节、`crop` 恒写 PNG、`sanitize in.jpg out.png` 会写出 JPEG 字节。
+- **MCP 出口同步**：`crop` 工具补 `format`/`quality` 参数，`decode`/`resize`/`sanitize` 的 `format` 描述改为"省略时按输出扩展名推断"；冒烟仍 **33/33**。
+- `scripts/check_docs.mjs` 的 B 系列与 `scripts/check_version.mjs`（12 → **13** 项，新增 CLI `--version` 与 `moon.mod` 对齐）。测试 6,698 → **6,701**；版本 0.1.6 → **0.1.7**。
+
 ## [0.1.6] - 2026-11-25
 
 ### Added
