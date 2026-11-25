@@ -4,6 +4,29 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.10] - 2026-11-25
+
+### Added
+
+- **ROI 区域视图 `Region` / `ImageRegion`（零复制）**：视图只存底图引用 + 坐标，不复制像素。
+  `Region::new/clamp/area/is_empty`、`Image::region`、`Image::region_with`、
+  `ImageRegion::width/height/channels/get/pixel/to_image`（越界读取返回 0，不 panic）。
+- **`transform::crop_region(img, region)`**：按 `Region` 裁剪，越界自动裁掉、不报错（与 `crop` 的严格报错语义区分）。
+- 门面包 `all` 再导出 Region 类型 + 8 个薄封装（`region` / `region_with` / `region_width` / `region_height` / `region_channels` / `region_get` / `region_pixel` / `region_to_image`）与 `crop_region`。
+- `image.core/types/region_test.mbt`：9 个用例（裁剪、越界、逐通道一致、空区域、零复制）。
+
+### Changed
+
+- `pub using` 只能再导出**类型**，方法（`Image::region` 等）不会跟着走；门面包因此包一层同名薄函数，
+  否则下游拿到类型却调不到方法（0.1.8 遗留的可用性缺口）。
+
+### Verified
+
+- 下游验收（workspace 双成员：只 import `walkzzz/image.mbt/all`）：
+  底图 4000×3000×3 = 36,000,000 B → `region(img, 1200, 900, 1200, 900)` 视图 1200×900，
+  `region_to_image` 得 3,240,000 B 且首像素与底图 `(1200,900)` 一致；
+  `crop_region(img, Region::new(-50,-50,200,200))` 裁成 150×150（67,500 B），无异常。
+
 ## [0.1.9] - 2026-11-25
 
 ### Fixed

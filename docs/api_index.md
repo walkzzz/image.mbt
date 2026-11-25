@@ -1,13 +1,13 @@
 # API 索引（自动生成）
 
 > 由 `node scripts/gen_api_index.mjs` 从各包 `pkg.generated.mbti` 生成，请勿手工编辑。
-> 生成日期口径：每次运行覆盖；当前共 **78** 个包、**3832** 个 `pub fn`、**715** 个公开类型/trait。
+> 生成日期口径：每次运行覆盖；当前共 **78** 个包、**3856** 个 `pub fn`、**717** 个公开类型/trait。
 > 详细用法见各包 `.mbti` 与 [api_reference.md](api_reference.md)（后者为历史快照，以本索引与 `.mbti` 为准）。
 
 | 包 | pub fn | 公开类型/trait |
 |----|-------:|---------------:|
 | `(root)` | 0 | 0 |
-| `all` | 26 | 0 |
+| `all` | 35 | 0 |
 | `benchmarks` | 0 | 0 |
 | `cmd/bench` | 0 | 0 |
 | `cmd/imgtool` | 0 | 0 |
@@ -23,7 +23,7 @@
 | `image.core/cmd/main` | 0 | 0 |
 | `image.core/safe_math` | 18 | 0 |
 | `image.core/testgen` | 12 | 0 |
-| `image.core/types` | 102 | 13 |
+| `image.core/types` | 116 | 15 |
 | `image.domain` | 0 | 0 |
 | `image.domain/agent_kit` | 16 | 1 |
 | `image.domain/cmd/main` | 0 | 0 |
@@ -66,7 +66,7 @@
 | `image.process/frequency` | 29 | 4 |
 | `image.process/segment` | 76 | 17 |
 | `image.process/stereo3d` | 16 | 10 |
-| `image.process/transform` | 77 | 2 |
+| `image.process/transform` | 78 | 2 |
 | `image.vision` | 0 | 0 |
 | `image.vision/aoci` | 49 | 5 |
 | `image.vision/cmd/main` | 0 | 0 |
@@ -84,4 +84,4 @@
 | `imgcli` | 18 | 2 |
 | `mp4` | 2 | 4 |
 | `playground` | 4 | 0 |
-| **合计** | **3832** | **715** |
+| **合计** | **3856** | **717** |

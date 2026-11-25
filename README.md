@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.9-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.9-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.10-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.10-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-6_701×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -233,6 +233,18 @@ import "walkzzz/image.mbt/all"
 let img = @all.load_from_bytes_auto(bytes)!
 let small = @all.resize_to_cover(img, 320, 180)
 let png = @all.encode_png(small)
+```
+
+大图只处理局部（ROI，零复制）：
+
+```moonbit
+// 取一块区域视图：只存坐标，不复制底图
+let v = @all.region(img, 1200, 900, 1200, 900)
+let px = @all.region_pixel(v, 10, 10)          // 坐标相对区域左上角
+// 需要独立像素时才物化（唯一一次分配 = 区域大小）
+let tile = @all.region_to_image(v)
+// 或者按 Region 直接裁一刀：越界自动裁剪、不报错
+let c = @all.crop_region(img, @all.Region::new(-50, -50, 200, 200))
 ```
 
 ### 可运行示例（8 个，零外部依赖）

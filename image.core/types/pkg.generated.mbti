@@ -162,6 +162,8 @@ pub fn Image::is_rgb(Self) -> Bool
 pub fn Image::is_rgba(Self) -> Bool
 pub fn Image::not_equal(Self, Self) -> Bool
 pub fn Image::pixel_count(Self) -> Int32
+pub fn Image::region(Self, Int32, Int32, Int32, Int32) -> ImageRegion
+pub fn Image::region_with(Self, Region) -> ImageRegion
 pub fn Image::to_repr(Self) -> @debug.Repr
 pub fn Image::width(Self) -> Int32
 pub impl ImageLike for Image
@@ -248,6 +250,20 @@ pub fn ImageInfo::not_equal(Self, Self) -> Bool
 pub fn ImageInfo::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
+pub(all) struct ImageRegion {
+  base : Image
+  region : Region
+}
+pub fn ImageRegion::channels(Self) -> Int32
+pub fn ImageRegion::get(Self, Int32, Int32, Int32) -> Byte
+pub fn ImageRegion::height(Self) -> Int32
+pub fn ImageRegion::is_empty(Self) -> Bool
+pub fn ImageRegion::pixel(Self, Int32, Int32) -> Array[Byte]
+pub fn ImageRegion::region_of(Self) -> Region
+pub fn ImageRegion::to_image(Self) -> Image
+pub fn ImageRegion::width(Self) -> Int32
+
+#derive(Eq, @debug.Debug)
 pub(all) struct PngAnimation {
   frames : Array[Image]
   delays : Array[Int32]
@@ -255,6 +271,18 @@ pub(all) struct PngAnimation {
 pub fn PngAnimation::equal(Self, Self) -> Bool
 pub fn PngAnimation::not_equal(Self, Self) -> Bool
 pub fn PngAnimation::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct Region {
+  x : Int32
+  y : Int32
+  w : Int32
+  h : Int32
+}
+pub fn Region::area(Self) -> Int32
+pub fn Region::clamp(Self, Int32, Int32) -> Self
+pub fn Region::is_empty(Self) -> Bool
+pub fn Region::new(Int32, Int32, Int32, Int32) -> Self
 
 #non_exhaustive
 #derive(Eq, @debug.Debug)

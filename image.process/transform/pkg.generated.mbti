@@ -30,6 +30,8 @@ pub fn crop_16(@types.Image16, Int32, Int32, Int32, Int32) -> @types.Image16 rai
 
 pub fn crop_f(@types.ImageF, Int32, Int32, Int32, Int32) -> @types.ImageF raise @types.LoadError
 
+pub fn crop_region(@types.Image, @types.Region) -> @types.Image
+
 pub fn draw_circle(@types.Image, Int32, Int32, Int32, Array[Byte], thickness? : Int32, fill? : Bool) -> @types.Image
 
 pub fn draw_circle_16(@types.Image16, Int32, Int32, Int32, Array[Int32], thickness? : Int32, fill? : Bool) -> @types.Image16

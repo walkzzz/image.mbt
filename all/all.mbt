@@ -20,6 +20,66 @@ pub using @types {
   type ErrorCode,
   type ImageFormat,
   type DecodeLimits,
+  type Region,
+  type ImageRegion,
+}
+
+///|
+/// 区域视图（ROI）：`pub using` 只能再导出类型，方法要在这里包一层薄函数，
+/// 否则下游拿到类型却调不到 `Image::region` / `ImageRegion::to_image`。
+
+///|
+/// 取一块区域的零复制视图（越界自动裁剪）。失败不会发生，空区域返回空视图。
+pub fn region(
+  img : @types.Image,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
+) -> @types.ImageRegion {
+  img.region(x, y, w, h)
+}
+
+///|
+/// 用现成 `Region` 取零复制视图。
+pub fn region_with(img : @types.Image, r : @types.Region) -> @types.ImageRegion {
+  img.region_with(r)
+}
+
+///|
+/// 区域视图宽度（裁剪后的有效宽度）。
+pub fn region_width(v : @types.ImageRegion) -> Int32 {
+  v.width()
+}
+
+///|
+/// 区域视图高度（裁剪后的有效高度）。
+pub fn region_height(v : @types.ImageRegion) -> Int32 {
+  v.height()
+}
+
+///|
+/// 区域视图通道数。
+pub fn region_channels(v : @types.ImageRegion) -> Int32 {
+  v.channels()
+}
+
+///|
+/// 读区域内单通道字节（坐标相对区域左上角，越界返回 0）。
+pub fn region_get(v : @types.ImageRegion, x : Int32, y : Int32, c : Int32) -> Byte {
+  v.get(x, y, c)
+}
+
+///|
+/// 读区域内一个像素的全部通道。
+pub fn region_pixel(v : @types.ImageRegion, x : Int32, y : Int32) -> Array[Byte] {
+  v.pixel(x, y)
+}
+
+///|
+/// 把区域视图物化为独立 `Image`（唯一一次分配）。
+pub fn region_to_image(v : @types.ImageRegion) -> @types.Image {
+  v.to_image()
 }
 
 ///|
@@ -45,11 +105,12 @@ pub using @lib {
 }
 
 ///|
-/// 变换（缩放 / 裁切 / 旋转 / 翻转）
+/// 变换（缩放 / 裁切 / 旋转 / 翻转 / 区域裁剪）
 pub using @transform {
   resize_to_cover,
   resize_to_contain,
   crop,
+  crop_region,
   rotate,
   rotate_90,
   rotate_180,

@@ -10,6 +10,8 @@ pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @
 
 pub fn crop(@types.Image, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
 
+pub fn crop_region(@types.Image, @types.Region) -> @types.Image
+
 pub fn decode_webp(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn decode_with_limits(Bytes, @types.DecodeLimits) -> @types.Image raise @types.ImageError
@@ -41,6 +43,22 @@ pub fn load_16_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image16 
 pub fn load_any_f(Bytes) -> @types.ImageF raise @types.LoadError
 
 pub fn load_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image raise @types.LoadError
+
+pub fn region(@types.Image, Int32, Int32, Int32, Int32) -> @types.ImageRegion
+
+pub fn region_channels(@types.ImageRegion) -> Int32
+
+pub fn region_get(@types.ImageRegion, Int32, Int32, Int32) -> Byte
+
+pub fn region_height(@types.ImageRegion) -> Int32
+
+pub fn region_pixel(@types.ImageRegion, Int32, Int32) -> Array[Byte]
+
+pub fn region_to_image(@types.ImageRegion) -> @types.Image
+
+pub fn region_width(@types.ImageRegion) -> Int32
+
+pub fn region_with(@types.Image, @types.Region) -> @types.ImageRegion
 
 pub fn resize_to_contain(@types.Image, Int32, Int32, Array[Byte]) -> @types.Image raise @types.LoadError
 
@@ -79,6 +97,10 @@ pub using @types {type ImageF}
 
 pub using @types {type ImageFormat}
 
+pub using @types {type ImageRegion}
+
 pub using @types {type LoadError}
+
+pub using @types {type Region}
 
 // Traits

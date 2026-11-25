@@ -41,6 +41,13 @@ pub fn crop(
 }
 
 ///|
+/// 按 `Region` 裁剪，越界部分自动裁掉（不报错）。空区域返回 0×0 图。
+/// 内部走零复制的 `ImageRegion` 视图，只为目标像素分配一次内存。
+pub fn crop_region(img : @types.Image, region : @types.Region) -> @types.Image {
+  img.region_with(region).to_image()
+}
+
+///|
 /// 顺时针旋转 90 度
 pub fn rotate_90(img : @types.Image) -> @types.Image {
   let ch = img.channels
