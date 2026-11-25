@@ -175,11 +175,11 @@ pub fn encode_webp_vp8l_literal(img : @types.Image) -> Bytes raise @types.LoadEr
   bw.write(0, 1) // 无色彩缓存
   bw.write(0, 1) // 单 meta 前缀码组
   // alpha 是否全不透明：全不透明时用单符号码表，省掉每像素 8 位
-  let mut opaque = true
+  let mut all_solid_alpha = true
   if ch == 4 {
     for i in 0..<(w * h) {
       if img.data[i * 4 + 3].to_int() != 255 {
-        opaque = false
+        all_solid_alpha = false
         break
       }
     }
@@ -187,7 +187,7 @@ pub fn encode_webp_vp8l_literal(img : @types.Image) -> Bytes raise @types.LoadEr
   vp8l_write_flat8_normal_code(bw, 280)
   vp8l_write_flat8_normal_code(bw, 256)
   vp8l_write_flat8_normal_code(bw, 256)
-  if opaque {
+  if all_solid_alpha {
     vp8l_write_simple_single(bw, 255)
   } else {
     vp8l_write_flat8_normal_code(bw, 256)
@@ -201,7 +201,7 @@ pub fn encode_webp_vp8l_literal(img : @types.Image) -> Bytes raise @types.LoadEr
     bw.write(vp8l_reverse8(g), 8)
     bw.write(vp8l_reverse8(r), 8)
     bw.write(vp8l_reverse8(b), 8)
-    if !opaque {
+    if !all_solid_alpha {
       bw.write(vp8l_reverse8(img.data[base + 3].to_int()), 8)
     }
   }

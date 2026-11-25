@@ -63,6 +63,7 @@ ffmpeg -v error -i <file> -f null -    # 无输出即通过
 | A | `vp8l_stageA.mjs` | 16×16 棋盘格；5 棵树全走 simple（G 单符号 0、R/B 双符号 {0,255}、A 单符号 255、dist 单符号 0） | 96 B | **通过**：ffmpeg 解码正常，像素正确 |
 | B | `vp8l_proto.mjs` | literal-only；三棵"扁平 8 位"normal 码表，只写 256 个长度 | 868 B | **失败**：`Overdetermined VLC tree` |
 | C | `vp8l_m1.mjs` | literal-only；绿树按 **280** 个符号写码长，码长码 `{8,18}`（12 项，Kraft 完整），尾部 24 个长度码用符号 18 写零游程 | 16²=908 B / 64²=12.4 KB / 1024²=3.1 MB | **通过**：三档 ffmpeg 全部可解，`verify_pixels.mjs` 逐字节比对**全等** |
+| D | `gen_lz77_fixture.mjs` | 1 个 literal + 一次 length=255 / distance=1 反向引用；绿树是双符号 normal 码表，码长码 `{1,17,18}` | 38 B | **通过**：ffmpeg 解出 16×16 纯色全等；MoonBit `decode_webp_vp8l_rfc` 同一份字节也解出全等 |
 
 阶段 A 的价值：一次性证明了 RIFF/VP8L 容器头、LSB-first 位序、G→R→B→A 像素顺序、simple 码表编码这四条链路全部正确 —— 后面出错只可能在 normal 码表。
 
@@ -71,6 +72,16 @@ ffmpeg -v error -i <file> -f null -    # 无输出即通过
 阶段 C 中途发现一个易错点（已写进日志备查）：**simple 码表的单符号 ≤1 时只占 1 位，>1 必须置 `is_first_8bits=1` 并用 8 位**。第一版把 alpha 的 255 写成了 1 位，产物仍能解码、尺寸也识别正确，但 alpha 全变成 1 —— 这类"值被静默截断"的 bug 只有逐字节像素比对能抓到，所以 M1 之后每个里程碑都必须跑 `verify_pixels.mjs`，不能只看 ffmpeg 退出码。
 
 阶段 C 的体积是 **3.0 字节/像素**，比 PNG 差 —— 这是 literal-only 的必然结果，LZ77 与变换（M2/M3）才是体积来源。
+
+阶段 D 暴露三个"记忆型错误"，都以 RFC 原文为准修正（这类细节网上二手资料错误率很高，必须回原文）：
+
+| 位置 | 错误写法 | RFC 9649 正确写法 |
+|---|---|---|
+| 长度前缀 15 的取值 | 以为写符号就够 | 还需 6 个 extra bits：`192 + extra + 1`，长度 255 需 extra=62 |
+| `max_symbol` | `((ReadBits(2)+2)<<3) + ReadBits(3)` | `length_nbits = 2 + 2*ReadBits(3); max_symbol = 2 + ReadBits(length_nbits)` |
+| 码长码 16 的首次重复值 | 0 | **8**（尚未输出非零长度时） |
+
+另有一个关键发现：**libwebp 编出的真实无损文件默认带 `COLOR_INDEXING`（palette）变换**。ffmpeg 把 16×16 纯色图存成 38 B，结构是 `transform 3` + 1 色 palette。所以"能解码真实 WebP"必须先实现 palette / predictor 逆变换（M3），现有 `decode_webp_vp8l_rfc` 只支持 subtract-green，遇到其它变换会显式报错而不是输出错像素。
 
 ### 4.1 MoonBit 落地（M1）
 

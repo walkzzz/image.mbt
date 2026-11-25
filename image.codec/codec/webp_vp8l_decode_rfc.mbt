@@ -79,9 +79,10 @@ fn vp8l_read_prefix_code(br : BitReader, alphabet_size : Int32) -> HuffmanTree {
     cl_lens[vp8l_code_length_order[i]] = br.read_bits(3)
   }
   let cl_tree = vp8l_build_canonical_tree(cl_lens, 19)
-  // max_symbol：标志置位时只读前 max_symbol 个长度
+  // max_symbol：标志置位时读 length_nbits = 2 + 2*ReadBits(3)，再读 max_symbol = 2 + ReadBits(length_nbits)
   let max_symbol = if br.read_bit() == 1 {
-    ((br.read_bits(2) + 2) << 3) + br.read_bits(3)
+    let length_nbits = 2 + 2 * br.read_bits(3)
+    2 + br.read_bits(length_nbits)
   } else {
     alphabet_size
   }
@@ -94,7 +95,8 @@ fn vp8l_read_prefix_code(br : BitReader, alphabet_size : Int32) -> HuffmanTree {
       idx += 1
     } else if sym == 16 {
       let repeat = 3 + br.read_bits(2)
-      let prev = if idx > 0 { lens[idx - 1] } else { 0 }
+      // RFC 9649 §3.7.2.1.2：码 16 在尚未输出非零值前重复的是 8，而不是 0
+      let prev = if idx > 0 { lens[idx - 1] } else { 8 }
       for _ in 0..<repeat {
         if idx < alphabet_size {
           lens[idx] = prev
@@ -145,6 +147,61 @@ fn vp8l_find_chunk(data : Bytes, target : Int32) -> Int32 {
     pos = pos + 8 + size + (size & 1)
   }
   -1
+}
+
+///|
+/// 距离映射表 X 偏移（RFC 9649 §3.6.2.2.1，120 项，由 scripts/proto/gen_distance_table.mjs 从 RFC 原文生成）
+let vp8l_distance_dx : Array[Int32] = [
+  0, 1, 1, -1, 0, 2, 1, -1, 2, -2, 2, -2,
+  0, 3, 1, -1, 3, -3, 2, -2, 3, -3, 0, 4,
+  1, -1, 4, -4, 3, -3, 2, -2, 4, -4, 0, 3,
+  -3, 4, -4, 5, 1, -1, 5, -5, 2, -2, 5, -5,
+  4, -4, 3, -3, 5, -5, 0, 6, 1, -1, 6, -6,
+  2, -2, 6, -6, 4, -4, 5, -5, 3, -3, 6, -6,
+  0, 7, 1, -1, 5, -5, 7, -7, 4, -4, 6, -6,
+  2, -2, 7, -7, 3, -3, 7, -7, 5, -5, 6, -6,
+  8, 4, -4, 7, -7, 8, 8, 6, -6, 8, 5, -5,
+  7, -7, 8, 6, -6, 7, -7, 8, 7, -7, 8, 8,
+]
+
+///|
+/// 距离映射表 Y 偏移
+let vp8l_distance_dy : Array[Int32] = [
+  1, 0, 1, 1, 2, 0, 2, 2, 1, 1, 2, 2,
+  3, 0, 3, 3, 1, 1, 3, 3, 2, 2, 4, 0,
+  4, 4, 1, 1, 3, 3, 4, 4, 2, 2, 5, 4,
+  4, 3, 3, 0, 5, 5, 1, 1, 5, 5, 2, 2,
+  4, 4, 5, 5, 3, 3, 6, 0, 6, 6, 1, 1,
+  6, 6, 2, 2, 5, 5, 4, 4, 6, 6, 3, 3,
+  7, 0, 7, 7, 5, 5, 1, 1, 6, 6, 4, 4,
+  7, 7, 2, 2, 7, 7, 3, 3, 6, 6, 5, 5,
+  0, 7, 7, 4, 4, 1, 2, 6, 6, 3, 7, 7,
+  5, 5, 4, 7, 7, 6, 6, 5, 7, 7, 6, 7,
+]
+
+///|
+/// LZ77 前缀码取值（RFC 9649 §3.6.2.2）
+fn vp8l_prefix_value(br : BitReader, prefix : Int32) -> Int32 {
+  if prefix < 4 {
+    return prefix + 1
+  }
+  let extra_bits = (prefix - 2) >> 1
+  let offset = (2 + (prefix & 1)) << extra_bits
+  offset + br.read_bits(extra_bits) + 1
+}
+
+///|
+/// 把距离码转成扫描行序距离（<120 走邻域映射，≥120 直接减 120）
+fn vp8l_map_distance(code : Int32, width : Int32) -> Int32 {
+  if code > 120 {
+    return code - 120
+  }
+  let idx = code - 1
+  if idx < 0 || idx >= 120 {
+    return 1
+  }
+  let d = vp8l_distance_dx[idx] + vp8l_distance_dy[idx] * width
+  if d < 1 { 1 } else { d }
 }
 
 ///|
@@ -206,7 +263,7 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
   let red = vp8l_read_prefix_code(br, 256)
   let blue = vp8l_read_prefix_code(br, 256)
   let alpha = vp8l_read_prefix_code(br, 256)
-  let dist = vp8l_read_prefix_code(br, 40)
+  let dist_tree = vp8l_read_prefix_code(br, 40)
   let n = width * height
   let pixels : Array[Int32] = Array::make(n, 0)
   let cache : Array[Int32] = Array::make(if cache_size > 0 { cache_size } else { 0 }, 0)
@@ -224,16 +281,36 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
         cache[hash & (cache_size - 1)] = argb
       }
       i += 1
-    } else if g == 256 {
+    } else if g < 256 + 24 {
+      // LZ77 反向引用：长度前缀码 + 距离前缀码
+      let length = vp8l_prefix_value(br, g - 256)
+      let dcode = vp8l_prefix_value(br, dist_tree.decode(br))
+      let d = vp8l_map_distance(dcode, width)
+      if d <= 0 || i - d < 0 {
+        raise @types.LoadError::DecodeFailed("VP8L：反向引用距离越界")
+      }
+      let mut k = 0
+      while k < length && i < n {
+        let argb = pixels[i - d]
+        pixels[i] = argb
+        if cache_size > 0 {
+          let prod = argb * 0x1E35A7BD
+          cache[(prod >> (32 - cache_bits)) & (cache_size - 1)] = argb
+        }
+        i += 1
+        k += 1
+      }
+    } else {
+      // 色彩缓存索引：symbol = 256 + 24 + index
       if cache_size == 0 {
         raise @types.LoadError::DecodeFailed("VP8L：出现色彩缓存索引但未启用缓存")
       }
-      let idx = br.read_bits(cache_bits)
+      let idx = g - 280
+      if idx < 0 || idx >= cache_size {
+        raise @types.LoadError::DecodeFailed("VP8L：色彩缓存索引越界")
+      }
       pixels[i] = cache[idx]
       i += 1
-    } else {
-      let _ = dist
-      raise @types.LoadError::DecodeFailed("VP8L：LZ77 反向引用尚未实现（symbol ≥ 257）")
     }
   }
   if subtract_green {
