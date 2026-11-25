@@ -66,7 +66,7 @@ flowchart LR
 | PNG | 8/16-bit、Adam7、APNG | — | 完整 |
 | JPEG | 基线（sequential） | progressive（规划中） | — |
 | TIFF | 无压缩 | LZW / PackBits（规划中） | `decode_tiff` 手动调用 |
-| WebP | lossy 编码 + 解码 | lossless 自解码 | — |
+| WebP | lossy 编码（⚠️ 产物不符合 VP8 规范，外部解码器不可解）+ 解码 | lossless 自解码 | 见 GAP-27 |
 | AVIF / HEIF / JPEG-XL | 基础解码 | 编码 | 边界见 README |
 | PSD / ICNS / CUR | 解码 | — | — |
 

@@ -64,7 +64,7 @@
 | 非 MoonBit 出口 | 无（CLI / MCP / npm 均未成型） |
 | 大图 | 算子整图复制，无内存预算 |
 | 覆盖率 | 83.4%（32862/39395） |
-| WebP | 编码产物合法性未验证 |
+| WebP | 编码产物**非法**（ffmpeg 报 `Invalid partitions`），已从"可编码格式"摘除（GAP-27） |
 
 ## 4. 阶段地图
 
@@ -100,19 +100,21 @@
 
 ---
 
-### S02 JPEG 提速 + WebP 合法性核查（1–2 周）
+### S02 JPEG 提速（1–2 周）
 
-**目标**：S01 已测出 JPEG 是唯一真瓶颈（编 1.96 MP/s / 解 2.12 MP/s，12MP 编 6.4s）。把它提到可用区间，同时查清 WebP 那 3.16ms 是不是假象。
+**目标**：S01 已测出 JPEG 是唯一真瓶颈（编 1.96 MP/s / 解 2.12 MP/s，12MP 编 6.4s），把它提到可用区间。
+
+**前置核查已完成（2026-11-25）**：WebP 的 3.16 ms 是假象 —— 产物非法。ffmpeg 对 64² 与 1024² 均报 `Invalid partitions`；根因是只写了 frame tag + start code + 宽高，缺 first partition 的分段/滤波/量化/概率更新与 token partition 尺寸表，`first_part_size` 被写成整个 token 流长度。已转 correctness issue（`docs/known-gaps.md` GAP-27），README / notes / 源码注释的能力宣称已修正。
 
 **交付**
-1. **前置核查（P0）**：`encode_webp_lossy_pure` 产物用外部解码器（浏览器 / libwebp）打开；再用位流结构检查 RIFF/frame header。若产物非法 → 转为 correctness issue，WebP 从能力清单摘除，不进性能优化。
-2. **JPEG 编码**：AAN 整数 DCT、量化表与 Huffman 表预计算、去除每 8×8 块分配、位写缓冲区合并。
-3. **JPEG 解码**：IDCT 加速、Huffman 查表化、YCbCr→RGB 整数化、去逐像素分配。
+1. **JPEG 编码**：AAN 整数 DCT、量化表与 Huffman 表预计算、去除每 8×8 块分配、位写缓冲区合并。
+2. **JPEG 解码**：IDCT 加速、Huffman 查表化、YCbCr→RGB 整数化、去逐像素分配。
+3. **WebP 编码路线评估（只评估不实现，≤0.5 人日）**：给出"实现合法 VP8L 编码器"的工时估算（复用现有 VP8L 解码器的 Huffman 结构），决定排到 S14 还是彻底不做。
 
 **验收**
 - `jpeg_encode_1024` ≥ 8 MP/s（12MP ≤1.5s），`jpeg_decode_1024` ≥ 8 MP/s；
 - 1024²/128² roundtrip 与 S01 位流逐字节可比对（Q=75/90 两档），像素差 ≤1；
-- 产物被浏览器与系统看图器正常打开；
+- 产物被 ffmpeg 与系统看图器正常打开（**本次教训：任何编码器交付必须过外部解码器**）；
 - 6664 测试全绿，`moon check --deny-warn --target all` 零警告。
 
 **风险**：动熵编码最易出边界 bug → 先固化 Q=75/Q=90 的 golden 位流（S01 数据），任何字节差异都要解释；Windows 计时抖动 → 取连续 3 次中位数。
@@ -203,6 +205,7 @@ node scripts/check_version.mjs           # ok: true
 moon bench --release --target native     # 相对上一 Sprint 退化 ≤8%（S01 后生效）
 docs/performance.md 与 bench 输出一致    # 脚本核对
 dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
+外部解码器验证                           # 任何编码器改动，产物必须被 ffmpeg/浏览器打开
 ```
 
 分层门禁（吸收自分层迭代路线第六节，按层卡"表面完成"）：
@@ -237,7 +240,7 @@ dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
 ## 9. 改路线的触发条件
 
 - （已消耗，2026-11-25）S01 实测：JPEG 1.96 MP/s → 确认是瓶颈，S02 开工；PNG 21/13 MP/s → PNG 优化项删除；
-- WebP 产物经外部解码器判定为非法 → WebP 从能力清单摘除，S02 释放出的时间并给 S03；
+- （已消耗，2026-11-25）WebP 产物经 ffmpeg 判定非法（`Invalid partitions`）→ 从可编码格式摘除，记 GAP-27，S02 只留 JPEG；
 - dogfood 记录出现"某算子必须整图复制" → S07 提前；
 - 下游 issue 集中在某个格式 → 该格式 Sprint 前移，后续顺延；
 - 分层迭代路线的 P0 场景（#2 发票、#3 合同增强、#5 电商白底）出现真实下游需求 → 在 0.1.12 之后插入 Recipe Sprint，并同步评估 L1 PDF 容器成本；

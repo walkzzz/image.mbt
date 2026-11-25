@@ -172,8 +172,11 @@ fn build_vp8_frame_header(
 /// WebP lossy 编码（纯 MoonBit，全目标可用）
 /// 实现: VP8 key frame, DC-only 预测, 固定量化
 /// quality: 1-100 (越高越好质量，文件越大)
-/// ⚠️ 注意：本库的 WebP 解码器仅支持 lossless (VP8L)，无法解码此函数的 lossy (VP8) 输出。
-/// 编码结果可用于外部工具（如浏览器、libwebp）解码，但 decode_webp_pure 会失败。
+/// ⚠️ 实测（2026-11-25）：产物**不符合 VP8 规范**。RIFF 容器正确，但缺少 first partition
+/// 中的分段/滤波/量化/概率更新与 token partition 尺寸表，first_part_size 被写成整个
+/// token 流长度。ffmpeg 报 `Invalid partitions`，浏览器同样无法解码。
+/// 本函数仅为占位实现，不得在任何能力宣称中使用；合法 VP8/VP8L 编码器列为后续工作。
+/// 本库解码器仅支持 lossless (VP8L)，也无法解此函数的输出。
 pub fn encode_webp_lossy_pure(
   img : @types.Image,
   quality~ : Int32 = 75,

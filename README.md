@@ -152,7 +152,7 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 | **CUR** | ✅ | ✅ | Windows 光标 |
 | **ICNS** | ✅ | ✅ | macOS 图标 |
 | **APNG** | ✅ | ✅ | 动画 PNG |
-| **WebP** | ✅ (lossless) | ✅ (lossy VP8) | VP8L 解码 + VP8 编码 |
+| **WebP** | ✅ (lossless) | ⚠️ 实验（产物非标准） | VP8L 解码；VP8 编码为占位实现，产物外部解码器不可解（见 GAP-27） |
 | **AVIF** | ✅ | — | AV1 关键帧解码 |
 | **HEIF** | ✅ | — | AV1/HEIC 解码 |
 | **JPEG-XL** | ✅ | — | 基础解码 |
