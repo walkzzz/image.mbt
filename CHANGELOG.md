@@ -4,6 +4,20 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.17] - 2026-11-25
+
+### Added
+
+- **动画统一入口（S15）**：`image.codec/lib/animation.mbt`
+  - `decode_animation(data) -> (Array[Image], Array[Int32])`：按魔数分派 GIF / APNG，返回帧与延迟（毫秒）。
+  - `encode_apng(frames, delays)`：校验空帧 / 长度不一致后转调 `encode_apng_pure`。
+
+### Verified
+
+- 双帧 APNG（100ms / 200ms）编码 → 解码：帧数 2、延迟一致、尺寸与通道一致。
+- GIF 单帧经 `decode_animation` 可读；静态 PNG 报 `DecodeFailed`；空帧与延迟长度不一致报 `EncodeFailed`。
+- 测试数 6,847 → **6,851**；全库行覆盖 **34,477/41,868（82.3%）**；四目标全绿，`--deny-warn` 零警告。
+
 ## [0.1.16] - 2026-11-25
 
 ### Added

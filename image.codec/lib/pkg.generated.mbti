@@ -12,6 +12,8 @@ pub fn best_format(@types.Image) -> @types.ImageFormat
 
 pub fn check_decode_budget(Bytes, @types.DecodeLimits) -> (Int64, Int64) raise @types.ImageError
 
+pub fn decode_animation(Bytes) -> (Array[@types.Image], Array[Int32]) raise @types.LoadError
+
 pub fn decode_region(Bytes, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
 
 pub fn decode_stream(Bytes, (Int32, Array[Byte]) -> Unit) -> StreamInfo raise @types.LoadError
@@ -25,6 +27,8 @@ pub fn decode_webp(Bytes) -> @types.Image raise @types.LoadError
 pub fn decode_with_limits(Bytes, @types.DecodeLimits) -> @types.Image raise @types.ImageError
 
 pub fn detect_format(Bytes) -> @types.ImageFormat
+
+pub fn encode_apng(Array[@types.Image], Array[Int32]) -> Bytes raise @types.LoadError
 
 pub fn encode_best(@types.Image, Int32) -> EncodedImage raise @types.ImageError
 

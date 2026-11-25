@@ -297,6 +297,12 @@
   越界 / 零尺寸 / 负坐标 / 非支持格式四类错误各有断言。
   **口径**：4096² 输出侧不再分配整图（PNG 的 64 MB 级输出缓冲降为 tile），但 inflate 中间缓冲仍在；
   真正的流式 inflate 需要 zlib 增量 API，留到后续。
+- ✅ **S15 动画闭环（2026-11-25）**：编解码本体已在位（`decode_gif_animation_pure`、`decode_apng_pure`、
+  `encode_apng_pure`），本 Sprint 补统一入口：`decode_animation(data) -> (Array[Image], Array[Int32])`
+  按魔数分派 GIF / APNG；`encode_apng(frames, delays)` 校验空帧与延迟长度后转调 `encode_apng_pure`。
+  **验收**：双帧 APNG（100/200ms）编码 → 解码，帧数与延迟一致；GIF 单帧经统一入口可读；
+  空帧、`delays` 长度不一致报 `EncodeFailed`；静态 PNG 报 `DecodeFailed`。
+  **口径**：GIF 只解码动画、编码仍为单帧（`encode_gif`），GIF 动画编码未承诺。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -315,7 +321,7 @@
 | S12 | npm-wasm（≤1.2MB gzip，codec+process 子集） | node 侧 3 行调用，示例可跑 |
 | S13 ✅ | 16bit / float 覆盖收敛（不新增算子） | 16f 家族行覆盖 91.15%（≥90%） |
 | S14 ✅ | 区域解码（PNG/BMP/QOI） | 输出只分配 tile，与整图裁切逐字节一致 |
-| S15 | 动画闭环（GIF/APNG 解码；APNG 编码） | 帧数与延迟可往返 |
+| S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
 | S18 | 覆盖率 90% + 变异测试 12 点 | 变异得分 ≥70% |

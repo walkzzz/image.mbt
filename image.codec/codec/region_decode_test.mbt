@@ -89,7 +89,10 @@ test "png region full image and 1x1" {
   let full = @codec.decode_png_pure(png)
   assert_true(rd_same(@codec.decode_png_region(png, 0, 0, 9, 7), full))
   assert_true(
-    rd_same(@codec.decode_png_region(png, 8, 6, 1, 1), rd_crop(full, 8, 6, 1, 1)),
+    rd_same(
+      @codec.decode_png_region(png, 8, 6, 1, 1),
+      rd_crop(full, 8, 6, 1, 1),
+    ),
   )
 }
 
@@ -143,10 +146,16 @@ test "bmp region == crop of full decode (32-bit bottom-up)" {
   let bmp = @codec.encode_bmp_pure(src)
   let full = @codec.decode_bmp_pure(bmp)
   assert_true(
-    rd_same(@codec.decode_bmp_region(bmp, 0, 0, 15, 3), rd_crop(full, 0, 0, 15, 3)),
+    rd_same(
+      @codec.decode_bmp_region(bmp, 0, 0, 15, 3),
+      rd_crop(full, 0, 0, 15, 3),
+    ),
   )
   assert_true(
-    rd_same(@codec.decode_bmp_region(bmp, 4, 8, 6, 3), rd_crop(full, 4, 8, 6, 3)),
+    rd_same(
+      @codec.decode_bmp_region(bmp, 4, 8, 6, 3),
+      rd_crop(full, 4, 8, 6, 3),
+    ),
   )
 }
 
@@ -156,12 +165,18 @@ test "qoi region == crop of full decode" {
   let qoi = @codec.encode_qoi_pure(src)
   let full = @codec.decode_qoi_pure(qoi)
   assert_true(
-    rd_same(@codec.decode_qoi_region(qoi, 2, 3, 6, 5), rd_crop(full, 2, 3, 6, 5)),
+    rd_same(
+      @codec.decode_qoi_region(qoi, 2, 3, 6, 5),
+      rd_crop(full, 2, 3, 6, 5),
+    ),
   )
   let rgb_src = rd_mk_img(13, 9, 3)
   let qoi3 = @codec.encode_qoi_pure(rgb_src)
   let full3 = @codec.decode_qoi_pure(qoi3)
   assert_true(
-    rd_same(@codec.decode_qoi_region(qoi3, 0, 7, 13, 2), rd_crop(full3, 0, 7, 13, 2)),
+    rd_same(
+      @codec.decode_qoi_region(qoi3, 0, 7, 13, 2),
+      rd_crop(full3, 0, 7, 13, 2),
+    ),
   )
 }
