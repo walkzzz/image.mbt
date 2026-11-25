@@ -375,6 +375,7 @@ pub fn save_image_auto(
 ///|
 /// 带质量参数的统一保存 API
 /// - WebP: 走 VP8L 无损编码，`quality` 参数被忽略（无损）
+/// - JPEG: `quality` 1–100 生效（50 = 标准量化表）
 /// - 其他格式: quality 参数被忽略，使用默认质量
 /// - 不支持的格式 raise
 pub fn save_image_with_quality(
@@ -382,11 +383,10 @@ pub fn save_image_with_quality(
   format : @types.ImageFormat,
   quality : Int32,
 ) -> Bytes raise @types.LoadError {
-  let _ = quality
   match format {
     @types.ImageFormat::Webp => @codec.encode_webp_lossless(img)
     @types.ImageFormat::Png => @codec.encode_png_pure(img)
-    @types.ImageFormat::Jpeg => @codec.encode_jpeg_pure(img)
+    @types.ImageFormat::Jpeg => @codec.encode_jpeg_with_quality(img, quality)
     @types.ImageFormat::Bmp => @codec.encode_bmp_pure(img)
     @types.ImageFormat::Qoi => @codec.encode_qoi_pure(img)
     @types.ImageFormat::Pnm => @codec.encode_pnm_pure(img)

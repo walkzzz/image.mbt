@@ -1,7 +1,7 @@
-import fs from "node:fs";
+﻿import fs from "node:fs";
 
-const FROM = "0.1.1";
-const TO = "0.1.2";
+const FROM = "0.1.2";
+const TO = "0.1.3";
 const mods = [
   "moon.mod",
   "image.core/moon.mod",
@@ -28,3 +28,4 @@ for (const f of ["README.md", "README.en.md"]) {
   fs.writeFileSync(f, t, "utf8");
 }
 console.log("bumped", FROM, "->", TO);
+

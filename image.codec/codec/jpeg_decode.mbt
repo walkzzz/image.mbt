@@ -137,12 +137,13 @@ fn jpeg_extend(val : Int32, size : Int32) -> Int32 {
 }
 
 ///|
-/// IDCT 余弦表
+/// IDCT 余弦表（已并入 `Cu` 权重，节省最内层判断）
 fn idct_cos_table() -> Array[Float] {
   let table = Array::make(64, 0.0F)
   for u in 0..<8 {
+    let cu = if u == 0 { 0.70710678F } else { 1.0F }
     for x in 0..<8 {
-      table[u * 8 + x] = @math.cosf(
+      table[u * 8 + x] = cu * @math.cosf(
         (2.0F * Float::from_int(x) + 1.0F) *
         Float::from_int(u) *
         3.14159265F /
@@ -154,29 +155,32 @@ fn idct_cos_table() -> Array[Float] {
 }
 
 ///|
-/// 8x8 IDCT（含 +128 电平偏移，输出 0-255）
-fn idct_8x8(block : Array[Int32]) -> Array[Int32] {
-  let cos_table = idct_cos_table()
-  let out = Array::make(64, 0)
-  for y in 0..<8 {
+/// 8×8 IDCT（可分离：先行后列，铲掉每块重建余弦表与 4096 次乘法）
+fn idct_8x8(
+  block : Array[Int32],
+  cos_t : Array[Float],
+  tmp : Array[Float],
+  out : Array[Int32],
+) -> Unit {
+  for v in 0..<8 {
     for x in 0..<8 {
       let mut sum = 0.0F
       for u in 0..<8 {
-        for v in 0..<8 {
-          let cu = if u == 0 { 0.70710678F } else { 1.0F }
-          let cv = if v == 0 { 0.70710678F } else { 1.0F }
-          sum += cu *
-            cv *
-            Float::from_int(block[v * 8 + u]) *
-            cos_table[u * 8 + x] *
-            cos_table[v * 8 + y]
-        }
+        sum += Float::from_int(block[v * 8 + u]) * cos_t[u * 8 + x]
       }
-      let val = (sum * 0.25F + 128.0F + 0.5F).to_int()
+      tmp[v * 8 + x] = sum
+    }
+  }
+  for y in 0..<8 {
+    for x in 0..<8 {
+      let mut sum = 0.0F
+      for v in 0..<8 {
+        sum += tmp[v * 8 + x] * cos_t[v * 8 + y]
+      }
+      let val = (sum * 0.25F + 128.5F).to_int()
       out[y * 8 + x] = val.clamp(min=0, max=255)
     }
   }
-  out
 }
 
 ///|
@@ -199,8 +203,11 @@ fn jpeg_decode_block(
   quant : Array[Int32],
   prev_dc : Ref[Int32],
   zz : Array[Int32],
-) -> Array[Int32] raise @types.LoadError {
-  let block = Array::make(64, 0)
+  block : Array[Int32],
+) -> Unit raise @types.LoadError {
+  for i in 0..<64 {
+    block[i] = 0
+  }
   let s = jpeg_decode_huffman(r, dc_table)
   let diff = if s == 0 {
     0
@@ -234,18 +241,16 @@ fn jpeg_decode_block(
   for i in 0..<64 {
     block[i] = block[i] * quant[i]
   }
-  block
 }
 
 ///|
-/// YCbCr → RGB 色彩空间转换
+/// YCbCr → RGB 色彩空间转换（整数定点，16 位权重，与浮点版差 ≤1 LSB）
 fn ycbcr_to_rgb(y : Int32, cb : Int32, cr : Int32) -> (Int32, Int32, Int32) {
-  let cbf = Float::from_int(cb) - 128.0F
-  let crf = Float::from_int(cr) - 128.0F
-  let yf = Float::from_int(y)
-  let r = (yf + 1.402F * crf + 0.5F).to_int()
-  let g = (yf - 0.34414F * cbf - 0.71414F * crf + 0.5F).to_int()
-  let b = (yf + 1.772F * cbf + 0.5F).to_int()
+  let cbf = cb - 128
+  let crf = cr - 128
+  let r = y + ((91881 * crf) >> 16)
+  let g = y - ((22554 * cbf + 46802 * crf) >> 16)
+  let b = y + ((116130 * cbf) >> 16)
   (r.clamp(min=0, max=255), g.clamp(min=0, max=255), b.clamp(min=0, max=255))
 }
 
@@ -279,9 +284,18 @@ fn jpeg_parse_header(data : Bytes) -> JpegHeader raise @types.LoadError {
   let mut pos = 2
   let mut width = 0
   let mut height = 0
-  let quant_tables : Array[Array[Int32]] = Array::make(4, Array::make(64, 0))
-  let huff_dc : Array[JpegHuffmanTable] = Array::make(4, empty_huffman_table())
-  let huff_ac : Array[JpegHuffmanTable] = Array::make(4, empty_huffman_table())
+  // 注意：Array::make(4, Array::make(64,0)) 会让 4 个槽共享同一个数组实体，
+  // 后写入的表会覆盖先写入的表（亮度表被色度表覆盖 → 解码整体偏色/失真）。必须逐个新建。
+  let quant_tables : Array[Array[Int32]] = []
+  for _ in 0..<4 {
+    quant_tables.push(Array::make(64, 0))
+  }
+  let huff_dc : Array[JpegHuffmanTable] = []
+  let huff_ac : Array[JpegHuffmanTable] = []
+  for _ in 0..<4 {
+    huff_dc.push(empty_huffman_table())
+    huff_ac.push(empty_huffman_table())
+  }
   let mut num_components = 3
   let component_ids : Array[Int32] = Array::make(4, 0)
   let component_h : Array[Int32] = Array::make(4, 1)
@@ -565,6 +579,15 @@ fn jpeg_decode_scan(
     b'\x00',
   )
   let mut mcu_count = 0
+  // 全图复用：IDCT 余弦表、块/空间/浮点暂存、各分量平面
+  let cos_t = idct_cos_table()
+  let tmpf : Array[Float] = Array::make(64, 0.0F)
+  let block : Array[Int32] = Array::make(64, 0)
+  let spatial : Array[Int32] = Array::make(64, 0)
+  let comp_data : Array[Array[Int32]] = []
+  for _ in 0..<num_components {
+    comp_data.push(Array::make(256, 0))
+  }
   for _my in 0..<mcus_y {
     for _mx in 0..<mcus_x {
       let my = _my
@@ -586,10 +609,6 @@ fn jpeg_decode_scan(
           reader.pos += 1
         }
       }
-      let comp_data : Array[Array[Int32]] = []
-      for _ in 0..<num_components {
-        comp_data.push(Array::make(256, 0))
-      }
       for si in 0..<header.scan_ns {
         let ci = header.scan_comp_idx[si]
         let hi = header.component_h[ci]
@@ -599,15 +618,8 @@ fn jpeg_decode_scan(
         let ac_tab = header.huff_ac[header.scan_ac_table[si]]
         let qt = header.quant_tables[header.component_qt[ci]]
         for bi in 0..<nblocks {
-          let block = jpeg_decode_block(
-            reader,
-            dc_tab,
-            ac_tab,
-            qt,
-            dc_pred[ci],
-            zz,
-          )
-          let spatial = idct_8x8(block)
+          jpeg_decode_block(reader, dc_tab, ac_tab, qt, dc_pred[ci], zz, block)
+          idct_8x8(block, cos_t, tmpf, spatial)
           let bx = bi % hi
           let by = bi / hi
           for py in 0..<8 {

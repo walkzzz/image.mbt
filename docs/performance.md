@@ -24,8 +24,8 @@
 | `resize_cover_1024_to_512` | 1024²→512² | 5.23 ms ± 61 µs | 10 × 20 | — | — |
 | `png_encode_4096` | 16.78 MP | 784.29 ms ± 17 ms | 10 × 1 | **21.4 MP/s** | — |
 | `png_decode_4096` | 16.78 MP | 1.28 s ± 28 ms | 10 × 1 | **13.1 MP/s** | — |
-| `jpeg_encode_1024` | 1.048 MP | 534.56 ms ± 13 ms | 10 × 1 | **1.96 MP/s** | libjpeg-turbo ≈ 50–100 MP/s |
-| `jpeg_decode_1024` | 1.048 MP | 495.22 ms ± 9 ms | 10 × 1 | **2.12 MP/s** | libjpeg-turbo ≈ 100+ MP/s |
+| `jpeg_encode_1024` | 1.048 MP | 82.90 ms ± 2.31 ms | 10 × 2 | **12.6 MP/s** | libjpeg-turbo ≈ 50–100 MP/s |
+| `jpeg_decode_1024` | 1.048 MP | 116.36 ms ± 9.48 ms | 10 × 1 | **9.0 MP/s** | libjpeg-turbo ≈ 100+ MP/s |
 | `webp_encode_1024` | 1.048 MP | 244.83 ms ± 2.48 ms | 10 × 1 | **4.28 MP/s** | libwebp `-lossless -m 4` ≈ 1–3 MP/s |
 | `bmp_encode_1024` | 1.048 MP | 8.32 ms ± 255 µs | 10 × 13 | 126 MP/s | 内存带宽级，合理 |
 | `qoi_encode_1024` | 1.048 MP | 9.76 ms ± 256 µs | 10 × 11 | 107 MP/s | 合理 |
@@ -37,11 +37,10 @@
 
 1. **PNG 不用动。** 编 21 MP/s、解 13 MP/s，比 libspng 慢 3–5 倍但在纯 MoonBit 里属正常区间，1MP 编 48ms / 解 79ms 够用。原计划的"PNG 解码优化"从 S03 降级为**不做**。
 
-2. **JPEG 是唯一真瓶颈。** 编码 1.96 MP/s、解码 2.12 MP/s，比 libjpeg-turbo 慢 **25–50 倍**：
-   - 12MP 照片：编码 **6.4 秒**、解码 **6.0 秒**；
-   - 1000 张 12MP 批处理：编码 **1.8 小时**。
-
-   这是 S02 的唯一目标，靶子明确：编码 ≥8 MP/s、解码 ≥8 MP/s（12MP 落到 1.5s 级）。
+2. **JPEG 已从唯一瓶颈变成可用区间（S03，2026-11-25）。** 编码 534.56 → **82.90 ms（12.6 MP/s）**、解码 495.22 → **116.36 ms（9.0 MP/s）**，两项都过 8 MP/s 门禁；12MP 照片估算编码 ≈ 1 s、解码 ≈ 1.3 s。提速手段：
+   - 编码：整数 AAN FDCT（等价 libjpeg `jfdctint`，输出 ×8 由量化倒数 `1/(q*8)` 吸收）、定点 RGB→YCbCr、量化倒数预计算、图级复用暂存；
+   - 解码：可分离 IDCT + 余弦表全图只建一次、块/空间/浮点暂存复用（不再每块分配）、YCbCr→RGB 整数化、量化表按 table id 独立分配（修掉 `Array::make(4, Array::make(64,0))` 共享实体导致亮度表被色度表覆盖的失真 bug）。
+   - 外部校验：产物经 ffmpeg / PIL 解码与源码比对，解码器与 PIL 差 max 3 / mean 0.50。
 
 3. **WebP 编码原先的 331 MP/s 是产物非法导致的假数字**（旧 VP8 实现只写 container，ffmpeg 报 `Invalid partitions`）。S02 换成 VP8L 编码器 `encode_webp_lossless`（palette / predictor / subtract-green 三候选各编码一遍比长度）后，同一 1024² 梯度实测 **244.83 ms / 4.28 MP/s**，产物经 ffmpeg 与 libwebp 解码逐字节比对通过。
 

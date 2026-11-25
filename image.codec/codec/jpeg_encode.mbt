@@ -1,4 +1,4 @@
-///|
+﻿///|
 /// # JPEG 编码 JPEG Encode
 ///
 /// JPEG baseline 编码实现 JPEG baseline encoding implementation
@@ -177,63 +177,114 @@ fn std_ac_chr_vals() -> Array[Int32] {
 
 ///|
 /// IDCT/FDCT 余弦表
-fn jpeg_cos_table() -> Array[Float] {
-  let table = Array::make(64, 0.0F)
-  for u in 0..<8 {
-    for x in 0..<8 {
-      table[u * 8 + x] = @math.cosf(
-        (2.0F * Float::from_int(x) + 1.0F) *
-        Float::from_int(u) *
-        3.14159265F /
-        16.0F,
-      )
-    }
-  }
-  table
+///|
+/// 8x8 正向 DCT（整数 AAN 型，等价 libjpeg `jfdctint`）
+///
+/// 13 位定点常数 + `PASS1_BITS=2`：输出比真实 DCT **放大 8 倍**，
+/// 所以量化时除数用 `quant * 8`。全程整数乘加，无浮点、无临时分配。
+const FIX_0_298631336 : Int32 = 2446
+const FIX_0_390180644 : Int32 = 3196
+const FIX_0_541196100 : Int32 = 4433
+const FIX_0_765366865 : Int32 = 6270
+const FIX_0_899976223 : Int32 = 7373
+const FIX_1_175875602 : Int32 = 9633
+const FIX_1_501321110 : Int32 = 12299
+const FIX_1_847759065 : Int32 = 15137
+const FIX_1_961570560 : Int32 = 16069
+const FIX_2_053119869 : Int32 = 16819
+const FIX_2_562915447 : Int32 = 20995
+const FIX_3_072711026 : Int32 = 25172
+
+///|
+fn jpeg_descale(x : Int32, n : Int32) -> Int32 {
+  (x + (1 << (n - 1))) >> n
 }
 
 ///|
-/// 8x8 正向 DCT
-fn fdct_8x8(block : Array[Int32]) -> Array[Int32] {
-  let cos_table = jpeg_cos_table()
-  let out = Array::make(64, 0)
-  for u in 0..<8 {
-    for v in 0..<8 {
-      let mut sum = 0.0F
-      for x in 0..<8 {
-        for y in 0..<8 {
-          sum += Float::from_int(block[y * 8 + x]) *
-            cos_table[u * 8 + x] *
-            cos_table[v * 8 + y]
-        }
-      }
-      let cu = if u == 0 { 0.70710678F } else { 1.0F }
-      let cv = if v == 0 { 0.70710678F } else { 1.0F }
-      let coeff = cu * cv * sum * 0.25F
-      out[v * 8 + u] = if coeff >= 0.0F {
-        (coeff + 0.5F).to_int()
-      } else {
-        -(-coeff + 0.5F).to_int()
-      }
-    }
-  }
-  out
+/// 行/列共用的一维 DCT。`d` 步长 `s`，输出到 `dst` 步长 `sd`。
+fn jpeg_fdct_1d(
+  d : Array[Int32],
+  o : Int,
+  s : Int,
+  dst : Array[Int32],
+  od : Int,
+  sd : Int,
+  pass1 : Bool,
+) -> Unit {
+  let b0 = d[o]
+  let b1 = d[o + s]
+  let b2 = d[o + 2 * s]
+  let b3 = d[o + 3 * s]
+  let b4 = d[o + 4 * s]
+  let b5 = d[o + 5 * s]
+  let b6 = d[o + 6 * s]
+  let b7 = d[o + 7 * s]
+  let t0 = b0 + b7
+  let t7 = b0 - b7
+  let t1 = b1 + b6
+  let t6 = b1 - b6
+  let t2 = b2 + b5
+  let t5 = b2 - b5
+  let t3 = b3 + b4
+  let t4 = b3 - b4
+  let t10 = t0 + t3
+  let t13 = t0 - t3
+  let t11 = t1 + t2
+  let t12 = t1 - t2
+  let p0 = if pass1 { (t10 + t11) << 2 } else { jpeg_descale(t10 + t11, 2) }
+  let p4 = if pass1 { (t10 - t11) << 2 } else { jpeg_descale(t10 - t11, 2) }
+  // 第一行/列通路用 CONST_BITS - PASS1_BITS，第二用 CONST_BITS + PASS1_BITS
+  let rot = if pass1 { 11 } else { 15 }
+  let z1e = (t12 + t13) * FIX_0_541196100
+  let p2 = jpeg_descale(z1e + t13 * FIX_0_765366865, rot)
+  let p6 = jpeg_descale(z1e - t12 * FIX_1_847759065, rot)
+  let z1 = t4 + t7
+  let z2 = t5 + t6
+  let z3 = t4 + t6
+  let z4 = t5 + t7
+  let z5 = (z3 + z4) * FIX_1_175875602
+  let u4 = t4 * FIX_0_298631336
+  let u5 = t5 * FIX_2_053119869
+  let u6 = t6 * FIX_3_072711026
+  let u7 = t7 * FIX_1_501321110
+  let v1 = z1 * -FIX_0_899976223
+  let v2 = z2 * -FIX_2_562915447
+  let v3 = z3 * -FIX_1_961570560 + z5
+  let v4 = z4 * -FIX_0_390180644 + z5
+  let p7 = jpeg_descale(u4 + v1 + v3, rot)
+  let p5 = jpeg_descale(u5 + v2 + v4, rot)
+  let p3 = jpeg_descale(u6 + v2 + v3, rot)
+  let p1 = jpeg_descale(u7 + v1 + v4, rot)
+  dst[od] = p0
+  dst[od + sd] = p1
+  dst[od + 2 * sd] = p2
+  dst[od + 3 * sd] = p3
+  dst[od + 4 * sd] = p4
+  dst[od + 5 * sd] = p5
+  dst[od + 6 * sd] = p6
+  dst[od + 7 * sd] = p7
 }
 
 ///|
-/// RGB → YCbCr 色彩空间转换
+/// 8×8 整数 FDCT：先行后列，输出放大于真实 DCT 的 8 倍。
+fn jpeg_fdct_int(block : Array[Int32], tmp : Array[Int32], out : Array[Int32]) -> Unit {
+  for y in 0..<8 {
+    jpeg_fdct_1d(block, y * 8, 1, tmp, y * 8, 1, true)
+  }
+  for x in 0..<8 {
+    jpeg_fdct_1d(tmp, x, 8, out, x, 8, false)
+  }
+}
+
+///|
+/// RGB → YCbCr 色彩空间转换（整数定点，16 位权重）
+///
+/// 与浮点版差别 ≤1 LSB；每像素省掉 3 次 int→float 与 9 次浮点乘法。
 fn rgb_to_ycbcr(r : Int32, g : Int32, b : Int32) -> (Int32, Int32, Int32) {
-  let rf = Float::from_int(r)
-  let gf = Float::from_int(g)
-  let bf = Float::from_int(b)
-  let y = 0.299F * rf + 0.587F * gf + 0.114F * bf
-  let cb = -0.168736F * rf - 0.331264F * gf + 0.5F * bf + 128.0F
-  let cr = 0.5F * rf - 0.418688F * gf - 0.081312F * bf + 128.0F
-  (
-    (y + 0.5F).to_int().clamp(min=0, max=255),
-    (cb + 0.5F).to_int().clamp(min=0, max=255),
-    (cr + 0.5F).to_int().clamp(min=0, max=255),
-  )
+  let y = (19595 * r + 38470 * g + 7471 * b + 32768) >> 16
+  let cb = (-11059 * r - 21709 * g + 32768 * b + 8421376) >> 16
+  let cr = (32768 * r - 27439 * g - 5329 * b + 8421376) >> 16
+  (y.clamp(min=0, max=255), cb.clamp(min=0, max=255), cr.clamp(min=0, max=255))
 }
 
 ///|
@@ -275,24 +326,29 @@ fn jpeg_zigzag() -> Array[Int32] {
 
 ///|
 /// 编码一个 8x8 块
+///|
+/// 单个 8×8 块的编码：DCT → 量化 → 之字形 → Huffman 写位。
+/// 所有暂存数组由调用方复用（GP 全图只分配一次）。
 fn jpeg_encode_block(
   w : JpegBitWriter,
   block : Array[Int32],
   dc_enc : JpegHuffmanEncoder,
   ac_enc : JpegHuffmanEncoder,
   prev_dc : Ref[Int32],
-  quant : Array[Int32],
+  inv_quant : Array[Float],
   zz : Array[Int32],
+  tmp_i : Array[Int32],
+  shifted : Array[Int32],
+  coeffs : Array[Int32],
+  quantized_zz : Array[Int32],
 ) -> Unit {
-  let shifted = Array::make(64, 0)
   for i in 0..<64 {
     shifted[i] = block[i] - 128
   }
-  let coeffs = fdct_8x8(shifted)
-  let quantized_zz = Array::make(64, 0)
+  jpeg_fdct_int(shifted, tmp_i, coeffs)
   for k in 0..<64 {
     let i = zz[k]
-    let q = Float::from_int(coeffs[i]) / Float::from_int(quant[i])
+    let q = Float::from_int(coeffs[i]) * inv_quant[i]
     quantized_zz[k] = if q >= 0.0F {
       (q + 0.5F).to_int()
     } else {
@@ -344,6 +400,28 @@ fn jpeg_encode_block(
 /// 错误 Errors:
 /// - `LoadError::EncodeFailed` - 尺寸无效、channels 不支持 Invalid dimensions, unsupported channels
 pub fn encode_jpeg_pure(img : @types.Image) -> Bytes raise @types.LoadError {
+  encode_jpeg_with_quality(img, 50)
+}
+
+///|
+/// 按 libjpeg 的缩放公式把标准量化表映射到 quality（1–100，标准表对应 50）。
+fn jpeg_scaled_quant(std : Array[Int32], quality : Int32) -> Array[Int32] {
+  let q = quality.clamp(min=1, max=100)
+  let scale = if q < 50 { 5000 / q } else { 200 - q * 2 }
+  let out : Array[Int32] = []
+  for i in 0..<64 {
+    let v = (std[i] * scale + 50) / 100
+    out.push(v.clamp(min=1, max=255))
+  }
+  out
+}
+
+///|
+/// JPEG 编码（可指定质量）。quality 1–100，50 等价标准量化表；4:4:4 YCbCr + 标准霍夫曼表。
+pub fn encode_jpeg_with_quality(
+  img : @types.Image,
+  quality : Int32,
+) -> Bytes raise @types.LoadError {
   let width = img.width
   let height = img.height
   if width <= 0 || height <= 0 {
@@ -352,8 +430,8 @@ pub fn encode_jpeg_pure(img : @types.Image) -> Bytes raise @types.LoadError {
   let channels = img.channels
   let data = img.data
   let zz = jpeg_zigzag()
-  let quant_lum = std_quant_luminance()
-  let quant_chr = std_quant_chrominance()
+  let quant_lum = jpeg_scaled_quant(std_quant_luminance(), quality)
+  let quant_chr = jpeg_scaled_quant(std_quant_chrominance(), quality)
   let dc_lum_enc = build_huffman_encoder(std_dc_lum_bits(), std_dc_lum_vals())
   let dc_chr_enc = build_huffman_encoder(std_dc_chr_bits(), std_dc_chr_vals())
   let ac_lum_enc = build_huffman_encoder(std_ac_lum_bits(), std_ac_lum_vals())
@@ -461,11 +539,22 @@ pub fn encode_jpeg_pure(img : @types.Image) -> Bytes raise @types.LoadError {
   let prev_dc_cr = Ref(0)
   let blocks_x = (width + 7) / 8
   let blocks_y = (height + 7) / 8
+  // 预计算：DCT 余弦表、量化倒数、全图复用暂存
+  let inv_lum : Array[Float] = Array::make(64, 0.0F)
+  let inv_chr : Array[Float] = Array::make(64, 0.0F)
+  for i in 0..<64 {
+    inv_lum[i] = 1.0F / (Float::from_int(quant_lum[i]) * 8.0F)
+    inv_chr[i] = 1.0F / (Float::from_int(quant_chr[i]) * 8.0F)
+  }
+  let tmp_i : Array[Int32] = Array::make(64, 0)
+  let shifted : Array[Int32] = Array::make(64, 0)
+  let coeffs : Array[Int32] = Array::make(64, 0)
+  let qzz : Array[Int32] = Array::make(64, 0)
+  let y_block : Array[Int32] = Array::make(64, 128)
+  let cb_block : Array[Int32] = Array::make(64, 128)
+  let cr_block : Array[Int32] = Array::make(64, 128)
   for by in 0..<blocks_y {
     for bx in 0..<blocks_x {
-      let y_block = Array::make(64, 128)
-      let cb_block = Array::make(64, 128)
-      let cr_block = Array::make(64, 128)
       for py in 0..<8 {
         for px in 0..<8 {
           let ix = bx * 8 + px
@@ -483,13 +572,16 @@ pub fn encode_jpeg_pure(img : @types.Image) -> Bytes raise @types.LoadError {
         }
       }
       jpeg_encode_block(
-        writer, y_block, dc_lum_enc, ac_lum_enc, prev_dc_y, quant_lum, zz,
+        writer, y_block, dc_lum_enc, ac_lum_enc, prev_dc_y, inv_lum, zz,
+        tmp_i, shifted, coeffs, qzz,
       )
       jpeg_encode_block(
-        writer, cb_block, dc_chr_enc, ac_chr_enc, prev_dc_cb, quant_chr, zz,
+        writer, cb_block, dc_chr_enc, ac_chr_enc, prev_dc_cb, inv_chr, zz,
+        tmp_i, shifted, coeffs, qzz,
       )
       jpeg_encode_block(
-        writer, cr_block, dc_chr_enc, ac_chr_enc, prev_dc_cr, quant_chr, zz,
+        writer, cr_block, dc_chr_enc, ac_chr_enc, prev_dc_cr, inv_chr, zz,
+        tmp_i, shifted, coeffs, qzz,
       )
     }
   }
@@ -499,3 +591,6 @@ pub fn encode_jpeg_pure(img : @types.Image) -> Bytes raise @types.LoadError {
   writer.out.push(b'\xD9')
   Bytes::from_array(writer.out)
 }
+
+
+

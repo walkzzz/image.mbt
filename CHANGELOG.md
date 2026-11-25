@@ -12,6 +12,22 @@
 - **`playground/` 导出层**：4 个函数（版本、QR PNG、滤镜 PNG、PNG 摘要），PNG 以十六进制字符串跨 JS 边界，无需后端。
 - **`scripts/check_pages.mjs`**：49 项门禁（构建产物、导出、QR/滤镜/摘要语义、页面结构、模块链接、口径数字）。
 
+## [0.1.3] - 2026-11-25
+
+### Added
+
+- **`encode_jpeg_with_quality(img, quality)`**: libjpeg-style quant-table scaling (1–100, 50 = standard tables). `@lib.save_image_with_quality` now honors `quality` for JPEG instead of discarding it.
+- **JPEG regression tests** (`jpeg_fdct_int_test.mbt`): integer-FDCT roundtrip, quality tiers on 1024², and a solid-color roundtrip that guards the quant-table aliasing bug.
+
+### Changed
+
+- **JPEG encoder ~6.4× faster**: separable float DCT → **integer AAN FDCT** (libjpeg `jfdctint` equivalent, ×8 output absorbed by `1/(q*8)` inverse quant), fixed-point RGB→YCbCr, precomputed inverse quant, image-level scratch reuse. `jpeg_encode_1024`: 534.56 ms → **82.90 ms (12.6 MP/s)**.
+- **JPEG decoder ~4.2× faster**: separable IDCT with a single cosine table, reusable block/spatial/float scratch (no per-block allocation), integer YCbCr→RGB. `jpeg_decode_1024`: 495.22 ms → **116.36 ms (9.0 MP/s)**.
+
+### Fixed
+
+- **JPEG decoder color distortion**: `jpeg_parse_header` built `Array::make(4, Array::make(64, 0))`, so all four quantization-table slots shared one array — the second (chrominance) table overwrote the first (luminance). Roundtrip mean error dropped from 5.7 to 0.50 (max 3) against ffmpeg/PIL.
+
 ## [0.1.2] - 2026-11-25
 
 ### Added

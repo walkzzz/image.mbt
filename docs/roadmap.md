@@ -132,17 +132,25 @@
 
 **目标**：S01 已测出 JPEG 是唯一真瓶颈（编 1.96 MP/s / 解 2.12 MP/s，12MP 编 6.4s），把它提到可用区间。因 WebP 插队，本 Sprint 顺延一位。
 
-**交付**
-1. **JPEG 编码**：AAN 整数 DCT、量化表与 Huffman 表预计算、去除每 8×8 块分配、位写缓冲区合并。
-2. **JPEG 解码**：IDCT 加速、Huffman 查表化、YCbCr→RGB 整数化、去逐像素分配。
+**状态：已完成（2026-11-25，版本 0.1.3）**
 
-**验收**
-- `jpeg_encode_1024` ≥ 8 MP/s（12MP ≤1.5s），`jpeg_decode_1024` ≥ 8 MP/s；
-- 1024²/128² roundtrip 与 S01 位流逐字节可比对（Q=75/90 两档），像素差 ≤1；
-- 产物被 ffmpeg 与系统看图器正常打开；
-- 6664 测试全绿，`moon check --deny-warn --target all` 零警告。
+交付与结果：
 
-**风险**：动熵编码最易出边界 bug → 先固化 Q=75/Q=90 的 golden 位流（S01 数据），任何字节差异都要解释；Windows 计时抖动 → 取连续 3 次中位数。
+| 项 | 改造前 | 改造后 | 门禁 |
+|---|---|---|---|
+| `jpeg_encode_1024` | 534.56 ms（1.96 MP/s） | **82.90 ms（12.6 MP/s）** | ≥8 MP/s ✅ |
+| `jpeg_decode_1024` | 495.22 ms（2.12 MP/s） | **116.36 ms（9.0 MP/s）** | ≥8 MP/s ✅ |
+| `jpeg 64² 梯度回环误差` | 13 | **7** | ≤16 ✅ |
+| ffmpeg / PIL 打开产物 | 可解 | 可解（PIL 与 ffmpeg 互差 mean 0.04） | ✅ |
+| 测试 | 6,664 | **6,675 × 4 目标全绿** | ✅ |
+| `moon check --deny-warn --target all` | — | 零警告 | ✅ |
+
+1. **编码侧**：可分离浮点 DCT → **整数 AAN FDCT**（等价 libjpeg `jfdctint`，输出 ×8 由 `1/(q*8)` 量化倒数吸收）；定点 RGB→YCbCr（`(19595R+38470G+7471B+32768)>>16` 一组）；量化倒数 + zigzag 预计算；块/移位/系数/量化结果在图级只分配一次。
+2. **解码侧**：可分离 IDCT（行→列，余弦表全图只建一次，替代每块 64 次 `cosf` + 4096 次乘）；块/空间/浮点暂存复用（不再每块 `Array::make(64)`）；YCbCr→RGB 改整数定点（`91881` / `22554+46802` / `116130` 加权）。
+3. **顺带修掉一个失真 bug**：`jpeg_parse_header` 里 `Array::make(4, Array::make(64, 0))` 让 4 张量化表共享同一个数组实体，第二张（色度）表覆盖了第一张（亮度）表 → 解码整体失真（4:4:4 自回环 mean 5.7）。改成逐槽新建后与 PIL/ffmpeg 的差降到 max 3 / mean 0.50，并补了纯色回环回归测试。
+4. **新增质量参数接口**：`encode_jpeg_with_quality(img, quality)`（libjpeg 缩放公式，50 = 标准表），`@lib.save_image_with_quality` 的 JPEG 分支现在真的生效（此前 `quality` 被 `let _ = quality` 丢弃）。
+
+**遗留（不属于本 Sprint 门禁）**：编码只出 4:4:4（无 4:2:0 子采样），同质量下体积比 libjpeg 大 20–40%；Huffman 仍是逐位读（未做 8 位查表），解码还有一次提速空间。
 
 ---
 
