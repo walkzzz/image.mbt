@@ -1,0 +1,55 @@
+///|
+/// VP8L 前缀码「单叶子零比特」回归样本（2026-11-25）
+///
+/// 样本由 `scripts/proto/gen_vp8l_fixtures.py` 手工拼出，并已用 Pillow(libwebp) 解码确认
+/// 内容为 4×4：绿恒 0x80、alpha 恒 0xFF、红 `(x+y)*16`、蓝 `(x+y)*8`。
+///
+/// 它专门覆盖一条曾经出错规则：**码长码（19 符号字母表）只剩 16 号一个符号时，
+/// 解码不消耗任何比特**。噪声类图片（如 libwebp 的 `noise_17x17_m0.webp`）会给红/蓝通道
+/// 输出「256 个符号码长全是 8」的树，码长码因此退化成单叶子；早期实现每个码多读 1 位，
+/// 整条比特流错位，最后报「前缀码树不完整」或静默输出错像素。
+test "vp8l: 码长码单叶子（只有 16 号）零比特" {
+  let raw : Array[Int32] = [
+    0x52, 0x49, 0x46, 0x46, 0x54, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
+    0x56, 0x50, 0x38, 0x4C, 0x47, 0x00, 0x00, 0x00, 0x2F, 0x03, 0xC0, 0x00,
+    0x10, 0x28, 0xA0, 0x02, 0x00, 0x00, 0x88, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x4F, 0x01, 0x00, 0x00, 0xC4, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xD7, 0xFF, 0x00, 0x00,
+    0x40, 0x80, 0x20, 0x40, 0x60, 0xC0, 0x40, 0x80, 0x20, 0x40, 0x60, 0xC0,
+    0x10, 0x20, 0x20, 0x40, 0x60, 0xC0, 0x10, 0x20, 0x50, 0xA0, 0x60, 0xC0,
+    0x10, 0x20, 0x50, 0xA0, 0x30, 0x60, 0x00, 0x00,
+  ]
+  let bytes : Array[Byte] = []
+  for v in raw {
+    bytes.push(v.to_byte())
+  }
+  let img = try @codec.decode_webp_vp8l_rfc(Bytes::from_array(bytes)) catch {
+    e => {
+      fail("VP8L 单叶子码长码解码失败：\{e}")
+      @types.Image::{
+        width: 0,
+        height: 0,
+        channels: 4,
+        data: Bytes::from_array([]),
+      }
+    }
+  }
+  assert_eq(img.width, 4)
+  assert_eq(img.height, 4)
+  assert_eq(img.channels, 4)
+  let mut bad = 0
+  for y in 0..<4 {
+    for x in 0..<4 {
+      let i = (y * 4 + x) * 4
+      let want_r = ((x + y) * 16) % 256
+      let want_b = ((x + y) * 8) % 256
+      if img.data[i].to_int() != want_r ||
+        img.data[i + 1].to_int() != 0x80 ||
+        img.data[i + 2].to_int() != want_b ||
+        img.data[i + 3].to_int() != 0xFF {
+        bad = bad + 1
+      }
+    }
+  }
+  assert_eq(bad, 0)
+}

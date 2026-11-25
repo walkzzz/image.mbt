@@ -126,6 +126,12 @@ test (b : @bench.T) {
   b.bench(name="jpeg_encode_1024", fn() { b.keep(jpeg_len(img_1024)) })
   b.bench(name="jpeg_decode_1024", fn() { b.keep(auto_dims(jpeg_1024)) })
   b.bench(name="webp_encode_1024", fn() { b.keep(webp_len(img_1024)) })
+  // 解码基准用自家编码器产物（含调色板 / predictor / subtract-green 变换），
+  // 覆盖下游真实路径：`moon add` 后 encode → 存盘 → decode。
+  let webp_1024 : Bytes = @codec.encode_webp_lossless(img_1024) catch {
+    _ => Bytes::make(0, b'\x00')
+  }
+  b.bench(name="webp_decode_1024", fn() { b.keep(auto_dims(webp_1024)) })
   b.bench(name="bmp_encode_1024", fn() {
     b.keep(@lib.encode_bmp(img_1024).length())
   })

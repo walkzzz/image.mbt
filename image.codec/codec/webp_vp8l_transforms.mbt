@@ -1,4 +1,4 @@
-///|
+﻿///|
 /// # VP8L 通用解码：图像流 + 四种逆变换
 ///
 /// 按 RFC 9649 §3.5 / §3.6 / §3.7 实现：
@@ -38,7 +38,7 @@ fn vp8l_read_cache_info(br : BitReader) -> (Int32, Int32) raise @types.LoadError
 }
 
 ///|
-fn vp8l_read_group(br : BitReader, cache_size : Int32) -> Vp8lGroup {
+fn vp8l_read_group(br : BitReader, cache_size : Int32) -> Vp8lGroup raise @types.LoadError {
   let green = vp8l_read_prefix_code(br, 256 + 24 + cache_size)
   let red = vp8l_read_prefix_code(br, 256)
   let blue = vp8l_read_prefix_code(br, 256)
@@ -122,7 +122,9 @@ fn vp8l_decode_stream(
       let dcode = vp8l_prefix_value(br, g.dist.decode(br))
       let d = vp8l_map_distance(dcode, width)
       if d <= 0 || i - d < 0 {
-        raise @types.LoadError::DecodeFailed("VP8L：反向引用距离越界")
+        raise @types.LoadError::DecodeFailed(
+          "VP8L：反向引用距离越界 (i=\{i} d=\{d} dcode=\{dcode} sym=\{sym} len=\{length} w=\{width} h=\{height} cache=\{cache_bits} groups=\{groups.length()})",
+        )
       }
       let mut k = 0
       while k < length && i < n {
@@ -155,9 +157,11 @@ fn vp8l_decode_stream(
 /// 色彩缓存哈希：RFC 9649 §3.6.2.3 的 (0x1e35a7bd * color) >> (32 - bits)，
 /// 按无符号 32 位语义实现（Int32 的算术右移需要补上符号位贡献）。
 fn vp8l_cache_hash(argb : Int32, bits : Int32) -> Int32 {
+  // libwebp：((argb * 0x1e35a7bd) & 0xffffffff) >> (32 - bits)，即 32 位**无符号**乘法的结果取高 bits 位。
+  // Int32 乘法天然按 2^32 回绕，但 `>>` 是算术右移，负数会符号扩展；
+  // 用掩码取低 bits 位即可得到与逻辑右移一致的结果（之前用 "+ (1 << bits)" 修补是错的）。
   let prod = argb * 0x1E35A7BD
-  let raw = prod >> (32 - bits)
-  if prod < 0 { raw + (1 << bits) } else { raw }
+  (prod >> (32 - bits)) & ((1 << bits) - 1)
 }
 
 ///|
@@ -206,16 +210,35 @@ fn vp8l_abs32(v : Int32) -> Int32 {
 }
 
 ///|
+///|
+/// Predictor 11 的 Select（RFC §3.5.1 / libwebp `Select(top, left, top_left)`）：
+/// |top-top_left| <= |left-top_left| 时取 top，否则取 left。
+/// 早期实现把比较方向写反，导致任何用到模式 11 的块像素全错。
+/// RFC 9649 §3.5.1 的 Select(L, T, TL)：先算估计值 p = L + T - TL（逐通道、不裁剪），
+/// 再看 L 与 T 谁离 p 更近（曼哈顿距离 4 通道求和），返回更近的那个。
+/// 之前写成"比较 |L-TL| 与 |T-TL|"是错的，会让所有用到模式 11 的块整体偏色。
 fn vp8l_select(l : Int32, t : Int32, tl : Int32) -> Int32 {
-  let pa = vp8l_c1(l, 24) + vp8l_c1(t, 24) - vp8l_c1(tl, 24)
-  let pr = vp8l_c1(l, 16) + vp8l_c1(t, 16) - vp8l_c1(tl, 16)
-  let pg = vp8l_c1(l, 8) + vp8l_c1(t, 8) - vp8l_c1(tl, 8)
-  let pb = vp8l_c1(l, 0) + vp8l_c1(t, 0) - vp8l_c1(tl, 0)
-  let pl = vp8l_abs32(pa - vp8l_c1(l, 24)) + vp8l_abs32(pr - vp8l_c1(l, 16)) +
-    vp8l_abs32(pg - vp8l_c1(l, 8)) + vp8l_abs32(pb - vp8l_c1(l, 0))
-  let pt = vp8l_abs32(pa - vp8l_c1(t, 24)) + vp8l_abs32(pr - vp8l_c1(t, 16)) +
-    vp8l_abs32(pg - vp8l_c1(t, 8)) + vp8l_abs32(pb - vp8l_c1(t, 0))
-  if pl < pt { l } else { t }
+  let la = vp8l_c1(l, 24)
+  let lr = vp8l_c1(l, 16)
+  let lg = vp8l_c1(l, 8)
+  let lb = vp8l_c1(l, 0)
+  let ta = vp8l_c1(t, 24)
+  let tr = vp8l_c1(t, 16)
+  let tg = vp8l_c1(t, 8)
+  let tb = vp8l_c1(t, 0)
+  let tla = vp8l_c1(tl, 24)
+  let tlr = vp8l_c1(tl, 16)
+  let tlg = vp8l_c1(tl, 8)
+  let tlb = vp8l_c1(tl, 0)
+  let pa = la + ta - tla
+  let pr = lr + tr - tlr
+  let pg = lg + tg - tlg
+  let pb = lb + tb - tlb
+  let dist_l = vp8l_abs32(pa - la) + vp8l_abs32(pr - lr) + vp8l_abs32(pg - lg) +
+    vp8l_abs32(pb - lb)
+  let dist_t = vp8l_abs32(pa - ta) + vp8l_abs32(pr - tr) + vp8l_abs32(pg - tg) +
+    vp8l_abs32(pb - tb)
+  if dist_l < dist_t { l } else { t }
 }
 
 ///|
@@ -326,7 +349,9 @@ fn vp8l_inverse_color_indexing(
   height : Int32,
   palette : Array[Int32],
   width_bits : Int32,
+  orig_width : Int32,
 ) -> (Array[Int32], Int32) {
+  // 未打包：逐像素查表
   if width_bits == 0 {
     let out : Array[Int32] = Array::make(pixels.length(), 0)
     for i in 0..<pixels.length() {
@@ -335,20 +360,20 @@ fn vp8l_inverse_color_indexing(
     }
     return (out, width)
   }
-  let bundle = 1 << width_bits // 每个像素打包的索引个数：2 / 4 / 8
+  let bundle = 1 << width_bits // 每个打包像素承载的索引个数：2 / 4 / 8
   let bits_per = 8 >> width_bits // 每个索引占的位宽：4 / 2 / 1
   let mask = (1 << bits_per) - 1
-  let out_width = width * bundle
+  // 关键：还原宽度是**原图宽**，不是 width * bundle——最后一组可能只用了前几个槽
+  // （4 像素图 + width_bits=3 时 subsample 宽 1，展开应是 4 而不是 8）。
+  let out_width = orig_width
   let out : Array[Int32] = Array::make((out_width * height), 0)
   for y in 0..<height {
-    for sx in 0..<width {
+    for x in 0..<out_width {
+      let sx = x / bundle
+      let j = x % bundle
       let packed = vp8l_c1(pixels[(y * width + sx)], 8)
-      for j in 0..<bundle {
-        let idx = (packed >> (j * bits_per)) & mask
-        let x = sx * bundle + j
-        let oi = (y * out_width + x)
-        out[oi] = if idx < palette.length() { palette[idx] } else { 0 }
-      }
+      let idx = (packed >> (j * bits_per)) & mask
+      out[(y * out_width + x)] = if idx < palette.length() { palette[idx] } else { 0 }
     }
   }
   (out, out_width)
@@ -392,9 +417,11 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
   let mode_widths : Array[Int32] = []
   let aux : Array[Array[Int32]] = []
   let width_bits : Array[Int32] = []
+  let pre_widths : Array[Int32] = []
   let mut cur_w = width
   while br.read_bit() == 1 {
     let t = br.read_bits(2)
+    let pre_w = cur_w
     if t == 0 || t == 1 {
       let sb = br.read_bits(3) + 2
       let mw = vp8l_div_round_up(cur_w, 1 << sb)
@@ -405,12 +432,14 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
       mode_widths.push(mw)
       aux.push(img)
       width_bits.push(0)
+      pre_widths.push(pre_w)
     } else if t == 2 {
       kinds.push(2)
       block_bits.push(0)
       mode_widths.push(0)
       aux.push([])
       width_bits.push(0)
+      pre_widths.push(pre_w)
     } else {
       let nc = br.read_bits(8) + 1
       let table = vp8l_decode_stream(br, nc, 1, false)
@@ -429,6 +458,7 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
       mode_widths.push(0)
       aux.push(table)
       width_bits.push(wb)
+      pre_widths.push(pre_w)
       cur_w = vp8l_div_round_up(cur_w, 1 << wb)
     }
   }
@@ -450,7 +480,14 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
         pixels[i] = (vp8l_c1(argb, 24) << 24) | (r << 16) | (g << 8) | b
       }
     } else {
-      let (out, nw) = vp8l_inverse_color_indexing(pixels, w, height, aux[k], width_bits[k])
+      let (out, nw) = vp8l_inverse_color_indexing(
+        pixels,
+        w,
+        height,
+        aux[k],
+        width_bits[k],
+        pre_widths[k],
+      )
       pixels = out
       w = nw
     }
@@ -478,3 +515,5 @@ pub fn decode_webp_vp8l_rfc(data : Bytes) -> @types.Image raise @types.LoadError
 pub fn decode_webp_pure(data : Bytes) -> @types.Image raise @types.LoadError {
   decode_webp_vp8l_rfc(data)
 }
+
+

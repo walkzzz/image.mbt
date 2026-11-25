@@ -14,9 +14,13 @@
 - **`scripts/mcp/sanitize_batch.mjs`**：200 张注入 EXIF/GPS/XMP/ICC/缩略图签名的 JPEG，三档 policy 全跑 → `residue 0 / failed 0`，并复核输出可解码、尺寸不变。
 - **MCP `sanitize` 工具扩展**：schema 增 `policy=standard`、`regions`、`block`、`blur`；冒烟新增 6 条用例（standard 打码块数、strict 整图模糊 + png、默认不动像素、PNG 真压缩、非法 region、非法 policy），共 **33/33**。
 - `image.codec/codec/png_deflate_wbtest.mbt`：CRC 回归、重复数据压缩后可 inflate 还原、伪随机数据可还原 三条白盒测试。
+- **`image.codec/codec/webp_vp8l_rfc_test.mbt`**：VP8L「码长码单叶子零比特」回归样本（4×4，92 B 手工拼装，已用 Pillow 校验内容），锁死本轮最后一处比特错位。
+- **`scripts/proto/webp_battery.py`**：WebP 无损解码回归——PIL(libwebp) method 0/4/6 × 9 类内容（渐变 / 三种调色板 / alpha / 灰度 / 噪声 / 噪声+alpha / 截图风）× 12 种尺寸，加 ffmpeg `-lossless 1` 的 testsrc2 / smptebars / mandelbrot；**321 例逐像素全等**。基准取 Pillow 解码同一份 webp（源图与 webp 内容并不等价），避免把编码器行为误判成解码 bug。
+- **`bench_real.mbt` 新增 `webp_decode_1024`**：自家编码器产物往返解码 **15.68 ms / 66.8 MP/s**，是 PNG（7.9）/ JPEG（9.0）的 7 倍以上，因为 VP8L 走整数 predict + LZ77 拷贝。
 
 ### Fixed
 
+- **VP8L 无损解码 7 处缺陷全部修掉（标准编码器产物现可逐像素还原）**：① 单符号前缀码必须零比特；② simple 双符号按符号值排序（小符号分码 0）；③ 调色板逆变换按 bundle 还原原宽度（此前 4 色/16 色图尺寸错位）；④ `max_symbol` 数的是「码的个数」而不是「已填下标」，且 code 16 重复上一个**非零**码长（长零串会提前结束循环，导致后续树整体错位）；⑤ 色彩缓存 hash 用 32 位无符号右移；⑥ predictor 模式 11（Select）按 RFC 9649 `p = L + T - TL` 重写；⑦ **码长码单叶子（19 符号字母表只剩 16 号）同样零比特**——这是最后 4 例噪声图全错的根因。另加 Kraft 完整性校验，把「静默输出全黑」变成可定位的 `decode/decode_failed`。
 - **PNG chunk CRC 全错**（致命）：`image.codec/util/zlib.mbt` 的 `crc32_table` 生成与 `crc32` 用 `>>` 算术右移，高位污染导致所有 chunk CRC 非法，产物 PIL / ffmpeg 拒开。改为逻辑右移掩码后 CRC 全绿、外部工具可读。
 - **PNG 输出几乎不压缩**：编码器原是 stored deflate + filter 0，640×360 输出 **691,678 B**（比源文件大 26 倍）。新增 `png_deflate.mbt`（fixed Huffman + 32KB hash-chain LZ77 + `zlib_compress`）与逐行 5 种 filter 择优（含 Paeth），同一图降到 **30,243 B（22.9×）**，PIL 逐像素 maxdiff 0；RGB / RGBA / 灰度三种通道组合均逐像素一致，1024² 输出 129,762 B（ffmpeg 同源 111,803 B，1.16×）。
 
