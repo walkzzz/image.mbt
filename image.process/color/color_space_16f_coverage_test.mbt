@@ -27,7 +27,7 @@ test "cs16cov: HSL 16-bit 与 float" {
   let (r2, _g2, _b2) = @color.hsl_to_rgb_16(360.0F, 1.0F, 0.5F)
   assert_true(r2 == 65535)
   // 负角
-  let (r3, _g3, b3) = @color.hsl_to_rgb_16(-60.0F, 1.0F, 0.5F)
+  let (_r3, _g3, b3) = @color.hsl_to_rgb_16(-60.0F, 1.0F, 0.5F)
   assert_true(b3 == 65535)
   // 校验
   try {
