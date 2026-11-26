@@ -74,6 +74,16 @@ src/  (已迁移为根目录 6 子模块工作空间；0.1.0 起子模块目录�
 - 绑定层**禁止重写编解码/缩放**：只允许搬字节 + 解析 CLI 单行 JSON；新增能力先加到 MoonBit 侧，再由绑定暴露。
 - Dart 不载 wasm 的原因已定：MoonBit native 不产出静态/动态库、`package:wasm` 已废弃且需 Rust + Wasmer、Dart VM 无内置 wasm 运行时。别重复探这三条路。
 - 绑定的版本随库走（`npm/package.json` 与 `bindings/dart/pubspec.yaml` 跟 0.1.x 同步）；发布时机与库一致，只在阶段收口发。
+### CI/CD 与 Pages（S21 收口）
+
+- 两个工作流：`.github/workflows/ci.yml`（8 个作业：`quality` / `test×4` / `bench` / `coverage` / `mutation` / `prove` / `bindings`）与 `pages.yml`（`build` → `deploy`）。口径与门禁清单的唯一说明在 **`docs/ci-cd.md`**，改工作流必须同步改它。
+- 最小权限 + 并发：CI 顶层 `permissions: contents: read`、`concurrency: ci-${ref}` 且 `cancel-in-progress`；Pages 单独要 `pages: write` / `id-token: write`，`concurrency: pages` 不取消。
+- `quality` 里除 `moon fmt/check/info` 外还跑：`check_docs`（B1–B14）、`gen_api_index|gen_capabilities|gen_scenes --check`、`check_version`、`check_pkg_imports`、`sync_pages --check`、`check_pages`、`check_benchmarks`。新增门禁 = 加脚本 + 进 `check_docs` 或 `check_release_ready` + 进 CI，三步缺一步等于没有门禁。
+- 覆盖率门槛**只认 `docs/coverage.json`**（`coverage@1`：38,102 / 42,301 = 90.07%，threshold 90）。改数字先改这个文件，再 `node scripts/sync_pages.mjs`，不要直接编辑 `docs/index.html`。
+- Pages 发布 = `docs/` 整个目录（artifact 部署，URL `https://walkzzz.github.io/image.mbt/`）；`playground.js` 由 `check_pages` 现编拷贝，**不手改**。`configure-pages@v5` 带 `enablement: true`，首次运行自动开启 Pages。
+- 发布前本地等价一条命令：`node scripts/check_release_ready.mjs`（`--skip-slow` 跳过 `moon check/test/pages`）。它失败即不许 `moon publish`。
+- 仓库卫生：根目录产物（`o.png` / `_build_cli_*` / `bisect.coverage`）不入库，`.gitignore` 与 `.moonignore` 双写——前者防误提交，后者防进发布包。
+
 ## Core Constraints
 
 > [!WARNING]
@@ -253,6 +263,9 @@ moon run --target native
 
 # 展示页门禁（构建 JS 产物 + 49 项页面/导出/语义检查）
 node scripts/check_pages.mjs
+
+# 发布前收口：一条命令跑完 15 项门禁（--skip-slow 只跑快的 12 项）
+node scripts/check_release_ready.mjs --skip-slow
 ```
 
 ## Documents
@@ -261,12 +274,16 @@ node scripts/check_pages.mjs
 |------|------|
 | [README.md](README.md) | 项目说明（中文） |
 | [docs/architecture.md](docs/architecture.md) | 架构图、包依赖关系、设计决策 |
-| [docs/api_reference.md](docs/api_reference.md) | API 参考（正文核心快照 1339 函数；全仓 3,760 fn + 710 type 以各包 .mbti 为准） |
+| [docs/api_index.md](docs/api_index.md) | **API 全量索引（83 包 / 5,851 fn / 718 type，由 `gen_api_index` 从 `.mbti` 生成，`--check` 防漂移）** |
+| [docs/api_reference.md](docs/api_reference.md) | 历史参考快照（1,339 fn / 50 包），**以 api_index 为准** |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
 | [docs/comparison.md](docs/comparison.md) | mooncakes.io 图像库对比 |
-| [docs/performance_report.md](docs/performance_report.md) | 性能基准报告 |
+| [docs/performance.md](docs/performance.md) | 性能基准报告 |
 | [docs/skill.md](docs/skill.md) | AI 辅助开发技能描述 |
 | [docs/changelog.md](docs/changelog.md) | 版本变更历史 |
+| [docs/migration.md](docs/migration.md) | 版本迁移（0.1.23 三处改动） |
+| [docs/deprecation.md](docs/deprecation.md) | 弃用清单与保留窗口 |
+| [docs/known-gaps.md](docs/known-gaps.md) | 已知缺陷与限制（含未闭环项） |
 
 ---
 

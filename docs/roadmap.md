@@ -389,7 +389,7 @@
 | S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.08%（见 `docs/known-gaps.md`） |
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
 | S20 ✅ | 公开基准集（golden 20 张 + 6 类恶意样本） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材 |
-| S21 ✅ | 0.1.23 收口 + 迁移指南 + 弃用策略 | `docs/migration.md` 给出**3 处改动**（模块名/import 路径/7 条弃用替换），迁移前后 15 行对照可逐条核对；`docs/deprecation.md` 定义标注规则 + 保留窗口 + 7 条清单，**B12**（`check_deprecations`）做代码 ⇄ 表双向比对；收口核对清单见 `docs/release.md` §九（11 环顺序 + 13 条门禁） |
+| S21 ✅ | 0.1.23 收口 + 迁移指南 + 弃用策略 | `docs/migration.md` 给出**3 处改动**（模块名/import 路径/7 条弃用替换），迁移前后 15 行对照可逐条核对；`docs/deprecation.md` 定义标注规则 + 保留窗口 + 7 条清单，**B12**（`check_deprecations`）做代码 ⇄ 表双向比对；收口核对清单见 `docs/release.md` §九（11 环顺序 + 15 项门禁，一条 `check_release_ready.mjs` 跑完）；同轮补齐 CI/CD 与 Pages 治理：`docs/ci-cd.md`、`pages.yml`、`sync_pages` + `docs/coverage.json` 单一真值、`check_links`（B13） |
 
 > 打勾口径：S10–S12 本轮补核（`best_format` 实现、CLI 8 分支、npm 15/15）；S08/S09 的能力（区域视图、`--mem-budget` 预算）已随后续 Sprint 落地，但当时承诺的量化验收（20000² 内存峰值）未复测，故不打勾。
 

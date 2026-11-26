@@ -28,6 +28,13 @@
 ## 🏆 OSC 2026 Contest Declaration
 
 This project participates in the **2026 MoonBit Domestic Open Source Ecosystem Competition (OSC 2026)**. AI usage disclosure: AI programming assistants were used during development for code generation, test writing, documentation, and refactoring. All AI-generated code has been manually reviewed, tested, and verified for correctness and maintainability. See [docs/skill.md](docs/skill.md) for detailed AI usage scope.
+| [docs/mutation.md](docs/mutation.md) | Mutation testing: 12 mutants, KILLED details and fixes |
+| [docs/assessment.md](docs/assessment.md) | Self-assessment: status, risks, next steps |
+| [docs/dogfood.md](docs/dogfood.md) | Dogfooding log: CLI/MCP friction list |
+| [docs/ocr_usage_guide.md](docs/ocr_usage_guide.md) | OCR usage guide (PDF-to-image and batch scripts) |
+| [docs/webp-encoder.md](docs/webp-encoder.md) | WebP encoder notes and lossless semantics |
+| [docs/tiff_lzw_summary.md](docs/tiff_lzw_summary.md) | TIFF LZW decoding notes |
+| [docs/tiff_packbits_summary.md](docs/tiff_packbits_summary.md) | TIFF PackBits decoding notes |
 
 ---
 
@@ -455,6 +462,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | [docs/bindings.md](docs/bindings.md) | **Language bindings: JS over wasm, Dart over the imgtool process — one implementation, two hosts (S17)** |
 | [docs/migration.md](docs/migration.md) | **Migration guide: 3 changes from early 0.1.x (module name / imports / deprecated APIs) (S21)** |
 | [docs/deprecation.md](docs/deprecation.md) | **Deprecation policy: labeling rules, retention window, 7 entries, B12 gate (S21)** |
+| [docs/ci-cd.md](docs/ci-cd.md) | **CI/CD & Pages: 8 jobs, B1–B14 gates, single coverage truth, Pages deploy, local equivalents** |
 | [benchmarks/COPYRIGHT.md](benchmarks/COPYRIGHT.md) | Benchmark sample copyright self-audit (no third-party assets) |
 | [docs/api_reference.md](docs/api_reference.md) | API reference snapshot (see api_index and per-package .mbti) |
 | [docs/roadmap.md](docs/roadmap.md) | Iteration roadmap |

@@ -1,0 +1,72 @@
+name: Pages
+
+# GitHub Pages：直接发布 docs/ 目录（首页 = docs/index.html，含浏览器内演示）
+#
+# 关键点：
+#   1. 先跑 `scripts/check_pages.mjs`：它会构建 playground.js（js 后端）、把产物写到 docs/、
+#      并校验导出结构与页面口径数字，等于"发布前先自测"。
+#   2. `actions/configure-pages` 带 enablement: true，仓库首次运行本工作流时会自动开启 Pages。
+#   3. 用 artifact 上传部署（不走 Jekyll），docs/ 里的 .md 原样当静态文件即可。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'playground/**'
+      - 'README.md'
+      - 'moon.mod'
+      - 'scripts/check_pages.mjs'
+      - 'scripts/sync_pages.mjs'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site (docs + playground js)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sync page numbers from README / coverage.json
+        run: node scripts/sync_pages.mjs --check
+
+      - name: Build playground.js + pages gate
+        run: node scripts/check_pages.mjs
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

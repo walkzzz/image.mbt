@@ -30,6 +30,13 @@
 ## 🏆 OSC 2026 参赛声明
 
 本项目参与 **2026 MoonBit 国产基础软件开源大赛（OSC 2026）**。AI 辅助说明：本项目在开发过程中使用了 AI 编程助手辅助完成代码生成、测试编写、文档撰写和重构工作。所有 AI 生成代码均经过人工审查、测试验证和逻辑确认，确保代码质量、正确性和可维护性。详细 AI 使用范围见 [docs/skill.md](docs/skill.md)。
+| [docs/mutation.md](docs/mutation.md) | 变异测试：12 个变异点、KILLED 明细与处置记录 |
+| [docs/assessment.md](docs/assessment.md) | 自评估：现状、风险与后续判断 |
+| [docs/dogfood.md](docs/dogfood.md) | 自用记录：CLI/MCP 狗粮过程与 friction 清单 |
+| [docs/ocr_usage_guide.md](docs/ocr_usage_guide.md) | OCR 使用指南（含 PDF 转图与批处理脚本口径） |
+| [docs/webp-encoder.md](docs/webp-encoder.md) | WebP 编码器实现说明与 lossless 口径 |
+| [docs/tiff_lzw_summary.md](docs/tiff_lzw_summary.md) | TIFF LZW 解码要点（含实现约束） |
+| [docs/tiff_packbits_summary.md](docs/tiff_packbits_summary.md) | TIFF PackBits 解码要点（含实现约束） |
 
 ---
 
@@ -573,6 +580,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/bindings.md](docs/bindings.md) | **语言绑定：JS 走 wasm、Dart 走 imgtool 进程，同一份实现两种宿主（S17）** |
 | [docs/migration.md](docs/migration.md) | **迁移指南：从 0.1.x 早期版本只需 3 处改动（模块名 / import / 弃用替换）（S21）** |
 | [docs/deprecation.md](docs/deprecation.md) | **弃用策略：标注规则 + 保留窗口 + 7 条清单，B12 门禁防漂移（S21）** |
+| [docs/ci-cd.md](docs/ci-cd.md) | **CI/CD 与 Pages：8 个作业、B1–B14 门禁、覆盖率单一真值、Pages 发布与本地等价命令** |
 | [benchmarks/COPYRIGHT.md](benchmarks/COPYRIGHT.md) | 基准样本版权自查清单（零第三方素材） |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
@@ -588,7 +596,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/roadmap.md](docs/roadmap.md) | 远期路线图（Sprint 级） |
 | [docs/notes.md](docs/notes.md) | 使用说明与核心约束 |
 | [docs/examples.md](docs/examples.md) | 8 个可运行示例（含实测输出，`quickstart` 为下游视角的首选） |
-| [docs/release.md](docs/release.md) | 发布与分发：7 模块发布顺序、`publish --dry-run` 语义、未发布时的三种用法 |
+| [docs/release.md](docs/release.md) | 发布与分发：11 模块 / 11 环发布顺序、`publish --dry-run` 语义、未发布时的三种用法、Pages 部署 |
 | [docs/features.md](docs/features.md) | 功能分类概览 |
 | [docs/known-gaps.md](docs/known-gaps.md) | 真话台账（边界与未完成项） |
 | [docs/contributing.md](docs/contributing.md) | 贡献指南 |

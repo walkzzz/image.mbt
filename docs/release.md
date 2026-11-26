@@ -237,23 +237,25 @@ $ (Get-Item ...\walkzzz-image.core-0.1.9.zip).Length
 3. 根模块 `walkzzz/image.mbt` 最后发（依赖上面 10 环）
 4. 绑定：npm 包（`npm/`，`prepack` 现编 wasm）随根模块发；Dart 包 `publish_to: none` 不发
 
-### 9.3 全绿门禁（逐条跑，缺一不发）
+### 9.3 全绿门禁（一条命令，缺一不发）
 
 ```powershell
-node scripts/check_version.mjs                 # 11 个 moon.mod 版本一致
-node scripts/check_docs.mjs                    # B1–B12
-node scripts/gen_api_index.mjs --check
-node scripts/gen_capabilities.mjs --check
-node scripts/gen_scenes.mjs --check
-node scripts/check_pkg_imports.mjs             # 0 冗余导入
-node scripts/check_deprecations.mjs            # 代码 ⇄ 弃用表
-node scripts/check_benchmarks.mjs              # 基准集 sha256
-node scripts/check_dart_binding.mjs --no-build # Dart 6 项
-node npm/test.mjs                              # JS 15 项
-moon fmt --check
-moon check --deny-warn --target all
-moon test --target all                         # 7,395 × 4
+node scripts/check_release_ready.mjs              # 15 项全跑（含 moon check / test / pages 构建，约 10 分钟）
+node scripts/check_release_ready.mjs --skip-slow  # 12 项快跑（约 10 秒），本地迭代用
 ```
+
+脚本是本节清单的可执行版本（`scripts/check_release_ready.mjs`），逐条真跑、不看历史结论：
+
+| 组 | 内容 |
+| --- | --- |
+| 版本 | `check_version`（16 处：11 个 `moon.mod` + 依赖钉 + 门面 + CLI + playground + 首页 + 双 README 徽章） |
+| 文档真值 | `check_docs`（**B1–B14**）、`gen_api_index` / `gen_capabilities` / `gen_scenes --check` |
+| 契约 | `check_pkg_imports`、`check_deprecations`、`check_links`、`sync_pages --check`、`check_benchmarks` |
+| 绑定 | `npm/test.mjs`（15 项）、`check_dart_binding.mjs --no-build`（6 项） |
+| 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,395） |
+| 展示页 | `check_pages`（49 项，含 playground.js 现编） |
+
+覆盖率门槛由 `docs/coverage.json` 定：当前 38,102/42,301 = **90.07%**，CI 与本地均按 `--min 90` 拦。
 
 ### 9.4 下游 30 分钟上手（发布后第一件事；未发布则跳过）
 

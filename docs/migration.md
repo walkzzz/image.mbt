@@ -68,7 +68,7 @@ import "walkzzz/image.media"   // 编解码 / 元数据 / 变换 / 加密 / 流�
 | `calibrate_confidence` | `calibrate_confidence_enhanced` | 旧版单一阈值 |
 
 7 条全部处于「保留窗口」内（`0.1.x` 不移除，最早 `0.2.0` 批次）。窗口规则、当前清单与门禁见
-[docs/deprecation.md](docs/deprecation.md)。临时只想消告警可以在局部写 `#warnings("-deprecated")`。
+[docs/deprecation.md](deprecation.md)。临时只想消告警可以在局部写 `#warnings("-deprecated")`。
 
 ## 不用改的部分（有证据，不是口头保证）
 

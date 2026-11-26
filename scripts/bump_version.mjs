@@ -4,6 +4,7 @@
 // 改到的地方（全部由 `node scripts/check_version.mjs` 守护，漏一处就红）：
 //   moon.mod × 7（根 + 6 子模块）的 version、这 7 个 moon.mod 里 `walkzzz/image.*@x.y.z` 的依赖钉、
 //   image.mbt 门面 `pub let version`、imgcli/imgtool.mbt 的 CLI `pub let version`、
+//   playground/playground.mbt 的 `img_version`、docs/index.html 的品牌/hero 版本（再调 sync_pages 对齐指标数字）、
 //   README.md / README.en.md 的 version 与 mooncakes 徽章、docs/known-gaps.md 的「当前口径」行。
 //
 // 依赖钉必须同步：`moon publish --dry-run` 校验根包时，子模块是从 registry 缓存取的（不是工作区），
@@ -16,6 +17,7 @@
 //   node scripts/bump_version.mjs -n           # 只打印将要改什么（dry-run）
 
 import { readFile, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -56,7 +58,11 @@ const bump = (rel, re, make) => {
 
 for (const rel of MODULES) bump(rel, /^version = "([^"]+)"/m, () => `version = "${to}"`);
 bump('image.mbt', /pub let version : String = "([^"]+)"/, () => `pub let version : String = "${to}"`);
+
 bump('imgcli/imgtool.mbt', /pub let version : String = "([^"]+)"/, () => `pub let version : String = "${to}"`);
+bump('playground/playground.mbt', /pub fn img_version\(\) -> String \{\n  "([\d.]+)"/, () => `pub fn img_version() -> String {\n  "${to}"`);
+bump('docs/index.html', /class="brand-ver">v([\d.]+)</, () => `class="brand-ver">v${to}<`);
+bump('docs/index.html', /id="hero-version">([\d.]+)</, () => `id="hero-version">${to}<`);
 bump('README.md', /badge\/version-([\d.]+)-orange/, () => `badge/version-${to}-orange`);
 bump('README.en.md', /badge\/version-([\d.]+)-orange/, () => `badge/version-${to}-orange`);
 bump('README.md', /badge\/mooncakes-([\d.]+)-orange/, () => `badge/mooncakes-${to}-orange`);
@@ -90,4 +96,10 @@ for (const rel of MODULES) {
   }
 }
 
+// 首页的测试数 / 覆盖率 / 子包数 不在本脚本里逐个写，统一交给 sync_pages 从 README + coverage.json 拉。
+if (!dry) {
+  const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'sync_pages.mjs')], { cwd: ROOT, encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`sync_pages 失败: ${(r.stderr || '').trim()}`);
+  process.stdout.write(r.stdout);
+}
 console.log(JSON.stringify({ schema: 'bump-version@1', from, to, filesChanged: changed, dryRun: dry }, null, 2));

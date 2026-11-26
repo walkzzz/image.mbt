@@ -5,6 +5,14 @@ on:
     branches: [dev, main]
   pull_request:
     branches: [dev, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
@@ -41,6 +49,12 @@ jobs:
           node scripts/check_docs.mjs --self-test
           node scripts/check_docs.mjs
           node scripts/gen_api_index.mjs --check
+          node scripts/check_version.mjs
+          node scripts/check_pkg_imports.mjs
+          node scripts/sync_pages.mjs --check
+
+      - name: Pages gate (build playground js + semantic checks)
+        run: node scripts/check_pages.mjs
 
       - name: Benchmark corpus gate (golden 20 + malformed 6)
         run: |
@@ -97,7 +111,7 @@ jobs:
           moon coverage report -f summary | tee coverage-summary.txt
 
       - name: Enforce coverage threshold
-        run: node scripts/check_coverage.mjs coverage-summary.txt --min 80.5
+        run: node scripts/check_coverage.mjs coverage-summary.txt --min 90
 
       - name: Summary
         run: |

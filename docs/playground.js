@@ -17,7 +17,7 @@ function _M0TPC16string10StringView(param0, param1, param2) {
   this.start = param1;
   this.end = param2;
 }
-const _M0FPB19int__to__string__js = (x, radix) => {
+var _M0FPB19int__to__string__js = (x, radix) => {
   return x.toString(radix);
 };
 function _M0TPB5ArrayGyE(param0, param1) {
@@ -32,13 +32,8 @@ function _M0TPB5ArrayGbE(param0, param1) {
   this.buf = param0;
   this.len = param1;
 }
-function _M0TPC15bytes9BytesView(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-const $bytes_literal$0 = new Uint8Array();
-const _M0FPC28encoding4utf816encode__utf8__js = (() => {
+var $bytes_literal$0 = new Uint8Array();
+var _M0FPC28encoding4utf816encode__utf8__js = (() => {
    const encoder = new TextEncoder();
    return function(src, start, len, bom) {
      const end = start + len;
@@ -54,7 +49,7 @@ const _M0FPC28encoding4utf816encode__utf8__js = (() => {
      return result;
    };
  })();
-const _M0FPC28encoding4utf816decode__utf8__js = ((preserveBOMDecoder, dropBOMDecoder) => function(bytes, start, len, preserveBOM) {
+var _M0FPC28encoding4utf816decode__utf8__js = ((preserveBOMDecoder, dropBOMDecoder) => function(bytes, start, len, preserveBOM) {
    try {
      const end = start + len;
      const slice = bytes.subarray(start, end);
@@ -67,6 +62,11 @@ const _M0FPC28encoding4utf816decode__utf8__js = ((preserveBOMDecoder, dropBOMDec
    new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }),
    new TextDecoder("utf-8", { fatal: true, ignoreBOM: false }),
  );
+function _M0TPC15bytes9BytesView(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
 function _M0DTPC16result6ResultGsRPC28encoding4utf89MalformedE3Err(param0) {
   this._0 = param0;
 }
@@ -600,6 +600,11 @@ function _M0DTP37walkzzz13image_2ecodec5codec17ImageInfoExtended4Apng(param0) {
   this._0 = param0;
 }
 _M0DTP37walkzzz13image_2ecodec5codec17ImageInfoExtended4Apng.prototype.$tag = 17;
+function _M0TP37walkzzz13image_2ecodec5codec9BitWriter(param0, param1, param2) {
+  this.out = param0;
+  this.buf = param1;
+  this.cnt = param2;
+}
 function _M0DTPC16result6ResultGRP37walkzzz13image_2ecodec3lib16UnifiedImageInfoRP37walkzzz12image_2ecore5types9LoadErrorE3Err(param0) {
   this._0 = param0;
 }
@@ -639,45 +644,45 @@ function _M0DTPC16result6ResultGRP37walkzzz12image_2ecore5types5ImageRP37walkzzz
   this._0 = param0;
 }
 _M0DTPC16result6ResultGRP37walkzzz12image_2ecore5types5ImageRP37walkzzz12image_2ecore5types9LoadErrorE2Ok.prototype.$tag = 1;
-const _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger = { method_0: _M0IPB13StringBuilderPB6Logger13write__string, method_1: _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE, method_2: _M0IPB13StringBuilderPB6Logger11write__view, method_3: _M0IPB13StringBuilderPB6Logger11write__char, method_4: _M0IP016_24default__implPB6Logger28write__string__interpolationGRPB13StringBuilderE, method_5: _M0IP016_24default__implPB6Logger5writeGRPB13StringBuilderE };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS770 = { _0: 128, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS771 = { _0: 256, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS772 = { _0: 512, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS773 = { _0: 1024, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS774 = { _0: 16, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS775 = { _0: 32, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS776 = { _0: 64, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS777 = { _0: 256, _1: true };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS778 = { _0: 16, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS779 = { _0: 32, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS780 = { _0: 16, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS781 = { _0: 32, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS782 = { _0: 64, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS783 = { _0: 128, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS784 = { _0: 256, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS785 = { _0: 512, _1: false };
-const _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS786 = { _0: 0, _1: false };
-const _M0FP37walkzzz11image_2embt10playground10hex__chars = new _M0TPB5ArrayGcE([48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102], 16);
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1250 = { _0: 0, _1: 0 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1251 = { _0: 0, _1: 14 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1252 = { _0: 14, _1: 0 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1253 = { _0: 8, _1: 0 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1254 = { _0: 8, _1: 1 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1255 = { _0: 8, _1: 2 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1256 = { _0: 8, _1: 3 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1257 = { _0: 8, _1: 4 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1258 = { _0: 8, _1: 5 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1259 = { _0: 8, _1: 7 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1260 = { _0: 8, _1: 8 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1261 = { _0: 7, _1: 8 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1262 = { _0: 5, _1: 8 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1263 = { _0: 4, _1: 8 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1264 = { _0: 3, _1: 8 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1265 = { _0: 2, _1: 8 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1266 = { _0: 1, _1: 8 };
-const _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1267 = { _0: 0, _1: 8 };
-const _M0FP37walkzzz12image_2ecore5types11clamp__byte = _M0FP37walkzzz12image_2ecore10safe__math11clamp__byte;
-const _M0FP37walkzzz12image_2ecore5types12clamp__coord = _M0FP37walkzzz12image_2ecore10safe__math12clamp__coord;
+var _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger = { method_0: _M0IPB13StringBuilderPB6Logger13write__string, method_1: _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE, method_2: _M0IPB13StringBuilderPB6Logger11write__view, method_3: _M0IPB13StringBuilderPB6Logger11write__char, method_4: _M0IP016_24default__implPB6Logger28write__string__interpolationGRPB13StringBuilderE, method_5: _M0IP016_24default__implPB6Logger5writeGRPB13StringBuilderE };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS754 = { _0: 128, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS755 = { _0: 256, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS756 = { _0: 512, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS757 = { _0: 1024, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS758 = { _0: 16, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS759 = { _0: 32, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS760 = { _0: 64, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS761 = { _0: 256, _1: true };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS762 = { _0: 16, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS763 = { _0: 32, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS764 = { _0: 16, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS765 = { _0: 32, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS766 = { _0: 64, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS767 = { _0: 128, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS768 = { _0: 256, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS769 = { _0: 512, _1: false };
+var _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS770 = { _0: 0, _1: false };
+var _M0FP37walkzzz11image_2embt10playground10hex__chars = new _M0TPB5ArrayGcE([48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102], 16);
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1338 = { _0: 0, _1: 0 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1339 = { _0: 0, _1: 14 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1340 = { _0: 14, _1: 0 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1341 = { _0: 8, _1: 0 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1342 = { _0: 8, _1: 1 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1343 = { _0: 8, _1: 2 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1344 = { _0: 8, _1: 3 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1345 = { _0: 8, _1: 4 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1346 = { _0: 8, _1: 5 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1347 = { _0: 8, _1: 7 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1348 = { _0: 8, _1: 8 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1349 = { _0: 7, _1: 8 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1350 = { _0: 5, _1: 8 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1351 = { _0: 4, _1: 8 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1352 = { _0: 3, _1: 8 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1353 = { _0: 2, _1: 8 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1354 = { _0: 1, _1: 8 };
+var _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1355 = { _0: 0, _1: 8 };
+var _M0FP37walkzzz12image_2ecore5types11clamp__byte = _M0FP37walkzzz12image_2ecore10safe__math11clamp__byte;
+var _M0FP37walkzzz12image_2ecore5types12clamp__coord = _M0FP37walkzzz12image_2ecore10safe__math12clamp__coord;
 function _M0MPC15array10FixedArray12unsafe__blitGRPB17UnsafeMaybeUninitGcEE(dst, dst_offset, src, src_offset, len) {
   if (dst === src && dst_offset < src_offset) {
     let _tmp = 0;
@@ -955,15 +960,20 @@ function _M0MPB18UninitializedArray23make__and__blit_2einnerGyE(src, allocate_le
     return _M0MPB18UninitializedArray23unsafe__make__and__blitGyE(src, allocate_len, src_offset, dst_offset, len);
   } else {
     const _string_builder = _M0MPB13StringBuilder21StringBuilder_2einner(8);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, "bounds check failed: allocate_len = ");
+    const _p = "bounds check failed: allocate_len = ";
+    _string_builder.val = `${_string_builder.val}${_p}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, allocate_len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src_offset = ");
+    const _p$2 = ", src_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$2}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", dst_offset = ");
+    const _p$3 = ", dst_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$3}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, dst_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", len = ");
+    const _p$4 = ", len = ";
+    _string_builder.val = `${_string_builder.val}${_p$4}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src.length = ");
+    const _p$5 = ", src.length = ";
+    _string_builder.val = `${_string_builder.val}${_p$5}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src.length);
     return $panic(_string_builder.val);
   }
@@ -992,15 +1002,20 @@ function _M0MPB18UninitializedArray23make__and__blit_2einnerGcE(src, allocate_le
     return _M0MPB18UninitializedArray23unsafe__make__and__blitGcE(src, allocate_len, src_offset, dst_offset, len);
   } else {
     const _string_builder = _M0MPB13StringBuilder21StringBuilder_2einner(8);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, "bounds check failed: allocate_len = ");
+    const _p = "bounds check failed: allocate_len = ";
+    _string_builder.val = `${_string_builder.val}${_p}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, allocate_len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src_offset = ");
+    const _p$2 = ", src_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$2}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", dst_offset = ");
+    const _p$3 = ", dst_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$3}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, dst_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", len = ");
+    const _p$4 = ", len = ";
+    _string_builder.val = `${_string_builder.val}${_p$4}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src.length = ");
+    const _p$5 = ", src.length = ";
+    _string_builder.val = `${_string_builder.val}${_p$5}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src.length);
     return $panic(_string_builder.val);
   }
@@ -1029,15 +1044,20 @@ function _M0MPB18UninitializedArray23make__and__blit_2einnerGRP37walkzzz13image_
     return _M0MPB18UninitializedArray23unsafe__make__and__blitGRP37walkzzz13image_2ecodec5codec12TiffIfdEntryE(src, allocate_len, src_offset, dst_offset, len);
   } else {
     const _string_builder = _M0MPB13StringBuilder21StringBuilder_2einner(8);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, "bounds check failed: allocate_len = ");
+    const _p = "bounds check failed: allocate_len = ";
+    _string_builder.val = `${_string_builder.val}${_p}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, allocate_len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src_offset = ");
+    const _p$2 = ", src_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$2}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", dst_offset = ");
+    const _p$3 = ", dst_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$3}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, dst_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", len = ");
+    const _p$4 = ", len = ";
+    _string_builder.val = `${_string_builder.val}${_p$4}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src.length = ");
+    const _p$5 = ", src.length = ";
+    _string_builder.val = `${_string_builder.val}${_p$5}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src.length);
     return $panic(_string_builder.val);
   }
@@ -1066,15 +1086,20 @@ function _M0MPB18UninitializedArray23make__and__blit_2einnerGiE(src, allocate_le
     return _M0MPB18UninitializedArray23unsafe__make__and__blitGiE(src, allocate_len, src_offset, dst_offset, len);
   } else {
     const _string_builder = _M0MPB13StringBuilder21StringBuilder_2einner(8);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, "bounds check failed: allocate_len = ");
+    const _p = "bounds check failed: allocate_len = ";
+    _string_builder.val = `${_string_builder.val}${_p}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, allocate_len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src_offset = ");
+    const _p$2 = ", src_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$2}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", dst_offset = ");
+    const _p$3 = ", dst_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$3}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, dst_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", len = ");
+    const _p$4 = ", len = ";
+    _string_builder.val = `${_string_builder.val}${_p$4}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src.length = ");
+    const _p$5 = ", src.length = ";
+    _string_builder.val = `${_string_builder.val}${_p$5}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src.length);
     return $panic(_string_builder.val);
   }
@@ -1103,15 +1128,20 @@ function _M0MPB18UninitializedArray23make__and__blit_2einnerGbE(src, allocate_le
     return _M0MPB18UninitializedArray23unsafe__make__and__blitGbE(src, allocate_len, src_offset, dst_offset, len);
   } else {
     const _string_builder = _M0MPB13StringBuilder21StringBuilder_2einner(8);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, "bounds check failed: allocate_len = ");
+    const _p = "bounds check failed: allocate_len = ";
+    _string_builder.val = `${_string_builder.val}${_p}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, allocate_len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src_offset = ");
+    const _p$2 = ", src_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$2}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", dst_offset = ");
+    const _p$3 = ", dst_offset = ";
+    _string_builder.val = `${_string_builder.val}${_p$3}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, dst_offset);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", len = ");
+    const _p$4 = ", len = ";
+    _string_builder.val = `${_string_builder.val}${_p$4}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, len);
-    _M0IPB13StringBuilderPB6Logger13write__string(_string_builder, ", src.length = ");
+    const _p$5 = ", src.length = ";
+    _string_builder.val = `${_string_builder.val}${_p$5}`;
     _M0MPB13StringBuilder13write__objectGiE(_string_builder, src.length);
     return $panic(_string_builder.val);
   }
@@ -1415,34 +1445,6 @@ function _M0MPC13int3Int8to__char(self) {
   }
   return self;
 }
-function _M0MPC15bytes5Bytes21clamped__view_2einner(self, start, end) {
-  const len = self.length;
-  const lo = start < 0 ? 0 : start > len ? len : start;
-  let hi;
-  if (end === undefined) {
-    hi = len;
-  } else {
-    const _Some = end;
-    const _end = _Some;
-    hi = _end < 0 ? 0 : _end > len ? len : _end;
-  }
-  const hi$2 = hi > lo ? hi : lo;
-  return new _M0TPC15bytes9BytesView(self, lo, hi$2);
-}
-function _M0MPC15bytes9BytesView21clamped__view_2einner(self, start, end) {
-  const len = self.end - self.start | 0;
-  const lo = start < 0 ? 0 : start > len ? len : start;
-  let hi;
-  if (end === undefined) {
-    hi = len;
-  } else {
-    const _Some = end;
-    const _end = _Some;
-    hi = _end < 0 ? 0 : _end > len ? len : _end;
-  }
-  const hi$2 = hi > lo ? hi : lo;
-  return new _M0TPC15bytes9BytesView(self.buf, self.start + lo | 0, self.start + hi$2 | 0);
-}
 function _M0MPC15bytes5Bytes11from__array(arr) {
   const len = arr.end - arr.start | 0;
   if (len === 0) {
@@ -1511,7 +1513,11 @@ function _M0FPC28encoding4utf814encode_2einner(str, bom) {
   return _M0FPC28encoding4utf816encode__utf8__js(str.str, str.start, str.end - str.start | 0, bom);
 }
 function _M0FPC28encoding4utf821utf8__find__malformed(src, src_offset, src_length) {
-  const view = _M0MPC15bytes5Bytes21clamped__view_2einner(src, src_offset, src_offset + src_length | 0);
+  const _bind = src_offset + src_length | 0;
+  const _bind$2 = src.length;
+  const _bind$3 = src_offset < 0 ? 0 : src_offset > _bind$2 ? _bind$2 : src_offset;
+  const _bind$4 = _bind < 0 ? 0 : _bind > _bind$2 ? _bind$2 : _bind;
+  const view = new _M0TPC15bytes9BytesView(src, _bind$3, _bind$4 > _bind$3 ? _bind$4 : _bind$3);
   let _tmp = view;
   while (true) {
     const bytes = _tmp;
@@ -1947,7 +1953,9 @@ function _M0FPC28encoding4utf825strict__malformed__suffix(bytes) {
   const src_offset = bytes.start;
   const src_length = bytes.end - bytes.start | 0;
   const malformed_offset = _M0FPC28encoding4utf821utf8__find__malformed(input, src_offset, src_length);
-  return _M0MPC15bytes9BytesView21clamped__view_2einner(bytes, malformed_offset, undefined);
+  const _bind = bytes.end - bytes.start | 0;
+  const _bind$2 = malformed_offset < 0 ? 0 : malformed_offset > _bind ? _bind : malformed_offset;
+  return new _M0TPC15bytes9BytesView(bytes.buf, bytes.start + _bind$2 | 0, bytes.start + _bind | 0);
 }
 function _M0FPC28encoding4utf815drop__utf8__bom(bytes, ignore_bom) {
   _L: {
@@ -2010,7 +2018,7 @@ function _M0FP37walkzzz13image_2ecodec4util12crc32__table() {
       while (true) {
         const _ = _tmp$2;
         if (_ < 8) {
-          crc = (crc & 1) !== 0 ? crc >> 1 ^ -306674912 : crc >> 1;
+          crc = (crc & 1) !== 0 ? crc >> 1 & 2147483647 ^ -306674912 : crc >> 1 & 2147483647;
           _tmp$2 = _ + 1 | 0;
           continue;
         } else {
@@ -2038,7 +2046,7 @@ function _M0FP37walkzzz13image_2ecodec4util5crc32(data) {
   while (true) {
     const i = _tmp;
     if (i < _bind) {
-      const _tmp$2 = crc >> 8;
+      const _tmp$2 = crc >> 8 & 16777215;
       const _bind$2 = (crc ^ (i >>> 0 < data.length ? data[i] : $oob())) & 255;
       if (_bind$2 < 0 || _bind$2 >= table.len) {
         $panic();
@@ -2469,7 +2477,7 @@ function _M0FP37walkzzz13image_2ecodec5codec11scan__boxes(data, start, end, call
   while (true) {
     if ((offset + 8 | 0) <= end) {
       const box_size = _M0FP37walkzzz13image_2ecodec5codec13read__u32__be(data, offset);
-      if (box_size < 8 || (offset + box_size | 0) > end) {
+      if (box_size < 8 || box_size > (end - offset | 0)) {
         return;
       }
       const btype = _M0FP37walkzzz13image_2ecodec5codec14box__type__str(data, offset);
@@ -2987,7 +2995,7 @@ function _M0FP37walkzzz13image_2ecodec5codec17heif__scan__boxes(data, start, end
   while (true) {
     if ((offset + 8 | 0) <= end) {
       const box_size = _M0FP37walkzzz13image_2ecodec5codec13read__u32__be(data, offset);
-      if (box_size < 8 || (offset + box_size | 0) > end) {
+      if (box_size < 8 || box_size > (end - offset | 0)) {
         return;
       }
       const btype = _M0FP37walkzzz13image_2ecodec5codec14box__type__str(data, offset);
@@ -3129,55 +3137,55 @@ function _M0FP37walkzzz13image_2ecodec5codec20heif__info__extended(data) {
 function _M0FP37walkzzz13image_2ecodec5codec16icns__icon__info(type_code) {
   switch (type_code) {
     case "ic07": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS770;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS754;
     }
     case "ic08": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS771;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS755;
     }
     case "ic09": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS772;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS756;
     }
     case "ic10": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS773;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS757;
     }
     case "ic11": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS774;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS758;
     }
     case "ic12": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS775;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS759;
     }
     case "ic13": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS776;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS760;
     }
     case "ic14": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS777;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS761;
     }
     case "ic04": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS778;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS762;
     }
     case "ic05": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS779;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS763;
     }
     case "icp4": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS780;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS764;
     }
     case "icp5": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS781;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS765;
     }
     case "icp6": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS782;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS766;
     }
     case "icp7": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS783;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS767;
     }
     case "icp8": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS784;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS768;
     }
     case "icp9": {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS785;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS769;
     }
     default: {
-      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS786;
+      return _M0FP37walkzzz13image_2ecodec5codec16icns__icon__infoN5tupleS770;
     }
   }
 }
@@ -3227,7 +3235,7 @@ function _M0FP37walkzzz13image_2ecodec5codec20icns__info__extended(data) {
     if ((pos + 8 | 0) <= len) {
       const type_code = _M0FP37walkzzz13image_2ecodec5codec22icns__type__to__string(data, pos);
       const chunk_len = _M0FP37walkzzz13image_2ecodec5codec13read__u32__be(data, pos + 4 | 0);
-      if (chunk_len < 8 || (pos + chunk_len | 0) > len) {
+      if (chunk_len < 8 || chunk_len > (len - pos | 0)) {
         break;
       }
       const _bind = _M0FP37walkzzz13image_2ecodec5codec16icns__icon__info(type_code);
@@ -3327,7 +3335,7 @@ function _M0FP37walkzzz13image_2ecodec5codec16is__apng__format(data) {
       if (b0 === 97 && (b1 === 99 && (b2 === 84 && b3 === 76))) {
         return true;
       }
-      if (chunk_len > len) {
+      if (chunk_len < 0 || chunk_len > ((len - pos | 0) - 8 | 0)) {
         break;
       }
       pos = pos + ((8 + chunk_len | 0) + 4 | 0) | 0;
@@ -3345,7 +3353,8 @@ function _M0FP37walkzzz13image_2ecodec5codec15is__cur__format(data) {
   }
   const reserved = _M0FP37walkzzz13image_2ecodec5codec13read__u16__le(data, 0);
   const icon_type = _M0FP37walkzzz13image_2ecodec5codec13read__u16__le(data, 2);
-  return reserved === 0 && icon_type === 2;
+  const count = _M0FP37walkzzz13image_2ecodec5codec13read__u16__le(data, 4);
+  return reserved === 0 && (icon_type === 2 && (count >= 1 && len >= (6 + (Math.imul(count, 16) | 0) | 0)));
 }
 function _M0FP37walkzzz13image_2ecodec5codec15is__ico__format(data) {
   const len = data.length;
@@ -3354,7 +3363,8 @@ function _M0FP37walkzzz13image_2ecodec5codec15is__ico__format(data) {
   }
   const reserved = _M0FP37walkzzz13image_2ecodec5codec13read__u16__le(data, 0);
   const icon_type = _M0FP37walkzzz13image_2ecodec5codec13read__u16__le(data, 2);
-  return reserved === 0 && icon_type === 1;
+  const count = _M0FP37walkzzz13image_2ecodec5codec13read__u16__le(data, 4);
+  return reserved === 0 && (icon_type === 1 && (count >= 1 && len >= (6 + (Math.imul(count, 16) | 0) | 0)));
 }
 function _M0FP37walkzzz13image_2ecodec5codec16is__jpeg__format(data) {
   const len = data.length;
@@ -3414,7 +3424,51 @@ function _M0FP37walkzzz13image_2ecodec5codec15is__tga__format(data) {
   const color_map_type = 1 >>> 0 < data.length ? data[1] : $oob();
   const image_type = 2 >>> 0 < data.length ? data[2] : $oob();
   const bpp = 16 >>> 0 < data.length ? data[16] : $oob();
-  return color_map_type === 0 && ((image_type === 2 || image_type === 10) && (bpp === 24 || bpp === 32));
+  const width = (12 >>> 0 < data.length ? data[12] : $oob()) + (Math.imul(13 >>> 0 < data.length ? data[13] : $oob(), 256) | 0) | 0;
+  const height = (14 >>> 0 < data.length ? data[14] : $oob()) + (Math.imul(15 >>> 0 < data.length ? data[15] : $oob(), 256) | 0) | 0;
+  if (width === 0 || height === 0) {
+    return false;
+  }
+  if (color_map_type !== 0 && color_map_type !== 1) {
+    return false;
+  }
+  let image_type_ok;
+  switch (image_type) {
+    case 1: {
+      image_type_ok = true;
+      break;
+    }
+    case 2: {
+      image_type_ok = true;
+      break;
+    }
+    case 3: {
+      image_type_ok = true;
+      break;
+    }
+    case 9: {
+      image_type_ok = true;
+      break;
+    }
+    case 10: {
+      image_type_ok = true;
+      break;
+    }
+    case 11: {
+      image_type_ok = true;
+      break;
+    }
+    default: {
+      image_type_ok = false;
+    }
+  }
+  if (!image_type_ok) {
+    return false;
+  }
+  if (color_map_type === 0 && (image_type === 1 || image_type === 9)) {
+    return false;
+  }
+  return bpp === 8 || (bpp === 15 || (bpp === 16 || (bpp === 24 || bpp === 32)));
 }
 function _M0FP37walkzzz13image_2ecodec5codec16is__tiff__format(data) {
   const len = data.length;
@@ -3536,7 +3590,7 @@ function _M0FP37walkzzz13image_2ecodec5codec21jxl__find__codestream(data) {
   while (true) {
     if ((offset + 8 | 0) <= len) {
       const box_size = _M0FP37walkzzz13image_2ecodec5codec13read__u32__be(data, offset);
-      if (box_size < 8 || (offset + box_size | 0) > len) {
+      if (box_size < 8 || box_size > (len - offset | 0)) {
         break;
       }
       const btype = _M0FP37walkzzz13image_2ecodec5codec14box__type__str(data, offset);
@@ -3952,7 +4006,7 @@ function _M0FP37walkzzz13image_2ecodec5codec19psd__info__extended(data) {
       }
       const seg_len = _M0FP37walkzzz13image_2ecodec5codec13read__u32__be(data, pos);
       pos = pos + 4 | 0;
-      if ((pos + seg_len | 0) > len) {
+      if (seg_len > (len - pos | 0)) {
         break;
       }
       pos = pos + seg_len | 0;
@@ -4674,47 +4728,99 @@ function _M0FP37walkzzz13image_2ecodec5codec26get__image__info__extended(data) {
   }
   return new _M0DTPC16result6ResultGRP37walkzzz13image_2ecodec5codec17ImageInfoExtendedRP37walkzzz12image_2ecore5types9LoadErrorE3Err(new _M0DTPC15error5Error62walkzzz_2fimage_2ecore_2ftypes_2eLoadError_2eUnsupportedFormat("Unknown image format"));
 }
-function _M0FP37walkzzz13image_2ecodec5codec21zlib__deflate__stored(data) {
-  const out = new _M0TPB5ArrayGyE(new Uint8Array([]), 0);
-  _M0MPC15array5Array4pushGyE(out, 120);
-  _M0MPC15array5Array4pushGyE(out, 1);
-  const len = data.length;
-  let pos = 0;
+function _M0FP37walkzzz13image_2ecodec5codec16png__filter__row(raw, prev, bpp, ft) {
+  const n = raw.len;
+  const out = _M0MPC15array5Array4makeGyE(n, 0);
+  let _tmp = 0;
   while (true) {
-    if (pos < len) {
-      const block_len = (len - pos | 0) > 65535 ? 65535 : len - pos | 0;
-      const is_final = (pos + block_len | 0) >= len ? 1 : 0;
-      _M0MPC15array5Array4pushGyE(out, is_final & 255);
-      _M0MPC15array5Array4pushGyE(out, block_len & 255);
-      _M0MPC15array5Array4pushGyE(out, block_len >> 8 & 255);
-      const _p = block_len & 255;
-      _M0MPC15array5Array4pushGyE(out, (_p ^ 255) & 255);
-      const _p$2 = block_len >> 8 & 255;
-      _M0MPC15array5Array4pushGyE(out, (_p$2 ^ 255) & 255);
-      let _tmp = 0;
-      while (true) {
-        const i = _tmp;
-        if (i < block_len) {
-          const _tmp$2 = pos + i | 0;
-          _M0MPC15array5Array4pushGyE(out, _tmp$2 >>> 0 < data.length ? data[_tmp$2] : $oob());
-          _tmp = i + 1 | 0;
-          continue;
-        } else {
+    const i = _tmp;
+    if (i < n) {
+      if (i < 0 || i >= raw.len) {
+        $panic();
+      }
+      const cur = raw.buf[i];
+      let left;
+      if (i >= bpp) {
+        const _bind = i - bpp | 0;
+        if (_bind < 0 || _bind >= raw.len) {
+          $panic();
+        }
+        left = raw.buf[_bind];
+      } else {
+        left = 0;
+      }
+      if (i < 0 || i >= prev.len) {
+        $panic();
+      }
+      const up = prev.buf[i];
+      let ul;
+      if (i >= bpp) {
+        const _bind = i - bpp | 0;
+        if (_bind < 0 || _bind >= prev.len) {
+          $panic();
+        }
+        ul = prev.buf[_bind];
+      } else {
+        ul = 0;
+      }
+      let pred;
+      switch (ft) {
+        case 1: {
+          pred = left;
           break;
         }
+        case 2: {
+          pred = up;
+          break;
+        }
+        case 3: {
+          pred = (left + up | 0) / 2 | 0;
+          break;
+        }
+        case 4: {
+          const p = (left + up | 0) - ul | 0;
+          const pa = p > left ? p - left | 0 : left - p | 0;
+          const pb = p > up ? p - up | 0 : up - p | 0;
+          const pc = p > ul ? p - ul | 0 : ul - p | 0;
+          pred = pa <= pb && pa <= pc ? left : pb <= pc ? up : ul;
+          break;
+        }
+        default: {
+          pred = 0;
+        }
       }
-      pos = pos + block_len | 0;
+      const _bind = cur - pred & 255;
+      if (i < 0 || i >= out.len) {
+        $panic();
+      }
+      out.buf[i] = _bind;
+      _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const adler = _M0FP37walkzzz13image_2ecodec4util7adler32(data);
-  _M0MPC15array5Array4pushGyE(out, adler >> 24 & 255);
-  _M0MPC15array5Array4pushGyE(out, adler >> 16 & 255);
-  _M0MPC15array5Array4pushGyE(out, adler >> 8 & 255);
-  _M0MPC15array5Array4pushGyE(out, adler & 255);
-  return _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(out.buf, 0, out.len));
+  return out;
+}
+function _M0FP37walkzzz13image_2ecodec5codec18png__filter__score(row) {
+  let s = 0;
+  const _bind = row.len;
+  let _tmp = 0;
+  while (true) {
+    const i = _tmp;
+    if (i < _bind) {
+      if (i < 0 || i >= row.len) {
+        $panic();
+      }
+      const v = row.buf[i];
+      s = s + (v < 128 ? v : 256 - v | 0) | 0;
+      _tmp = i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return s;
 }
 function _M0FP37walkzzz13image_2ecodec5codec12write__chunk(out, chunk_type, data) {
   const len = data.length;
@@ -4774,6 +4880,431 @@ function _M0FP37walkzzz13image_2ecodec5codec12write__chunk(out, chunk_type, data
   _M0MPC15array5Array4pushGyE(out, crc >> 8 & 255);
   _M0MPC15array5Array4pushGyE(out, crc & 255);
 }
+function _M0FP37walkzzz13image_2ecodec5codec10dist__base(i) {
+  switch (i) {
+    case 0: {
+      return 1;
+    }
+    case 1: {
+      return 2;
+    }
+    case 2: {
+      return 3;
+    }
+    case 3: {
+      return 4;
+    }
+    case 4: {
+      return 5;
+    }
+    case 5: {
+      return 7;
+    }
+    case 6: {
+      return 9;
+    }
+    case 7: {
+      return 13;
+    }
+    case 8: {
+      return 17;
+    }
+    case 9: {
+      return 25;
+    }
+    case 10: {
+      return 33;
+    }
+    case 11: {
+      return 49;
+    }
+    case 12: {
+      return 65;
+    }
+    case 13: {
+      return 97;
+    }
+    case 14: {
+      return 129;
+    }
+    case 15: {
+      return 193;
+    }
+    case 16: {
+      return 257;
+    }
+    case 17: {
+      return 385;
+    }
+    case 18: {
+      return 513;
+    }
+    case 19: {
+      return 769;
+    }
+    case 20: {
+      return 1025;
+    }
+    case 21: {
+      return 1537;
+    }
+    case 22: {
+      return 2049;
+    }
+    case 23: {
+      return 3073;
+    }
+    case 24: {
+      return 4097;
+    }
+    case 25: {
+      return 6145;
+    }
+    case 26: {
+      return 8193;
+    }
+    case 27: {
+      return 12289;
+    }
+    case 28: {
+      return 16385;
+    }
+    default: {
+      return 24577;
+    }
+  }
+}
+function _M0FP37walkzzz13image_2ecodec5codec5hash3(data, pos) {
+  const a = pos >>> 0 < data.length ? data[pos] : $oob();
+  const _tmp = pos + 1 | 0;
+  const b = _tmp >>> 0 < data.length ? data[_tmp] : $oob();
+  const _tmp$2 = pos + 2 | 0;
+  const c = _tmp$2 >>> 0 < data.length ? data[_tmp$2] : $oob();
+  return ((Math.imul(a, 40503) | 0) + (Math.imul(b, 433) | 0) | 0) + c & 32767;
+}
+function _M0FP37walkzzz13image_2ecodec5codec9len__base(i) {
+  switch (i) {
+    case 0: {
+      return 3;
+    }
+    case 1: {
+      return 4;
+    }
+    case 2: {
+      return 5;
+    }
+    case 3: {
+      return 6;
+    }
+    case 4: {
+      return 7;
+    }
+    case 5: {
+      return 8;
+    }
+    case 6: {
+      return 9;
+    }
+    case 7: {
+      return 10;
+    }
+    case 8: {
+      return 11;
+    }
+    case 9: {
+      return 13;
+    }
+    case 10: {
+      return 15;
+    }
+    case 11: {
+      return 17;
+    }
+    case 12: {
+      return 19;
+    }
+    case 13: {
+      return 23;
+    }
+    case 14: {
+      return 27;
+    }
+    case 15: {
+      return 31;
+    }
+    case 16: {
+      return 35;
+    }
+    case 17: {
+      return 43;
+    }
+    case 18: {
+      return 51;
+    }
+    case 19: {
+      return 59;
+    }
+    case 20: {
+      return 67;
+    }
+    case 21: {
+      return 83;
+    }
+    case 22: {
+      return 99;
+    }
+    case 23: {
+      return 115;
+    }
+    case 24: {
+      return 131;
+    }
+    case 25: {
+      return 163;
+    }
+    case 26: {
+      return 195;
+    }
+    case 27: {
+      return 227;
+    }
+    default: {
+      return 258;
+    }
+  }
+}
+function _M0FP37walkzzz13image_2ecodec5codec10len__extra(i) {
+  return i <= 7 ? 0 : i <= 11 ? 1 : i <= 15 ? 2 : i <= 19 ? 3 : i <= 23 ? 4 : i <= 27 ? 5 : 0;
+}
+function _M0MP37walkzzz13image_2ecodec5codec9BitWriter3put(self, value, nbits) {
+  self.buf = self.buf | (value & ((1 << nbits) - 1 | 0)) << self.cnt;
+  self.cnt = self.cnt + nbits | 0;
+  while (true) {
+    if (self.cnt >= 8) {
+      _M0MPC15array5Array4pushGyE(self.out, self.buf & 255);
+      self.buf = self.buf >> 8 & 16777215;
+      self.cnt = self.cnt - 8 | 0;
+      continue;
+    } else {
+      return;
+    }
+  }
+}
+function _M0MP37walkzzz13image_2ecodec5codec9BitWriter9put__huff(self, code, nbits) {
+  let rev = 0;
+  let i = 0;
+  while (true) {
+    if (i < nbits) {
+      rev = rev << 1 | code >> i & 1;
+      i = i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  _M0MP37walkzzz13image_2ecodec5codec9BitWriter3put(self, rev, nbits);
+}
+function _M0FP37walkzzz13image_2ecodec5codec11put__litlen(bw, sym) {
+  if (sym <= 143) {
+    _M0MP37walkzzz13image_2ecodec5codec9BitWriter9put__huff(bw, 48 + sym | 0, 8);
+    return;
+  } else {
+    if (sym <= 255) {
+      _M0MP37walkzzz13image_2ecodec5codec9BitWriter9put__huff(bw, 400 + (sym - 144 | 0) | 0, 9);
+      return;
+    } else {
+      if (sym <= 279) {
+        _M0MP37walkzzz13image_2ecodec5codec9BitWriter9put__huff(bw, sym - 256 | 0, 7);
+        return;
+      } else {
+        _M0MP37walkzzz13image_2ecodec5codec9BitWriter9put__huff(bw, 192 + (sym - 280 | 0) | 0, 8);
+        return;
+      }
+    }
+  }
+}
+function _M0MP37walkzzz13image_2ecodec5codec9BitWriter6finish(self) {
+  if (self.cnt > 0) {
+    _M0MPC15array5Array4pushGyE(self.out, self.buf & 255);
+    self.buf = 0;
+    self.cnt = 0;
+  }
+  const _bind = self.out;
+  return _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(_bind.buf, 0, _bind.len));
+}
+function _M0MP37walkzzz13image_2ecodec5codec9BitWriter3new() {
+  return new _M0TP37walkzzz13image_2ecodec5codec9BitWriter(new _M0TPB5ArrayGyE(new Uint8Array([]), 0), 0, 0);
+}
+function _M0FP37walkzzz13image_2ecodec5codec14deflate__fixed(data) {
+  const n = data.length;
+  const bw = _M0MP37walkzzz13image_2ecodec5codec9BitWriter3new();
+  _M0MP37walkzzz13image_2ecodec5codec9BitWriter3put(bw, 1, 1);
+  _M0MP37walkzzz13image_2ecodec5codec9BitWriter3put(bw, 1, 2);
+  const head = _M0MPC15array5Array4makeGiE(32768, -1);
+  const prev = _M0MPC15array5Array4makeGiE(32768, -1);
+  let pos = 0;
+  while (true) {
+    if (pos < n) {
+      let best_len = 0;
+      let best_dist = 0;
+      if ((pos + 2 | 0) < n) {
+        const h = _M0FP37walkzzz13image_2ecodec5codec5hash3(data, pos);
+        if (h < 0 || h >= head.len) {
+          $panic();
+        }
+        let cand = head.buf[h];
+        let chain = 0;
+        const max_match = (n - pos | 0) > 258 ? 258 : n - pos | 0;
+        while (true) {
+          if (cand >= 0 && (chain < 32 && (pos - cand | 0) <= 32768)) {
+            let l = 0;
+            while (true) {
+              let _tmp;
+              if (l < max_match) {
+                const _tmp$2 = cand + l | 0;
+                const _tmp$3 = _tmp$2 >>> 0 < data.length ? data[_tmp$2] : $oob();
+                const _tmp$4 = pos + l | 0;
+                _tmp = _tmp$3 === (_tmp$4 >>> 0 < data.length ? data[_tmp$4] : $oob());
+              } else {
+                _tmp = false;
+              }
+              if (_tmp) {
+                l = l + 1 | 0;
+                continue;
+              } else {
+                break;
+              }
+            }
+            if (l > best_len && l >= 3) {
+              best_len = l;
+              best_dist = pos - cand | 0;
+            }
+            if (best_len >= max_match) {
+              break;
+            }
+            const _bind = cand & 32767;
+            if (_bind < 0 || _bind >= prev.len) {
+              $panic();
+            }
+            cand = prev.buf[_bind];
+            chain = chain + 1 | 0;
+            continue;
+          } else {
+            break;
+          }
+        }
+      }
+      if (best_len >= 3) {
+        let li = 0;
+        while (true) {
+          if (li < 28 && _M0FP37walkzzz13image_2ecodec5codec9len__base(li + 1 | 0) <= best_len) {
+            li = li + 1 | 0;
+            continue;
+          } else {
+            break;
+          }
+        }
+        _M0FP37walkzzz13image_2ecodec5codec11put__litlen(bw, 257 + li | 0);
+        const eb = _M0FP37walkzzz13image_2ecodec5codec10len__extra(li);
+        if (eb > 0) {
+          _M0MP37walkzzz13image_2ecodec5codec9BitWriter3put(bw, best_len - _M0FP37walkzzz13image_2ecodec5codec9len__base(li) | 0, eb);
+        }
+        let di = 0;
+        while (true) {
+          if (di < 29 && _M0FP37walkzzz13image_2ecodec5codec10dist__base(di + 1 | 0) <= best_dist) {
+            di = di + 1 | 0;
+            continue;
+          } else {
+            break;
+          }
+        }
+        _M0MP37walkzzz13image_2ecodec5codec9BitWriter9put__huff(bw, di, 5);
+        const _p = di;
+        const deb = _p <= 3 ? 0 : (_p - 2 | 0) / 2 | 0;
+        if (deb > 0) {
+          _M0MP37walkzzz13image_2ecodec5codec9BitWriter3put(bw, best_dist - _M0FP37walkzzz13image_2ecodec5codec10dist__base(di) | 0, deb);
+        }
+        let k = 0;
+        while (true) {
+          if (k < best_len) {
+            if (((pos + k | 0) + 2 | 0) < n) {
+              const h2 = _M0FP37walkzzz13image_2ecodec5codec5hash3(data, pos + k | 0);
+              const _bind = pos + k & 32767;
+              if (h2 < 0 || h2 >= head.len) {
+                $panic();
+              }
+              const _bind$2 = head.buf[h2];
+              if (_bind < 0 || _bind >= prev.len) {
+                $panic();
+              }
+              prev.buf[_bind] = _bind$2;
+              const _bind$3 = pos + k | 0;
+              if (h2 < 0 || h2 >= head.len) {
+                $panic();
+              }
+              head.buf[h2] = _bind$3;
+            }
+            k = k + 1 | 0;
+            continue;
+          } else {
+            break;
+          }
+        }
+        pos = pos + best_len | 0;
+      } else {
+        const _tmp = pos;
+        _M0FP37walkzzz13image_2ecodec5codec11put__litlen(bw, _tmp >>> 0 < data.length ? data[_tmp] : $oob());
+        if ((pos + 2 | 0) < n) {
+          const h = _M0FP37walkzzz13image_2ecodec5codec5hash3(data, pos);
+          const _bind = pos & 32767;
+          if (h < 0 || h >= head.len) {
+            $panic();
+          }
+          const _bind$2 = head.buf[h];
+          if (_bind < 0 || _bind >= prev.len) {
+            $panic();
+          }
+          prev.buf[_bind] = _bind$2;
+          const _bind$3 = pos;
+          if (h < 0 || h >= head.len) {
+            $panic();
+          }
+          head.buf[h] = _bind$3;
+        }
+        pos = pos + 1 | 0;
+      }
+      continue;
+    } else {
+      break;
+    }
+  }
+  _M0FP37walkzzz13image_2ecodec5codec11put__litlen(bw, 256);
+  return _M0MP37walkzzz13image_2ecodec5codec9BitWriter6finish(bw);
+}
+function _M0FP37walkzzz13image_2ecodec5codec14zlib__compress(data) {
+  const body = _M0FP37walkzzz13image_2ecodec5codec14deflate__fixed(data);
+  const out = new _M0TPB5ArrayGyE(new Uint8Array([]), 0);
+  _M0MPC15array5Array4pushGyE(out, 120);
+  _M0MPC15array5Array4pushGyE(out, 156);
+  const _bind = body.length;
+  let _tmp = 0;
+  while (true) {
+    const i = _tmp;
+    if (i < _bind) {
+      _M0MPC15array5Array4pushGyE(out, i >>> 0 < body.length ? body[i] : $oob());
+      _tmp = i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const adler = _M0FP37walkzzz13image_2ecodec4util7adler32(data);
+  _M0MPC15array5Array4pushGyE(out, adler >> 24 & 255);
+  _M0MPC15array5Array4pushGyE(out, adler >> 16 & 255);
+  _M0MPC15array5Array4pushGyE(out, adler >> 8 & 255);
+  _M0MPC15array5Array4pushGyE(out, adler & 255);
+  return _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(out.buf, 0, out.len));
+}
 function _M0FP37walkzzz13image_2ecodec5codec17encode__png__pure(img) {
   const width = img.width;
   const height = img.height;
@@ -4804,12 +5335,14 @@ function _M0FP37walkzzz13image_2ecodec5codec17encode__png__pure(img) {
   _M0MPC15array5Array4pushGyE(ihdr, 0);
   _M0MPC15array5Array4pushGyE(ihdr, 0);
   _M0FP37walkzzz13image_2ecodec5codec12write__chunk(out, "IHDR", _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(ihdr.buf, 0, ihdr.len)));
+  const row_len = Math.imul(width, out_ch) | 0;
   const filtered = new _M0TPB5ArrayGyE(new Uint8Array([]), 0);
+  const prev_row = _M0MPC15array5Array4makeGyE(row_len, 0);
   let _tmp = 0;
   while (true) {
     const y = _tmp;
     if (y < height) {
-      _M0MPC15array5Array4pushGyE(filtered, 0);
+      const raw = _M0MPC15array5Array4makeGyE(row_len, 0);
       let _tmp$2 = 0;
       while (true) {
         const x = _tmp$2;
@@ -4820,9 +5353,14 @@ function _M0FP37walkzzz13image_2ecodec5codec17encode__png__pure(img) {
             while (true) {
               const c = _tmp$3;
               if (c < ch) {
+                const _bind = (Math.imul(x, out_ch) | 0) + c | 0;
                 const _tmp$4 = img.data;
                 const _tmp$5 = src_off + c | 0;
-                _M0MPC15array5Array4pushGyE(filtered, _tmp$5 >>> 0 < _tmp$4.length ? _tmp$4[_tmp$5] : $oob());
+                const _bind$2 = _tmp$5 >>> 0 < _tmp$4.length ? _tmp$4[_tmp$5] : $oob();
+                if (_bind < 0 || _bind >= raw.len) {
+                  $panic();
+                }
+                raw.buf[_bind] = _bind$2;
                 _tmp$3 = c + 1 | 0;
                 continue;
               } else {
@@ -4834,13 +5372,19 @@ function _M0FP37walkzzz13image_2ecodec5codec17encode__png__pure(img) {
             while (true) {
               const c = _tmp$3;
               if (c < out_ch) {
+                const _bind = (Math.imul(x, out_ch) | 0) + c | 0;
+                let _bind$2;
                 if (c < ch) {
                   const _tmp$4 = img.data;
                   const _tmp$5 = src_off + c | 0;
-                  _M0MPC15array5Array4pushGyE(filtered, _tmp$5 >>> 0 < _tmp$4.length ? _tmp$4[_tmp$5] : $oob());
+                  _bind$2 = _tmp$5 >>> 0 < _tmp$4.length ? _tmp$4[_tmp$5] : $oob();
                 } else {
-                  _M0MPC15array5Array4pushGyE(filtered, 255);
+                  _bind$2 = 255;
                 }
+                if (_bind < 0 || _bind >= raw.len) {
+                  $panic();
+                }
+                raw.buf[_bind] = _bind$2;
                 _tmp$3 = c + 1 | 0;
                 continue;
               } else {
@@ -4854,13 +5398,67 @@ function _M0FP37walkzzz13image_2ecodec5codec17encode__png__pure(img) {
           break;
         }
       }
+      let best_type = 0;
+      let best_score = 2147483647;
+      let best_row = raw;
+      let _tmp$3 = 0;
+      while (true) {
+        const ft = _tmp$3;
+        if (ft < 5) {
+          const cand = _M0FP37walkzzz13image_2ecodec5codec16png__filter__row(raw, prev_row, out_ch, ft);
+          const score = _M0FP37walkzzz13image_2ecodec5codec18png__filter__score(cand);
+          if (score < best_score) {
+            best_score = score;
+            best_type = ft;
+            best_row = cand;
+          }
+          _tmp$3 = ft + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      _M0MPC15array5Array4pushGyE(filtered, best_type & 255);
+      let _tmp$4 = 0;
+      while (true) {
+        const i = _tmp$4;
+        if (i < row_len) {
+          const _bind = best_row;
+          if (i < 0 || i >= _bind.len) {
+            $panic();
+          }
+          _M0MPC15array5Array4pushGyE(filtered, _bind.buf[i]);
+          _tmp$4 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      let _tmp$5 = 0;
+      while (true) {
+        const i = _tmp$5;
+        if (i < row_len) {
+          if (i < 0 || i >= raw.len) {
+            $panic();
+          }
+          const _bind = raw.buf[i];
+          if (i < 0 || i >= prev_row.len) {
+            $panic();
+          }
+          prev_row.buf[i] = _bind;
+          _tmp$5 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
       _tmp = y + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const compressed = _M0FP37walkzzz13image_2ecodec5codec21zlib__deflate__stored(_M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(filtered.buf, 0, filtered.len)));
+  const compressed = _M0FP37walkzzz13image_2ecodec5codec14zlib__compress(_M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(filtered.buf, 0, filtered.len)));
   _M0FP37walkzzz13image_2ecodec5codec12write__chunk(out, "IDAT", compressed);
   const _bind = new Uint8Array([]);
   _M0FP37walkzzz13image_2ecodec5codec12write__chunk(out, "IEND", _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(_bind, 0, 0)));
@@ -4934,6 +5532,9 @@ function _M0FP37walkzzz13image_2ecodec3lib14detect__format(data) {
     if (b8 === 104 && (b9 === 101 && (b10 === 105 && (b11 === 99 || b11 === 120))) || (b8 === 104 && (b9 === 101 && (b10 === 118 && b11 === 99)) || b8 === 109 && (b9 === 105 && (b10 === 102 && b11 === 49)))) {
       return 16;
     }
+  }
+  if (_M0FP37walkzzz13image_2ecodec5codec15is__tga__format(data)) {
+    return 4;
   }
   return 18;
 }
@@ -5330,7 +5931,7 @@ function _M0FP37walkzzz12image_2ecore7testgen16qr__format__bits(ec_level, mask) 
   }
   return ((data << 10 | rem & 1023) ^ 21522) & 32767;
 }
-function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, idx, v) {
+function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, idx, v) {
   const is_func = _env._1;
   const modules = _env._0;
   if (idx < 0 || idx >= modules.len) {
@@ -5346,7 +5947,7 @@ function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrix(payload) {
   const modules = _M0MPC15array5Array4makeGiE(441, 0);
   const is_func = _M0MPC15array5Array4makeGbE(441, false);
   const _env = { _0: modules, _1: is_func };
-  let finder_pos_buf = [_M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1250, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1251, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1252];
+  let finder_pos_buf = [_M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1338, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1339, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1340];
   let finder_pos_len = 3;
   const _bind = finder_pos_len;
   const _bind$2 = finder_pos_buf;
@@ -5375,7 +5976,7 @@ function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrix(payload) {
                   const center = r >= 2 && (r <= 4 && (c >= 2 && c <= 4));
                   v = border || center ? 1 : 0;
                 }
-                _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, (Math.imul(rr, 21) | 0) + cc | 0, v);
+                _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, (Math.imul(rr, 21) | 0) + cc | 0, v);
               }
               _tmp$3 = c + 1 | 0;
               continue;
@@ -5399,16 +6000,16 @@ function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrix(payload) {
   while (true) {
     const i = _tmp$2;
     if (i < 13) {
-      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, 126 + i | 0, (i % 2 | 0) === 0 ? 1 : 0);
-      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, (Math.imul(i, 21) | 0) + 6 | 0, (i % 2 | 0) === 0 ? 1 : 0);
+      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, 126 + i | 0, (i % 2 | 0) === 0 ? 1 : 0);
+      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, (Math.imul(i, 21) | 0) + 6 | 0, (i % 2 | 0) === 0 ? 1 : 0);
       _tmp$2 = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, 281, 1);
-  let fmt_pos_a_buf = [_M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1253, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1254, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1255, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1256, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1257, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1258, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1259, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1260, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1261, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1262, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1263, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1264, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1265, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1266, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1267];
+  _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, 281, 1);
+  let fmt_pos_a_buf = [_M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1341, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1342, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1343, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1344, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1345, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1346, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1347, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1348, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1349, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1350, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1351, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1352, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1353, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1354, _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN5tupleS1355];
   let fmt_pos_a_len = 15;
   const _bind$3 = fmt_pos_a_len;
   const _bind$4 = fmt_pos_a_buf;
@@ -5419,7 +6020,7 @@ function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrix(payload) {
       const _foreach_element = _bind$4[_];
       const _r = _foreach_element._0;
       const _c = _foreach_element._1;
-      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, (Math.imul(_r, 21) | 0) + _c | 0, 0);
+      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, (Math.imul(_r, 21) | 0) + _c | 0, 0);
       _tmp$3 = _ + 1 | 0;
       continue;
     } else {
@@ -5430,7 +6031,7 @@ function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrix(payload) {
   while (true) {
     const i = _tmp$4;
     if (i < 7) {
-      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, (Math.imul(20 - i | 0, 21) | 0) + 8 | 0, 0);
+      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, (Math.imul(20 - i | 0, 21) | 0) + 8 | 0, 0);
       _tmp$4 = i + 1 | 0;
       continue;
     } else {
@@ -5441,7 +6042,7 @@ function _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrix(payload) {
   while (true) {
     const i = _tmp$5;
     if (i < 8) {
-      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1249(_env, 168 + (13 + i | 0) | 0, 0);
+      _M0FP37walkzzz12image_2ecore7testgen17qr__build__matrixN3setS1337(_env, 168 + (13 + i | 0) | 0, 0);
       _tmp$5 = i + 1 | 0;
       continue;
     } else {
@@ -6136,7 +6737,7 @@ function _M0FP37walkzzz11image_2embt10playground14hex__to__bytes(hex) {
   return _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(data.buf, 0, data.len));
 }
 function _M0FP37walkzzz11image_2embt10playground12img__version() {
-  return "0.1.1";
+  return "0.1.23";
 }
 function _M0FP37walkzzz11image_2embt10playground17img__qr__png__hex(text, module_px, quiet_zone) {
   const image = _M0FP37walkzzz12image_2ecore7testgen18render__qr_2einner(_M0FPC28encoding4utf814encode_2einner(new _M0TPC16string10StringView(text, 0, text.length), false), module_px, quiet_zone);

@@ -48,6 +48,18 @@ if (pinProblems.length > 0) {
 versions[`moon.mod dep pins (${pinCount} 处)`] = versions['moon.mod'];
 versions['image.mbt (facade)'] = cap(/pub let version : String = "([^"]+)"/, await readText('image.mbt'), 'image.mbt', 'facade version');
 versions['imgcli (CLI --version)'] = cap(/pub let version : String = "([^"]+)"/, await readText('imgcli/imgtool.mbt'), 'imgcli/imgtool.mbt', 'cli version');
+versions['playground (img_version)'] = cap(
+  /pub fn img_version\(\) -> String \{\n  "([\d.]+)"/,
+  await readText('playground/playground.mbt'),
+  'playground/playground.mbt',
+  'playground version',
+);
+versions['docs/index.html 品牌版本'] = cap(
+  /class="brand-ver">v([\d.]+)</,
+  await readText('docs/index.html'),
+  'docs/index.html',
+  'pages brand version',
+);
 const zh = await readText('README.md');
 const en = await readText('README.en.md');
 versions['README.md version badge'] = cap(/version-([\d.]+)-orange/, zh, 'README.md', 'version badge');

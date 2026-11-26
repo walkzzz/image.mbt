@@ -18,6 +18,9 @@ AGENTS.md
 TEST_REPORT.md
 rules.md
 image-mbt-*.md
+o.png
+_build_cli_*
+bisect.coverage
 
 # 两条「反直觉」的保留，都是发布链踩出来的：
 #

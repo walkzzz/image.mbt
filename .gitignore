@@ -32,3 +32,7 @@ npm/node_modules/
 _build_cli_*.png
 bindings/dart/.dart_tool/
 bindings/dart/pubspec.lock
+o.png
+_build_cli_*.png
+_build_cli_*.bin
+bisect.coverage

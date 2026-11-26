@@ -269,6 +269,51 @@ const ASSERTIONS = [
       return { deprecated: j.code };
     },
   },
+  {
+    id: 'B13', desc: '文档链接与文档表：相对链接可达 + docs/*.md 都在 README 表里 + 10 个子模块有 README',
+    async run(root) {
+      const p = path.join(root, 'README.md');
+      if (!existsSync(p)) return { skipped: 'fixtures/无 README.md' };
+      const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'check_links.mjs'), '--json'], {
+        cwd: root,
+        env: { ...process.env, ROOT: root },
+        encoding: 'utf8',
+      });
+      let j = {};
+      try {
+        j = JSON.parse((r.stdout || '').trim());
+      } catch {}
+      if (r.status !== 0) {
+        throw new Error(`文档链接漂移: ${(j.problems || []).join('; ') || (r.stderr || '').trim()}`);
+      }
+      return { links: j.links, docs: j.docs };
+    },
+  },
+  {
+    id: 'B14', desc: '源码与文档里无 NUL / 控制字符（否则 git 判成二进制，fmt 与 diff 失灵）',
+    async run(root) {
+      const exts = ['.mbt', '.mbti', '.md', '.mjs', '.js', '.yml', '.yaml', '.json', '.toml', '.sh', '.ps1', '.c', '.h'];
+      const r = spawnSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' });
+      if (r.status !== 0) return { skipped: 'git 不可用' };
+      const files = (r.stdout || '').split('\n').map(s => s.trim()).filter(Boolean).filter(f => exts.some(e => f.endsWith(e)));
+      const bad = [];
+      for (const rel of files) {
+        const abs = path.join(root, rel);
+        if (!existsSync(abs)) continue;
+        const buf = await readFile(abs);
+        const hit = [];
+        for (let i = 0; i < buf.length; i++) {
+          const c = buf[i];
+          // 允许 \t \n \r；其余 C0 控制字符与 DEL 一律不许
+          if ((c < 0x20 && c !== 0x09 && c !== 0x0a && c !== 0x0d) || c === 0x7f) hit.push(i);
+          if (hit.length >= 3) break;
+        }
+        if (hit.length) bad.push(`${rel}@${hit.join(',')}`);
+      }
+      if (bad.length) throw new Error(`含控制字符（应为可见字符或转义）: ${bad.slice(0, 6).join('; ')}`);
+      return { scanned: files.length };
+    },
+  },
 ];
 function extractVersion(text) {
   const m = text.match(/^version = "([^"]+)"/m);

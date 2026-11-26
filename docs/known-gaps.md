@@ -20,7 +20,7 @@
 | 编号 | 描述 | 现状 | 计划 |
 |------|------|------|------|
 | GAP-8 | ~~白盒测试仅 1 个~~ **已补强（2026-11-20）** | 392 黑盒 + 6 白盒（mp4 / png_decode / zlib / fft / webp_vp8_decode / ean13_gen） | 后续可为 resize / 滤波 / 分割核心算法继续补白盒 |
-| GAP-9 | 覆盖率 82.3%（32,862/39,395），低于历史宣称 90.4% | 已按实测纠正 README/notes/proposal | CI 门槛 80.5% 防退化；90% 需专项（webp 解码剩余约 380 行、OCR 约 1,400 行） |
+| GAP-9 | ~~覆盖率 82.3%~~ **已闭环（2026-11-27）** | **38,102/42,301 = 90.07%**（S18 专项后实测，分母不排除任何文件） | 真值在 `docs/coverage.json`（`coverage@1`），CI 与本地统一 `--min 90`；页面、README、known-gaps 三处由 B3/B6 + `sync_pages --check` 联动 |
 | GAP-10 | Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug | `Unix.EINVAL` | 统一走 WSL / CI `prove` job |
 | GAP-11 | ~~无 OS 矩阵~~ **受上游限制（2026-11-20 实测）** | 官方安装脚本仅支持 Linux x86_64/aarch64 与 macOS arm64；Windows 二进制 URL 实测返回 403 | 暂不纳入 CI；如官方提供 Windows/macOS 包再补 job |
 | GAP-12 | ~~API 参考过时~~ **已闭环（2026-11-20）** | `docs/api_reference.md` 仍为历史快照（1,339 fn / 50 包） | ✅ 新增 `docs/api_index.md`（`scripts/gen_api_index.mjs` 从 73 包 `.mbti` 自动生成：3,748 fn / 710 类型；CI `--check` 防漂移）；旧参考页已标注"历史快照，以 api_index 与 `.mbti` 为准" |
@@ -53,6 +53,9 @@
 |------|------|------|
 | GAP-15 | `moon coverage analyze` 在 Windows 本地有路径拼接问题 | 覆盖率基线在 CI（ubuntu）与 WSL 生成 |
 | GAP-16 | `moon test` 中 `Int64::from_int` 等弃用警告不影响 `check --deny-warn` | 逐步迁移到 `to_int64()` 等新 API |
+| GAP-37 | **GitHub Pages 未在仓库设置里启用** | `gh api repos/walkzzz/image.mbt/pages` 返回 404；站点文件与 `pages.yml` 都已就绪 | `pages.yml` 用 `configure-pages@v5` + `enablement: true`，推送后首次运行自动开启；若组织策略禁止，需在 Settings → Pages 选 “GitHub Actions” |
+| GAP-38 | **4 个场景模块此前无 README** | `image.doc/media/commerce/pro` 在 mooncakes 上无说明页（S16 只生成了入口包） | 已补 4 份手写 README（定位/再导出表/生成物约定/文档链接）；`check_links` 的 B13 会把“子模块缺 README”拦成红灯 |
+| GAP-39 | **展示页口径曾长期漂移** | `docs/index.html` 停留在 0.1.1 / 6664 / 83.4% / 73 包 | 新增 `scripts/sync_pages.mjs`（真值 = moon.mod + README 徽章 + `docs/coverage.json`），`bump_version` 末尾自动调用，`sync_pages --check` 进 CI |
 
 ## 测试口径
 

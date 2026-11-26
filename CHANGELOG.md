@@ -12,11 +12,19 @@
 - **`docs/deprecation.md`（S21）**：标注规则（必须有替换目标 + doc 说明 + 跨包 `skip_current_package`）、保留窗口（标注后至少 2 个 patch，`0.1.x` 内不移除）、当前 7 条清单（符号 / 包 / 替换目标 / 理由 / 起始版本）。
 - **`scripts/check_deprecations.mjs` + B12 门禁**：代码里的 `#deprecated` ⇄ 弃用表双向比对（符号、所属包、从文案抽出的替换目标），漏登记、已移除未删行、替换目标不一致都会红灯。`check_docs` 由 11 项增到 **12 项**。
 - **`docs/release.md` §九**：S21 收口核对清单——11 环发布顺序、13 条门禁逐条命令、发布后 30 分钟上手验收。
+- **`docs/ci-cd.md`（S21 收口）**：CI/CD 与 Pages 的唯一说明书——8 个作业、B1–B13 门禁逐条对照、覆盖率单一真值、Pages 发布机制与本地等价命令、4 条已知限制。
+- **`.github/workflows/pages.yml`**：Pages 构建 + 部署（artifact 方式，产物=`docs/`）。首次运行借 `configure-pages@v5` 的 `enablement: true` 自动开启 Pages。
+- **`scripts/sync_pages.mjs` + `docs/coverage.json`**：首页数字不再手写。覆盖率先固化为 `coverage@1`（38,102 / 42,301 = 90.07%，threshold 90）；`sync_pages` 从 `moon.mod` + README 徽章 + 该 JSON 拉数，按 12 个具名槽位改写 `docs/index.html`，`--check` 进 CI；`bump_version` 末尾自动调用。
+- **`scripts/check_links.mjs` + B13 门禁**：55 个 md / 126 条相对链接可达、`docs/*.md` 都在 README 表里、10 个子模块都有 README。`check_docs` 增到 **13 项**。
+- **`scripts/check_release_ready.mjs`（S21 收口一条命令）**：串跑 15 项门禁（版本 / B1–B13 / 三个 `--check` 生成器 / 导入 / 弃用 / 链接 / 首页数字 / npm 15 / Dart 6 / fmt / check / test 7395 / pages 49），`--skip-slow` 只跑快的 12 项，`--json` 机读；任一条失败即退出码 1 并打印尾部输出。
+- **B14 门禁 + 一处真实污染修复**：`image.vision/fieldimg/field_bind_test.mbt` 里有 5 个字面 `\x00`（控制字符直接写进源码），git 因此把该文件判成二进制——`git diff` / `blame` / 行级审查全部失灵，也是远程 `Format check` 反复红的一个盲区。已改成转义写法（`b'\x00'`），fieldimg 包 105 测试复跑全绿；并新增 `check_docs` **B14**：扫描 1,231 个 `.mbt/.md/.mjs/.yml/.json` 等文本文件，出现 NUL/控制字符即红。`check_docs` 由 13 项增到 **14 项**。
 
 ### Changed
 
 - README / README.en 文档表新增 `migration` 与 `deprecation` 两行；roadmap S21 标 ✅ 并写入验收证据。
 - 绑定版本跟随库版本：`npm/package.json` 与 `bindings/dart/pubspec.yaml` 同步到 0.1.23（仍未对外发布）。
+- **CI 门禁补全 + Pages 门禁**：`quality` 作业新增 `check_version` / `check_pkg_imports` / `sync_pages --check` / `check_pages`；`coverage` 门槛随实测从 80.5 提到 **90**；顶层最小权限 `contents: read` + 分支并发取消。
+- **版本治理扩面**：`check_version` 由 14 处增到 **16 处**（新增 `playground/playground.mbt` 的 `img_version` 与 `docs/index.html` 品牌版本）；`bump_version` 同步改写这两处并尾调 `sync_pages`。
 
 ### Notes
 

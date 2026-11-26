@@ -7,7 +7,7 @@
   <meta name="description" content="walkzzz/image.mbt：18 种编解码、滤镜、几何变换、特征与视觉算法，零 C FFI，四后端一致。QR 生成与滤镜演示在你的浏览器内实时计算。" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="image.mbt — 纯 MoonBit 图像库" />
-  <meta property="og:description" content="18 种格式编解码、滤镜与视觉算法，零 C FFI；6664×4 测试全绿；浏览器内 QR 生成与滤镜演示。" />
+  <meta property="og:description" content="18 种格式编解码、滤镜与视觉算法，零 C FFI；7395×4 测试全绿；浏览器内 QR 生成与滤镜演示。" />
   <meta property="og:url" content="https://walkzzz.github.io/image.mbt/" />
   <meta name="twitter:card" content="summary" />
   <meta name="theme-color" content="#0b1020" />
@@ -30,7 +30,7 @@
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">◧</span>
         <span class="brand-name">image.mbt</span>
-        <span class="brand-ver">v0.1.1</span>
+        <span class="brand-ver">v0.1.23</span>
       </a>
       <nav class="nav" aria-label="主导航">
         <a href="#features">能力</a>
@@ -63,8 +63,8 @@
           <a class="btn ghost" href="#start">快速开始</a>
         </div>
         <ul class="badges" aria-label="项目指标">
-          <li>6664 × 4 测试</li>
-          <li>覆盖率 83.4%</li>
+          <li>7395 × 4 测试</li>
+          <li>覆盖率 90.07%</li>
           <li>变异 12 / 12</li>
           <li>18 种格式</li>
         </ul>
@@ -79,7 +79,7 @@
         </div>
         <img id="hero-qr" class="hero-qr" alt="示例二维码（image.mbt）" />
         <dl class="wasm-stats">
-          <div><dt>版本</dt><dd id="hero-version">0.1.1</dd></div>
+          <div><dt>版本</dt><dd id="hero-version">0.1.23</dd></div>
           <div><dt>导出函数</dt><dd id="hero-exports">—</dd></div>
           <div><dt>最近 PNG</dt><dd id="hero-size">—</dd></div>
         </dl>
@@ -239,9 +239,9 @@
         <div class="start-col">
           <div class="code">
             <div class="code-head"><span>安装子模块</span><button type="button" class="copy" data-copy-target="cmd-install">复制</button></div>
-            <pre id="cmd-install"><code>moon add walkzzz/image.core@0.1.0
-moon add walkzzz/image.codec@0.1.0
-moon add walkzzz/image.process@0.1.0</code></pre>
+            <pre id="cmd-install"><code>moon add walkzzz/image.core@0.1.23
+moon add walkzzz/image.codec@0.1.23
+moon add walkzzz/image.process@0.1.23</code></pre>
           </div>
           <div class="code">
             <div class="code-head"><span>构建浏览器演示产物</span><button type="button" class="copy" data-copy-target="cmd-build">复制</button></div>
@@ -313,17 +313,17 @@ let small = @transform.resize_f(@transform.resize(img, 320, 240), 320, 240)</cod
         <p class="lede">四后端严格模式零警告；覆盖率、变异、文档与展示页自检均有脚本与 CI 作业。</p>
       </div>
       <div class="stat-grid">
-        <div class="stat"><strong>6664</strong><span>每后端测试</span></div>
-        <div class="stat"><strong>26656</strong><span>四后端合计</span></div>
-        <div class="stat"><strong>83.4%</strong><span>核心覆盖率</span></div>
+        <div class="stat"><strong>7395</strong><span>每后端测试</span></div>
+        <div class="stat"><strong>29580</strong><span>四后端合计</span></div>
+        <div class="stat"><strong>90.07%</strong><span>核心覆盖率</span></div>
         <div class="stat"><strong>12 / 12</strong><span>变异点 KILLED</span></div>
         <div class="stat"><strong>18</strong><span>编解码格式</span></div>
-        <div class="stat"><strong>73</strong><span>子包</span></div>
+        <div class="stat"><strong>82</strong><span>子包</span></div>
         <div class="stat"><strong>60</strong><span>包级 README</span></div>
         <div class="stat"><strong>0</strong><span>C FFI 依赖</span></div>
       </div>
       <div class="quality-notes">
-        <p><strong>覆盖率口径</strong>：32862/39395 = 83.4%，门槛 80.5%（<code>scripts/check_coverage.mjs</code>）。</p>
+        <p><strong>覆盖率口径</strong>：38,102/42,301 = 90.07%，门槛 90%（<code>scripts/check_coverage.mjs</code>）。</p>
         <p><strong>零 C FFI</strong>：全部纯 MoonBit；四后端共用同一份源码，无目标条件编译。</p>
         <p><strong>演示口径</strong>：QR/滤镜/摘要来自 <code>playground</code> 导出，发布后另有真实浏览器验收。</p>
       </div>
@@ -354,7 +354,7 @@ let small = @transform.resize_f(@transform.resize(img, 320, 240), 320, 240)</cod
         <li><span class="step-no">1</span><p><code>playground/</code> 是根模块的 <code>foreign_library</code> 包，导出 QR 生成、滤镜与 PNG 摘要函数。</p></li>
         <li><span class="step-no">2</span><p><code>moon build --target js --release playground</code> 生成一份 JS；PNG 以十六进制字符串跨边界。</p></li>
         <li><span class="step-no">3</span><p>页面把 hex 还原为 PNG Blob 显示；QR 渲染、亮度、模糊与解码全部在本地完成。</p></li>
-        <li><span class="step-no">4</span><p>CI 在四后端跑 6664 测试；<code>check_pages.mjs</code> 验证导出与语义，Pages 部署 <code>docs/</code>。</p></li>
+        <li><span class="step-no">4</span><p>CI 在四后端跑 7395 测试；<code>check_pages.mjs</code> 验证导出与语义，Pages 部署 <code>docs/</code>。</p></li>
       </ol>
     </section>
   </main>

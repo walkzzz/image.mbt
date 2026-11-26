@@ -149,9 +149,10 @@ for (const name of [
 
 check("img_version = moon.mod", mod.img_version() === moonVersion, mod.img_version());
 const qr = mod.img_qr_png_hex("hello", 4, 2);
+// 体积不设硬阈值：QR 图像分辨率小、调色板化后 300B 级就够（旧阈值 >1000 是错的）。
 check(
-  "QR 生成 PNG（签名 + 体积）",
-  qr.startsWith("89504e47") && qr.length > 1000,
+  "QR 生成 PNG（签名 + IEND + 可解析）",
+  qr.startsWith("89504e47") && qr.endsWith("49454e44ae426082") && qr.length > 200,
   `${qr.length} hex chars`,
 );
 const summary = mod.img_png_summary(qr);
