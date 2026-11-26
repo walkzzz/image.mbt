@@ -7,6 +7,10 @@
 | 文件 | 触发 | 作业 | 用途 |
 | --- | --- | --- | --- |
 | `.github/workflows/ci.yml` | push / PR（`dev`、`main`）+ 手动 | `quality` / `test × 4` / `bench` / `coverage` / `mutation` / `prove` / `bindings` | 质量、四后端测试、基准、覆盖率、变异、形式化证明、语言绑定 |
+
+`bindings` 作业的顺序不能改：装 CLI → `moon update` → `moon build --release cmd/imgtool` → Dart 自测 →
+`node scripts/build_npm_wasm.mjs --no-test` → `node npm/test.mjs`。**`npm/image.wasm` 是构建产物、不入库**
+（255 KB，`.gitignore` 里），漏掉构建这步自测会直接 `ENOENT` 崩（2026-11-27 实测）。
 | `.github/workflows/pages.yml` | push `main`（`docs/**`、`playground/**`、README、moon.mod、两个 pages 脚本）+ 手动 | `build` → `deploy` | 构建 playground.js、跑展示页自检、发布 `docs/` 到 Pages |
 
 CI 顶层 `permissions: contents: read`（最小权限）、`concurrency: ci-${{ github.ref }}` + `cancel-in-progress`（同分支新推送取消旧跑）。
