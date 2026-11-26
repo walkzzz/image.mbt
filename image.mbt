@@ -27,4 +27,4 @@
 /// | vision | 计算机视觉 Computer vision | `walkzzz/image.vision/ocr` |
 /// | domain | 领域应用 Domain-specific applications | `walkzzz/image.domain/medical` |
 ///
-pub let version : String = "0.1.21"
+pub let version : String = "0.1.22"

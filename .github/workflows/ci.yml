@@ -157,3 +157,31 @@ jobs:
           z3 --version
           cd image.core
           moon prove
+
+  bindings:
+    name: Language bindings (npm wasm + Dart)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Build imgtool (release)
+        run: moon build --release cmd/imgtool
+
+      - name: Run Dart binding self-test
+        run: node scripts/check_dart_binding.mjs --no-build
+
+      - name: Run npm wasm self-test
+        run: node npm/test.mjs

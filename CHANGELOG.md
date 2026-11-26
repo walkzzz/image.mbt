@@ -4,6 +4,21 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.22] - 2026-11-27
+
+### Added
+
+- **语言绑定（S17）**：两条通道、同一份实现。
+  - JS：`npm/` 走 `--target wasm`（线性内存 + `abi_*` 导出），`node npm/test.mjs` 15/15；包版本随库对齐到 0.1.22。
+  - Dart：新增 `bindings/dart/`（`image_mbt.dart` + `tool/selftest.dart`），以 `imgtool` 进程为 ABI，自测 6/6，覆盖 `decode → resize → encode`。
+- `scripts/check_dart_binding.mjs`：自动构建 release imgtool 后跑 Dart 自测（`--no-build` 可复用产物，`dart` 缺失时以退出码 2 跳过）。
+- `docs/bindings.md`：通道选型表（FFI / `package:wasm` / 进程三条候选的实测结论）、Dart API、自测与发布口径；README 双语同步新增小节与文档行。
+
+### Notes
+
+- Dart 不载 wasm 的原因：MoonBit native 不产出静态/动态库；`package:wasm`（0.1.0+1）已废弃且需 Rust + MSVC `link.exe` 现编 Wasmer；Dart VM 无内置 WebAssembly 运行时。
+- 绑定不重写任何编解码：Dart 侧只搬字节并解析 CLI 的单行 JSON。
+
 ## [0.1.21] - 2026-11-26
 
 ### Changed

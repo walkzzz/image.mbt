@@ -30,7 +30,7 @@
 - 唯一版本轨道是 **0.1.x**：三段 SemVer，`major.minor` 钉死在 `0.1`，只递增 patch。功能版本 v5.x 停止累加，只作历史。
 - **一个 Sprint = 一个 patch 号**：S01 = `0.1.1`、S02 = `0.1.2` … 计划值见 Sprint 表；因 S19/S20/S16 的落地顺序晚于原表，实际号已顺延（S20 = `0.1.20`、S16 = `0.1.21`，S17/S21 随之为 `0.1.22` / `0.1.23`）。Sprint 收尾时 7 个 `moon.mod` 同步升 patch（S16 起为 11 个），`check_version.mjs` 必须 ok。
 - **四段号（0.1.x.y）不采用**：实测 `version = "0.1.2.3"` 被 mooncakes 拒绝（`version bad format / unexpected character '.' after patch version number`）；`0.1.2+s06` 虽可解析但会破坏 `check_version.mjs` 的徽章比对，故不用。
-- **发布（`moon publish`）只在阶段收口做**：已发布 0.1.7 / 0.1.8 / 0.1.10；未发布 0.1.9、0.1.11–0.1.21，下一次收口在 S21（`0.1.23`）一次性发 11 环。中间 Sprint 只升版本号不发布，避免 20 次不可逆外部动作。
+- **发布（`moon publish`）只在阶段收口做**：已发布 0.1.7 / 0.1.8 / 0.1.10；未发布 0.1.9、0.1.11–0.1.22，下一次收口在 S21（`0.1.23`）一次性发 11 环。中间 Sprint 只升版本号不发布，避免 20 次不可逆外部动作。
 - Sprint 编号 S01… 跨版本连续，不断号、不回填。
 - 每个 Sprint 收尾必须回写本文件：状态 / commit hash / bench 数字。
 - **每轮改动结束自动提交**（用户 2026-11-25 要求）：一次提交 = 一次可回滚的交付，提交信息带类型前缀与数字。
@@ -385,7 +385,7 @@
 | S14 ✅ | 区域解码（PNG/BMP/QOI） | 输出只分配 tile，与整图裁切逐字节一致 |
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 ✅ | 场景包收敛为 4（`doc/media/commerce` + `pro`，photo 由既有 `image.photography` 承担） | 新增 4 个场景模块，**模块数 7→11（不是 15）**，发布链 11 环；`docs/scenes.json` + `gen_scenes.mjs` 生成 4 个入口包（doc 504 / media 313 / commerce 257 / pro 1,462 符号），B11 门禁防漂移 |
-| S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
+| S17 ✅ | Dart / JS 绑定（经 wasm/导出，不另起实现） | **两条通道、同一份实现**：JS 走 `--target wasm` 线性内存（`npm/index.mjs`，自测 15/15）；Dart 因「native 不产出静态/动态库」+「Dart VM 无 wasm 运行时（`package:wasm` 已废弃）」改以 `imgtool` 进程为 ABI（`bindings/dart/`，自测 6/6）；Dart 侧 `decode→resize→encode` 跑通，见 `docs/bindings.md` |
 | S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.08%（见 `docs/known-gaps.md`） |
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
 | S20 ✅ | 公开基准集（golden 20 张 + 6 类恶意样本） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材 |

@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.21-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.21-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.22-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.22-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-7_395×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -380,6 +380,19 @@ writeFileSync('out.jpg', convert(readFileSync('in.png'), { format: 'jpeg', quali
 
 输入输出都是 `Buffer`；失败抛 `Error`，带 `code`（如 `decode/unsupported_format`）与中文 `hint`。从源码构建与 ABI 说明见 [npm/README.md](npm/README.md)。
 
+### Dart：同一实现的进程绑定
+
+```dart
+final ImageMbt img = ImageMbt();                       // IMGTOOL 环境变量 > PATH
+final ImageInfo info = await img.info(bytes);           // decode
+final Uint8List png = await img.resize(bytes, 320, 200, mode: 'cover', format: 'png');
+final Uint8List webp = await img.convert(png, format: 'webp', quality: 80);
+```
+
+Dart VM 没有 WebAssembly 运行时、MoonBit native 又不产出静态/动态库，因此 Dart 绑定以
+`imgtool` 进程为 ABI（不重写任何编解码）。自测 `node scripts/check_dart_binding.mjs` 跑
+`decode → resize → encode` 6 项；两条通道的取舍见 [docs/bindings.md](docs/bindings.md)。
+
 ### 高级：SIFT 特征匹配
 
 ```moonbit
@@ -557,6 +570,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/capabilities.md](docs/capabilities.md) | **能力矩阵（自动生成：`ImageFormat` × 编解码 × 模块 API 面，B10 门禁）** |
 | [docs/benchmarks.md](docs/benchmarks.md) | **公开基准集：20 张 golden + 6 个畸形样本，sha256 封签（S20）** |
 | [docs/scenes.md](docs/scenes.md) | **场景入口：4 个入口（doc/media/commerce/pro）+ 模块 7→11 + 发布链 11 环（S16）** |
+| [docs/bindings.md](docs/bindings.md) | **语言绑定：JS 走 wasm、Dart 走 imgtool 进程，同一份实现两种宿主（S17）** |
 | [benchmarks/COPYRIGHT.md](benchmarks/COPYRIGHT.md) | 基准样本版权自查清单（零第三方素材） |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
