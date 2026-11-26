@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.22-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.22-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.23-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.23-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-7_395×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -453,6 +453,8 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | [docs/benchmarks.md](docs/benchmarks.md) | **Public benchmark corpus: 20 golden + 6 malformed samples, sha256-sealed (S20)** |
 | [docs/scenes.md](docs/scenes.md) | **Scene entries: 4 facades (doc/media/commerce/pro), modules 7→11, 11-ring publish chain (S16)** |
 | [docs/bindings.md](docs/bindings.md) | **Language bindings: JS over wasm, Dart over the imgtool process — one implementation, two hosts (S17)** |
+| [docs/migration.md](docs/migration.md) | **Migration guide: 3 changes from early 0.1.x (module name / imports / deprecated APIs) (S21)** |
+| [docs/deprecation.md](docs/deprecation.md) | **Deprecation policy: labeling rules, retention window, 7 entries, B12 gate (S21)** |
 | [benchmarks/COPYRIGHT.md](benchmarks/COPYRIGHT.md) | Benchmark sample copyright self-audit (no third-party assets) |
 | [docs/api_reference.md](docs/api_reference.md) | API reference snapshot (see api_index and per-package .mbti) |
 | [docs/roadmap.md](docs/roadmap.md) | Iteration roadmap |

@@ -1,6 +1,6 @@
 name: image_mbt
 description: Dart binding for walkzzz/image.mbt (decode / resize / encode via imgtool).
-version: 0.1.22
+version: 0.1.23
 publish_to: none
 
 environment:

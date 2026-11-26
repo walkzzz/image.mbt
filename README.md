@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.22-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.22-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.23-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.23-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-7_395×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -571,6 +571,8 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/benchmarks.md](docs/benchmarks.md) | **公开基准集：20 张 golden + 6 个畸形样本，sha256 封签（S20）** |
 | [docs/scenes.md](docs/scenes.md) | **场景入口：4 个入口（doc/media/commerce/pro）+ 模块 7→11 + 发布链 11 环（S16）** |
 | [docs/bindings.md](docs/bindings.md) | **语言绑定：JS 走 wasm、Dart 走 imgtool 进程，同一份实现两种宿主（S17）** |
+| [docs/migration.md](docs/migration.md) | **迁移指南：从 0.1.x 早期版本只需 3 处改动（模块名 / import / 弃用替换）（S21）** |
+| [docs/deprecation.md](docs/deprecation.md) | **弃用策略：标注规则 + 保留窗口 + 7 条清单，B12 门禁防漂移（S21）** |
 | [benchmarks/COPYRIGHT.md](benchmarks/COPYRIGHT.md) | 基准样本版权自查清单（零第三方素材） |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |

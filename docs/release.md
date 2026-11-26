@@ -217,3 +217,51 @@ $ (Get-Item ...\walkzzz-image.core-0.1.9.zip).Length
 `image.mbt`、`moon.mod`、`moon.pkg`、`pkg.generated.mbti` 与 README/LICENSE 等；无 `_build` / `.mooncakes` 污染。
 
 保留项不变：`playground/`（网页 demo 导出层）、`imgcli/`（CLI + 其测试）、`cmd/`、`mp4/`、`all/`、`mcp/`、README/LICENSE/CHANGELOG。
+
+## 九、S21 收口核对清单（0.1.23）
+
+只做核对，不发布。`moon publish` 需用户明确授权后另起一轮执行。
+
+### 9.1 三份前置文档（S21 交付）
+
+| 文档 | 作用 | 门禁 |
+| --- | --- | --- |
+| [docs/migration.md](migration.md) | 从 0.1.x 早期 / `walkzzz/image` 0.6.x 迁到 0.1.23 的 3 处改动 | 无（人工核对；示例代码逐条对照 `all/` 与 `image.codec/lib` 的真实符号） |
+| [docs/deprecation.md](deprecation.md) | 弃用标注规则、保留窗口、7 条当前清单 | **B12**（`check_deprecations`） |
+| [docs/bindings.md](bindings.md) | JS / Dart 两条绑定通道 | CI `bindings` job |
+
+### 9.2 发布前 11 环顺序（同 §一）
+
+1. `walkzzz/image.core` → codec → process → photography → vision → domain
+2. 场景 4 环：`walkzzz/image.doc` / `.media` / `.commerce` / `.pro`（可任意顺序，依赖前 6 环）
+3. 根模块 `walkzzz/image.mbt` 最后发（依赖上面 10 环）
+4. 绑定：npm 包（`npm/`，`prepack` 现编 wasm）随根模块发；Dart 包 `publish_to: none` 不发
+
+### 9.3 全绿门禁（逐条跑，缺一不发）
+
+```powershell
+node scripts/check_version.mjs                 # 11 个 moon.mod 版本一致
+node scripts/check_docs.mjs                    # B1–B12
+node scripts/gen_api_index.mjs --check
+node scripts/gen_capabilities.mjs --check
+node scripts/gen_scenes.mjs --check
+node scripts/check_pkg_imports.mjs             # 0 冗余导入
+node scripts/check_deprecations.mjs            # 代码 ⇄ 弃用表
+node scripts/check_benchmarks.mjs              # 基准集 sha256
+node scripts/check_dart_binding.mjs --no-build # Dart 6 项
+node npm/test.mjs                              # JS 15 项
+moon fmt --check
+moon check --deny-warn --target all
+moon test --target all                         # 7,395 × 4
+```
+
+### 9.4 下游 30 分钟上手（发布后第一件事；未发布则跳过）
+
+```bash
+moon new demo/intro && cd intro
+moon add walkzzz/image.mbt
+# moon.mod: name = "demo/intro"，不要写 edition 键（会报 Unexpected key）
+```
+
+然后按 README「快速开始」跑 `import "walkzzz/image.mbt/all"` 的三行示例；验收点：零报错、零
+`[0029]` 刷屏、PNG→JPEG 出图。0.1.7 那次实测记录见 §六。

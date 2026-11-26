@@ -4,6 +4,25 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.23] - 2026-11-27
+
+### Added
+
+- **`docs/migration.md`（S21）**：迁到 0.1.23 只需 3 处改动——①模块名与安装命令（6 → 11 个模块）②import 的包路径与别名 ③7 条弃用 API 换成 `_enhanced` / lossless。附 15 行迁移前后对照与「不用改的部分」（公开签名 / 错误模型 / CLI JSON / npm 导出面）。
+- **`docs/deprecation.md`（S21）**：标注规则（必须有替换目标 + doc 说明 + 跨包 `skip_current_package`）、保留窗口（标注后至少 2 个 patch，`0.1.x` 内不移除）、当前 7 条清单（符号 / 包 / 替换目标 / 理由 / 起始版本）。
+- **`scripts/check_deprecations.mjs` + B12 门禁**：代码里的 `#deprecated` ⇄ 弃用表双向比对（符号、所属包、从文案抽出的替换目标），漏登记、已移除未删行、替换目标不一致都会红灯。`check_docs` 由 11 项增到 **12 项**。
+- **`docs/release.md` §九**：S21 收口核对清单——11 环发布顺序、13 条门禁逐条命令、发布后 30 分钟上手验收。
+
+### Changed
+
+- README / README.en 文档表新增 `migration` 与 `deprecation` 两行；roadmap S21 标 ✅ 并写入验收证据。
+- 绑定版本跟随库版本：`npm/package.json` 与 `bindings/dart/pubspec.yaml` 同步到 0.1.23（仍未对外发布）。
+
+### Notes
+
+- 本版是 0.1.x 收口版：只做文档与门禁收口，不改任何运行时行为，`moon test --target native` 仍 7,395 全绿。
+- `moon publish` 未执行；11 环发布与 npm 发布需明确授权后另起一轮。
+
 ## [0.1.22] - 2026-11-27
 
 ### Added

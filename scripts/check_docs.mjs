@@ -249,6 +249,26 @@ const ASSERTIONS = [
       return { scenes: j.scenes };
     },
   },
+  {
+    id: 'B12', desc: '弃用清单真值：#deprecated 符号 ⇄ docs/deprecation.md（check_deprecations）',
+    async run(root) {
+      const spec = path.join(root, 'docs', 'deprecation.md');
+      if (!existsSync(spec)) return { skipped: 'fixtures/无 deprecation.md' };
+      const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'check_deprecations.mjs'), '--json'], {
+        cwd: root,
+        env: { ...process.env, ROOT: root },
+        encoding: 'utf8',
+      });
+      let j = {};
+      try {
+        j = JSON.parse((r.stdout || '').trim());
+      } catch {}
+      if (r.status !== 0) {
+        throw new Error(`弃用清单漂移: ${(j.problems || []).join('; ') || (r.stderr || '').trim()}`);
+      }
+      return { deprecated: j.code };
+    },
+  },
 ];
 function extractVersion(text) {
   const m = text.match(/^version = "([^"]+)"/m);
