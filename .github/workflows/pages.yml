@@ -42,6 +42,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
+      - name: Update registry index
+        run: moon update
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22

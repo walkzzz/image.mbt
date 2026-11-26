@@ -26,6 +26,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
+      - name: Update registry index
+        run: moon update
+
       - name: Moon version
         run: moon version
 
@@ -76,6 +79,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
+      - name: Update registry index
+        run: moon update
+
       - name: Run tests (${{ matrix.target }})
         run: moon test --target ${{ matrix.target }}
 
@@ -90,6 +96,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
+      - name: Update registry index
+        run: moon update
+
       - name: Run benchmarks
         run: moon bench --target native
 
@@ -103,6 +112,9 @@ jobs:
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Update registry index
+        run: moon update
 
       - name: Generate coverage
         run: |
@@ -139,6 +151,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
+      - name: Update registry index
+        run: moon update
+
       - name: Run mutation tests
         run: node scripts/mutation_test.mjs --min-kill=80
 
@@ -165,6 +180,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
+      - name: Update registry index
+        run: moon update
+
       - name: Run moon prove
         run: |
           why3 --version
@@ -190,6 +208,9 @@ jobs:
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Update registry index
+        run: moon update
 
       - name: Build imgtool (release)
         run: moon build --release cmd/imgtool
