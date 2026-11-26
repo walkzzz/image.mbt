@@ -391,6 +391,12 @@ fn extract_qr_data_bits(
 }
 
 ///|
+/// 把 String 索引得到的 UInt16 码元转成单字符字符串（避免 to_string 输出数字串）
+fn qr_char_str(raw : UInt16) -> String {
+  raw.to_int().to_char().map(c => c.to_string()).unwrap_or("")
+}
+
+///|
 /// 解码 QR Code 数据
 fn decode_qr_data(bits : Array[Int32], version : Int32) -> (String, Int32) {
   ignore(version)
@@ -472,10 +478,10 @@ fn decode_qr_data(bits : Array[Int32], version : Int32) -> (String, Int32) {
           let c1 = value / 45
           let c2 = value % 45
           if c1 < alphanum.length() {
-            result += alphanum[c1].to_string()
+            result += qr_char_str(alphanum[c1])
           }
           if c2 < alphanum.length() {
-            result += alphanum[c2].to_string()
+            result += qr_char_str(alphanum[c2])
           }
           i += 2
         } else {
@@ -487,7 +493,7 @@ fn decode_qr_data(bits : Array[Int32], version : Int32) -> (String, Int32) {
           }
           pos += 6
           if value < alphanum.length() {
-            result += alphanum[value].to_string()
+            result += qr_char_str(alphanum[value])
           }
           i += 1
         }

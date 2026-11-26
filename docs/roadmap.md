@@ -1,4 +1,4 @@
-# image.mbt 远期路线图（Sprint 级）
+﻿# image.mbt 远期路线图（Sprint 级）
 
 > 目标只有两条：**下游开发者能装上、跑通、看得懂错误；我自己在日常项目里真的会用。**
 > 制定：2026-11-25 | 版本轨道：0.1.x（一个 Sprint 一个 patch） | Sprint 编号：S01 起连续
@@ -309,7 +309,7 @@
   **结果**：11 killed / 1 survived（M12 为纯错误文案变异，预期存活），得分 91.7%（门槛 75%）。
   **过程中补的真缺口**：`apply_colormap` 的 BT.601 加权和缺边界断言（补 `(0,5,176)`、加权和 22999 的用例）；
   QOI run-length 变异与 `pixel_idx < pixel_count` 保护等价，换成 LUMA 差分基准。
-  **未完成**：覆盖率 90%（当前全库 35,014/41,882 = 83.6%，距目标约 3,000 行），见 `docs/mutation.md`。
+  **未完成**：覆盖率 90%（当前全库 35,075/41,889 = 83.7%，距目标约 3,000 行），见 `docs/mutation.md`。
   **覆盖率推进（2026-11-26 第二轮）**：补 `codec_trait` 全枚举分支（format_name / can_encode / is_lossless /
   detect_format 全魔数）、`limits` 的 `info_dims` 各格式分支与 `check_decode_budget`、`ocr_accuracy` 的
   数据集 / 增广 / Hu 矩 / 集成投票；`codec_trait` 104→178、`limits` 19→62、`ocr_accuracy` 60→130。
@@ -322,7 +322,7 @@
   直接 `.to_string()` 会得到 `"65"` 这类数字串——`smart_spacing_process` / `normalize_punctuation`
   / `ngram_create` / `ngram_score` 的中英空格与标点归一因此一直是坏输出，现统一走
   `UInt16 → Int → Char → String`（`moe_char_str` / `pp_char_str`）。
-  **覆盖率推进（第四轮，测试 6,884 → 6,920）**：按缺口排序逐个收口——
+  **覆盖率推进（第四轮，测试 6,884 → 6,926）**：按缺口排序逐个收口——
   `region_decode` 119→185（畸形 PNG chunk：签名 / 头不足 8 字节 / 负长度 / 越界 / IHDR 过短 / 无 IHDR /
   零尺寸 / interlace / 16-bit / 非法 color type / 缺 PLTE / zlib 短数据；BMP 头 7 类错误 + 自顶向下；
   QOI 魔数 / 零尺寸 / RGB / RGBA / LUMA 三处截断）、
@@ -334,7 +334,7 @@
   `tiff_codec` 251→303（`tiff_type_size` 全 12 类型、内联/外置值读取（含越界补 0）、`tiff_get_value` 空数组、
   LZW 字典回溯链与中段 CLEAR、PackBits 扩展复制截断/扩展重复、Deflate 保留块与动态 Huffman 拒绝、
   photometric 0/1 灰度化、缺 StripByteCounts / RowsPerStrip、像素越界）。
-  **结果**：全库 34,779 → **35,014/41,882 = 83.6%**。
+  **结果**：全库 34,779 → **35,075/41,889 = 83.7%**。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -356,7 +356,7 @@
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
-| S18 🟡 | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 83.6%（进行中） |
+| S18 🟡 | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 83.7%（进行中） |
 | S19 | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写能力表全部替换，CI 校验 |
 | S20 | 公开基准集（golden 20 张 + 6 类恶意样本） | 版权自查清单齐全，样本可分发 |
 | S21 | 0.1.21 收口 + 迁移指南 + 弃用策略 | 从 0.1.x 早期版本迁移只需 3 处改动 |
