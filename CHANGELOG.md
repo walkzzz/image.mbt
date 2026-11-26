@@ -4,6 +4,22 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.19] - 2026-11-26
+
+### Added
+
+- **能力表真值化（S19）**：`scripts/gen_capabilities.mjs` 从 `enum ImageFormat` 的 `.mbti` 变体清单 +
+  `Codec for ImageFormat` 四个 impl 的实际分支（`format_name` / `can_decode` / `can_encode` / `is_lossless`）
+  + 各包公开 API 计数，生成 `docs/capabilities.md`，并回填两份 README 的 `<!-- AUTO:formats:start -->` 区块。
+- `docs/format_notes.json`：逐格式 zh/en 备注的唯一来源；枚举新增格式而未补备注时生成直接失败。
+- `check_docs` 新增 **B10** 门禁：调用 `gen_capabilities --check`，README 与 `docs/capabilities.md`
+  任一漂移即红灯（已做负向实测）。
+
+### Changed
+
+- README/README.en 的 18 行格式表从手写改为自动生成区块（解码/编码列来自 `Codec` trait，不再手抄）。
+- 统计口径统一：库体 **78 包 / 3,890 pub fn / 718 公开类型**；`api_index.md` 保持 79 包 / 3,894（含 playground）。
+
 ## [0.1.18] - 2026-11-26
 
 ### Added

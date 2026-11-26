@@ -1,0 +1,77 @@
+{
+  "_comment": "逐格式备注（zh/en）。能力列（解码/编码）由 scripts/gen_capabilities.mjs 从 ImageFormat 枚举 + Codec trait 派生，本文件只提供人工可读的补充说明。新增格式枚举变体时必须在此补一条，否则 gen_capabilities --check 失败。",
+  "notes": {
+    "Png": {
+      "zh": "8/16-bit，Adam7 隔行扫描",
+      "en": "8/16-bit, Adam7 interlacing"
+    },
+    "Jpeg": {
+      "zh": "baseline，可调质量",
+      "en": "baseline, adjustable quality"
+    },
+    "Bmp": {
+      "zh": "1/4/8/16/24/32-bit",
+      "en": "1/4/8/16/24/32-bit"
+    },
+    "Gif": {
+      "zh": "动画 GIF 解码/编码",
+      "en": "animated GIF decode/encode"
+    },
+    "Tga": {
+      "zh": "含 RLE",
+      "en": "with RLE"
+    },
+    "Psd": {
+      "zh": "Photoshop 文档 **(独家)**",
+      "en": "Photoshop document **(exclusive)**"
+    },
+    "Hdr": {
+      "zh": "IEEE 754 浮点 **(独家)**",
+      "en": "IEEE 754 float **(exclusive)**"
+    },
+    "Pnm": {
+      "zh": "PPM / PGM",
+      "en": "PPM / PGM"
+    },
+    "Qoi": {
+      "zh": "Quite OK Image",
+      "en": "Quite OK Image"
+    },
+    "Webp": {
+      "zh": "VP8L 无损编解码：palette / predictor / subtract-green / LZ77；lossy 路径已弃用",
+      "en": "VP8L lossless encode + decode: palette / predictor / subtract-green / LZ77; lossy path deprecated"
+    },
+    "Tiff": {
+      "zh": "无压缩 / LZW / PackBits",
+      "en": "uncompressed / LZW / PackBits"
+    },
+    "Ico": {
+      "zh": "单尺寸 / 多尺寸",
+      "en": "single / multi-size"
+    },
+    "Cur": {
+      "zh": "Windows 光标",
+      "en": "Windows cursor"
+    },
+    "Icns": {
+      "zh": "macOS 图标",
+      "en": "macOS icon"
+    },
+    "Apng": {
+      "zh": "动画 PNG",
+      "en": "animated PNG"
+    },
+    "Avif": {
+      "zh": "AV1 关键帧解码",
+      "en": "AV1 keyframe decode"
+    },
+    "Heif": {
+      "zh": "AV1 / HEIC 解码",
+      "en": "AV1 / HEIC decode"
+    },
+    "JpegXl": {
+      "zh": "基础解码",
+      "en": "basic decode"
+    }
+  }
+}

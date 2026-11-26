@@ -11,6 +11,7 @@
 
 import { readFile, writeFile, mkdir, rm, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -199,6 +200,31 @@ const ASSERTIONS = [
       uniqEqual('known-gaps 包数', [pkgs, m[3]]);
       uniqEqual('known-gaps 覆盖率', [cov, m[4]]);
       return { version: m[1], tests: m[2], packages: m[3], coverage: m[4] };
+    },
+  },
+  {
+    id: 'B10', desc: '能力表真值：README AUTO 区块 == docs/capabilities.md == ImageFormat 枚举 + Codec trait（gen_capabilities --check）',
+    async run(root) {
+      const notes = path.join(root, 'docs', 'format_notes.json');
+      if (!existsSync(notes)) return { skipped: 'fixtures/无 format_notes.json' };
+      const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gen_capabilities.mjs'), '--check'], {
+        cwd: root,
+        env: { ...process.env, ROOT: root },
+        encoding: 'utf8',
+      });
+      if (r.status !== 0) {
+        let detail = (r.stderr || '').trim();
+        try {
+          const j = JSON.parse(detail);
+          detail = (j.problems || []).join('; ');
+        } catch {}
+        throw new Error(`能力表漂移: ${detail || 'gen_capabilities --check 失败'}`);
+      }
+      let j = {};
+      try {
+        j = JSON.parse((r.stdout || '').trim());
+      } catch {}
+      return { formats: j.formats, modules: j.modules, pub_fn: j.pub_fn, packages: j.packages };
     },
   },
 ];

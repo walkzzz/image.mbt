@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.18-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.18-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.19-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.19-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-7_387×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -114,26 +114,30 @@ Core safety functions carry SMT-checkable proofs: representation invariants, ove
 
 ## 🖼️ Format Support · 18
 
+<!-- AUTO:formats:start -->
 | Format | Decode | Encode | Notes |
-|:------:|:------:|:------:|-------|
+|:----:|:----:|:----:|------|
 | **PNG** | ✅ | ✅ | 8/16-bit, Adam7 interlacing |
 | **JPEG** | ✅ | ✅ | baseline, adjustable quality |
 | **BMP** | ✅ | ✅ | 1/4/8/16/24/32-bit |
 | **GIF** | ✅ | ✅ | animated GIF decode/encode |
-| **QOI** | ✅ | ✅ | Quite OK Image |
 | **TGA** | ✅ | ✅ | with RLE |
 | **PSD** | ✅ | — | Photoshop document **(exclusive)** |
 | **HDR** | ✅ | ✅ | IEEE 754 float **(exclusive)** |
 | **PNM** | ✅ | ✅ | PPM / PGM |
-| **TIFF** | ✅ | ✅ | uncompressed/LZW/PackBits |
-| **ICO** | ✅ | ✅ | single/multi-size |
+| **QOI** | ✅ | ✅ | Quite OK Image |
+| **WebP** | ✅ | ✅ | VP8L lossless encode + decode: palette / predictor / subtract-green / LZ77; lossy path deprecated |
+| **TIFF** | ✅ | ✅ | uncompressed / LZW / PackBits |
+| **ICO** | ✅ | ✅ | single / multi-size |
 | **CUR** | ✅ | ✅ | Windows cursor |
 | **ICNS** | ✅ | ✅ | macOS icon |
 | **APNG** | ✅ | ✅ | animated PNG |
-| **WebP** | ✅ (lossless) | ✅ (VP8L lossless) | VP8L encode + decode: palette / predictor / subtract-green / LZ77; output byte-verified against ffmpeg and libwebp |
 | **AVIF** | ✅ | — | AV1 keyframe decode |
-| **HEIF** | ✅ | — | AV1/HEIC decode |
+| **HEIF** | ✅ | — | AV1 / HEIC decode |
 | **JPEG-XL** | ✅ | — | basic decode |
+
+> 🔒 本表由 `node scripts/gen_capabilities.mjs` 从 `ImageFormat` 枚举与 `Codec` trait 生成，手工修改会被 B10 门禁拦下。
+<!-- AUTO:formats:end -->
 
 ---
 
@@ -430,7 +434,8 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | Document | Description |
 |----------|-------------|
 | [docs/architecture.md](docs/architecture.md) | Architecture diagram, module dependencies, design decisions |
-| [docs/api_index.md](docs/api_index.md) | **API index (auto-generated, 72 packages / 3,760 fns)** |
+| [docs/api_index.md](docs/api_index.md) | **API index (auto-generated, 79 packages / 3,894 fns, incl. playground)** |
+| [docs/capabilities.md](docs/capabilities.md) | **Capability matrix (auto-generated: `ImageFormat` × codec × module API surface, gated by B10)** |
 | [docs/api_reference.md](docs/api_reference.md) | API reference snapshot (see api_index and per-package .mbti) |
 | [docs/roadmap.md](docs/roadmap.md) | Iteration roadmap |
 | [docs/changelog.md](docs/changelog.md) | Version changelog |

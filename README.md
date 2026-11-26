@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.18-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.18-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.19-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.19-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-7_387×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -136,26 +136,30 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 
 ## 🖼️ 格式支持 · 18 种
 
+<!-- AUTO:formats:start -->
 | 格式 | 解码 | 编码 | 备注 |
 |:----:|:----:|:----:|------|
 | **PNG** | ✅ | ✅ | 8/16-bit，Adam7 隔行扫描 |
 | **JPEG** | ✅ | ✅ | baseline，可调质量 |
 | **BMP** | ✅ | ✅ | 1/4/8/16/24/32-bit |
 | **GIF** | ✅ | ✅ | 动画 GIF 解码/编码 |
-| **QOI** | ✅ | ✅ | Quite OK Image |
 | **TGA** | ✅ | ✅ | 含 RLE |
 | **PSD** | ✅ | — | Photoshop 文档 **(独家)** |
 | **HDR** | ✅ | ✅ | IEEE 754 浮点 **(独家)** |
 | **PNM** | ✅ | ✅ | PPM / PGM |
-| **TIFF** | ✅ | ✅ | 无压缩/LZW/PackBits |
-| **ICO** | ✅ | ✅ | 单尺寸/多尺寸 |
+| **QOI** | ✅ | ✅ | Quite OK Image |
+| **WebP** | ✅ | ✅ | VP8L 无损编解码：palette / predictor / subtract-green / LZ77；lossy 路径已弃用 |
+| **TIFF** | ✅ | ✅ | 无压缩 / LZW / PackBits |
+| **ICO** | ✅ | ✅ | 单尺寸 / 多尺寸 |
 | **CUR** | ✅ | ✅ | Windows 光标 |
 | **ICNS** | ✅ | ✅ | macOS 图标 |
 | **APNG** | ✅ | ✅ | 动画 PNG |
-| **WebP** | ✅ (lossless) | ✅ (VP8L 无损) | VP8L 编解码：palette / predictor / subtract-green / LZ77；产物经 ffmpeg 与 libwebp 逐字节校验 |
 | **AVIF** | ✅ | — | AV1 关键帧解码 |
-| **HEIF** | ✅ | — | AV1/HEIC 解码 |
+| **HEIF** | ✅ | — | AV1 / HEIC 解码 |
 | **JPEG-XL** | ✅ | — | 基础解码 |
+
+> 🔒 本表由 `node scripts/gen_capabilities.mjs` 从 `ImageFormat` 枚举与 `Codec` trait 生成，手工修改会被 B10 门禁拦下。
+<!-- AUTO:formats:end -->
 
 ---
 
@@ -549,7 +553,8 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | 文档 | 说明 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | 架构图、模块依赖、设计决策 |
-| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，78 包 / 3,894 fn）** |
+| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，79 包 / 3,894 fn，含 playground）** |
+| [docs/capabilities.md](docs/capabilities.md) | **能力矩阵（自动生成：`ImageFormat` × 编解码 × 模块 API 面，B10 门禁）** |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
 | [docs/changelog.md](docs/changelog.md) | 版本变更历史 |

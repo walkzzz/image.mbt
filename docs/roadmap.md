@@ -343,6 +343,15 @@
   LZW 字典回溯链与中段 CLEAR、PackBits 扩展复制截断/扩展重复、Deflate 保留块与动态 Huffman 拒绝、
   photometric 0/1 灰度化、缺 StripByteCounts / RowsPerStrip、像素越界）。
   **结果**：全库 34,779 → **35,075/41,889 = 83.7%**。
+- ✅ **S19 文档真值脚本化（2026-11-26 完成）**：新增 `scripts/gen_capabilities.mjs`，能力表不再手写——
+  真值取自三处机器可读数据：`image.core/types/pkg.generated.mbti` 的 `enum ImageFormat` 变体清单、
+  `image.codec/codec/codec_trait.mbt` 里 `Codec for ImageFormat` 四个 impl 的实际 match 分支
+  （`format_name` / `can_decode` / `can_encode` / `is_lossless`，含 `_ =>` 默认臂）、各包 `.mbti` 的公开 API 计数。
+  产出 `docs/capabilities.md`（格式矩阵 + Codec 全量口径 + 模块矩阵），并回填两份 README 的
+  `<!-- AUTO:formats:start -->` 区块；逐格式备注收敛到 `docs/format_notes.json`，**枚举新增变体而未补备注即生成失败**。
+  **验收**：`check_docs` 新增 **B10** 门禁调用 `gen_capabilities --check`；负向实测——手改 README 表格一个单元格立即
+  报「AUTO:formats 区块与生成结果不一致」；标题「格式支持 · 18 种」与枚举行数对齐；模块矩阵 78 包 / 3,890 fn / 718 类型。
+  **口径**：`playground` 不在库体统计内（B6 仍要求 78 包），`api_index.md` 仍为 79 包 / 3,894 fn（含 playground）。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -365,7 +374,7 @@
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
 | S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.08%（见 `docs/known-gaps.md`） |
-| S19 | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写能力表全部替换，CI 校验 |
+| S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
 | S20 | 公开基准集（golden 20 张 + 6 类恶意样本） | 版权自查清单齐全，样本可分发 |
 | S21 | 0.1.21 收口 + 迁移指南 + 弃用策略 | 从 0.1.x 早期版本迁移只需 3 处改动 |
 
