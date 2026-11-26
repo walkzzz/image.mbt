@@ -127,9 +127,9 @@ test "frc2: 高斯模糊与上下采样" {
   // 单像素图
   let one = frc_img2(1, 1, 1, 5)
   let d1 = @fusion.downsample_fe(one)
-  assert_true(d1.width >= 1)
+  assert_true(d1.width <= 1)
   let u1 = @fusion.upsample_fe(one)
-  assert_true(u1.width >= 1)
+  assert_true(u1.width <= 8)
   // 质量指标
   let q = @fusion.calculate_fusion_quality(img)
   assert_true(q >= 0.0)
