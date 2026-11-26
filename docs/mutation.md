@@ -1,4 +1,4 @@
-﻿# 变异测试（S18）
+# 变异测试（S18）
 
 ## 目的
 
@@ -57,6 +57,13 @@
 （`moon test --enable-coverage --target native` 后 `moon coverage report -f full_summary`，
 7,387 测试全绿）。分母为最严口径，含 native 不可覆盖的 `wasm/abi.mbt`(89)、`wasm/api.mbt`(85)、
 `playground/playground.mbt`(35)、`examples/quickstart/main.mbt`(37)，未做排除。
+
+S20 加入基准集生成器后复测：新增 `benchmarks/gen/{main,samples,pixels}.mbt` 共 387 行，
+分母 41,894 → 42,297、覆盖 37,740 → 37,755，**一度掉到 89.26%（门禁判红）**。
+处置方式不是排除分母，而是把生成器拆成「纯构建器 `samples.mbt` + 写盘 `main.mbt`」，
+并加白盒测试 `samples_wbtest.mbt`（3 个用例：20+6 条数/命名/确定性、`add` 错误臂、畸形样本魔数），
+纯构建器覆盖率补齐。**最终 38,102/42,301 = 90.07%**（7,391 测试全绿），仍不做任何排除；
+唯一剩余零覆盖的是 `benchmarks/gen/main.mbt`(0/21，纯 `argv`+写盘) 与 `benchmarks/bench_real.mbt`(0/28)。
 
 仍未覆盖的主要是这些非库体文件，以及 `webp_vp8_decode` 的熵解码残段、`ocr/multilingual_ocr_enhanced`
 按语种分派的分支、`imgtool.run()`（进程内不可测的 env/exit 路径）。

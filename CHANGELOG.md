@@ -27,6 +27,11 @@
   `@types.ImageFormat::..`，漏分支会在 `--deny-warn` 下直接编译失败。
 - **TGA 无法自动分派**：`@lib.detect_format` 末位接入 `@codec.is_tga_format`（扩展覆盖
   1/2/3/9/10/11 图像类型与 8/15/16/24/32 bpp、宽高非零、调色板头一致性），`imgtool convert` 可直通 TGA。
+- **基准集生成器可测化**：`benchmarks/gen` 拆为纯构建器 `samples.mbt`（返回 `(文件名, 字节)` 列表）
+  与写盘 `main.mbt`，新增白盒 `samples_wbtest.mbt`（条数/命名/逐字节确定性/`add` 错误臂/畸形样本魔数）。
+  生成器不再是 0 覆盖死重，全库覆盖率复测 **38,102/42,301 = 90.07%**（7,391 测试，四目标全绿）。
+- **覆盖率口径修正**：README / `docs/known-gaps.md` / `docs/architecture.md` / `AGENTS.md` 的
+  测试数与覆盖率统一为 **7,391 / 90.07%**，`docs/mutation.md` 记录 89.26% → 90.07% 的处置过程。
 - **同型整数回绕收口（GAP-35）**：`avif_decode` / `avif_extended` / `heif_decode` / `heif_extended` /
   `icns_codec` / `icns_extended` / `jpegxl_extended` / `psd_decode` / `psd_extended` / `bmp_decode`
   共 10 处 `offset + size > len` 改为减法形式；新增白盒回归 `codec/bounds_overflow_wbtest.mbt`
