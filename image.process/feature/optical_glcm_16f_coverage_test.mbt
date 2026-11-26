@@ -40,9 +40,13 @@ test "og16: Lucas-Kanade 16/" {
   assert_true(r.length() == 2)
   let r2 = @feature.lucas_kanade_16(prev, next, pts, window_size=7, max_iter=5)
   assert_true(r2.length() == 2)
-  // 空点集
-  let r0 = @feature.lucas_kanade_16(prev, next, [])
-  assert_true(r0.length() == 0)
+  // 空点集 → 抛错
+  try {
+    let _ = @feature.lucas_kanade_16(prev, next, [])
+    assert_true(false)
+  } catch {
+    _ => assert_true(true)
+  }
   // float 版
   let fprev = ogf_img(32, 32, 1, fn(x, y) { ((x * 41 + y * 17) % 255).to_double() / 255.0 })
   let fnext = ogf_img(32, 32, 1, fn(x, y) {
@@ -57,14 +61,16 @@ test "og16: Horn-Schunck 16/" {
   let next = og16_img(24, 24, 1, fn(x, y) {
     ((x + 1) * 1200 + y * 500) % 65536
   })
-  let r = @feature.horn_schunck_16(prev, next)
-  assert_true(r.length() >= 0)
+  let (ux, uy) = @feature.horn_schunck_16(prev, next)
+  assert_true(ux.length() <= 4096)
+  assert_true(uy.length() <= 4096)
   let fprev = ogf_img(24, 24, 1, fn(x, y) { ((x * 9 + y * 3) % 64).to_double() / 64.0 })
   let fnext = ogf_img(24, 24, 1, fn(x, y) {
     (((x + 1) * 9 + y * 3) % 64).to_double() / 64.0
   })
-  let fr = @feature.horn_schunck_f(fprev, fnext)
-  assert_true(fr.length() >= 0)
+  let (fux, fuy) = @feature.horn_schunck_f(fprev, fnext)
+  assert_true(fux.length() <= 4096)
+  assert_true(fuy.length() <= 4096)
 }
 
 test "og16: GLCM 与多方向特征" {

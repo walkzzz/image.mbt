@@ -78,14 +78,14 @@ test "hq16: 质量指标" {
 test "hq16: 积分图" {
   let a = hq16_img(16, 16, 1, fn(x, y) { (x * 1500 + y * 700) % 65536 })
   let i1 = @feature.integral_image_16(a)
-  assert_true(i1.width == 1)
+  assert_true(i1.width == 16)
   let s1 = @feature.integral_image_sq_16(a)
-  assert_true(s1.width == 1)
+  assert_true(s1.width == 16)
   let fa = hqf_img(16, 16, 1, fn(x, y) { ((x * 3 + y) % 30).to_double() / 30.0 })
   let i2 = @feature.integral_image_f(fa)
-  assert_true(i2.width == 1)
+  assert_true(i2.width == 16)
   let s2 = @feature.integral_image_sq_f(fa)
-  assert_true(s2.width == 1)
+  assert_true(s2.width == 16)
 }
 
 test "hq16: 错误分支" {
