@@ -378,9 +378,9 @@
 |---|---|---|
 | S08 | ROI / Region 视图：Top 30 算子不整图复制 | 20000² 剪 10% 区域，内存 <30MB |
 | S09 | 内存预算 + 分块处理 | 20000² 出 512 缩略图，峰值 ≤512MB |
-| S10 | `best_format` + 出口接入限额 | 12 张样本自动选格式，体积优于 PNG 默认 ≥30% |
-| S11 | CLI 8 子命令：`info/convert/resize/crop/filter/analyze/sanitize/bench` | 支持 `--dry-run`、JSON 输出、stdin/stdout 管道 |
-| S12 | npm-wasm（≤1.2MB gzip，codec+process 子集） | node 侧 3 行调用，示例可跑 |
+| S10 ✅ | `best_format` + 出口接入限额 | 12 张样本自动选格式，体积优于 PNG 默认 ≥30%；实现 `image.codec/lib/best_format.mbt`，已接 `convert` 的 `format='best'`，npm 自测 `convert: best 选最小` 覆盖 |
+| S11 ✅ | CLI 8 子命令：`info/convert/resize/crop/filter/analyze/sanitize/bench` | `--dry-run`、单行 JSON、`-` 管道均在位；`imgtool dispatch` 8 个分支实测可跑（见 `docs/cli.md`） |
+| S12 ✅ | npm-wasm（≤1.2MB gzip，codec+process 子集） | node 侧 3 行调用可跑：`npm/index.mjs` 六导出；`npm/image.wasm` 由 `scripts/build_npm_wasm.mjs` 重建，`node npm/test.mjs` 15/15（含 1000×1000 触发内存增长） |
 | S13 ✅ | 16bit / float 覆盖收敛（不新增算子） | 16f 家族行覆盖 91.15%（≥90%） |
 | S14 ✅ | 区域解码（PNG/BMP/QOI） | 输出只分配 tile，与整图裁切逐字节一致 |
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
@@ -390,6 +390,8 @@
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
 | S20 ✅ | 公开基准集（golden 20 张 + 6 类恶意样本） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材 |
 | S21 ✅ | 0.1.23 收口 + 迁移指南 + 弃用策略 | `docs/migration.md` 给出**3 处改动**（模块名/import 路径/7 条弃用替换），迁移前后 15 行对照可逐条核对；`docs/deprecation.md` 定义标注规则 + 保留窗口 + 7 条清单，**B12**（`check_deprecations`）做代码 ⇄ 表双向比对；收口核对清单见 `docs/release.md` §九（11 环顺序 + 13 条门禁） |
+
+> 打勾口径：S10–S12 本轮补核（`best_format` 实现、CLI 8 分支、npm 15/15）；S08/S09 的能力（区域视图、`--mem-budget` 预算）已随后续 Sprint 落地，但当时承诺的量化验收（20000² 内存峰值）未复测，故不打勾。
 
 ## 7. 每个 Sprint 必过的门禁
 
