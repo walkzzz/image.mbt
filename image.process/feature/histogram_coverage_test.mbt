@@ -230,8 +230,8 @@ test "hgcov: 直方图匹配" {
   }
   // 输入图与参考图均为渐变
   let img = hg_ramp(8, 8, 1)
-  let ref = hg_img(8, 8, 1, fn(x, y) { (255 - ((x * 16 + y * 4) % 256)) })
-  let m = @feature.histogram_matching(img, ref)
+  let refimg = hg_img(8, 8, 1, fn(x, y) { (255 - ((x * 16 + y * 4) % 256)) })
+  let m = @feature.histogram_matching(img, refimg)
   assert_true(m.width == 8 && m.height == 8)
   assert_true(m.channels == 1)
   assert_true(m.data.length() == 64)
@@ -242,25 +242,25 @@ test "hgcov: 直方图匹配" {
   assert_true(m3.channels == 3)
   // 单通道参考 + RGBA 输入 → 后两通道用 hist_ref=全零
   let rgba = hg_ramp(4, 4, 4)
-  let m4 = @feature.histogram_matching(rgba, ref)
+  let m4 = @feature.histogram_matching(rgba, refimg)
   assert_true(m4.channels == 4)
   // 校验：输入图
   try {
-    let _ = @feature.histogram_matching(hg_flat(0, 1, 1, 0), ref)
+    let _ = @feature.histogram_matching(hg_flat(0, 1, 1, 0), refimg)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @feature.histogram_matching(bad_small, ref)
+    let _ = @feature.histogram_matching(bad_small, refimg)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @feature.histogram_matching(bad_small, ref)
+    let _ = @feature.histogram_matching(bad_small, refimg)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
