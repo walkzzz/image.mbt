@@ -9,9 +9,9 @@
 [![Version](https://img.shields.io/badge/version-0.1.17-orange)]()
 [![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.17-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-6_870×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-6_884×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
-[![Coverage](https://img.shields.io/badge/coverage-82.9%25-4CAF50?style=flat-square)]()
+[![Coverage](https://img.shields.io/badge/coverage-83.0%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
 [![Packages](https://img.shields.io/badge/packages-78-9C27B0?style=flat-square)]()
@@ -42,7 +42,7 @@ Beyond feature development, this project built a **self_evolve closed loop** (do
 - **Evolution recommendation engine**: recommends the next evolution step from current state (v298)
 - **Coverage blind-spot analysis**: automatically locates test coverage blind spots (v297)
 
-> The test count growth visible across versions (3378 → 6574 → 6,870, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
+> The test count growth visible across versions (3378 → 6574 → 6,884, including the package-rename refactor and the mp4-package fix) is backed by a **reproducible automated engineering pipeline** — the hardest evidence for the "engineering quality" dimension, and a capability C reference projects like stb_image.h do not have.
 
 ---
 
@@ -61,7 +61,7 @@ Fully pure MoonBit, no C compiler needed. `moon add walkzzz/image.mbt` and you'r
 
 ### 🟢 Four Targets Native
 
-native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,870 tests × 4 targets all green.
+native / wasm-gc / js / wasm share one codebase, **no conditional compilation**. 6,884 tests × 4 targets all green.
 
 </td>
 </tr>
@@ -397,10 +397,10 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 
 | Target | Backend | Tests | Status |
 |:------:|:-------:|------:|:------:|
-| **native** | Pure MoonBit | 6,870 | ✅ |
-| **wasm-gc** | Pure MoonBit | 6,870 | ✅ |
-| **js** | Pure MoonBit | 6,870 | ✅ |
-| **wasm** | Pure MoonBit | 6,870 | ✅ |
+| **native** | Pure MoonBit | 6,884 | ✅ |
+| **wasm-gc** | Pure MoonBit | 6,884 | ✅ |
+| **js** | Pure MoonBit | 6,884 | ✅ |
+| **wasm** | Pure MoonBit | 6,884 | ✅ |
 
 > Same codebase, **no conditional compilation**, all four targets share all source files.
 
@@ -457,7 +457,7 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 # Compile check (four targets)
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# Run tests (6,870 × 4 targets)
+# Run tests (6,884 × 4 targets)
 moon test --target native
 moon test --target wasm-gc
 moon test --target js

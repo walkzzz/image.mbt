@@ -373,6 +373,11 @@ fn extract_char_region_for_smart(
 
 ///|
 /// 智能空格处理（中英文之间自动加空格）
+fn moe_char_str(raw : UInt16) -> String {
+  raw.to_int().to_char().map(c => c.to_string()).unwrap_or("")
+}
+
+///|
 pub fn smart_spacing_process(
   text : String,
   char_languages : Array[String],
@@ -382,7 +387,7 @@ pub fn smart_spacing_process(
   }
   let mut result = ""
   for i in 0..<text.length() {
-    result += text[i].to_string()
+    result += moe_char_str(text[i])
     // 在中英文之间加空格
     if i < text.length() - 1 {
       let curr_lang = char_languages[i]
@@ -415,11 +420,11 @@ pub fn normalize_punctuation(
   }
   let mut result = ""
   for i in 0..<text.length() {
-    let c = text[i]
+    let c = moe_char_str(text[i])
     let lang = char_languages[i]
     // 中文语境下使用中文标点
     if lang == "chinese" {
-      match c.to_string() {
+      match c {
         "," => result += "，"
         "." => result += "。"
         "!" => result += "！"
@@ -428,11 +433,11 @@ pub fn normalize_punctuation(
         ":" => result += "："
         "(" => result += "（"
         ")" => result += "）"
-        _ => result += c.to_string()
+        _ => result += c
       }
     } else {
       // 英文语境下使用英文标点
-      match c.to_string() {
+      match c {
         "，" => result += ","
         "。" => result += "."
         "！" => result += "!"
@@ -441,7 +446,7 @@ pub fn normalize_punctuation(
         "：" => result += ":"
         "（" => result += "("
         "）" => result += ")"
-        _ => result += c.to_string()
+        _ => result += c
       }
     }
   }

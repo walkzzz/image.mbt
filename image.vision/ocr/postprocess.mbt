@@ -196,6 +196,12 @@ pub extend NgramModel with Eq::{not_equal, equal}
 pub extend NgramModel with @debug.Debug::{to_repr}
 
 ///|
+/// 把字符串索引（码点 Int）还原成单字符字符串。
+fn pp_char_str(raw : UInt16) -> String {
+  raw.to_int().to_char().map(c => c.to_string()).unwrap_or("")
+}
+
+///|
 /// 创建 N-gram 模型（从文本训练）
 pub fn ngram_create(
   texts : Array[String],
@@ -216,7 +222,7 @@ pub fn ngram_create(
   for text in texts {
     // 简化：按字符处理
     for i in 0..<(text.length() - 1) {
-      let bigram = text[i].to_string() + text[i + 1].to_string()
+      let bigram = pp_char_str(text[i]) + pp_char_str(text[i + 1])
       // 查找是否已存在
       let mut found = false
       for j in 0..<bigram_counts.length() {
@@ -231,7 +237,7 @@ pub fn ngram_create(
     }
     // unigram
     for i in 0..<text.length() {
-      let unigram = text[i].to_string()
+      let unigram = pp_char_str(text[i])
       let mut found = false
       for j in 0..<unigram_counts.length() {
         if unigram_counts[j].0 == unigram {
@@ -269,7 +275,7 @@ pub fn ngram_score(
   let mut total_score = 0.0
   let mut count = 0
   for i in 0..<(text.length() - 1) {
-    let bigram = text[i].to_string() + text[i + 1].to_string()
+    let bigram = pp_char_str(text[i]) + pp_char_str(text[i + 1])
     // 查找bigram概率
     let mut bigram_count = 0
     let mut unigram_count = 0
@@ -278,7 +284,7 @@ pub fn ngram_score(
         bigram_count = model.bigram_counts[j].1
       }
     }
-    let first_char = text[i].to_string()
+    let first_char = pp_char_str(text[i])
     for j in 0..<model.unigram_counts.length() {
       if model.unigram_counts[j].0 == first_char {
         unigram_count = model.unigram_counts[j].1
