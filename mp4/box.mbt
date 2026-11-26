@@ -57,8 +57,8 @@ fn walk_boxes_one_level(
     let size = read_u32(data, off)
     let ty = fourcc(data, off + 4)
     let header = if size == 1 { 16 } else { 8 }
-    if size < header {
-      return // 非法 size，停止遍历
+    if size != 0 && size != 1 && size < header {
+      return // 非法 size（1..7），停止遍历
     }
     let total = if size == 1 {
       let large = read_u64(data, off + 8)
