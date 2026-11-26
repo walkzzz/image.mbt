@@ -1,7 +1,7 @@
 # API 索引（自动生成）
 
 > 由 `node scripts/gen_api_index.mjs` 从各包 `pkg.generated.mbti` 生成，请勿手工编辑。
-> 生成日期口径：每次运行覆盖；当前共 **79** 个包、**3894** 个 `pub fn`、**718** 个公开类型/trait。
+> 生成日期口径：每次运行覆盖；当前共 **83** 个包、**5851** 个 `pub fn`、**718** 个公开类型/trait。
 > 详细用法见各包 `.mbti` 与 [api_reference.md](api_reference.md)（后者为历史快照，以本索引与 `.mbti` 为准）。
 
 | 包 | pub fn | 公开类型/trait |
@@ -19,11 +19,13 @@
 | `image.codec/lib` | 43 | 3 |
 | `image.codec/meta` | 34 | 5 |
 | `image.codec/util` | 24 | 0 |
+| `image.commerce` | 247 | 0 |
 | `image.core` | 0 | 0 |
 | `image.core/cmd/main` | 0 | 0 |
 | `image.core/safe_math` | 18 | 0 |
 | `image.core/testgen` | 12 | 0 |
 | `image.core/types` | 116 | 15 |
+| `image.doc` | 348 | 0 |
 | `image.domain` | 0 | 0 |
 | `image.domain/agent_kit` | 16 | 1 |
 | `image.domain/cmd/main` | 0 | 0 |
@@ -42,6 +44,7 @@
 | `image.domain/texture` | 26 | 5 |
 | `image.domain/util` | 52 | 2 |
 | `image.domain/watermark` | 8 | 1 |
+| `image.media` | 281 | 0 |
 | `image.photography` | 0 | 0 |
 | `image.photography/advanced_imaging` | 44 | 11 |
 | `image.photography/cmd/main` | 0 | 0 |
@@ -55,6 +58,7 @@
 | `image.photography/stitch` | 20 | 4 |
 | `image.photography/style_transfer` | 36 | 7 |
 | `image.photography/superres` | 38 | 6 |
+| `image.pro` | 1081 | 0 |
 | `image.process` | 0 | 0 |
 | `image.process/cmd/main` | 0 | 0 |
 | `image.process/color` | 106 | 1 |
@@ -85,4 +89,4 @@
 | `mp4` | 2 | 4 |
 | `playground` | 4 | 0 |
 | `wasm` | 3 | 0 |
-| **合计** | **3894** | **718** |
+| **合计** | **5851** | **718** |

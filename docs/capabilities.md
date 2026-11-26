@@ -66,7 +66,7 @@
 
 | 模块 | 包数 | pub fn | 公开类型/trait |
 |---|---:|---:|---:|
-| `(root)` | 12 | 79 | 6 |
+| `(root)` | 16 | 2036 | 6 |
 | `image.core` | 4 | 146 | 15 |
 | `image.codec` | 7 | 239 | 38 |
 | `image.process` | 11 | 519 | 71 |
@@ -74,7 +74,7 @@
 | `image.vision` | 13 | 1507 | 282 |
 | `image.domain` | 17 | 992 | 222 |
 | `cmd` | 2 | 0 | 0 |
-| **合计** | **78** | **3890** | **718** |
+| **合计** | **82** | **5847** | **718** |
 
 统计口径：包 = 含 `pkg.generated.mbti` 的目录（排除 `examples` / `playground` / `scripts`）；
 `pub fn` 只计顶层函数；公开类型 = `pub`/`pub(all)` 的 `struct|enum|type` + `pub trait`。

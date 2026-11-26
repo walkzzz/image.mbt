@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // check_version.mjs — 七模块版本一致性门禁
 //
-// 校验：根模块 + 6 子模块 moon.mod 的 version 一致；
+// 校验：根模块 + 6 原子子模块 + 4 场景模块（共 11 个 moon.mod）的 version 一致；
 //       每个 moon.mod 里 `"walkzzz/image.*@x.y.z"` 的依赖钉都等于该版本（否则 publish --dry-run 会拿旧 API 编新代码）；
 //       等于 image.mbt 门面 pub let version、README zh/en 的 version badge 与 mooncakes badge。
 // 用法：node scripts/check_version.mjs

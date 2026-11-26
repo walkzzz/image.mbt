@@ -6,4 +6,8 @@ members = [
   "image.photography",
   "image.vision",
   "image.domain",
+  "image.doc",
+  "image.media",
+  "image.commerce",
+  "image.pro",
 ]

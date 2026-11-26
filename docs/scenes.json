@@ -1,0 +1,91 @@
+{
+  "schema": "scenes@1",
+  "_note": "场景归属真值。总模块数 = 7 原子模块 + 4 场景模块 = 11（不是 15）；photo 场景由既有 image.photography 承担，故不新增 image.photo，其余原子包并入 image.pro。改这里后必须跑 node scripts/gen_scenes.mjs。",
+  "scenes": [
+    {
+      "module": "image.doc",
+      "title": "文档场景（扫描件 / 票据 / 证件 / 表单）",
+      "packages": [
+        "image.vision/ocr",
+        "image.codec/barcode",
+        "image.codec/meta",
+        "image.vision/fieldimg"
+      ],
+      "modDeps": ["image.core", "image.codec", "image.vision"]
+    },
+    {
+      "module": "image.media",
+      "title": "媒体场景（编解码 / 元数据 / 变换 / 加密 / 流水线）",
+      "packages": [
+        "image.codec/codec",
+        "image.codec/lib",
+        "image.codec/util",
+        "image.codec/color",
+        "image.process/transform",
+        "image.domain/encryption",
+        "image.domain/pipeline"
+      ],
+      "modDeps": ["image.core", "image.codec", "image.process", "image.domain"]
+    },
+    {
+      "module": "image.commerce",
+      "title": "电商场景（裁切 / 调色 / 增强 / 水印 / 码图 / 画质）",
+      "packages": [
+        "image.process/transform",
+        "image.process/color",
+        "image.process/enhance",
+        "image.codec/barcode",
+        "image.domain/watermark",
+        "image.photography/quality"
+      ],
+      "modDeps": ["image.core", "image.codec", "image.process", "image.domain", "image.photography"]
+    },
+    {
+      "module": "image.pro",
+      "title": "专业场景（其余全部原子包：检测 / 分割 / 特征 / 频域 / 3D / 视觉 / 摄影 / 领域）",
+      "packages": [
+        "image.process/detection",
+        "image.process/edge",
+        "image.process/feature",
+        "image.process/filter",
+        "image.process/frequency",
+        "image.process/segment",
+        "image.process/stereo3d",
+        "image.vision/aoci",
+        "image.vision/face_recognition",
+        "image.vision/imgir",
+        "image.vision/intelligent_vision",
+        "image.vision/pose_estimation",
+        "image.vision/scene_understanding",
+        "image.vision/slam",
+        "image.vision/spatiotemporal",
+        "image.vision/video",
+        "image.vision/vlm_multimodal",
+        "image.photography/advanced_imaging",
+        "image.photography/compression",
+        "image.photography/computational_imaging",
+        "image.photography/fusion",
+        "image.photography/inpainting",
+        "image.photography/neural_rendering",
+        "image.photography/photo_enhance",
+        "image.photography/stitch",
+        "image.photography/style_transfer",
+        "image.photography/superres",
+        "image.domain/agent_kit",
+        "image.domain/forensics",
+        "image.domain/medical",
+        "image.domain/mesh",
+        "image.domain/performance",
+        "image.domain/point_cloud",
+        "image.domain/production_utils",
+        "image.domain/registration",
+        "image.domain/remote_sensing",
+        "image.domain/retrieval",
+        "image.domain/self_evolve",
+        "image.domain/texture",
+        "image.domain/util"
+      ],
+      "modDeps": ["image.core", "image.codec", "image.process", "image.photography", "image.vision", "image.domain"]
+    }
+  ]
+}

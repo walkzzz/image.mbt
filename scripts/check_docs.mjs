@@ -229,8 +229,27 @@ const ASSERTIONS = [
       return { formats: j.formats, modules: j.modules, pub_fn: j.pub_fn, packages: j.packages };
     },
   },
+  {
+    id: 'B11', desc: '场景入口真值：4 个场景包的 moon.pkg / *_scene.mbt == docs/scenes.json + 原子包 .mbti（gen_scenes --check）',
+    async run(root) {
+      const spec = path.join(root, 'docs', 'scenes.json');
+      if (!existsSync(spec)) return { skipped: 'fixtures/无 scenes.json' };
+      const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gen_scenes.mjs'), '--check'], {
+        cwd: root,
+        env: { ...process.env, ROOT: root },
+        encoding: 'utf8',
+      });
+      if (r.status !== 0) {
+        throw new Error(`场景入口漂移: ${(r.stderr || '').trim() || 'gen_scenes --check 失败'}`);
+      }
+      let j = {};
+      try {
+        j = JSON.parse((r.stdout || '').trim());
+      } catch {}
+      return { scenes: j.scenes };
+    },
+  },
 ];
-
 function extractVersion(text) {
   const m = text.match(/^version = "([^"]+)"/m);
   if (!m) throw new Error('version not found in moon.mod');

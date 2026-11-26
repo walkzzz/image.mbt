@@ -6,15 +6,15 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.20-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.20-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.21-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.21-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
-[![Tests](https://img.shields.io/badge/tests-7_391×4-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/tests-7_395×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
 [![Coverage](https://img.shields.io/badge/coverage-90.07%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
-[![Packages](https://img.shields.io/badge/packages-78-9C27B0?style=flat-square)]()
+[![Packages](https://img.shields.io/badge/packages-82-9C27B0?style=flat-square)]()
 [![OSC2026](https://img.shields.io/badge/OSC2026-参赛项目-F44336?style=flat-square)](https://www.gitlink.org.cn/competitions/track1_2026MoonBit)
 
 [English](README.en.md) · 简体中文
@@ -44,7 +44,7 @@
 - **演化推荐引擎**：根据当前状态推荐下一步演化方向（v298）
 - **覆盖盲区分析**：自动定位测试覆盖盲区（v297）
 
-> 意义：评审看到的每个版本测试数增长（3378 → 6574 → 7,391，含包重命名重构期与 mp4 包修复期）背后，有一条**可复现的自动化工程流水线**——这是"工程质量"维度最硬的证据，也是 stb_image.h 等 C 参照项目不具备的能力。
+> 意义：评审看到的每个版本测试数增长（3378 → 6574 → 7,395，含包重命名重构期与 mp4 包修复期）背后，有一条**可复现的自动化工程流水线**——这是"工程质量"维度最硬的证据，也是 stb_image.h 等 C 参照项目不具备的能力。
 
 ---
 
@@ -67,7 +67,7 @@
 
 ### 🟢 四目标原生
 
-native / wasm-gc / js / wasm 共用同一代码库，**无条件编译**。7,391 测试 × 4 目标全绿。形式化验证 8 goals proved（另有 8 条预留谓词，SMT 超时与前端限制清单见 core/safe_math）。
+native / wasm-gc / js / wasm 共用同一代码库，**无条件编译**。7,395 测试 × 4 目标全绿。形式化验证 8 goals proved（另有 8 条预留谓词，SMT 超时与前端限制清单见 core/safe_math）。
 
 </td>
 </tr>
@@ -124,7 +124,7 @@ MAX_IMAGE_DIMENSION(65535) 守卫 + check_dims 全入口校验 + safe_mul 溢出
 </td>
 <td width="50%">
 
-### 🟢 78 个子包
+### 🟢 82 个子包
 
 6 子模块 (core/codec/process/photography/vision/domain) · 用户直接 import 子包 · 根包仅门面
 
@@ -520,10 +520,10 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 
 | 目标 | 后端 | 测试 | 状态 |
 |:----:|:----:|-----:|:----:|
-| **native** | 纯 MoonBit | 7,391 | ✅ |
-| **wasm-gc** | 纯 MoonBit | 7,391 | ✅ |
-| **js** | 纯 MoonBit | 7,391 | ✅ |
-| **wasm** | 纯 MoonBit | 7,391 | ✅ |
+| **native** | 纯 MoonBit | 7,395 | ✅ |
+| **wasm-gc** | 纯 MoonBit | 7,395 | ✅ |
+| **js** | 纯 MoonBit | 7,395 | ✅ |
+| **wasm** | 纯 MoonBit | 7,395 | ✅ |
 
 > 同一代码库，**无条件编译**，四目标共用所有源码。
 
@@ -553,9 +553,10 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | 文档 | 说明 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | 架构图、模块依赖、设计决策 |
-| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，79 包 / 3,894 fn，含 playground）** |
+| [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，83 包 / 5,851 fn，含 playground）** |
 | [docs/capabilities.md](docs/capabilities.md) | **能力矩阵（自动生成：`ImageFormat` × 编解码 × 模块 API 面，B10 门禁）** |
 | [docs/benchmarks.md](docs/benchmarks.md) | **公开基准集：20 张 golden + 6 个畸形样本，sha256 封签（S20）** |
+| [docs/scenes.md](docs/scenes.md) | **场景入口：4 个入口（doc/media/commerce/pro）+ 模块 7→11 + 发布链 11 环（S16）** |
 | [benchmarks/COPYRIGHT.md](benchmarks/COPYRIGHT.md) | 基准样本版权自查清单（零第三方素材） |
 | [docs/api_reference.md](docs/api_reference.md) | API 参考历史快照（以 api_index 与各包 .mbti 为准） |
 | [docs/roadmap.md](docs/roadmap.md) | 迭代路线图 |
@@ -586,7 +587,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 # 编译检查（四目标）
 moon check && moon check --target wasm-gc && moon check --target js && moon check --target wasm
 
-# 运行测试（7,391 × 4 目标）
+# 运行测试（7,395 × 4 目标）
 moon test --target native
 moon test --target wasm-gc
 moon test --target js

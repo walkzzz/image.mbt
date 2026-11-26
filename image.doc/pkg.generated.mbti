@@ -1,0 +1,1026 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.doc"
+
+import {
+  "walkzzz/image.codec/barcode",
+  "walkzzz/image.codec/meta",
+  "walkzzz/image.core/types",
+  "walkzzz/image.vision/fieldimg",
+  "walkzzz/image.vision/ocr",
+}
+
+// Values
+pub fn adaptive_threshold_ocr(@types.Image, block_size? : Int32, c? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn advanced_chinese_ocr_default_config() -> @ocr.AdvancedChineseOcrConfig
+
+pub fn analyze_complex_layout(Array[@ocr.TextBlock], Int32, Int32) -> @ocr.ComplexLayoutAnalysis
+
+pub fn analyze_document_layout(@types.Image) -> @ocr.DocumentStructure raise @types.LoadError
+
+pub fn analyze_layout_enhanced(@types.Image, config? : @ocr.DocumentUnderstandingEnhancedConfig) -> Array[@ocr.DocumentBlock] raise @types.LoadError
+
+pub fn analyze_layout_scan(@types.Image) -> Array[@ocr.TextBlock] raise @types.LoadError
+
+pub fn analyze_markdown_element_distribution(@ocr.MarkdownDocument) -> Array[(String, Int32)]
+
+pub fn analyze_table_results(Array[@ocr.EnhancedTableResult]) -> Array[(String, Int32)]
+
+pub fn analyze_table_structure(Array[@ocr.TableLine], Array[@ocr.TableLine]) -> @ocr.TableStructure raise @types.LoadError
+
+pub fn apply_augmentation(@ocr.DLTrainingSample, @ocr.AugmentationConfig) -> @ocr.DLTrainingSample
+
+pub fn augment_features(Array[Double], noise_level? : Double) -> Array[Double]
+
+pub fn augment_random_noise(@ocr.DLTrainingSample, Double) -> @ocr.DLTrainingSample
+
+pub fn augment_random_rotation(@ocr.DLTrainingSample, Double) -> @ocr.DLTrainingSample
+
+pub fn augment_random_scale(@ocr.DLTrainingSample, Double) -> @ocr.DLTrainingSample
+
+pub fn augment_random_shift(@ocr.DLTrainingSample, Double) -> @ocr.DLTrainingSample
+
+pub fn background_normalization(@types.Image, kernel_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn barcode_default_config() -> @barcode.BarcodeConfig
+
+pub fn batch_correct_texts(Array[String], context_type? : String) -> Array[@ocr.CorrectionResult] raise @types.LoadError
+
+pub fn batch_recognize_chars(Array[@types.Image], @ocr.DLCnnModelConfig, Array[String]) -> Array[@ocr.DLInferenceResult] raise @types.LoadError
+
+pub fn batch_scan_ocr(Array[@types.Image], @ocr.ScanOCRConfig) -> Array[@ocr.OCRPageResult] raise @types.LoadError
+
+pub fn batch_summary_to_string(@ocr.BatchResultSummary) -> String
+
+pub fn build_document_structure_tree(Array[@ocr.DocumentBlock]) -> Array[@ocr.DocumentTreeNode]
+
+pub fn build_enhanced_elements(Array[@ocr.TextLineAttributes], Int32, Int32) -> @ocr.EnhancedDocument raise @types.LoadError
+
+pub fn build_gaussian_kernel_lut(Double, Int32) -> Array[Double] raise @types.LoadError
+
+pub fn build_grayscale_lut() -> Array[Int32]
+
+pub fn build_markdown_document(@ocr.OCRPageResult, title? : String) -> @ocr.MarkdownDocument raise @types.LoadError
+
+pub fn build_threshold_lut(Int32) -> Array[Int32]
+
+pub fn cache_friendly_horizontal_projection(@types.Image) -> Array[Int32] raise @types.LoadError
+
+pub fn cache_friendly_vertical_projection(@types.Image) -> Array[Int32] raise @types.LoadError
+
+pub fn calculate_accuracy(Array[Int32], Array[Int32]) -> Double
+
+pub fn calculate_accuracy_improvement(Array[@ocr.CorrectionResult], Array[String]) -> (Double, Double, Double)
+
+pub fn calculate_accuracy_stats(Array[String], Array[String]) -> @ocr.AccuracyStats raise @types.LoadError
+
+pub fn calculate_batch_progress(Array[@ocr.BatchTask], Double) -> @ocr.BatchProgress raise @types.LoadError
+
+pub fn calculate_char_accuracy(String, String) -> Double
+
+pub fn calculate_chinese_similarity(@ocr.DictCharEntry, @ocr.DictCharEntry) -> Double
+
+pub fn calculate_edit_distance(String, String) -> Int32
+
+pub fn calculate_learning_rate(@ocr.LRSchedulerConfig, Int32, Double, Double) -> Double raise @types.LoadError
+
+pub fn calculate_word_accuracy(String, String) -> Double
+
+pub fn calibrate_confidence_enhanced(Double, Array[Double]) -> Double
+
+pub fn chebyshev_distance(Array[Double], Array[Double]) -> Double raise @types.LoadError
+
+pub fn check_accuracy_threshold(@ocr.AccuracyStats, min_char_accuracy? : Double, min_word_accuracy? : Double, min_f1_score? : Double) -> (Bool, Array[String]) raise @types.LoadError
+
+pub fn check_early_stopping(@ocr.TrainingState, @ocr.TrainingConfig, Double) -> (Bool, @ocr.TrainingState)
+
+pub fn chinese_ocr_default_config() -> @ocr.ChineseOcrConfig
+
+pub fn classify_markdown_element(@ocr.TextBlock, avg_font_size? : Double) -> @ocr.MarkdownElementType
+
+pub fn cnn_confusion_matrix(Array[@ocr.DLTrainingSample], @ocr.DLCnnModelConfig, Array[String]) -> Array[Array[Int32]] raise @types.LoadError
+
+pub fn cnn_infer(Array[Double], @ocr.DLCnnModelConfig, Array[String]) -> @ocr.DLInferenceResult
+
+pub fn cnn_recognize_char(@types.Image, @ocr.DLCnnModelConfig, Array[String]) -> @ocr.DLInferenceResult raise @types.LoadError
+
+pub fn cnn_recognize_digits(@types.Image, @ocr.DLCnnModelConfig) -> @ocr.DLInferenceResult raise @types.LoadError
+
+pub fn cnn_recognize_letters(@types.Image, @ocr.DLCnnModelConfig) -> @ocr.DLInferenceResult raise @types.LoadError
+
+pub fn cnn_train(Array[@ocr.DLTrainingSample], Array[Double], Array[Double], Array[Double], Array[Double], Int32, Int32, Int32, Int32, Int32, Int32, Double, Int32) -> (Array[Double], Array[Double], Array[Double], Array[Double], Array[@ocr.DLTrainingHistory]) raise @types.LoadError
+
+pub fn cnn_train_step(Array[Double], Int32, Array[Double], Array[Double], Array[Double], Array[Double], Int32, Int32, Int32, Int32, Int32, Int32, Double) -> (Array[Double], Array[Double], Array[Double], Array[Double], Double) raise @types.LoadError
+
+pub fn combined_features(@types.Image) -> Array[Double] raise @types.LoadError
+
+pub fn complete_char_segmentation(@types.Image, min_char_width? : Int32, max_char_width? : Int32) -> Array[(Int32, Int32, Int32, Int32)] raise @types.LoadError
+
+pub fn compute_confusion_matrix(Array[Int32], Array[Int32], Int32) -> Array[Array[Int32]]
+
+pub fn compute_distance(Array[Double], Array[Double], @ocr.DistanceMetric) -> Double raise @types.LoadError
+
+pub fn compute_per_class_accuracy(Array[Array[Int32]]) -> Array[Double]
+
+pub fn compute_reading_order(Array[@ocr.DocumentElement]) -> Array[Int32] raise @types.LoadError
+
+pub fn connected_components_analysis(@types.Image, connectivity? : Int32) -> @ocr.OcrConnectedComponentsResult raise @types.LoadError
+
+pub fn conv2d(Array[Double], Int32, Int32, Int32, Array[Double], Int32, Int32, Int32, Int32) -> Array[Double] raise @types.LoadError
+
+pub fn correct_common_patterns(String) -> @ocr.CorrectionResult
+
+pub fn correct_similar_chars(String, String) -> @ocr.CorrectionResult raise @types.LoadError
+
+pub fn correct_slant(@types.Image, max_slant? : Double) -> @types.Image raise @types.LoadError
+
+pub fn cosine_distance(Array[Double], Array[Double]) -> Double raise @types.LoadError
+
+pub fn cosine_similarity(Array[Double], Array[Double]) -> Double
+
+pub fn create_batch_tasks(Array[String], String, String) -> Array[@ocr.BatchTask] raise @types.LoadError
+
+pub fn create_data_loader(Array[@ocr.DLTrainingSample], Int32, Bool) -> @ocr.DataLoader raise @types.LoadError
+
+pub fn create_default_api_server_config() -> @ocr.ApiServerConfig
+
+pub fn create_default_batch_config() -> @ocr.BatchOcrConfig
+
+pub fn create_default_char_cnn_config(Int32) -> @ocr.DLCnnModelConfig
+
+pub fn create_default_chinese_dictionary() -> @ocr.DictChineseDict
+
+pub fn create_default_cli_config() -> @ocr.CliConfig
+
+pub fn create_default_docker_config() -> @ocr.DockerConfig
+
+pub fn create_default_handwriting_config() -> @ocr.HandwritingRecognitionConfig
+
+pub fn create_default_language_model() -> @ocr.LanguageModelState
+
+pub fn create_default_model_package_config() -> @ocr.ModelPackageConfig
+
+pub fn create_default_training_config() -> @ocr.TrainingConfig
+
+pub fn create_exif_segment(@meta.ExifInfo) -> Bytes
+
+pub fn create_feature_extractor(String, Int32) -> @ocr.DLFeatureExtractor
+
+pub fn create_handwriting_template(String, @ocr.HandwritingStyle, Array[@types.Image]) -> @ocr.HandwritingTemplate raise @types.LoadError
+
+pub fn create_iptc_segment(@meta.IptcInfo) -> Bytes
+
+pub fn create_neural_layer(@ocr.DLLayerType, String, Array[Int32]) -> @ocr.DLNeuralLayer
+
+pub fn create_training_history(Int32, Double, Double, Double, Double, Double, Double) -> @ocr.DLTrainingHistory
+
+pub fn create_training_sample(@types.Image, Int32, String) -> @ocr.DLTrainingSample raise @types.LoadError
+
+pub fn create_training_state() -> @ocr.TrainingState
+
+pub fn create_xmp_segment(@meta.XmpInfo) -> Bytes
+
+pub fn cross_entropy_loss(Array[Double], Int32) -> Double
+
+pub fn dataset_add_sample(@ocr.TrainingDataset, Array[Double], String) -> @ocr.TrainingDataset
+
+pub fn dataset_create() -> @ocr.TrainingDataset
+
+pub fn dataset_stats(@ocr.TrainingDataset) -> (Int32, Int32, Array[(String, Int32)])
+
+pub fn decode_barcode(@types.Image, config? : @barcode.BarcodeConfig) -> Array[@barcode.BarcodeResult] raise @types.LoadError
+
+pub fn decode_code128(@types.Image) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_code39(@types.Image) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_ean13(@types.Image, config? : @barcode.BarcodeConfig) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_linear_barcode(@types.Image) -> Array[@barcode.BarcodeResult] raise @types.LoadError
+
+pub fn decode_qrcode(@types.Image, config? : @barcode.BarcodeConfig) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_qrcode_full(@types.Image) -> @barcode.QrDecodeResult? raise @types.LoadError
+
+pub fn decode_upca(@types.Image) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decompose_chinese_char(String) -> @ocr.ChineseCharStructure raise @types.LoadError
+
+pub fn dense_backward(Array[Double], Array[Double], Int32, Int32) -> (Array[Double], Array[Double], Array[Double])
+
+pub fn dense_forward(Array[Double], Array[Double], Array[Double], Int32, Int32, String) -> Array[Double]
+
+pub fn deskew(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn detect_char_language(@types.Image) -> @ocr.LanguageType raise @types.LoadError
+
+pub fn detect_column_boundaries(Array[@ocr.TextLineAttributes], Int32, @ocr.LayoutType) -> Array[Int32]
+
+pub fn detect_columns(@types.Image) -> (Int32, Array[(Int32, Int32)]) raise @types.LoadError
+
+pub fn detect_distortions(@types.Image) -> Array[@ocr.DistortionDetectionResult] raise @types.LoadError
+
+pub fn detect_document_columns(@types.Image) -> Int32 raise @types.LoadError
+
+pub fn detect_document_language(@types.Image) -> @ocr.LanguageType raise @types.LoadError
+
+pub fn detect_handwriting_slant(@types.Image) -> Double raise @types.LoadError
+
+pub fn detect_header_footer(Array[@ocr.TextLineAttributes], Int32) -> (Int32, Int32) raise @types.LoadError
+
+pub fn detect_horizontal_lines(@types.Image, min_length? : Int32, max_gap? : Int32) -> Array[@ocr.TableLine] raise @types.LoadError
+
+pub fn detect_horizontal_table_lines(@types.Image, min_length? : Int32, max_gap? : Int32) -> Array[(Int32, Int32, Int32)] raise @types.LoadError
+
+pub fn detect_image_regions_markdown(@types.Image, min_area? : Int32) -> Array[@ocr.MarkdownImage] raise @types.LoadError
+
+pub fn detect_language_enhanced(@types.Image) -> @ocr.LanguageDetectionResult raise @types.LoadError
+
+pub fn detect_layout_type(Array[@ocr.TextLineAttributes], Int32, Int32) -> @ocr.LayoutType raise @types.LoadError
+
+pub fn detect_list_item(@ocr.TextLineAttributes) -> @ocr.ListItemInfo
+
+pub fn detect_paragraphs(Array[@ocr.DocumentBlock], max_line_spacing_ratio? : Double) -> Array[Array[Int32]]
+
+pub fn detect_qr_finder_patterns(@types.Image) -> Array[@barcode.QrFinderPattern] raise @types.LoadError
+
+pub fn detect_skew_angle(@types.Image) -> Double raise @types.LoadError
+
+pub fn detect_skew_angle_robust(@types.Image) -> Double raise @types.LoadError
+
+pub fn detect_table_enhanced(@types.Image, min_table_size? : Int32) -> Array[@ocr.EnhancedTableResult] raise @types.LoadError
+
+pub fn detect_text_lines_projection(@types.Image, min_height? : Int32, max_gap? : Int32) -> Array[@ocr.TextLineInfo] raise @types.LoadError
+
+pub fn detect_text_regions(@types.Image) -> Array[@ocr.TextRegion] raise @types.LoadError
+
+pub fn detect_titles(Array[@ocr.DocumentBlock], title_font_size_threshold? : Int32) -> Array[Int32]
+
+pub fn detect_touching_chars(@types.Image, min_char_width? : Int32, max_char_width? : Int32) -> Array[Int32] raise @types.LoadError
+
+pub fn detect_vertical_lines(@types.Image, min_length? : Int32, max_gap? : Int32) -> Array[@ocr.TableLine] raise @types.LoadError
+
+pub fn detect_vertical_table_lines(@types.Image, min_length? : Int32, max_gap? : Int32) -> Array[(Int32, Int32, Int32)] raise @types.LoadError
+
+pub fn determine_reading_order_markdown(Array[@ocr.MarkdownElement]) -> Array[Int32]
+
+pub fn dictionary_create(Array[String]) -> @ocr.Dictionary raise @types.LoadError
+
+pub fn dictionary_create_common_english() -> @ocr.Dictionary
+
+pub fn dictionary_match(String, @ocr.Dictionary, max_distance? : Int32) -> Array[(String, Int32)] raise @types.LoadError
+
+pub fn digit_ocr_default_config() -> @ocr.DigitOcrConfig
+
+pub fn document_enhance(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn document_statistics_enhanced(Array[@ocr.DocumentBlock]) -> (Int32, Int32, Int32, Int32, Int32, Int32, Int32)
+
+pub fn document_structure_stats(@ocr.DocumentStructure) -> (Int32, Int32, Int32, Int32, Int32)
+
+pub fn document_understanding_enhanced_default_config() -> @ocr.DocumentUnderstandingEnhancedConfig
+
+pub fn drop_fall_segmentation(@types.Image, start_x? : Int32) -> @ocr.DropFallResult raise @types.LoadError
+
+pub fn edit_distance(String, String) -> Int32 raise @types.LoadError
+
+pub fn elastic_match(Array[Double], Array[Double], elasticity? : Double, grid_size? : Int32) -> Double
+
+pub fn english_ocr_default_config() -> @ocr.EnglishOcrConfig
+
+pub fn enhanced_chinese_ocr_default_config() -> @ocr.EnhancedChineseOcrConfig
+
+pub fn enhanced_document_to_markdown(@ocr.EnhancedDocument, include_header_footer? : Bool) -> String
+
+pub fn enhanced_element_distribution(@ocr.EnhancedDocument) -> Array[(String, Int32)]
+
+pub fn enhanced_table_to_markdown(@ocr.EnhancedTableResult) -> String
+
+pub fn ensemble_default_config() -> @ocr.EnsembleConfig
+
+pub fn ensemble_predict(Array[Double], @ocr.KnnClassifier, Array[(String, Array[Double])], config? : @ocr.EnsembleConfig) -> @ocr.ClassificationResult raise @types.LoadError
+
+pub fn estimate_memory_usage(Int32, Int32, Int32, Int32) -> @ocr.MemoryUsageStats
+
+pub fn euclidean_distance(Array[Double], Array[Double]) -> Double raise @types.LoadError
+
+pub fn evaluate_cnn_model(Array[@ocr.DLTrainingSample], @ocr.DLCnnModelConfig, Array[String]) -> (Double, Double) raise @types.LoadError
+
+pub fn evaluate_scan_quality(@types.Image) -> @ocr.ScanQuality raise @types.LoadError
+
+pub fn extract_all_cells(@types.Image, @ocr.TableStructure, padding? : Int32) -> Array[@types.Image] raise @types.LoadError
+
+pub fn extract_cell_image(@types.Image, @ocr.TableCell, padding? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn extract_char_image(@types.Image, @ocr.CharSegment, target_size? : Int32, padding? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn extract_combined_enhanced_features(@types.Image, @ocr.OcrAccuracyEnhancedConfig) -> Array[Double] raise @types.LoadError
+
+pub fn extract_combined_ocr_features(@types.Image) -> Array[Double] raise @types.LoadError
+
+pub fn extract_directional_features(@types.Image) -> Array[Double]
+
+pub fn extract_document_text(Array[@ocr.DocumentBlock], include_headers? : Bool, include_footers? : Bool) -> String
+
+pub fn extract_features(@ocr.DLFeatureExtractor, @types.Image) -> Array[Double]
+
+pub fn extract_gabor_ocr_features(@types.Image, num_orientations? : Int32, num_frequencies? : Int32) -> Array[Double]
+
+pub fn extract_handwriting_features(@types.Image, String) -> @ocr.HandwritingCharFeature raise @types.LoadError
+
+pub fn extract_handwriting_stroke_features(@types.Image) -> @ocr.HandwritingStrokeFeatures raise @types.LoadError
+
+pub fn extract_headings(@ocr.DocumentStructure) -> Array[@ocr.DocumentElement]
+
+pub fn extract_hw_stroke_features(@types.Image) -> Array[@ocr.StrokeFeature]
+
+pub fn extract_images_enhanced(@types.Image, min_area? : Int32) -> Array[@ocr.ExtractedImage]
+
+pub fn extract_paragraphs(@ocr.DocumentStructure) -> Array[@ocr.DocumentElement]
+
+pub fn extract_stroke_features(@types.Image) -> Array[Double] raise @types.LoadError
+
+pub fn extract_text_line_image(@types.Image, @ocr.TextLineInfo, padding? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn extract_text_lines(@types.Image) -> Array[@types.Image] raise @types.LoadError
+
+pub fn extract_title(@ocr.DocumentStructure) -> String
+
+pub fn extract_zernike_moments(@types.Image, max_order? : Int32) -> Array[Double] raise @types.LoadError
+
+pub fn fast_connected_components(@types.Image) -> Array[Int32] raise @types.LoadError
+
+pub fn fast_downsample_2x(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn fast_gaussian_blur_1d(@types.Image, Array[Double]) -> @types.Image raise @types.LoadError
+
+pub fn fast_threshold_lut(@types.Image, Array[Int32]) -> @types.Image raise @types.LoadError
+
+pub fn field_add(@fieldimg.ScalarField, @fieldimg.ScalarField) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_blend(@fieldimg.ScalarField, @fieldimg.ScalarField, Float) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_clamp(@fieldimg.ScalarField, Float, Float) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_curl(@fieldimg.VectorField) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_divergence(@fieldimg.VectorField) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_gradient(@fieldimg.ScalarField) -> @fieldimg.VectorField raise @types.LoadError
+
+pub fn field_histogram(@fieldimg.ScalarField, Float, Float, Int32) -> Array[Int32] raise @types.LoadError
+
+pub fn field_integrate(@fieldimg.ScalarField) -> Float
+
+pub fn field_integrate_region(@fieldimg.ScalarField, Int32, Int32, Int32, Int32) -> Float
+
+pub fn field_isosurface(@fieldimg.ScalarField, Float, Float) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_laplacian(@fieldimg.ScalarField) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_mask(@fieldimg.ScalarField, Float) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_mul(@fieldimg.ScalarField, @fieldimg.ScalarField) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_mul_scalar(@fieldimg.ScalarField, Float) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn field_sub(@fieldimg.ScalarField, @fieldimg.ScalarField) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn filter_components_by_area(@ocr.OcrConnectedComponentsResult, Int32, Int32) -> Array[@ocr.OcrConnectedComponent] raise @types.LoadError
+
+pub fn filter_components_by_aspect_ratio(@ocr.OcrConnectedComponentsResult, Double, Double) -> Array[@ocr.OcrConnectedComponent] raise @types.LoadError
+
+pub fn filter_components_by_position(@ocr.OcrConnectedComponentsResult, Int32, Int32, Int32, Int32) -> Array[@ocr.OcrConnectedComponent] raise @types.LoadError
+
+pub fn filter_noise_segments(Array[(Int32, Int32, Int32, Int32)], Int32, Int32, min_area_ratio? : Double, max_area_ratio? : Double) -> Array[(Int32, Int32, Int32, Int32)] raise @types.LoadError
+
+pub fn find_line_intersections(Array[(Int32, Int32, Int32)], Array[(Int32, Int32, Int32)]) -> Array[(Int32, Int32)]
+
+pub fn find_similar_chinese_chars(@ocr.DictChineseDict, String, top_n? : Int32) -> Array[@ocr.DictCharMatch] raise @types.LoadError
+
+pub fn full_postprocess_correction(String, context_type? : String) -> @ocr.CorrectionResult raise @types.LoadError
+
+pub fn generate_3500_chinese_templates(char_set? : String) -> Array[(String, Array[Double])]
+
+pub fn generate_accuracy_report(@ocr.AccuracyStats, String) -> String
+
+pub fn generate_api_config_json(@ocr.ApiServerConfig) -> String
+
+pub fn generate_batch_summary(Array[@ocr.BatchTask], Double) -> @ocr.BatchResultSummary raise @types.LoadError
+
+pub fn generate_chinese_char_info_db() -> Array[@ocr.ChineseCharInfo]
+
+pub fn generate_chinese_dictionary_report(@ocr.DictChineseDict) -> String
+
+pub fn generate_chinese_templates(char_set? : String) -> Array[(String, Array[Double])]
+
+pub fn generate_cli_help() -> String
+
+pub fn generate_correction_report(Array[@ocr.CorrectionResult]) -> String
+
+pub fn generate_deployment_package(@ocr.DockerConfig, @ocr.ApiServerConfig, @ocr.ModelPackageConfig) -> String
+
+pub fn generate_digit_templates() -> Array[(String, Array[Double])]
+
+pub fn generate_docker_compose(@ocr.DockerConfig) -> String
+
+pub fn generate_dockerfile(@ocr.DockerConfig) -> String
+
+pub fn generate_english_templates(case_sensitive? : Bool) -> Array[(String, Array[Double])]
+
+pub fn generate_enhanced_chinese_templates(char_set_size? : Int32) -> Array[(String, Array[Double])]
+
+pub fn generate_enhanced_handwriting_templates(char_set? : String, num_variants? : Int32) -> Array[(String, Array[Double])]
+
+pub fn generate_env_config(@ocr.DeploymentEnvironment) -> String
+
+pub fn generate_handwriting_templates(char_set? : String) -> Array[(String, Array[Double])]
+
+pub fn generate_health_check_config(@ocr.ApiServerConfig) -> String
+
+pub fn generate_image_extraction_report(Array[@ocr.ExtractedImage]) -> String
+
+pub fn generate_markdown_image_placeholder(@ocr.MarkdownImage, Int32) -> String
+
+pub fn generate_model_manifest(@ocr.ModelPackageConfig) -> String
+
+pub fn generate_performance_report(@ocr.PerformanceBenchmark, String) -> String
+
+pub fn generate_punctuation_templates() -> Array[@ocr.PunctuationTemplate]
+
+pub fn generate_robustness_report(@ocr.ScanQuality, Array[@ocr.DistortionDetectionResult], @ocr.ComplexLayoutAnalysis) -> @ocr.RobustnessReport
+
+pub fn generate_training_progress_report(@ocr.TrainingState, @ocr.TrainingConfig) -> String
+
+pub fn generate_training_report(Array[@ocr.DLTrainingHistory], @ocr.DLCnnModelConfig) -> String
+
+pub fn get_elements_in_reading_order(@ocr.DocumentStructure) -> Array[@ocr.DocumentElement]
+
+pub fn grid_features(@types.Image, grid_rows? : Int32, grid_cols? : Int32) -> @ocr.GridFeatures raise @types.LoadError
+
+pub fn handwriting_feature_similarity(@ocr.HandwritingCharFeature, @ocr.HandwritingCharFeature) -> Double
+
+pub fn handwriting_ocr_default_config() -> @ocr.HandwritingOcrConfig
+
+pub fn handwriting_ocr_enhanced_default_config() -> @ocr.HandwritingOcrEnhancedConfig
+
+pub fn handwriting_postprocess(String, Double) -> (String, Double)
+
+pub fn handwriting_report_to_string(@ocr.HandwritingRecognitionResult) -> String
+
+pub fn hog_features(@types.Image, cell_size? : Int32, num_bins? : Int32) -> @ocr.HogFeatures raise @types.LoadError
+
+pub fn horizontal_projection(@types.Image) -> @ocr.ProjectionResult raise @types.LoadError
+
+pub fn hu_moments_features(@types.Image) -> Array[Double] raise @types.LoadError
+
+pub fn image16_to_scalar_field(@types.Image16) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn image_to_scalar_field(@types.Image) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn image_to_vector_field(@types.Image) -> @fieldimg.VectorField raise @types.LoadError
+
+pub fn imagef_to_scalar_field(@types.ImageF) -> @fieldimg.ScalarField raise @types.LoadError
+
+pub fn is_code_block_line(@ocr.TextLineAttributes, Int32) -> Bool
+
+pub fn is_heading_line(@ocr.TextLineAttributes, Double) -> (Bool, Int32)
+
+pub fn is_quote_line(@ocr.TextLineAttributes, Int32) -> Bool
+
+pub fn knn_add_sample(@ocr.KnnClassifier, Array[Double], String) -> @ocr.KnnClassifier raise @types.LoadError
+
+pub fn knn_add_samples(@ocr.KnnClassifier, Array[(Array[Double], String)]) -> @ocr.KnnClassifier raise @types.LoadError
+
+pub fn knn_create(k? : Int32, distance_metric? : String) -> @ocr.KnnClassifier raise @types.LoadError
+
+pub fn knn_predict(@ocr.KnnClassifier, Array[Double]) -> @ocr.ClassificationResult raise @types.LoadError
+
+pub fn language_model_postprocess(String, Array[String], Array[Double]) -> (String, Array[Double])
+
+pub fn lbp_features(@types.Image, radius? : Int32, num_points? : Int32, num_bins? : Int32) -> @ocr.LbpFeatures raise @types.LoadError
+
+pub fn load_model(String) -> @ocr.DLCnnModelConfig?
+
+pub fn lookup_by_pinyin(@ocr.DictChineseDict, String) -> Array[@ocr.DictCharEntry] raise @types.LoadError
+
+pub fn lookup_by_radical(@ocr.DictChineseDict, String) -> Array[@ocr.DictCharEntry] raise @types.LoadError
+
+pub fn lookup_by_structure(@ocr.DictChineseDict, @ocr.DictCharStructure) -> Array[@ocr.DictCharEntry]
+
+pub fn lookup_char(@ocr.DictChineseDict, String) -> @ocr.DictCharEntry? raise @types.LoadError
+
+pub fn manhattan_distance(Array[Double], Array[Double]) -> Double raise @types.LoadError
+
+pub fn mark_task_completed(@ocr.BatchTask, Int32, Double, Double) -> @ocr.BatchTask
+
+pub fn mark_task_failed(@ocr.BatchTask, String, Double) -> @ocr.BatchTask
+
+pub fn markdown_document_to_string(@ocr.MarkdownDocument) -> String
+
+pub fn markdown_table_to_string(@ocr.MarkdownTable) -> String
+
+pub fn max_pool2d(Array[Double], Int32, Int32, Int32, Int32) -> Array[Double] raise @types.LoadError
+
+pub fn max_pool2d_backward(Array[Double], Array[Double], Int32, Int32, Int32, Int32) -> Array[Double]
+
+pub fn merge_adjacent_components(Array[@ocr.OcrConnectedComponent], Int32) -> Array[@ocr.OcrConnectedComponent] raise @types.LoadError
+
+pub fn merge_small_segments(Array[(Int32, Int32, Int32, Int32)], Int32, Int32) -> Array[(Int32, Int32, Int32, Int32)] raise @types.LoadError
+
+pub fn multi_scale_recognize(@types.Image, Array[(String, Array[Double])], Array[Int32], distance_metric? : String) -> (String, Double)
+
+pub fn multilingual_ocr_default_config() -> @ocr.MultilingualOcrConfig
+
+pub fn multilingual_ocr_enhanced_default_config() -> @ocr.MultilingualOcrEnhancedConfig
+
+pub fn next_batch(@ocr.DataLoader) -> (Array[@ocr.DLTrainingSample], @ocr.DataLoader) raise @types.LoadError
+
+pub fn ngram_create(Array[String], n? : Int32) -> @ocr.NgramModel raise @types.LoadError
+
+pub fn ngram_score(String, @ocr.NgramModel) -> Double raise @types.LoadError
+
+pub fn niblack_threshold(@types.Image, window_size? : Int32, k? : Double) -> @types.Image raise @types.LoadError
+
+pub fn normalize_features(Array[Double]) -> Array[Double] raise @types.LoadError
+
+pub fn normalize_handwriting_size(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn normalize_image(Array[Double], Double, Double) -> Array[Double] raise @types.LoadError
+
+pub fn normalize_punctuation(String, Array[String]) -> String
+
+pub fn ocr_accuracy_enhanced_default_config() -> @ocr.OcrAccuracyEnhancedConfig
+
+pub fn ocr_pipeline_stats(@types.Image) -> (Int32, Int32, Double) raise @types.LoadError
+
+pub fn ocr_postprocess(@ocr.OcrResult, config? : @ocr.PostProcessConfig, dictionary? : @ocr.Dictionary, ngram_model? : @ocr.NgramModel) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn ocr_preprocess(@types.Image, binarization_method? : String) -> @types.Image raise @types.LoadError
+
+pub fn ocr_result_to_hocr(@ocr.OCRPageResult) -> String
+
+pub fn ocr_result_to_json(@ocr.OCRPageResult) -> String
+
+pub fn ocr_result_to_text(@ocr.OCRPageResult) -> String
+
+pub fn optimize_reading_order(Array[@ocr.DocumentBlock], Int32) -> Array[Int32]
+
+pub fn otsu_threshold(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn parse_cli_args(Array[String]) -> @ocr.CliConfig raise @types.LoadError
+
+pub fn postprocess_default_config() -> @ocr.PostProcessConfig
+
+pub fn progress_bar_to_string(Double, width? : Int32) -> String
+
+pub fn projection_features(@types.Image) -> @ocr.ProjectionFeatures raise @types.LoadError
+
+pub fn read_exif_extended_from_bytes(Bytes) -> @meta.ExifInfoExtended?
+
+pub fn read_exif_from_bytes(Bytes) -> @meta.ExifInfo?
+
+pub fn read_iptc_from_bytes(Bytes) -> @meta.IptcInfo?
+
+pub fn read_png_exif_from_bytes(Bytes) -> Bytes?
+
+pub fn read_png_text_chunks(Bytes) -> Array[@meta.PngTextChunk]
+
+pub fn read_xmp_from_bytes(Bytes) -> @meta.XmpInfo?
+
+pub fn recognize_by_components(@ocr.DictChineseDict, @ocr.DictCharStructure, Array[String], stroke_count_hint? : Int32) -> Array[(String, Double)]
+
+pub fn recognize_chinese(@types.Image, config? : @ocr.ChineseOcrConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_chinese_advanced(@types.Image, config? : @ocr.AdvancedChineseOcrConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_digits(@types.Image, config? : @ocr.DigitOcrConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_english(@types.Image, config? : @ocr.EnglishOcrConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_enhanced_chinese(@types.Image, config? : @ocr.EnhancedChineseOcrConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_handwriting_char(@types.Image, Array[@ocr.HandwritingTemplate], @ocr.HandwritingRecognitionConfig) -> @ocr.HandwritingRecognitionResult raise @types.LoadError
+
+pub fn recognize_handwriting_enhanced(@types.Image, config? : @ocr.HandwritingOcrEnhancedConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_multilingual_enhanced(@types.Image, config? : @ocr.MultilingualOcrEnhancedConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_ocr_enhanced(@types.Image, Array[(String, Array[Double])], config? : @ocr.OcrAccuracyEnhancedConfig) -> @ocr.OcrResult raise @types.LoadError
+
+pub fn recognize_symbols_markdown(String) -> Array[@ocr.MarkdownSymbol]
+
+pub fn recognize_table(@types.Image, min_line_length? : Int32) -> @ocr.TableStructure raise @types.LoadError
+
+pub fn record_training_metrics(@ocr.TrainingState, @ocr.TrainingMetrics) -> @ocr.TrainingState
+
+pub fn reed_solomon_decode(Array[Int32], Int32) -> (Array[Int32], Int32)
+
+pub fn relu(Double) -> Double
+
+pub fn relu_backward(Array[Double], Array[Double]) -> Array[Double]
+
+pub fn resize_image_for_cnn(@types.Image, Int32, Int32) -> Array[Double] raise @types.LoadError
+
+pub fn robustness_report_to_string(@ocr.RobustnessReport) -> String
+
+pub fn rotate_document(@types.Image, Double) -> @types.Image raise @types.LoadError
+
+pub fn sauvola_threshold(@types.Image, window_size? : Int32, k? : Double, r? : Double) -> @types.Image raise @types.LoadError
+
+pub fn save_model(@ocr.DLCnnModelConfig, Array[Double], String) -> Bool
+
+pub fn scalar_field_to_image(@fieldimg.ScalarField) -> @types.Image
+
+pub fn scan_document_preprocess(@types.Image, @ocr.ScanOCRConfig) -> @types.Image raise @types.LoadError
+
+pub fn scan_ocr_default_config() -> @ocr.ScanOCRConfig
+
+pub fn scan_ocr_recognize(@types.Image, @ocr.ScanOCRConfig) -> @ocr.OCRPageResult raise @types.LoadError
+
+pub fn segment_by_connected_components(@types.Image, min_area? : Int32, max_area? : Int32) -> Array[(Int32, Int32, Int32, Int32)] raise @types.LoadError
+
+pub fn segment_chars_projection(@types.Image, @ocr.TextLineInfo, min_width? : Int32, max_gap? : Int32) -> Array[@ocr.CharSegment] raise @types.LoadError
+
+pub fn segment_connected_strokes(@types.Image, @ocr.HandwritingRecognitionConfig) -> @ocr.StrokeSegmentationResult
+
+pub fn segment_cursive_chars(@types.Image, min_char_width? : Int32, max_char_width? : Int32) -> Array[(Int32, Int32, Int32, Int32)]
+
+pub fn segment_page(@types.Image) -> Array[@ocr.TextRegion] raise @types.LoadError
+
+pub fn segment_paragraphs(Array[@ocr.TextLineAttributes]) -> Array[Array[@ocr.TextLineAttributes]]
+
+pub fn select_adaptive_config(@ocr.ScanQuality) -> @ocr.AdaptivePreprocessConfig raise @types.LoadError
+
+pub fn shadow_removal(@types.Image, kernel_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn sigmoid(Double) -> Double
+
+pub fn sigmoid_backward(Array[Double], Array[Double]) -> Array[Double]
+
+pub fn smart_reading_order(Array[@ocr.EnhancedDocumentElement], @ocr.LayoutType, Array[Int32]) -> Array[Int32] raise @types.LoadError
+
+pub fn smart_segment_chars(@types.Image, @ocr.MultilingualOcrEnhancedConfig) -> Array[(Int32, Int32, Int32, Int32, String)] raise @types.LoadError
+
+pub fn smart_spacing_process(String, Array[String]) -> String
+
+pub fn softmax(Array[Double]) -> Array[Double]
+
+pub fn softmax_cross_entropy_backward(Array[Double], Int32) -> Array[Double] raise @types.LoadError
+
+pub fn split_train_validation(Array[@ocr.DLTrainingSample], Double, Bool) -> (Array[@ocr.DLTrainingSample], Array[@ocr.DLTrainingSample])
+
+pub fn standardize_features(Array[Double]) -> Array[Double] raise @types.LoadError
+
+pub fn statistical_features(@types.Image) -> @ocr.StatisticalFeatures raise @types.LoadError
+
+pub fn structure_based_filter(@types.Image, Array[@ocr.ChineseCharInfo], max_candidates? : Int32) -> Array[@ocr.ChineseCharInfo]
+
+pub fn template_matcher_add(@ocr.TemplateMatcher, String, Array[Double]) -> @ocr.TemplateMatcher raise @types.LoadError
+
+pub fn template_matcher_create(distance_metric? : String) -> @ocr.TemplateMatcher
+
+pub fn template_matcher_predict(@ocr.TemplateMatcher, Array[Double]) -> @ocr.ClassificationResult raise @types.LoadError
+
+pub fn understand_document_enhanced(@types.Image, config? : @ocr.DocumentUnderstandingEnhancedConfig) -> (Array[@ocr.DocumentBlock], Array[@ocr.DocumentTreeNode], String) raise @types.LoadError
+
+pub fn unrolled_pixel_sum(@types.Image) -> Int32 raise @types.LoadError
+
+pub fn update_task_progress(@ocr.BatchTask, Double, Int32, Int32) -> @ocr.BatchTask
+
+pub fn update_weights_sgd(Array[Double], Array[Double], Double) -> Array[Double] raise @types.LoadError
+
+pub fn vector_field_to_image(@fieldimg.VectorField) -> @types.Image
+
+pub fn vertical_projection(@types.Image) -> @ocr.ProjectionResult raise @types.LoadError
+
+pub fn weighted_knn_classify(Array[Double], Array[(String, Array[Double])], k? : Int32, distance_metric? : String) -> (String, Double, Array[(String, Double)])
+
+pub fn write_exif_to_bytes(@meta.ExifInfo, Bytes) -> Bytes raise @types.LoadError
+
+pub fn write_iptc_to_bytes(@meta.IptcInfo, Bytes) -> Bytes raise @types.LoadError
+
+pub fn write_png_exif_to_bytes(Bytes, Bytes) -> Bytes raise @types.LoadError
+
+pub fn write_png_text_chunks(Array[@meta.PngTextChunk], Bytes) -> Bytes raise @types.LoadError
+
+pub fn write_xmp_to_bytes(@meta.XmpInfo, Bytes) -> Bytes raise @types.LoadError
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @ocr {type AccuracyStats}
+
+pub using @ocr {type AdaptivePreprocessConfig}
+
+pub using @ocr {type AdvancedChineseOcrConfig}
+
+pub using @ocr {type ApiServerConfig}
+
+pub using @ocr {type AugmentationConfig}
+
+pub using @ocr {type AugmentationType}
+
+pub using @barcode {type BarcodeConfig}
+
+pub using @barcode {type BarcodeResult}
+
+pub using @barcode {type BarcodeType}
+
+pub using @ocr {type BatchOcrConfig}
+
+pub using @ocr {type BatchProgress}
+
+pub using @ocr {type BatchResultSummary}
+
+pub using @ocr {type BatchTask}
+
+pub using @ocr {type BatchTaskStatus}
+
+pub using @ocr {type CharRecognitionResult}
+
+pub using @ocr {type CharSegment}
+
+pub using @ocr {type ChineseCharInfo}
+
+pub using @ocr {type ChineseCharStructure}
+
+pub using @ocr {type ChineseOcrConfig}
+
+pub using @ocr {type ChineseRadical}
+
+pub using @ocr {type ClassificationResult}
+
+pub using @ocr {type CliConfig}
+
+pub using @barcode {type Code128Charset}
+
+pub using @ocr {type CommonErrorPattern}
+
+pub using @ocr {type ComplexLayoutAnalysis}
+
+pub using @ocr {type ComplexLayoutType}
+
+pub using @ocr {type ConfusionEntry}
+
+pub using @ocr {type ConfusionMatrix}
+
+pub using @ocr {type CorrectionEntry}
+
+pub using @ocr {type CorrectionResult}
+
+pub using @ocr {type DLCnnModelConfig}
+
+pub using @ocr {type DLConv2DConfig}
+
+pub using @ocr {type DLDenseConfig}
+
+pub using @ocr {type DLFeatureExtractor}
+
+pub using @ocr {type DLInferenceResult}
+
+pub using @ocr {type DLLayerType}
+
+pub using @ocr {type DLNeuralLayer}
+
+pub using @ocr {type DLTrainingHistory}
+
+pub using @ocr {type DLTrainingSample}
+
+pub using @ocr {type DataLoader}
+
+pub using @ocr {type DeploymentEnvironment}
+
+pub using @ocr {type DictCharEntry}
+
+pub using @ocr {type DictCharMatch}
+
+pub using @ocr {type DictCharStructure}
+
+pub using @ocr {type DictChineseDict}
+
+pub using @ocr {type DictComponent}
+
+pub using @ocr {type DictComponentResult}
+
+pub using @ocr {type Dictionary}
+
+pub using @ocr {type DictionaryEntry}
+
+pub using @ocr {type DigitOcrConfig}
+
+pub using @ocr {type DistanceMetric}
+
+pub using @ocr {type DistortionDetectionResult}
+
+pub using @ocr {type DistortionType}
+
+pub using @ocr {type DockerConfig}
+
+pub using @ocr {type DocumentBlock}
+
+pub using @ocr {type DocumentBlockType}
+
+pub using @ocr {type DocumentElement}
+
+pub using @ocr {type DocumentElementType}
+
+pub using @ocr {type DocumentStructure}
+
+pub using @ocr {type DocumentTreeNode}
+
+pub using @ocr {type DocumentUnderstandingEnhancedConfig}
+
+pub using @ocr {type DropFallResult}
+
+pub using @ocr {type EnglishOcrConfig}
+
+pub using @ocr {type EnhancedChineseOcrConfig}
+
+pub using @ocr {type EnhancedDocument}
+
+pub using @ocr {type EnhancedDocumentElement}
+
+pub using @ocr {type EnhancedTableResult}
+
+pub using @ocr {type EnsembleConfig}
+
+pub using @ocr {type ErrorAnalysisEntry}
+
+pub using @ocr {type ErrorAnalysisReport}
+
+pub using @meta {type ExifInfo}
+
+pub using @meta {type ExifInfoExtended}
+
+pub using @ocr {type ExtractedImage}
+
+pub using @ocr {type GridFeatures}
+
+pub using @ocr {type HandwritingCharFeature}
+
+pub using @ocr {type HandwritingOcrConfig}
+
+pub using @ocr {type HandwritingOcrEnhancedConfig}
+
+pub using @ocr {type HandwritingRecognitionConfig}
+
+pub using @ocr {type HandwritingRecognitionResult}
+
+pub using @ocr {type HandwritingStrokeFeatures}
+
+pub using @ocr {type HandwritingStyle}
+
+pub using @ocr {type HandwritingTemplate}
+
+pub using @ocr {type HogFeatures}
+
+pub using @meta {type IptcInfo}
+
+pub using @ocr {type KnnClassifier}
+
+pub using @ocr {type LRSchedulerConfig}
+
+pub using @ocr {type LRSchedulerType}
+
+pub using @ocr {type LanguageDetectionResult}
+
+pub using @ocr {type LanguageModelState}
+
+pub using @ocr {type LanguageType}
+
+pub using @ocr {type LayoutType}
+
+pub using @ocr {type LbpFeatures}
+
+pub using @ocr {type ListItemInfo}
+
+pub using @ocr {type ListItemType}
+
+pub using @ocr {type MarkdownDocument}
+
+pub using @ocr {type MarkdownElement}
+
+pub using @ocr {type MarkdownElementType}
+
+pub using @ocr {type MarkdownImage}
+
+pub using @ocr {type MarkdownSymbol}
+
+pub using @ocr {type MarkdownTable}
+
+pub using @ocr {type MemoryUsageStats}
+
+pub using @ocr {type ModelPackageConfig}
+
+pub using @ocr {type MultilingualOcrConfig}
+
+pub using @ocr {type MultilingualOcrEnhancedConfig}
+
+pub using @ocr {type NgramModel}
+
+pub using @ocr {type OCRPageResult}
+
+pub using @ocr {type OcrAccuracyEnhancedConfig}
+
+pub using @ocr {type OcrCharResult}
+
+pub using @ocr {type OcrConnectedComponent}
+
+pub using @ocr {type OcrConnectedComponentsResult}
+
+pub using @ocr {type OcrErrorType}
+
+pub using @ocr {type OcrResult}
+
+pub using @ocr {type OptimizerConfig}
+
+pub using @ocr {type OptimizerType}
+
+pub using @ocr {type PageRegion}
+
+pub using @ocr {type PageRegionType}
+
+pub using @ocr {type PerformanceBenchmark}
+
+pub using @meta {type PngTextChunk}
+
+pub using @ocr {type PostProcessConfig}
+
+pub using @ocr {type ProjectionFeatures}
+
+pub using @ocr {type ProjectionResult}
+
+pub using @ocr {type PunctuationTemplate}
+
+pub using @barcode {type QrDecodeResult}
+
+pub using @barcode {type QrFinderPattern}
+
+pub using @ocr {type RobustnessReport}
+
+pub using @fieldimg {type ScalarField}
+
+pub using @ocr {type ScanOCRConfig}
+
+pub using @ocr {type ScanQuality}
+
+pub using @ocr {type ScanQualityLevel}
+
+pub using @ocr {type SimilarCharMapping}
+
+pub using @ocr {type SplitPoint}
+
+pub using @ocr {type StatisticalFeatures}
+
+pub using @ocr {type StrokeFeature}
+
+pub using @ocr {type StrokeSegmentationResult}
+
+pub using @ocr {type StrokeType}
+
+pub using @ocr {type TableCell}
+
+pub using @ocr {type TableCellContent}
+
+pub using @ocr {type TableDetectionResult}
+
+pub using @ocr {type TableLine}
+
+pub using @ocr {type TableLineType}
+
+pub using @ocr {type TableStructure}
+
+pub using @ocr {type TemplateMatcher}
+
+pub using @fieldimg {type TensorField}
+
+pub using @ocr {type TextBlock}
+
+pub using @ocr {type TextLine}
+
+pub using @ocr {type TextLineAttributes}
+
+pub using @ocr {type TextLineInfo}
+
+pub using @ocr {type TextRegion}
+
+pub using @ocr {type TextRegionType}
+
+pub using @ocr {type TrainingConfig}
+
+pub using @ocr {type TrainingDataset}
+
+pub using @ocr {type TrainingMetrics}
+
+pub using @ocr {type TrainingSample}
+
+pub using @ocr {type TrainingState}
+
+pub using @fieldimg {type VectorField}
+
+pub using @meta {type XmpInfo}
+
+// Traits

@@ -4,6 +4,27 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.21] - 2026-11-26
+
+### Changed
+
+- **场景包收敛为 4 个入口（S16）**：新增 4 个场景模块 `image.doc` / `image.media` /
+  `image.commerce` / `image.pro`，每个模块一个入口包，用 `pub using` 同签名再导出原子包 API。
+  `photo` 场景由既有 `image.photography` 承担（不新增 `image.photo`），其余原子包并入 `image.pro`。
+  **模块数 7 → 11（不是 15）**，发布链随之 11 环。
+- `docs/scenes.json` 是归属真值（场景 → 包列表 + 模块依赖）；`scripts/gen_scenes.mjs` 从
+  `pkg.generated.mbti` 生成入口包（`moon.pkg` 的 import 列表 + `<scene>_scene.mbt` 的
+  `pub using @pkg {…}`），支持 `--check` 防漂移。生成器**跳过 `#deprecated` 符号**
+  （否则 `--deny-warn` 直接失败），跨包同名符号按 JSON 顺序先到先得并写入冲突清单，不静默丢失。
+- 再导出规模：doc 504 符号 / media 313 / commerce 257 / pro 1,462；库体公开面
+  **78 包 3,890 fn → 82 包 5,847 fn**（`docs/api_index.md` 含 playground 为 83 包 5,851 fn）。
+- `scripts/check_version.mjs` 的模块清单 7 → 11（含 4 个场景模块），版本统一 `0.1.21`。
+- `docs/scenes.md`：四个场景入口的适用面、包归属、冲突与弃用符号口径、发布链 11 环顺序。
+
+### Notes
+
+- 场景模块只是**入口**，不复制实现、不改测试归属；下游既可以 `moon add walkzzz/image.doc`
+  一次拿全场景 API，也可以继续只依赖某个原子模块（细粒度不变）。
 ## [0.1.20] - 2026-11-26
 
 ### Added

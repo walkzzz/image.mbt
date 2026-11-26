@@ -3,9 +3,9 @@
 > 本页只讲**怎么把 `walkzzz/image.*` 发到 mooncakes 让下游 `moon add` 能用**，以及 `moon publish --dry-run` 到底在校验什么。
 > 当前状态：**已发布 0.1.7**（2026-11-25，七个模块齐发，根包 `Server status: 200 OK`）。dry-run 结构性阻塞（依赖钉）已闭环，下游验收见文末。
 
-## 一、七个模块与发布顺序
+## 一、十一个模块与发布顺序
 
-工作区是 1 根 + 6 子模块，依赖是单向的（子模块不反向依赖根）：
+工作区是 1 根 + 6 原子子模块 + 4 场景入口模块（S16 起），依赖是单向的（子模块不反向依赖根；场景入口只依赖原子模块）：
 
 ```
 image.core        ← 谁都不依赖（types / testgen / error 基元）
@@ -15,9 +15,13 @@ image.photography ← core, codec, process
 image.vision      ← core, codec, process
 image.domain      ← core, codec, process, vision
 image.mbt（根）   ← 上面全部 + moonbitlang/x
+image.doc         ← core, codec, vision
+image.media       ← core, codec, process, domain
+image.commerce    ← core, codec, process, domain, photography
+image.pro         ← core, codec, process, photography, vision, domain
 ```
 
-**必须按上表从上往下逐个发**，同一版本号（0.1.x）。根模块发出去的那一刻，下游拿到的是"同版本的六件套"，任何一环落后一版，下游编译就会撞 API 缺失。
+**必须按上表从上往下逐个发**，同一版本号（0.1.x）。前 7 环（原子 + 根）是原有发布链，后 4 环（场景入口）只依赖原子模块、彼此无依赖，可任意顺序。任一环落后一版，下游编译就会撞 API 缺失——`check_version.mjs` 现在一次校验 **11 个 `moon.mod`**。
 
 ## 二、`moon publish --dry-run` 实际在校验什么（2026-11-25 实测）
 

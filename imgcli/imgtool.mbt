@@ -483,7 +483,7 @@ pub fn error_json(e : @types.ImageError) -> Out {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.20"
+pub let version : String = "0.1.21"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。

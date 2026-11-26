@@ -1,0 +1,6 @@
+import {
+  "walkzzz/image.vision/ocr",
+  "walkzzz/image.codec/barcode",
+  "walkzzz/image.codec/meta",
+  "walkzzz/image.vision/fieldimg",
+}

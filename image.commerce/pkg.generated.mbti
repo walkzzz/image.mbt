@@ -1,0 +1,554 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.commerce"
+
+import {
+  "walkzzz/image.codec/barcode",
+  "walkzzz/image.core/types",
+  "walkzzz/image.domain/watermark",
+  "walkzzz/image.photography/quality",
+  "walkzzz/image.process/color",
+  "walkzzz/image.process/enhance",
+  "walkzzz/image.process/transform",
+}
+
+// Values
+pub fn adaptive_threshold_gaussian(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn adaptive_threshold_gaussian_16(@types.Image16, Int32, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn adaptive_threshold_gaussian_f(@types.ImageF, Int32, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn adaptive_threshold_mean(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn adaptive_threshold_mean_16(@types.Image16, Int32, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn adaptive_threshold_mean_f(@types.ImageF, Int32, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn adjust_brightness(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn adjust_brightness_16(@types.Image16, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn adjust_brightness_f(@types.ImageF, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn adjust_contrast(@types.Image, Float) -> @types.Image raise @types.LoadError
+
+pub fn adjust_contrast_16(@types.Image16, Float) -> @types.Image16 raise @types.LoadError
+
+pub fn adjust_contrast_f(@types.ImageF, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn adjust_gamma(@types.Image, Float) -> @types.Image raise @types.LoadError
+
+pub fn adjust_gamma_16(@types.Image16, Float) -> @types.Image16 raise @types.LoadError
+
+pub fn adjust_gamma_f(@types.ImageF, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn adjust_hue(@types.Image, Float) -> @types.Image raise @types.LoadError
+
+pub fn adjust_saturation(@types.Image, Float) -> @types.Image raise @types.LoadError
+
+pub fn apply_colormap(@types.Image, @color.Colormap) -> @types.Image raise @types.LoadError
+
+pub fn barcode_default_config() -> @barcode.BarcodeConfig
+
+pub fn batch_embed_watermark(Array[@types.Image], @types.Image, key? : Int32) -> Array[@types.Image]
+
+pub fn bilateral_filter_denoise(@types.Image, Int32, Double, Double) -> @types.Image raise @types.LoadError
+
+pub fn build_gaussian_pyramid(@types.Image, Int32) -> Array[@types.Image] raise @types.LoadError
+
+pub fn build_gaussian_pyramid_16(@types.Image16, Int32) -> Array[@types.Image16] raise @types.LoadError
+
+pub fn build_gaussian_pyramid_f(@types.ImageF, Int32) -> Array[@types.ImageF] raise @types.LoadError
+
+pub fn build_laplacian_pyramid(@types.Image, Int32) -> Array[@types.Image] raise @types.LoadError
+
+pub fn build_laplacian_pyramid_16(@types.Image16, Int32) -> Array[@types.Image16] raise @types.LoadError
+
+pub fn build_laplacian_pyramid_float(@types.ImageF, Int32) -> Array[@types.ImageF] raise @types.LoadError
+
+pub fn calculate_brightness(@types.Image) -> Double raise @types.LoadError
+
+pub fn calculate_contrast(@types.Image) -> Double raise @types.LoadError
+
+pub fn calculate_noise_level(@types.Image) -> Double raise @types.LoadError
+
+pub fn calculate_sharpness(@types.Image) -> Double raise @types.LoadError
+
+pub fn clahe(@types.Image, Int32, Float) -> @types.Image raise @types.LoadError
+
+pub fn cmyk_to_rgb(Int32, Int32, Int32, Int32) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn cmyk_to_rgb_16(Int32, Int32, Int32, Int32) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn cmyk_to_rgb_f(Float, Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn compute_diff_image(@types.Image, @types.Image) -> @types.Image
+
+pub fn compute_energy(@types.Image) -> Array[Double]
+
+pub fn compute_energy_16(@types.Image16) -> Array[Double]
+
+pub fn compute_energy_f(@types.ImageF) -> Array[Double]
+
+pub fn compute_mae(@types.Image, @types.Image) -> Double
+
+pub fn compute_mse(@types.Image, @types.Image) -> Double
+
+pub fn compute_psnr(@types.Image, @types.Image) -> Double
+
+pub fn compute_quality_metrics(@types.Image, @types.Image) -> @quality.QualityMetrics
+
+pub fn compute_ssim(@types.Image, @types.Image) -> Double
+
+pub fn create_default_denoise_config() -> @enhance.DenoiseConfig
+
+pub fn create_rect_mask(Int32, Int32, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn crop(@types.Image, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn crop_16(@types.Image16, Int32, Int32, Int32, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn crop_f(@types.ImageF, Int32, Int32, Int32, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn crop_region(@types.Image, @types.Region) -> @types.Image
+
+pub fn dark_channel(@types.Image, patch_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn decode_barcode(@types.Image, config? : @barcode.BarcodeConfig) -> Array[@barcode.BarcodeResult] raise @types.LoadError
+
+pub fn decode_code128(@types.Image) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_code39(@types.Image) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_ean13(@types.Image, config? : @barcode.BarcodeConfig) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_linear_barcode(@types.Image) -> Array[@barcode.BarcodeResult] raise @types.LoadError
+
+pub fn decode_qrcode(@types.Image, config? : @barcode.BarcodeConfig) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn decode_qrcode_full(@types.Image) -> @barcode.QrDecodeResult? raise @types.LoadError
+
+pub fn decode_upca(@types.Image) -> @barcode.BarcodeResult? raise @types.LoadError
+
+pub fn dehaze(@types.Image, patch_size? : Int32, omega? : Float, t0? : Float) -> @types.Image raise @types.LoadError
+
+pub fn dehaze_16(@types.Image16, patch_size? : Int32, omega? : Float, t0? : Float) -> @types.Image16 raise @types.LoadError
+
+pub fn dehaze_advanced(@types.Image, config? : @enhance.DehazeConfig) -> @types.Image raise @types.LoadError
+
+pub fn dehaze_default_config() -> @enhance.DehazeConfig
+
+pub fn dehaze_f(@types.ImageF, patch_size? : Int32, omega? : Float, t0? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn dehaze_recover(@types.Image, @types.Image, Array[Int32], t_min? : Double) -> @types.Image raise @types.LoadError
+
+pub fn denoise(@types.Image, String) -> @types.Image raise @types.LoadError
+
+pub fn denoise_algorithm_to_string(@enhance.DenoiseAlgorithm) -> String
+
+pub fn denoise_bilateral(@types.Image, diameter? : Int32, sigma_color? : Double, sigma_space? : Double) -> @types.Image raise @types.LoadError
+
+pub fn denoise_image(@types.Image, @enhance.DenoiseConfig) -> @enhance.DenoiseResult raise @types.LoadError
+
+pub fn denoise_median(@types.Image, kernel_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn denoise_nlm(@types.Image, config? : @enhance.NlmConfig) -> @types.Image raise @types.LoadError
+
+pub fn denoise_report_to_string(@enhance.DenoiseResult) -> String
+
+pub fn detect_qr_finder_patterns(@types.Image) -> Array[@barcode.QrFinderPattern] raise @types.LoadError
+
+pub fn draw_circle(@types.Image, Int32, Int32, Int32, Array[Byte], thickness? : Int32, fill? : Bool) -> @types.Image
+
+pub fn draw_circle_16(@types.Image16, Int32, Int32, Int32, Array[Int32], thickness? : Int32, fill? : Bool) -> @types.Image16
+
+pub fn draw_circle_f(@types.ImageF, Int32, Int32, Int32, Array[Float], thickness? : Int32, fill? : Bool) -> @types.ImageF
+
+pub fn draw_copy(@types.Image, @types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn draw_line(@types.Image, Int32, Int32, Int32, Int32, Array[Byte], thickness? : Int32) -> @types.Image
+
+pub fn draw_line_16(@types.Image16, Int32, Int32, Int32, Int32, Array[Int32], thickness? : Int32) -> @types.Image16
+
+pub fn draw_line_f(@types.ImageF, Int32, Int32, Int32, Int32, Array[Float], thickness? : Int32) -> @types.ImageF
+
+pub fn draw_over(@types.Image, @types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn draw_polygon(@types.Image, Array[(Int32, Int32)], Array[Byte], thickness? : Int32, fill? : Bool) -> @types.Image
+
+pub fn draw_polygon_16(@types.Image16, Array[(Int32, Int32)], Array[Int32], thickness? : Int32) -> @types.Image16
+
+pub fn draw_polygon_f(@types.ImageF, Array[(Int32, Int32)], Array[Float], thickness? : Int32) -> @types.ImageF
+
+pub fn draw_rectangle(@types.Image, Int32, Int32, Int32, Int32, Array[Byte], thickness? : Int32, fill? : Bool) -> @types.Image
+
+pub fn draw_rectangle_16(@types.Image16, Int32, Int32, Int32, Int32, Array[Int32], thickness? : Int32, fill? : Bool) -> @types.Image16
+
+pub fn draw_rectangle_f(@types.ImageF, Int32, Int32, Int32, Int32, Array[Float], thickness? : Int32, fill? : Bool) -> @types.ImageF
+
+pub fn embed_text_watermark(@types.Image, String, key? : Int32) -> @types.Image
+
+pub fn embed_watermark_lsb(@types.Image, @types.Image, key? : Int32) -> @types.Image
+
+pub fn enhance_image_advanced(@types.Image, @enhance.EnhancementAlgorithm) -> @enhance.EnhancementResult raise @types.LoadError
+
+pub fn estimate_atmospheric_light(@types.Image, @types.Image, top_percent? : Int32) -> Array[Int32] raise @types.LoadError
+
+pub fn estimate_transmission(@types.Image, Array[Int32], omega? : Double, patch_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn extract_text_watermark(@types.Image, Int32, key? : Int32) -> String
+
+pub fn extract_watermark_lsb(@types.Image) -> @types.Image
+
+pub fn find_horizontal_seam(Array[Double], Int32, Int32) -> Array[Int32]
+
+pub fn find_vertical_seam(Array[Double], Int32, Int32) -> Array[Int32]
+
+pub fn flip_horizontal(@types.Image) -> @types.Image
+
+pub fn flip_horizontal_16(@types.Image16) -> @types.Image16
+
+pub fn flip_horizontal_f(@types.ImageF) -> @types.ImageF
+
+pub fn flip_vertical(@types.Image) -> @types.Image
+
+pub fn flip_vertical_16(@types.Image16) -> @types.Image16
+
+pub fn flip_vertical_f(@types.ImageF) -> @types.ImageF
+
+pub fn floyd_steinberg(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn floyd_steinberg_16(@types.Image16, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn floyd_steinberg_f(@types.ImageF, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn gamma_correction_enhance(@types.Image, Double) -> @types.Image raise @types.LoadError
+
+pub fn gamma_tonemap(@types.ImageF, Float) -> @types.Image raise @types.LoadError
+
+pub fn gamma_tonemap_16(@types.ImageF, Float) -> @types.Image16 raise @types.LoadError
+
+pub fn gamma_tonemap_f(@types.ImageF, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn gaussian_filter_denoise(@types.Image, Int32, Double) -> @types.Image raise @types.LoadError
+
+pub fn get_affine_transform(Array[(Float, Float)], Array[(Float, Float)]) -> @transform.AffineMatrix?
+
+pub fn get_perspective_transform(Array[(Float, Float)], Array[(Float, Float)]) -> @transform.PerspectiveMatrix?
+
+pub fn get_rotation_matrix_2d((Float, Float), Float, Float) -> @transform.AffineMatrix
+
+pub fn guided_filter(@types.Image, Array[Float], radius? : Int32, eps? : Float) -> Array[Float] raise @types.LoadError
+
+pub fn guided_filter_16(@types.Image16, Array[Float], radius? : Int32, eps? : Float) -> Array[Float] raise @types.LoadError
+
+pub fn guided_filter_f(@types.ImageF, Array[Float], radius? : Int32, eps? : Float) -> Array[Float] raise @types.LoadError
+
+pub fn guided_filter_image(@types.Image, @types.Image, radius? : Int32, eps? : Double) -> @types.Image raise @types.LoadError
+
+pub fn histogram_equalization_enhance(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn hsl_to_rgb(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn hsl_to_rgb_16(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn hsl_to_rgb_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn hsv_to_rgb(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn hsv_to_rgb_16(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn hsv_to_rgb_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn images_equal(@types.Image, @types.Image) -> Bool
+
+pub fn inpaint_advanced(@types.Image, @types.Image, radius? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn inpaint_default_config() -> @enhance.InpaintConfig
+
+pub fn invert(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn invert_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn invert_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn kmeans_quantize(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn kmeans_quantize_16(@types.Image16, Int32, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn kmeans_quantize_f(@types.ImageF, Int32, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn lab_to_rgb(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn lab_to_rgb_16(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn lab_to_rgb_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn mean_filter_denoise(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn median_cut(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn median_cut_16(@types.Image16, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn median_cut_f(@types.ImageF, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn median_filter_denoise(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn msr(@types.Image, sigmas? : Array[Float], gain? : Float, offset? : Float) -> @types.Image raise @types.LoadError
+
+pub fn msr_16(@types.Image16, sigmas? : Array[Float], gain? : Float, offset? : Float) -> @types.Image16 raise @types.LoadError
+
+pub fn msr_f(@types.ImageF, sigmas? : Array[Float], gain? : Float, offset? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn msrcr(@types.Image, sigmas? : Array[Float], gain? : Float, offset? : Float, alpha? : Float, beta? : Float) -> @types.Image raise @types.LoadError
+
+pub fn msrcr_16(@types.Image16, sigmas? : Array[Float], gain? : Float, offset? : Float, alpha? : Float, beta? : Float) -> @types.Image16 raise @types.LoadError
+
+pub fn msrcr_f(@types.ImageF, sigmas? : Array[Float], gain? : Float, offset? : Float, alpha? : Float, beta? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn multi_band_blend(@types.Image, @types.Image, @types.Image, num_bands? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn multi_band_blend_16(@types.Image16, @types.Image16, @types.Image16, num_bands? : Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn multi_band_blend_f(@types.ImageF, @types.ImageF, @types.ImageF, num_bands? : Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn nlm_default_config() -> @enhance.NlmConfig
+
+pub fn premultiply_alpha(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn premultiply_alpha_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn premultiply_alpha_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn pyr_down(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn pyr_down_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn pyr_down_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn pyr_up(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn pyr_up_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn pyr_up_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn reed_solomon_decode(Array[Int32], Int32) -> (Array[Int32], Int32)
+
+pub fn reinhard_tonemap(@types.ImageF, key? : Float) -> @types.Image raise @types.LoadError
+
+pub fn reinhard_tonemap_16(@types.ImageF, key? : Float) -> @types.Image16 raise @types.LoadError
+
+pub fn reinhard_tonemap_f(@types.ImageF, key? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn remove_horizontal_seam(@types.Image, Array[Int32]) -> @types.Image
+
+pub fn remove_horizontal_seam_16(@types.Image16, Array[Int32]) -> @types.Image16
+
+pub fn remove_horizontal_seam_f(@types.ImageF, Array[Int32]) -> @types.ImageF
+
+pub fn remove_small_objects(@types.Image, max_size? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn remove_vertical_seam(@types.Image, Array[Int32]) -> @types.Image
+
+pub fn remove_vertical_seam_16(@types.Image16, Array[Int32]) -> @types.Image16
+
+pub fn remove_vertical_seam_f(@types.ImageF, Array[Int32]) -> @types.ImageF
+
+pub fn remove_watermark(@types.Image, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn resize_16(@types.Image16, Int32, Int32) -> @types.Image16
+
+pub fn resize_f(@types.ImageF, Int32, Int32) -> @types.ImageF
+
+pub fn resize_subsample(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn resize_to_contain(@types.Image, Int32, Int32, Array[Byte]) -> @types.Image raise @types.LoadError
+
+pub fn resize_to_cover(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn rgb_to_cmyk(Int32, Int32, Int32) -> (Int32, Int32, Int32, Int32) raise @types.LoadError
+
+pub fn rgb_to_cmyk_16(Int32, Int32, Int32) -> (Int32, Int32, Int32, Int32) raise @types.LoadError
+
+pub fn rgb_to_cmyk_f(Float, Float, Float) -> (Float, Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_hsl(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_hsl_16(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_hsl_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_hsv(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_hsv_16(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_hsv_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_lab(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_lab_16(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_lab_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_xyz(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_xyz_16(Int32, Int32, Int32) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_xyz_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rgb_to_ycbcr(Int32, Int32, Int32) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn rgb_to_ycbcr_16(Int32, Int32, Int32) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn rgb_to_ycbcr_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn rotate(@types.Image, Float) -> @types.Image
+
+pub fn rotate_180(@types.Image) -> @types.Image
+
+pub fn rotate_180_16(@types.Image16) -> @types.Image16
+
+pub fn rotate_180_f(@types.ImageF) -> @types.ImageF
+
+pub fn rotate_270(@types.Image) -> @types.Image
+
+pub fn rotate_270_16(@types.Image16) -> @types.Image16
+
+pub fn rotate_270_f(@types.ImageF) -> @types.ImageF
+
+pub fn rotate_90(@types.Image) -> @types.Image
+
+pub fn rotate_90_16(@types.Image16) -> @types.Image16
+
+pub fn rotate_90_f(@types.ImageF) -> @types.ImageF
+
+pub fn seam_carve_resize(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn seam_carve_resize_16(@types.Image16, Int32, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn seam_carve_resize_f(@types.ImageF, Int32, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn ssr(@types.Image, sigma? : Float, gain? : Float, offset? : Float) -> @types.Image raise @types.LoadError
+
+pub fn ssr_16(@types.Image16, sigma? : Float, gain? : Float, offset? : Float) -> @types.Image16 raise @types.LoadError
+
+pub fn ssr_f(@types.ImageF, sigma? : Float, gain? : Float, offset? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn threshold_otsu(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn threshold_otsu_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn threshold_otsu_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn thumbnail(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn thumbnail_budgeted(@types.Image, Int32, @types.AllocBudget) -> @types.Image raise @types.ImageError
+
+pub fn thumbnail_dims(Int32, Int32, Int32) -> (Int32, Int32)
+
+pub fn to_grayscale(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn to_grayscale_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn to_grayscale_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn to_rgb(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn to_rgb_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn to_rgb_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn to_rgba(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn to_rgba_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn to_rgba_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn transpose_16(@types.Image16) -> @types.Image16
+
+pub fn transpose_f(@types.ImageF) -> @types.ImageF
+
+pub fn unpremultiply_alpha(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn unpremultiply_alpha_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn unpremultiply_alpha_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn unsharp_mask_enhance(@types.Image, Double, Int32) -> @types.Image raise @types.LoadError
+
+pub fn warp_affine(@types.Image, (Float, Float, Float, Float, Float, Float), Int32, Int32) -> @types.Image
+
+pub fn warp_affine_16(@types.Image16, (Float, Float, Float, Float, Float, Float), Int32, Int32) -> @types.Image16
+
+pub fn warp_affine_f(@types.ImageF, (Float, Float, Float, Float, Float, Float), Int32, Int32) -> @types.ImageF
+
+pub fn warp_perspective(@types.Image, @transform.PerspectiveMatrix, Int32, Int32) -> @types.Image
+
+pub fn warp_perspective_16(@types.Image16, @transform.PerspectiveMatrix, Int32, Int32) -> @types.Image16
+
+pub fn warp_perspective_f(@types.ImageF, @transform.PerspectiveMatrix, Int32, Int32) -> @types.ImageF
+
+pub fn watermark_default_config() -> @watermark.WatermarkConfig
+
+pub fn watermark_psnr(@types.Image, @types.Image) -> Double
+
+pub fn watermark_robustness_test(@types.Image, @types.Image, noise_level? : Double) -> Double
+
+pub fn xyz_to_rgb(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn xyz_to_rgb_16(Float, Float, Float) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn xyz_to_rgb_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+pub fn ycbcr_to_rgb(Int32, Int32, Int32) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn ycbcr_to_rgb_16(Int32, Int32, Int32) -> (Int32, Int32, Int32) raise @types.LoadError
+
+pub fn ycbcr_to_rgb_f(Float, Float, Float) -> (Float, Float, Float) raise @types.LoadError
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @transform {type AffineMatrix}
+
+pub using @barcode {type BarcodeConfig}
+
+pub using @barcode {type BarcodeResult}
+
+pub using @barcode {type BarcodeType}
+
+pub using @barcode {type Code128Charset}
+
+pub using @color {type Colormap}
+
+pub using @enhance {type DehazeConfig}
+
+pub using @enhance {type DenoiseAlgorithm}
+
+pub using @enhance {type DenoiseConfig}
+
+pub using @enhance {type DenoiseResult}
+
+pub using @enhance {type EnhancementAlgorithm}
+
+pub using @enhance {type EnhancementResult}
+
+pub using @enhance {type InpaintConfig}
+
+pub using @enhance {type NlmConfig}
+
+pub using @enhance {type NoiseType}
+
+pub using @transform {type PerspectiveMatrix}
+
+pub using @barcode {type QrDecodeResult}
+
+pub using @barcode {type QrFinderPattern}
+
+pub using @quality {type QualityMetrics}
+
+pub using @watermark {type WatermarkConfig}
+
+// Traits

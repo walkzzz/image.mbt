@@ -1,0 +1,3163 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "walkzzz/image.pro"
+
+import {
+  "walkzzz/image.core/types",
+  "walkzzz/image.domain/agent_kit",
+  "walkzzz/image.domain/forensics",
+  "walkzzz/image.domain/medical",
+  "walkzzz/image.domain/mesh",
+  "walkzzz/image.domain/performance",
+  "walkzzz/image.domain/point_cloud",
+  "walkzzz/image.domain/production_utils",
+  "walkzzz/image.domain/registration",
+  "walkzzz/image.domain/remote_sensing",
+  "walkzzz/image.domain/retrieval",
+  "walkzzz/image.domain/self_evolve",
+  "walkzzz/image.domain/texture",
+  "walkzzz/image.domain/util",
+  "walkzzz/image.photography/advanced_imaging",
+  "walkzzz/image.photography/compression",
+  "walkzzz/image.photography/computational_imaging",
+  "walkzzz/image.photography/fusion",
+  "walkzzz/image.photography/inpainting",
+  "walkzzz/image.photography/neural_rendering",
+  "walkzzz/image.photography/photo_enhance",
+  "walkzzz/image.photography/stitch",
+  "walkzzz/image.photography/style_transfer",
+  "walkzzz/image.photography/superres",
+  "walkzzz/image.process/detection",
+  "walkzzz/image.process/edge",
+  "walkzzz/image.process/feature",
+  "walkzzz/image.process/frequency",
+  "walkzzz/image.process/segment",
+  "walkzzz/image.process/stereo3d",
+  "walkzzz/image.vision/aoci",
+  "walkzzz/image.vision/face_recognition",
+  "walkzzz/image.vision/imgir",
+  "walkzzz/image.vision/intelligent_vision",
+  "walkzzz/image.vision/pose_estimation",
+  "walkzzz/image.vision/scene_understanding",
+  "walkzzz/image.vision/slam",
+  "walkzzz/image.vision/spatiotemporal",
+  "walkzzz/image.vision/video",
+  "walkzzz/image.vision/vlm_multimodal",
+}
+
+// Values
+pub fn adaptive_strategy(@imgir.IROp) -> @self_evolve.AdaptiveStrategy
+
+pub fn adaptive_strategy_all() -> @self_evolve.AdaptiveReport
+
+pub fn add_border(@types.Image, Int32, Int32, Int32, Int32, Array[Byte]) -> @types.Image raise @types.LoadError
+
+pub fn add_face_to_database(@face_recognition.FaceDatabase, @face_recognition.FaceFeature, String) -> @face_recognition.FaceDatabase
+
+pub fn add_noise_gaussian(@types.Image, Float, UInt32) -> @types.Image
+
+pub fn add_noise_salt_pepper(@types.Image, Float, UInt32) -> @types.Image
+
+pub fn add_text_overlay(@types.Image, Int32, Int32, Int32, Int32, Byte) -> @types.Image
+
+pub fn add_timestamp(@types.Image, Int32, Int32) -> @types.Image
+
+pub fn add_to_index(@retrieval.CBIRImageIndex, @retrieval.CBIRImageFeature) -> @retrieval.CBIRImageIndex
+
+pub fn add_watermark(@types.Image, @types.Image, Int32, Int32, Double) -> @types.Image
+
+pub fn adjust_exposure(@types.Image, @video.TimelapseConfig) -> @types.Image
+
+pub fn adjust_exposure_sequence(Array[@types.Image], @video.TimelapseConfig) -> Array[@types.Image]
+
+pub fn adjust_framerate(Array[@types.Image], Int32, Int32) -> Array[@types.Image]
+
+pub fn advanced_imaging_report_to_string(@advanced_imaging.ImagingModality, @types.Image, @advanced_imaging.AdvancedImagingConfig) -> String
+
+pub fn affine_apply(@registration.AffineTransform, Double, Double) -> (Double, Double)
+
+pub fn affine_compose(@registration.AffineTransform, @registration.AffineTransform) -> @registration.AffineTransform
+
+pub fn affine_identity() -> @registration.AffineTransform
+
+pub fn affine_rotation(Double) -> @registration.AffineTransform
+
+pub fn affine_scale(Double, Double) -> @registration.AffineTransform
+
+pub fn affine_translation(Double, Double) -> @registration.AffineTransform
+
+pub fn ahash(@types.Image) -> Array[Int32] raise @types.LoadError
+
+pub fn ahash_16(@types.Image16) -> Array[Int32] raise @types.LoadError
+
+pub fn ahash_f(@types.ImageF) -> Array[Int32] raise @types.LoadError
+
+pub fn align_images(@types.Image, @types.Image) -> (@types.Image, @registration.RegistrationResult) raise @types.LoadError
+
+pub fn all_ops() -> Array[@imgir.IROp]
+
+pub fn alpha_blend(@types.Image, @types.Image, Float) -> @types.Image raise @types.LoadError
+
+pub fn analyze_cfa_pattern(@types.Image) -> @forensics.CfaAnalysisResult
+
+pub fn analyze_color_distribution(@types.Image) -> @forensics.ColorAnalysisResult raise @types.LoadError
+
+pub fn analyze_color_quantization(@types.Image) -> @forensics.ColorQuantizationResult raise @types.LoadError
+
+pub fn analyze_compression_artifacts(@types.Image) -> @forensics.CompressionAnalysisResult raise @types.LoadError
+
+pub fn analyze_coverage_gaps() -> @self_evolve.CoverageGapReport
+
+pub fn analyze_dct_coefficients(@types.Image) -> @forensics.DctCoefficientResult
+
+pub fn analyze_details(@types.Image) -> @forensics.DetailAnalysisResult raise @types.LoadError
+
+pub fn analyze_edge_directions(@types.Image) -> Double raise @types.LoadError
+
+pub fn analyze_edges(@types.Image) -> @forensics.EdgeAnalysisResult raise @types.LoadError
+
+pub fn analyze_ela(@types.Image, Int32) -> @forensics.ElaAnalysisResult raise @types.LoadError
+
+pub fn analyze_face_attributes(@types.Image, @face_recognition.FaceDetectionResult, @face_recognition.FaceDatabase, @face_recognition.FaceRecognitionConfig) -> @face_recognition.FaceAttributeAnalysis raise @types.LoadError
+
+pub fn analyze_frequency_domain(@types.Image) -> @forensics.FrequencyAnalysisResult raise @types.LoadError
+
+pub fn analyze_geometry(@types.Image) -> @forensics.GeometryAnalysisResult raise @types.LoadError
+
+pub fn analyze_illumination_consistency(@types.Image) -> @forensics.IlluminationConsistencyResult
+
+pub fn analyze_jpeg_ghost(@types.Image) -> @forensics.JpegGhostResult
+
+pub fn analyze_metadata_forensics(@types.Image) -> @forensics.MetadataForensicsResult
+
+pub fn analyze_noise_pattern(@types.Image) -> @forensics.NoiseAnalysisResult raise @types.LoadError
+
+pub fn analyze_noise_residual(@types.Image) -> @forensics.NoiseResidualResult
+
+pub fn analyze_pipeline_root_cause(@imgir.IRPipeline) -> @self_evolve.RootCauseReport
+
+pub fn analyze_pixel_distribution(@types.Image) -> Double raise @types.LoadError
+
+pub fn analyze_polarization(@types.Image, @types.Image, @types.Image, @types.Image) -> @advanced_imaging.PolarizationData
+
+pub fn analyze_propagation(@imgir.IRPipeline) -> @self_evolve.PropagationReport
+
+pub fn analyze_propagation_all() -> @self_evolve.PropagationReport
+
+pub fn analyze_root_cause(@imgir.IROp) -> Array[@self_evolve.RootCause]
+
+pub fn analyze_root_cause_all() -> @self_evolve.RootCauseReport
+
+pub fn analyze_solid_areas(@types.Image) -> Double raise @types.LoadError
+
+pub fn analyze_texture(@types.Image) -> @forensics.TextureAnalysisResult raise @types.LoadError
+
+pub fn answer_visual_question(@types.Image, String, @scene_understanding.SceneUnderstandingConfig) -> @scene_understanding.VisualQuestionAnsweringResult
+
+pub fn apply_affine_transform(@types.Image, @registration.TransformMatrix) -> @types.Image
+
+pub fn apply_depth_of_field(@types.Image, @photo_enhance.DepthOfFieldConfig) -> @types.Image
+
+pub fn apply_homography(@stitch.Homography, Double, Double) -> (Double, Double)
+
+pub fn apply_lut(@types.Image, Array[Byte]) -> @types.Image raise @types.LoadError
+
+pub fn apply_motion_blur(@types.Image, Double, Int32) -> @types.Image
+
+pub fn apply_translation(@types.Image, Int32, Int32) -> @types.Image
+
+pub fn apply_video_filter(@types.Image, @video.VideoFilterParams) -> @types.Image
+
+pub fn apply_window_level(@types.Image, @medical.WindowLevel) -> @types.Image
+
+pub fn apply_window_level_medical(@medical.MedicalImage, @medical.WindowLevelConfig) -> @types.Image
+
+pub fn approx_poly_dp(Array[@edge.ContourPoint], Float, closed? : Bool) -> Array[@edge.ContourPoint] raise @types.LoadError
+
+pub fn are_equivalent(@imgir.IRPipeline, @imgir.IRPipeline) -> Bool
+
+pub fn associate_objects(Array[@video.MultiTrackedObject], Array[@video.MultiDetectedObject], @video.MultiTrackingConfig) -> Array[(Int32, Int32)]
+
+pub fn average_motion_sad(Array[@video.MotionVector]) -> Double
+
+pub fn bake_texture(Array[(Double, Double, Double)], Array[(Double, Double, Double)], Array[@texture.TextureCoord], Int32, Int32) -> @types.Image
+
+pub fn batch_extract_features(Array[(@types.Image, String)]) -> Array[@retrieval.ImageFeature]
+
+pub fn batch_photo_enhance(Array[@types.Image], String) -> Array[@types.Image]
+
+pub fn bbox_iou(@detection.BoundingBox, @detection.BoundingBox) -> Double raise @types.LoadError
+
+pub fn bbox_new(Int32, Int32, Int32, Int32, score? : Double, class_id? : Int32) -> @detection.BoundingBox raise @types.LoadError
+
+pub fn best_repair(@imgir.IROp) -> @self_evolve.StrategyRepairResult
+
+pub fn best_repair_all() -> Array[@self_evolve.StrategyRepairResult]
+
+pub fn bicubic_interpolate(@types.Image, Double) -> @types.Image
+
+pub fn bicubic_super_resolve(Array[@types.Image], @video.VideoSRConfig) -> Array[@types.Image]
+
+pub fn bilateral_filter(@types.Image, Int32, Float, Float) -> @types.Image raise @types.LoadError
+
+pub fn bilateral_filter_16(@types.Image16, Int32, Float, Float) -> @types.Image16 raise @types.LoadError
+
+pub fn bilateral_filter_f(@types.ImageF, Int32, Float, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn bilateral_filter_fast(@types.Image, Int32, Float, Float, Int32) -> @types.Image raise @types.LoadError
+
+pub fn bilateral_filter_fast_16(@types.Image16, Int32, Float, Float, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn bilateral_filter_fast_f(@types.ImageF, Int32, Float, Float, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn bilinear_interpolate(@types.Image, Double) -> @types.Image
+
+pub fn bilinear_sample(@texture.Texture2D, Double, Double) -> (Double, Double, Double)
+
+pub fn bilinear_upscale(@types.Image, Int32) -> @types.Image
+
+pub fn blend_color_burn(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_color_dodge(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_darken(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_difference(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_exclusion(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_hard_light(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_lighten(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_linear_burn(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_linear_dodge(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_multiply(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_overlay(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_screen(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn blend_soft_light(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn box_blur(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn box_blur_16(@types.Image16, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn box_blur_f(@types.ImageF, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn brightness_value(@types.Image) -> Float
+
+pub fn build_background_model(Array[@types.Image]) -> @video.BackgroundModel?
+
+pub fn build_dependency_graph(@aoci.SymbolIndex) -> Array[(String, Array[String])]
+
+pub fn build_from_mbti(String, String) -> @aoci.SymbolIndex
+
+pub fn build_index(Array[@aoci.SymbolCoord]) -> @aoci.SymbolIndex
+
+pub fn build_knowledge_graph() -> @self_evolve.KnowledgeGraph
+
+pub fn build_knowledge_graph_for_op(@imgir.IROp) -> @self_evolve.KnowledgeGraph
+
+pub fn build_module_deps() -> Array[@self_evolve.ModuleDep]
+
+pub fn build_symbol(pkg~ : String, name~ : String, kind~ : @aoci.SymbolKind, signature? : String, doc? : String, keywords? : Array[String]) -> @aoci.SymbolCoord
+
+pub fn bulk_copy_4x(Bytes, Int32, Array[Byte], Int32, Int32) -> Unit
+
+pub fn bulk_fill_4x(Array[Byte], Int32, Int32, Byte) -> Unit
+
+pub fn calculate_all_vegetation_indices(@remote_sensing.RemoteSensingImage) -> @remote_sensing.VegetationIndices
+
+pub fn calculate_bits_per_pixel(Int32, Int32, Int32) -> Double
+
+pub fn calculate_color_statistics(@types.Image) -> @style_transfer.ColorStatistics raise @types.LoadError
+
+pub fn calculate_compression_quality(@types.Image, @types.Image, Int32, Int32) -> @compression.CompressionQualityMetrics raise @types.LoadError
+
+pub fn calculate_compression_ratio(Int32, Int32) -> Double
+
+pub fn calculate_cosine_similarity(@face_recognition.FaceFeature, @face_recognition.FaceFeature) -> Double
+
+pub fn calculate_detection_metrics(Array[@detection.YoloBoundingBox], Array[@detection.YoloBoundingBox], Double) -> @detection.YoloDetectionMetrics raise @types.LoadError
+
+pub fn calculate_fusion_quality(@types.Image) -> Double
+
+pub fn calculate_image_entropy(@types.Image) -> Double raise @types.LoadError
+
+pub fn calculate_image_quality_metrics(@types.Image, @types.Image) -> @superres.ImageQualityMetrics
+
+pub fn calculate_iou(@detection.YoloBoundingBox, @detection.YoloBoundingBox) -> Double raise @types.LoadError
+
+pub fn calculate_joint_angle(@pose_estimation.HumanPose, Int32, Int32, Int32) -> Double
+
+pub fn calculate_medical_image_quality(@medical.MedicalImage) -> @medical.MedicalImageQuality
+
+pub fn calculate_mutual_information(@types.Image, @types.Image) -> Double
+
+pub fn calculate_ndbi(@remote_sensing.RemoteSensingImage, Int32, Int32) -> Array[Double]
+
+pub fn calculate_ndvi(@remote_sensing.RemoteSensingImage, Int32, Int32) -> Array[Double]
+
+pub fn calculate_ndwi(@remote_sensing.RemoteSensingImage, Int32, Int32) -> Array[Double]
+
+pub fn calculate_psnr_sr(@types.Image, @types.Image) -> Double
+
+pub fn calculate_remote_sensing_quality(@remote_sensing.RemoteSensingImage) -> @remote_sensing.RemoteSensingQuality
+
+pub fn calculate_retry_delay(@production_utils.RetryConfig, Int32) -> Double
+
+pub fn calculate_roi_stats(@medical.MedicalImage, Array[Bool]) -> (Double, Double, Int32)
+
+pub fn calculate_segmentation_metrics(Array[Int32], Array[Int32], Int32) -> @segment.SegmentationMetrics
+
+pub fn calculate_similarity(Array[Double], Array[Double], @retrieval.SimilarityMetric) -> Double
+
+pub fn calculate_spectral_signature(@remote_sensing.RemoteSensingImage, Int32, Int32) -> @remote_sensing.SpectralSignature
+
+pub fn calculate_ssim_sr(@types.Image, @types.Image) -> Double
+
+pub fn calculate_texture_features(@types.Image) -> @style_transfer.StyleTransferTextureFeatures raise @types.LoadError
+
+pub fn can_merge(@imgir.IROp, @imgir.IROp) -> Bool
+
+pub fn canny_edge(@types.Image, low_threshold? : Int32, high_threshold? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn canny_edge_16(@types.Image16, low_threshold? : Int32, high_threshold? : Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn canny_edge_f(@types.ImageF, low_threshold? : Float, high_threshold? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn cartoon(@types.Image, levels? : Int32, edge_threshold? : Double) -> @types.Image
+
+pub fn cartoonize(@types.Image, Double) -> @types.Image raise @types.LoadError
+
+pub fn catmull_clark_subdivide(@mesh.Mesh3D) -> @mesh.Mesh3D
+
+pub fn check_equivalence(@imgir.IRPipeline, @imgir.IRPipeline) -> @self_evolve.EquivalenceCheck
+
+pub fn check_equivalence_all() -> @self_evolve.EquivalenceReport
+
+pub fn check_inverse_pair(@imgir.IROp, @imgir.IROp) -> Bool
+
+pub fn check_regression(@self_evolve.PerfBaseline, @self_evolve.PerfBaseline) -> @self_evolve.PerfRegression
+
+pub fn ci_gate_all() -> Array[@self_evolve.CIGateResult]
+
+pub fn ci_gate_check(@imgir.IRPipeline) -> @self_evolve.CIGateResult
+
+pub fn ci_regression_all_pass() -> Bool
+
+pub fn ci_regression_gate(@imgir.IRPipeline) -> Bool
+
+pub fn clahe_enhance(@types.Image, clip_limit? : Double, tile_size? : Int32) -> @types.Image
+
+pub fn clamp_pixel_value(Int32) -> Int32
+
+pub fn clamp_pixel_value_double(Double) -> Double
+
+pub fn classification_colormap(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn classify_land_cover_simple(@remote_sensing.RemoteSensingImage) -> @remote_sensing.ClassificationResult
+
+pub fn classify_scene(@types.Image, @scene_understanding.SceneUnderstandingConfig) -> @scene_understanding.SceneClassificationResult
+
+pub fn co_evolve_all() -> @self_evolve.CoEvolveReport
+
+pub fn co_evolve_op(@imgir.IROp) -> @self_evolve.CoEvolveReport
+
+pub fn coded_aperture_reconstruct(@types.Image, @computational_imaging.CodedAperturePattern) -> @computational_imaging.ImagingReconstructionResult
+
+pub fn color_enhance(@types.Image, saturation? : Double, contrast? : Double) -> @types.Image
+
+pub fn color_transfer(@types.Image, @types.Image, Double) -> @types.Image raise @types.LoadError
+
+pub fn combine_all_strategies() -> @self_evolve.ComboReport
+
+pub fn combine_strategies(@imgir.IROp) -> @self_evolve.StrategyCombo
+
+pub fn combo_coverage_report() -> @self_evolve.ComboCoverageReport
+
+pub fn compare_hist(Array[Int32], Array[Int32], @feature.HistCompareMethod) -> Float raise @types.LoadError
+
+pub fn compare_pipelines(@imgir.IRPipeline, @imgir.IRPipeline) -> @self_evolve.PerfRegression
+
+pub fn compare_snapshots(@self_evolve.HistoryEntry, @self_evolve.HistoryEntry) -> String
+
+pub fn compile(Array[@agent_kit.Intent]) -> @imgir.IRPipeline
+
+pub fn compress_image(@types.Image, @compression.CompressionConfig) -> @compression.CompressionResult raise @types.LoadError
+
+pub fn compress_jpeg_simple(@types.Image, Double) -> @compression.CompressionResult raise @types.LoadError
+
+pub fn compress_png_simple(@types.Image) -> @compression.CompressionResult raise @types.LoadError
+
+pub fn compression_algorithm_to_string(@compression.CompressionAlgorithm) -> String
+
+pub fn compression_report_to_string(@compression.CompressionResult, @compression.CompressionQualityMetrics) -> String
+
+pub fn computational_imaging_report_to_string(@computational_imaging.ImagingReconstructionResult, String) -> String
+
+pub fn computational_photography_report(@photo_enhance.HdrImage, @photo_enhance.PanoramaResult) -> String
+
+pub fn compute_bitrate(Int32, Int32, Int32, Int32) -> Int32
+
+pub fn compute_centroid(@point_cloud.PointCloud3D) -> @point_cloud.Point3DLight
+
+pub fn compute_compression_ratio(Array[@types.Image], @video.EncodedVideo) -> Double
+
+pub fn compute_crop_region(Int32, Int32, Double) -> (Int32, Int32, Int32, Int32)
+
+pub fn compute_disparity(@types.Image, @types.Image, max_disparity? : Int32, block_size? : Int32) -> @types.Image
+
+pub fn compute_duration(Int32, Int32) -> Double
+
+pub fn compute_evi(@types.Image, @types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn compute_frame_difference(@types.Image, @types.Image, threshold? : Double) -> Double
+
+pub fn compute_frame_quality(@types.Image, @types.Image, @video.VideoQualityMetric) -> Double
+
+pub fn compute_glcm(@types.Image, Int32, Int32, levels? : Int32) -> Array[Array[Int32]] raise @types.LoadError
+
+pub fn compute_glcm_16(@types.Image16, Int32, Int32, levels? : Int32) -> Array[Array[Int32]] raise @types.LoadError
+
+pub fn compute_glcm_f(@types.ImageF, Int32, Int32, levels? : Int32) -> Array[Array[Int32]] raise @types.LoadError
+
+pub fn compute_image_text_similarity(@types.Image, String, @vlm_multimodal.VLMConfig) -> @vlm_multimodal.VisionTextEmbedding
+
+pub fn compute_interpolated_count(Int32, Int32) -> Int32
+
+pub fn compute_mesh_area(@mesh.Mesh3D) -> Double
+
+pub fn compute_mesh_centroid(@mesh.Mesh3D) -> @mesh.Vertex3D
+
+pub fn compute_mesh_volume(@mesh.Mesh3D) -> Double
+
+pub fn compute_motion_between_frames(@types.Image, @types.Image) -> @video.MotionEstimateResult
+
+pub fn compute_motion_field(@types.Image, @types.Image, @video.SearchConfig) -> Array[@video.MotionVector]
+
+pub fn compute_motion_vectors(@types.Image, @types.Image, Int32) -> Array[Int32]
+
+pub fn compute_msssim(@types.Image, @types.Image) -> Double
+
+pub fn compute_ndbi(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn compute_ndvi(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn compute_ndwi(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn compute_optical_flow(@types.Image, @types.Image, block_size? : Int32, search_range? : Int32) -> @video.OpticalFlowField
+
+pub fn compute_psnr(@types.Image, @types.Image) -> Double
+
+pub fn compute_sr_quality(Array[@types.Image], Array[@types.Image], Int32) -> Double
+
+pub fn compute_ssim(@types.Image, @types.Image) -> Double
+
+pub fn compute_stats(@types.Image) -> @util.ImageStats
+
+pub fn compute_stats_16(@types.Image16) -> @util.ImageStats
+
+pub fn compute_stats_f(@types.ImageF) -> @util.ImageStatsF
+
+pub fn compute_time_compression(Double, Double) -> Double
+
+pub fn compute_timelapse_count(Int32, Int32) -> Int32
+
+pub fn compute_timelapse_duration(Int32, Int32, Int32) -> Double
+
+pub fn compute_track_length(Array[@video.MultiTrackedObject]) -> Int32
+
+pub fn compute_trajectory(Array[@types.Image]) -> Array[@video.TrajectoryPoint]
+
+pub fn compute_uv_mapping(Array[(Double, Double, Double)], @texture.TextureMappingMethod) -> Array[@texture.TextureCoord]
+
+pub fn compute_video_quality(Array[@types.Image], Array[@types.Image], @video.VideoQualityMetric) -> @video.VideoQualityResult
+
+pub fn compute_vmaf_score(@types.Image, @types.Image) -> Double
+
+pub fn connected_components(@types.Image, Int32) -> (@segment.ConnectedComponentLabelImage, Array[@segment.ConnectedComponent]) raise @types.LoadError
+
+pub fn contour_area(@edge.Contour) -> Float
+
+pub fn contour_perimeter(@edge.Contour) -> Float
+
+pub fn contrast_value(@types.Image) -> Float
+
+pub fn convex_hull(Array[@edge.ContourPoint]) -> Array[@edge.ContourPoint]
+
+pub fn convolve(@types.Image, Array[Float], Float, Float) -> @types.Image raise @types.LoadError
+
+pub fn convolve_16(@types.Image16, Array[Float], Float, Float) -> @types.Image16 raise @types.LoadError
+
+pub fn convolve_f(@types.ImageF, Array[Float], Float, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn cosine_similarity_cbir(Array[Double], Array[Double]) -> Double
+
+pub fn count_active_tracks(Array[@video.MultiTrackedObject]) -> Int32
+
+pub fn count_by_category(Array[@self_evolve.TestCase]) -> Array[(@self_evolve.TestCategory, Int32)]
+
+pub fn count_by_kind(Array[@self_evolve.DegradationCase]) -> Array[(@self_evolve.DegradationKind, Int32)]
+
+pub fn coverage_percentage(@imgir.IROp) -> Int32
+
+pub fn create_animation(Array[@types.Image], fps? : Double) -> @video.VideoFrames
+
+pub fn create_cloud(Array[@point_cloud.Point3DLight]) -> @point_cloud.PointCloud3D
+
+pub fn create_default_action_config() -> @pose_estimation.ActionRecognitionConfig
+
+pub fn create_default_advanced_imaging_config(@advanced_imaging.ImagingModality) -> @advanced_imaging.AdvancedImagingConfig
+
+pub fn create_default_camera() -> @neural_rendering.CameraParams
+
+pub fn create_default_camera_intrinsics(Int32, Int32) -> @stereo3d.CameraIntrinsics3d
+
+pub fn create_default_coded_aperture(Int32) -> @computational_imaging.CodedAperturePattern
+
+pub fn create_default_color_histogram_config() -> @retrieval.ColorHistogramConfig
+
+pub fn create_default_compression_config() -> @compression.CompressionConfig
+
+pub fn create_default_diffusion_config() -> @vlm_multimodal.DiffusionConfig
+
+pub fn create_default_dof_config(Int32, Int32) -> @photo_enhance.DepthOfFieldConfig
+
+pub fn create_default_enhanced_verification_config() -> @forensics.EnhancedVerificationConfig
+
+pub fn create_default_enhancement_config() -> @superres.EnhancementConfig
+
+pub fn create_default_face_config() -> @face_recognition.FaceRecognitionConfig
+
+pub fn create_default_fusion_config() -> @vlm_multimodal.FusionConfig
+
+pub fn create_default_fusion_enhanced_config() -> @fusion.FusionEnhancedConfig
+
+pub fn create_default_gaussian_config() -> @neural_rendering.GaussianSplattingConfig
+
+pub fn create_default_genai_config() -> @vlm_multimodal.GenerativeAIConfig
+
+pub fn create_default_grabcut_config() -> @segment.GrabCutConfig
+
+pub fn create_default_hdr_config() -> @photo_enhance.ToneMappingConfig
+
+pub fn create_default_hog_config() -> @retrieval.HOGConfig
+
+pub fn create_default_inpainting_config() -> @inpainting.InpaintingConfig
+
+pub fn create_default_intelligent_vision_config() -> @intelligent_vision.IntelligentVisionConfig
+
+pub fn create_default_interpolation_config() -> @superres.InterpolationConfig
+
+pub fn create_default_kmeans_config() -> @segment.KMeansConfig
+
+pub fn create_default_lbp_config() -> @retrieval.LBPConfig
+
+pub fn create_default_lightfield_camera() -> @computational_imaging.LightFieldCameraParams
+
+pub fn create_default_medical_segmentation_config() -> @medical.MedicalSegmentationConfig
+
+pub fn create_default_nerf_config() -> @neural_rendering.NeRFConfig
+
+pub fn create_default_night_config() -> @photo_enhance.NightEnhanceConfig
+
+pub fn create_default_panorama_config() -> @photo_enhance.PanoramaConfig
+
+pub fn create_default_phase_config() -> @computational_imaging.PhaseRetrievalConfig
+
+pub fn create_default_pose_config() -> @pose_estimation.PoseEstimationConfig
+
+pub fn create_default_registration_advanced_config() -> @fusion.RegistrationAdvancedConfig
+
+pub fn create_default_registration_config_advanced() -> @registration.RegistrationConfigAdvanced
+
+pub fn create_default_remote_sensing_image(Int32, Int32, Int32) -> @remote_sensing.RemoteSensingImage
+
+pub fn create_default_retry_config() -> @production_utils.RetryConfig
+
+pub fn create_default_scene_config() -> @scene_understanding.SceneUnderstandingConfig
+
+pub fn create_default_slam_config() -> @slam.SLAMConfig
+
+pub fn create_default_source_verification_config() -> @forensics.SourceVerificationConfig
+
+pub fn create_default_stabilization_config() -> @video.VideoStabilizationConfig
+
+pub fn create_default_stereo_config() -> @stereo3d.StereoConfig3d
+
+pub fn create_default_style_transfer_config() -> @style_transfer.StyleTransferConfig
+
+pub fn create_default_vlm_config() -> @vlm_multimodal.VLMConfig
+
+pub fn create_default_watershed_config() -> @segment.WatershedConfigAdv
+
+pub fn create_default_window_level(String) -> @medical.WindowLevelConfig
+
+pub fn create_default_yolo_config() -> @detection.YoloConfig
+
+pub fn create_empty_cloud() -> @point_cloud.PointCloud3D
+
+pub fn create_empty_mesh() -> @mesh.Mesh3D
+
+pub fn create_face_database(@face_recognition.FaceRecognitionAlgorithm, Double) -> @face_recognition.FaceDatabase
+
+pub fn create_image_index() -> @retrieval.CBIRImageIndex
+
+pub fn create_memory_stats() -> @production_utils.MemoryUsageStats
+
+pub fn create_mesh(Array[@mesh.Vertex3D], Array[@mesh.TriangleFace]) -> @mesh.Mesh3D
+
+pub fn create_performance_timer(String) -> @production_utils.PerformanceTimer
+
+pub fn create_production_error(@production_utils.ProductionErrorCode, String, String) -> @production_utils.ProductionError
+
+pub fn create_rect_mask(Int32, Int32, Int32, Int32, Int32, Int32) -> @types.Image
+
+pub fn create_schedule(Array[@imgir.IROp]) -> @self_evolve.EvolutionSchedule
+
+pub fn create_texture(@types.Image, @texture.TextureConfig) -> @texture.Texture2D
+
+pub fn create_timelapse(Array[@types.Image], @video.TimelapseConfig) -> Array[@types.Image]
+
+pub fn create_transition_frame(@types.Image, @types.Image, Double, @video.TransitionParams) -> @types.Image
+
+pub fn crop_image(@types.Image, Int32, Int32) -> @types.Image
+
+pub fn ct_reconstruct_fbp(@computational_imaging.CTProjectionData, Int32) -> @computational_imaging.ImagingReconstructionResult
+
+pub fn cylindrical_mapping(Double, Double, Double) -> @texture.TextureCoord
+
+pub fn database_add_image(@retrieval.ImageDatabase, @retrieval.ImageFeature) -> @retrieval.ImageDatabase
+
+pub fn database_remove_image(@retrieval.ImageDatabase, String) -> @retrieval.ImageDatabase
+
+pub fn database_size(@retrieval.ImageDatabase) -> Int32
+
+pub fn dct_2d(@types.Image) -> Array[Array[Double]]
+
+pub fn dct_2d_16(@types.Image16) -> Array[Array[Double]]
+
+pub fn dct_2d_f(@types.ImageF) -> Array[Array[Double]]
+
+pub fn deblur_motion(@types.Image, kernel_size? : Int32, angle? : Double) -> @types.Image
+
+pub fn decide_all() -> @self_evolve.DecisionReport
+
+pub fn decide_op(@imgir.IROp) -> @self_evolve.AutoDecision
+
+pub fn decode_frame_inter(@video.EncodedFrame, @types.Image) -> @types.Image
+
+pub fn decode_frame_intra(@video.EncodedFrame) -> @types.Image
+
+pub fn decode_video(@video.EncodedVideo) -> Array[@types.Image]
+
+pub fn default_flicker_config() -> @video.FlickerConfig
+
+pub fn default_inpaint_config() -> @video.VideoInpaintConfig
+
+pub fn default_interp_config() -> @video.FrameInterpConfig
+
+pub fn default_mesh_config() -> @mesh.MeshConfig
+
+pub fn default_pointcloud_config() -> @point_cloud.PointCloudConfig
+
+pub fn default_search_config() -> @video.SearchConfig
+
+pub fn default_segmentation_config() -> @video.SegmentationConfig
+
+pub fn default_slow_motion_config() -> @video.SlowMotionConfig
+
+pub fn default_sr_config() -> @video.VideoSRConfig
+
+pub fn default_stabilization_config() -> @video.StabilizationConfig
+
+pub fn default_texture_config() -> @texture.TextureConfig
+
+pub fn default_tile_config() -> @performance.TileConfig
+
+pub fn default_timelapse_config() -> @video.TimelapseConfig
+
+pub fn default_tracking_config() -> @video.MultiTrackingConfig
+
+pub fn default_transcode_params() -> @video.TranscodeParams
+
+pub fn default_transition_params(@video.TransitionType) -> @video.TransitionParams
+
+pub fn default_video_codec_params() -> @video.VideoCodecParams
+
+pub fn default_video_filter_params(@video.VideoFilterType) -> @video.VideoFilterParams
+
+pub fn deflicker_histogram(Array[@types.Image], @video.FlickerConfig) -> Array[@types.Image]
+
+pub fn deflicker_luminance(Array[@types.Image], @video.FlickerConfig) -> Array[@types.Image]
+
+pub fn deflicker_temporal(Array[@types.Image], @video.FlickerConfig) -> Array[@types.Image]
+
+pub fn dehaze(@types.Image, @inpainting.DehazeAlgorithm) -> @inpainting.DehazeResult
+
+pub fn dehaze_clahe(@types.Image, Double, Int32) -> @types.Image
+
+pub fn dehaze_dark_channel(@types.Image, Double, Double) -> @inpainting.DehazeResult
+
+pub fn denoise_image(@types.Image, Double) -> @types.Image
+
+pub fn depth_map_to_image(@stereo3d.DepthMap3d) -> @types.Image
+
+pub fn depth_to_colormap(@types.Image, colormap? : String) -> @types.Image
+
+pub fn depth_to_point_cloud(@stereo3d.DepthMap3d, @stereo3d.CameraIntrinsics3d) -> @stereo3d.PointCloud3D
+
+pub fn depth_to_pointcloud(@types.Image, fx? : Double, fy? : Double, cx? : Double, cy? : Double, scale? : Double) -> @stereo3d.PointCloud
+
+pub fn dequantize(Array[Int32], Int32) -> Array[Int32]
+
+pub fn derain(@types.Image, @inpainting.DerainAlgorithm) -> @inpainting.DerainResult
+
+pub fn derain_morphological(@types.Image) -> @inpainting.DerainResult
+
+pub fn deshimmer(Array[@types.Image], Double) -> Array[@types.Image]
+
+pub fn detect_changes_simple(@remote_sensing.RemoteSensingImage, @remote_sensing.RemoteSensingImage, Double) -> @remote_sensing.ChangeDetectionResult
+
+pub fn detect_clone_regions(@types.Image, Int32, Double) -> @forensics.CloneDetectionResult raise @types.LoadError
+
+pub fn detect_crops(@types.Image, @intelligent_vision.IntelligentVisionConfig) -> Array[@intelligent_vision.CropDetectionResult]
+
+pub fn detect_defects(@types.Image, @intelligent_vision.IntelligentVisionConfig) -> Array[@intelligent_vision.DefectDetectionResult]
+
+pub fn detect_degradation(@imgir.IROp) -> Array[@self_evolve.DegradationCase]
+
+pub fn detect_exposure_type(@types.Image) -> (@photo_enhance.ExposureType, Double)
+
+pub fn detect_faces(@types.Image, @face_recognition.FaceRecognitionConfig) -> Array[@face_recognition.FaceDetectionResult] raise @types.LoadError
+
+pub fn detect_features_simple(@types.Image, max_features? : Int32) -> Array[@stitch.FeaturePoint]
+
+pub fn detect_features_slam(@types.Image, Int32, Double) -> Array[Array[Double]]
+
+pub fn detect_flicker(Array[@types.Image], Double) -> @video.FlickerDetection
+
+pub fn detect_harris_corners(@types.Image, Double) -> Array[@registration.FeaturePoint]
+
+pub fn detect_intrusion(@types.Image, Array[Double], @intelligent_vision.IntelligentVisionConfig) -> @intelligent_vision.IntrusionDetectionResult
+
+pub fn detect_keypoints(@types.Image, @pose_estimation.PoseEstimationConfig) -> Array[@pose_estimation.HumanPose] raise @types.LoadError
+
+pub fn detect_lanes(@types.Image, @intelligent_vision.IntelligentVisionConfig) -> @intelligent_vision.LaneDetectionResult
+
+pub fn detect_lesions_simple(@medical.MedicalImage, Double, Double) -> Array[@medical.Lesion]
+
+pub fn detect_loop_closure(Array[Array[Double]], Array[@slam.KeyFrame], Double) -> @slam.LoopClosureResult
+
+pub fn detect_objects_iv(@types.Image, @intelligent_vision.IntelligentVisionConfig) -> Array[@intelligent_vision.DetectionResultIV]
+
+pub fn detect_objects_simple(@types.Image, @detection.YoloConfig) -> @detection.YoloDetectionResult raise @types.LoadError
+
+pub fn detect_regressions() -> @self_evolve.RegressionReport
+
+pub fn detect_scene_change(@types.Image, @types.Image, threshold? : Double) -> (Bool, Double)
+
+pub fn detect_stars(@types.Image, @intelligent_vision.IntelligentVisionConfig) -> @intelligent_vision.StarDetectionResult
+
+pub fn detect_tamper_comprehensive(@types.Image, Int32) -> @forensics.TamperDetectionResult raise @types.LoadError
+
+pub fn detect_text_regions(@types.Image) -> @forensics.TextDetectionResult raise @types.LoadError
+
+pub fn detect_ui_elements(@types.Image) -> @forensics.UIDetectionResult raise @types.LoadError
+
+pub fn detection_report_to_string(@detection.YoloDetectionResult, @detection.YoloDetectionMetrics) -> String
+
+pub fn dhash(@types.Image) -> Array[Int32] raise @types.LoadError
+
+pub fn dhash_16(@types.Image16) -> Array[Int32] raise @types.LoadError
+
+pub fn dhash_f(@types.ImageF) -> Array[Int32] raise @types.LoadError
+
+pub fn diffusion_generate(String, String, @vlm_multimodal.DiffusionConfig, Int32) -> @vlm_multimodal.DiffusionResult
+
+pub fn dilate(@types.Image) -> @types.Image
+
+pub fn dilate_16(@types.Image16) -> @types.Image16
+
+pub fn dilate_custom(@types.Image, @segment.StructuringElement) -> @types.Image
+
+pub fn dilate_custom_16(@types.Image16, @segment.StructuringElement) -> @types.Image16
+
+pub fn dilate_custom_f(@types.ImageF, @segment.StructuringElement) -> @types.ImageF
+
+pub fn dilate_f(@types.ImageF) -> @types.ImageF
+
+pub fn disparity_to_depth(@types.Image, baseline? : Double, focal_length? : Double) -> @types.Image
+
+pub fn distance_transform(@types.Image, distance_type? : Int32) -> Array[Float] raise @types.LoadError
+
+pub fn downsample_fe(@types.Image) -> @types.Image
+
+pub fn draw_contours(@types.Image, Array[@edge.Contour], Array[Byte]) -> @types.Image raise @types.LoadError
+
+pub fn draw_contours_16(@types.Image16, Array[@edge.Contour], Array[Int32]) -> @types.Image16 raise @types.LoadError
+
+pub fn draw_contours_f(@types.ImageF, Array[@edge.Contour], Array[Float]) -> @types.ImageF raise @types.LoadError
+
+pub fn draw_corners(@types.Image, Array[@feature.CornerPoint], color? : Array[Byte], radius? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn draw_detections(@types.Image, Array[@detection.BoundingBox]) -> @types.Image raise @types.LoadError
+
+pub fn edge_collapse_simplify(@mesh.Mesh3D, Double) -> @mesh.Mesh3D
+
+pub fn edge_detect_laplacian(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn edge_detect_laplacian_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn edge_detect_laplacian_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn edge_detect_prewitt(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn edge_detect_prewitt_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn edge_detect_prewitt_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn edge_detect_sobel(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn edge_detect_sobel_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn edge_detect_sobel_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn encode_frame_inter(@types.Image, @types.Image, @video.VideoCodecParams) -> @video.EncodedFrame
+
+pub fn encode_frame_intra(@types.Image, @video.VideoCodecParams) -> @video.EncodedFrame
+
+pub fn encode_video(Array[@types.Image], @video.VideoCodecParams) -> @video.EncodedVideo
+
+pub fn enhance_image(@types.Image, @superres.EnhancementConfig) -> @types.Image
+
+pub fn enhance_night(@types.Image, @photo_enhance.NightEnhanceConfig) -> @types.Image
+
+pub fn enhanced_verification_report_to_string(@forensics.EnhancedVerificationResult) -> String
+
+pub fn entropy_value(@types.Image) -> Float
+
+pub fn equivalence_class(@imgir.IROp) -> Array[String]
+
+pub fn erode(@types.Image) -> @types.Image
+
+pub fn erode_16(@types.Image16) -> @types.Image16
+
+pub fn erode_custom(@types.Image, @segment.StructuringElement) -> @types.Image
+
+pub fn erode_custom_16(@types.Image16, @segment.StructuringElement) -> @types.Image16
+
+pub fn erode_custom_f(@types.ImageF, @segment.StructuringElement) -> @types.ImageF
+
+pub fn erode_f(@types.ImageF) -> @types.ImageF
+
+pub fn estimate_affine_transform(Array[@registration.FeatureMatch]) -> @registration.TransformMatrix
+
+pub fn estimate_age_gender(@types.Image, @face_recognition.FaceDetectionResult) -> @face_recognition.AgeGenderEstimationResult raise @types.LoadError
+
+pub fn estimate_benefit(@imgir.IRPipeline) -> Int32
+
+pub fn estimate_camera_pose(@slam.FeatureTrackingResult, @slam.SLAMConfig, @slam.CameraPose) -> @slam.CameraPose
+
+pub fn estimate_homography_ransac(Array[@stitch.MatchPair], Array[@stitch.FeaturePoint], Array[@stitch.FeaturePoint], iterations? : Int32, threshold? : Double) -> (@stitch.Homography?, Array[@stitch.MatchPair])
+
+pub fn estimate_motion_diamond(@types.Image, @types.Image, Int32, Int32, Int32, Int32) -> @video.MotionVector
+
+pub fn estimate_motion_full_search(@types.Image, @types.Image, Int32, Int32, Int32, Int32) -> @video.MotionVector
+
+pub fn estimate_motion_hex(@types.Image, @types.Image, Int32, Int32, Int32, Int32) -> @video.MotionVector
+
+pub fn estimate_motion_three_step(@types.Image, @types.Image, Int32, Int32, Int32, Int32) -> @video.MotionVector
+
+pub fn estimate_normals(@stereo3d.PointCloud3D, Double) -> Array[(Double, Double, Double)]
+
+pub fn estimate_op_cost(@imgir.IROp) -> @self_evolve.OpCost
+
+pub fn estimate_pipeline_cost(@imgir.IRPipeline) -> @self_evolve.PerfBaseline
+
+pub fn estimate_quality(Int32, Int32) -> Double
+
+pub fn estimate_translation(@types.Image, @types.Image, max_offset? : Int32) -> @registration.RegistrationResult raise @types.LoadError
+
+pub fn euclidean_clustering(@point_cloud.PointCloud3D, Double, Int32) -> @point_cloud.ClusterResult
+
+pub fn euclidean_distance_cbir(Array[Double], Array[Double]) -> Double
+
+pub fn eval_quality_all() -> @self_evolve.QualityReport
+
+pub fn eval_quality_op(@imgir.IROp) -> @self_evolve.QualityReport
+
+pub fn evaluate_face_quality(@types.Image, @face_recognition.FaceDetectionResult) -> Double raise @types.LoadError
+
+pub fn evolve(Array[@imgir.IROp]) -> @self_evolve.EvolveReport
+
+pub fn evolve_all() -> @self_evolve.EvolveReport
+
+pub fn evolve_cycle_all() -> Array[@self_evolve.EvolveCycleReport]
+
+pub fn evolve_degradation_scan(Array[@imgir.IROp]) -> @self_evolve.EvolveReport
+
+pub fn evolve_full_cycle(@imgir.IRPipeline) -> @self_evolve.EvolveCycleReport
+
+pub fn evolve_test_suite(Array[@imgir.IROp]) -> Array[@self_evolve.TestCase]
+
+pub fn evolve_tests_only(Array[@imgir.IROp]) -> @self_evolve.EvolveReport
+
+pub fn exec_optimize(@imgir.IRPipeline) -> @self_evolve.OptimizeExecResult
+
+pub fn exec_optimize_all() -> Array[@self_evolve.OptimizeExecResult]
+
+pub fn extract_channel(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn extract_color_histogram(@types.Image, @retrieval.ColorHistogramConfig) -> @retrieval.CBIRImageFeature
+
+pub fn extract_combined_features(@types.Image) -> @retrieval.CBIRImageFeature
+
+pub fn extract_face_feature(@types.Image, @face_recognition.FaceDetectionResult, @face_recognition.FaceRecognitionConfig) -> @face_recognition.FaceFeature raise @types.LoadError
+
+pub fn extract_foreground(@types.Image, @video.SegmentationResult) -> @types.Image
+
+pub fn extract_hog_feature(@types.Image, @retrieval.HOGConfig) -> @retrieval.CBIRImageFeature
+
+pub fn extract_image_features(@types.Image, String) -> @retrieval.ImageFeature
+
+pub fn extract_keyframes(Array[@types.Image], Double, method_type? : String) -> Array[@video.Keyframe]
+
+pub fn extract_lbp_feature(@types.Image, @retrieval.LBPConfig) -> @retrieval.CBIRImageFeature
+
+pub fn extract_skeleton(@pose_estimation.HumanPose) -> Array[@pose_estimation.SkeletonConnection]
+
+pub fn extract_tile(@types.Image, Int32, Int32, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn face_recognition_report_to_string(@face_recognition.FaceAttributeAnalysis) -> String
+
+pub fn false_color_composite(@types.Image, @types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn feature_based_registration(@types.Image, @types.Image, @registration.RegistrationConfigAdvanced) -> @registration.RegistrationResultAdvanced
+
+pub fn fft_2d(@types.Image) -> Array[@frequency.FFTResult] raise @types.LoadError
+
+pub fn fft_2d_16(@types.Image16) -> Array[@frequency.FFTResult] raise @types.LoadError
+
+pub fn fft_2d_f(@types.ImageF) -> Array[@frequency.FFTResult] raise @types.LoadError
+
+pub fn fft_magnitude(@frequency.FFTResult, Bool) -> @types.Image
+
+pub fn fft_magnitude_16(@frequency.FFTResult, Bool) -> @types.Image16
+
+pub fn fft_magnitude_f(@frequency.FFTResult, Bool) -> @types.ImageF
+
+pub fn fft_shift(@frequency.FFTResult) -> @frequency.FFTResult
+
+pub fn fill_alpha(@types.Image, Int32, Byte, Byte, Byte) -> @types.Image raise @types.LoadError
+
+pub fn filter_by_kind(Array[@self_evolve.RootCause], @self_evolve.DegradationKind) -> Array[@self_evolve.RootCause]
+
+pub fn filter_by_severity(Array[@self_evolve.DegradationCase], @self_evolve.Severity) -> Array[@self_evolve.DegradationCase]
+
+pub fn filter_detections(Array[@video.MultiDetectedObject], Double) -> Array[@video.MultiDetectedObject]
+
+pub fn find_contours(@types.Image) -> Array[@edge.Contour] raise @types.LoadError
+
+pub fn find_contours_16(@types.Image16) -> Array[@edge.Contour] raise @types.LoadError
+
+pub fn find_contours_f(@types.ImageF) -> Array[@edge.Contour] raise @types.LoadError
+
+pub fn find_redundant_ops(@imgir.IRPipeline) -> Array[String]
+
+pub fn find_under_tested_ops() -> Array[String]
+
+pub fn find_untested_ops() -> Array[String]
+
+pub fn flip_horizontal(@types.Image) -> @types.Image
+
+pub fn flip_vertical(@types.Image) -> @types.Image
+
+pub fn flood_fill(@types.Image, Int32, Int32, Array[Byte], threshold? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn frame_rate_conversion(Array[@types.Image], Double, Double, @video.FrameInterpConfig) -> Array[@types.Image]
+
+pub fn freq_filter(@types.Image, @frequency.FreqFilterType, Float, band_width? : Float) -> @types.Image raise @types.LoadError
+
+pub fn freq_filter_gaussian(@types.Image, @frequency.FreqFilterType, Float, band_width? : Float) -> @types.Image raise @types.LoadError
+
+pub fn fuse_alpha(@types.Image, @types.Image, alpha? : Double) -> @types.Image
+
+pub fn fuse_exposure(Array[@types.Image]) -> @types.Image
+
+pub fn fuse_images(@types.Image, @types.Image, config? : @fusion.FusionConfig) -> @types.Image
+
+pub fn fuse_images_advanced(Array[@types.Image], @fusion.FusionEnhancedConfig) -> @fusion.FusionResult
+
+pub fn fuse_laplacian_pyramid(Array[@types.Image], Int32) -> @types.Image
+
+pub fn fuse_maximum(Array[@types.Image]) -> @types.Image
+
+pub fn fuse_minimum(Array[@types.Image]) -> @types.Image
+
+pub fn fuse_modalities(Array[Double], Array[Double], @vlm_multimodal.FusionConfig) -> @vlm_multimodal.FusionResult
+
+pub fn fuse_multifocus(@types.Image, @types.Image) -> @types.Image
+
+pub fn fuse_simple_mean(Array[@types.Image]) -> @types.Image
+
+pub fn fuse_weighted_average(Array[@types.Image], Array[Double]) -> @types.Image
+
+pub fn fusion_default_config() -> @fusion.FusionConfig
+
+pub fn fusion_report_to_string(@vlm_multimodal.FusionResult) -> String
+
+pub fn gabor_filter(@types.Image, Int32, Float, Float, lambda? : Float, gamma? : Float, phi? : Float) -> @types.Image raise @types.LoadError
+
+pub fn gabor_filter_16(@types.Image16, Int32, Float, Float, lambda? : Float, gamma? : Float, phi? : Float) -> @types.Image16 raise @types.LoadError
+
+pub fn gabor_filter_bank(@types.Image, Int32, Float, num_orientations? : Int32, lambda? : Float, gamma? : Float) -> @types.Image raise @types.LoadError
+
+pub fn gabor_filter_bank_16(@types.Image16, Int32, Float, num_orientations? : Int32, lambda? : Float, gamma? : Float) -> @types.Image16 raise @types.LoadError
+
+pub fn gabor_filter_bank_f(@types.ImageF, Int32, Float, num_orientations? : Int32, lambda? : Float, gamma? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn gabor_filter_f(@types.ImageF, Int32, Float, Float, lambda? : Float, gamma? : Float, phi? : Float) -> @types.ImageF raise @types.LoadError
+
+pub fn gabor_kernel(Int32, Float, Float, lambda? : Float, gamma? : Float, phi? : Float) -> Array[Array[Float]] raise @types.LoadError
+
+pub fn gaussian_blur(@types.Image, Int32, Float) -> @types.Image raise @types.LoadError
+
+pub fn gaussian_blur_16(@types.Image16, Int32, Float) -> @types.Image16 raise @types.LoadError
+
+pub fn gaussian_blur_f(@types.ImageF, Int32, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn gaussian_blur_fe(@types.Image, Int32) -> @types.Image
+
+pub fn gen_all_combos() -> Array[@self_evolve.OpCombo]
+
+pub fn gen_boundary_tests(@imgir.IROp) -> Array[@self_evolve.TestCase]
+
+pub fn gen_combo_tests() -> Array[@self_evolve.TestCase]
+
+pub fn gen_edge_tests(@imgir.IROp) -> Array[@self_evolve.TestCase]
+
+pub fn gen_executable_suite(Array[@self_evolve.TestCase]) -> Array[@self_evolve.ExecutableTest]
+
+pub fn gen_executable_test(@self_evolve.TestCase) -> @self_evolve.ExecutableTest
+
+pub fn gen_normal_tests(@imgir.IROp) -> Array[@self_evolve.TestCase]
+
+pub fn gen_test_file_content(Array[@self_evolve.ExecutableTest]) -> String
+
+pub fn gen_test_file_for_all() -> Array[@self_evolve.ExecutableTestFile]
+
+pub fn gen_test_file_for_op(@imgir.IROp) -> @self_evolve.ExecutableTestFile
+
+pub fn gen_test_for_op(@imgir.IROp) -> Array[@self_evolve.TestCase]
+
+pub fn generate_caption(@types.Image, @scene_understanding.SceneUnderstandingConfig) -> @scene_understanding.ImageCaptioningResult
+
+pub fn generate_hologram(@types.Image, Double, Double, Double) -> @computational_imaging.Hologram
+
+pub fn generate_hyperspectral_cube(@types.Image, Int32, Double, Double) -> @advanced_imaging.HyperspectralData
+
+pub fn generate_rays(@neural_rendering.CameraParams) -> Array[@neural_rendering.Ray]
+
+pub fn generate_sample_gaussians(Int32) -> Array[@neural_rendering.Gaussian3D]
+
+pub fn generate_sample_lightfield(@types.Image, @computational_imaging.LightFieldCameraParams) -> @computational_imaging.LightFieldData
+
+pub fn generate_scene_graph(@types.Image, @scene_understanding.SceneUnderstandingConfig) -> @scene_understanding.SceneGraph
+
+pub fn generate_slow_motion(Array[@types.Image], @video.SlowMotionConfig) -> Array[@types.Image]
+
+pub fn generate_transition(@types.Image, @types.Image, @video.TransitionParams) -> Array[@types.Image]
+
+pub fn generate_video_summary(Array[@types.Image], Double) -> @video.VideoSummary
+
+pub fn get_coco_keypoint_names() -> Array[String]
+
+pub fn get_coco_skeleton_connections() -> Array[Array[Int32]]
+
+pub fn get_common_scene_types() -> Array[String]
+
+pub fn glcm_features(Array[Array[Int32]]) -> @feature.GlcmFeatures
+
+pub fn glcm_features_multi_direction(@types.Image, levels? : Int32) -> Array[@feature.GlcmFeatures] raise @types.LoadError
+
+pub fn glcm_features_multi_direction_16(@types.Image16, levels? : Int32) -> Array[@feature.GlcmFeatures] raise @types.LoadError
+
+pub fn glcm_features_multi_direction_f(@types.ImageF, levels? : Int32) -> Array[@feature.GlcmFeatures] raise @types.LoadError
+
+pub fn good_features_to_track(@types.Image, Int32, Float, min_distance? : Int32) -> Array[@feature.CornerPoint] raise @types.LoadError
+
+pub fn good_features_to_track_16(@types.Image16, Int32, Float, min_distance? : Int32) -> Array[@feature.CornerPoint] raise @types.LoadError
+
+pub fn good_features_to_track_f(@types.ImageF, Int32, Float, min_distance? : Int32) -> Array[@feature.CornerPoint] raise @types.LoadError
+
+pub fn grab_cut(@types.Image, Int32, Int32, Int32, Int32, iterations? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn grabcut_segmentation(@types.Image, Int32, Int32, Int32, Int32, @segment.GrabCutConfig) -> @segment.SemanticSegmentationResult raise @types.LoadError
+
+pub fn gradient_map(@types.Image, Array[(Int32, Byte, Byte, Byte)]) -> @types.Image raise @types.LoadError
+
+pub fn grill_rule_desc(@self_evolve.GrillRule) -> String
+
+pub fn grill_rules() -> Array[@self_evolve.GrillRule]
+
+pub fn haar_denoise(@types.Image, threshold? : Float, soft? : Bool, levels? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn haar_denoise_16(@types.Image16, threshold? : Float, soft? : Bool, levels? : Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn haar_denoise_f(@types.ImageF, threshold? : Float, soft? : Bool, levels? : Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn haar_inverse_transform_2d(@frequency.HaarWaveletResult) -> @types.Image
+
+pub fn haar_inverse_transform_2d_16(@frequency.HaarWaveletResult) -> @types.Image16
+
+pub fn haar_inverse_transform_2d_f(@frequency.HaarWaveletResult) -> @types.ImageF
+
+pub fn haar_transform_1d(Array[Float]) -> Array[Float]
+
+pub fn haar_transform_2d(@types.Image, levels? : Int32) -> @frequency.HaarWaveletResult raise @types.LoadError
+
+pub fn haar_transform_2d_16(@types.Image16, levels? : Int32) -> @frequency.HaarWaveletResult raise @types.LoadError
+
+pub fn haar_transform_2d_f(@types.ImageF, levels? : Int32) -> @frequency.HaarWaveletResult raise @types.LoadError
+
+pub fn hamming_distance(Array[Int32], Array[Int32]) -> Int32 raise @types.LoadError
+
+pub fn harris_corners(@types.Image, k? : Float, threshold? : Float, min_distance? : Int32) -> Array[@feature.CornerPoint] raise @types.LoadError
+
+pub fn harris_corners_16(@types.Image16, k? : Float, threshold? : Float, min_distance? : Int32) -> Array[@feature.CornerPoint] raise @types.LoadError
+
+pub fn harris_corners_f(@types.ImageF, k? : Float, threshold? : Float, min_distance? : Int32) -> Array[@feature.CornerPoint] raise @types.LoadError
+
+pub fn has_propagation_risk(@imgir.IRPipeline) -> Bool
+
+pub fn has_regression(String) -> Bool
+
+pub fn hdr_default_config() -> @photo_enhance.HdrConfig
+
+pub fn hdr_fusion_average(Array[@types.Image]) -> @types.Image raise @types.LoadError
+
+pub fn hdr_fusion_weighted(Array[@types.Image]) -> @types.Image raise @types.LoadError
+
+pub fn hdr_merge(Array[@types.Image], Array[Double]) -> @photo_enhance.HdrImage
+
+pub fn hdr_process(Array[@types.Image], config? : @photo_enhance.HdrConfig) -> @types.Image raise @types.LoadError
+
+pub fn high_priority_ops() -> Array[String]
+
+pub fn histogram(@types.Image) -> Array[Int32] raise @types.LoadError
+
+pub fn histogram_16(@types.Image16) -> Array[Int32] raise @types.LoadError
+
+pub fn histogram_equalize(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn histogram_equalize_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn histogram_equalize_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn histogram_f(@types.ImageF) -> Array[Int32] raise @types.LoadError
+
+pub fn histogram_intersection_cbir(Array[Double], Array[Double]) -> Double
+
+pub fn histogram_matching(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn histogram_matching_16(@types.Image16, @types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn histogram_matching_f(@types.ImageF, @types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn histogram_normalize(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn histogram_normalize_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn histogram_normalize_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn history_log() -> @self_evolve.HistoryLog
+
+pub fn horn_schunck(@types.Image, @types.Image, alpha? : Float, iterations? : Int32) -> (Array[Float], Array[Float]) raise @types.LoadError
+
+pub fn horn_schunck_16(@types.Image16, @types.Image16, alpha? : Float, iterations? : Int32) -> (Array[Float], Array[Float]) raise @types.LoadError
+
+pub fn horn_schunck_f(@types.ImageF, @types.ImageF, alpha? : Float, iterations? : Int32) -> (Array[Float], Array[Float]) raise @types.LoadError
+
+pub fn hough_circles(@types.Image, dp? : Int32, min_dist? : Int32, param1? : Int32, param2? : Int32, min_radius? : Int32, max_radius? : Int32) -> Array[@edge.Circle] raise @types.LoadError
+
+pub fn hough_circles_16(@types.Image16, dp? : Int32, min_dist? : Int32, param1? : Int32, param2? : Int32, min_radius? : Int32, max_radius? : Int32) -> Array[@edge.Circle] raise @types.LoadError
+
+pub fn hough_circles_f(@types.ImageF, dp? : Int32, min_dist? : Int32, param1? : Int32, param2? : Int32, min_radius? : Int32, max_radius? : Int32) -> Array[@edge.Circle] raise @types.LoadError
+
+pub fn hough_lines(@types.Image, Int32, theta_resolution? : Float, rho_resolution? : Float) -> Array[@edge.HoughLine] raise @types.LoadError
+
+pub fn hough_lines_16(@types.Image16, Int32, theta_resolution? : Float, rho_resolution? : Float) -> Array[@edge.HoughLine] raise @types.LoadError
+
+pub fn hough_lines_f(@types.ImageF, Int32, theta_resolution? : Float, rho_resolution? : Float) -> Array[@edge.HoughLine] raise @types.LoadError
+
+pub fn hough_lines_nms(Array[@edge.HoughLine], rho_threshold? : Float, theta_threshold? : Float) -> Array[@edge.HoughLine] raise @types.LoadError
+
+pub fn hstack(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn hu_moments(@edge.Moments) -> Array[Double] raise @types.LoadError
+
+pub fn icp_registration(@stereo3d.PointCloud3D, @stereo3d.PointCloud3D, Int32, Double) -> @stereo3d.RegistrationResult3d
+
+pub fn idct_2d(Array[Array[Double]]) -> @types.Image
+
+pub fn idct_2d_16(Array[Array[Double]]) -> @types.Image16
+
+pub fn idct_2d_f(Array[Array[Double]]) -> @types.ImageF
+
+pub fn identity_homography() -> @stitch.Homography
+
+pub fn ifft_2d(@frequency.FFTResult) -> @types.Image
+
+pub fn ifft_2d_16(@frequency.FFTResult) -> @types.Image16
+
+pub fn ifft_2d_f(@frequency.FFTResult) -> @types.ImageF
+
+pub fn ihaar_transform_1d(Array[Float]) -> Array[Float]
+
+pub fn image_database_new() -> @retrieval.ImageDatabase
+
+pub fn image_moments(Array[@edge.ContourPoint]) -> @edge.Moments
+
+pub fn image_similarity(@types.Image, @types.Image, method_type? : String) -> Double
+
+pub fn image_to_text(@types.Image, @vlm_multimodal.GenerativeAIConfig) -> @vlm_multimodal.GenerativeAIResult
+
+pub fn infrared_pseudocolor(@types.Image, @advanced_imaging.InfraredImagingType) -> @types.Image
+
+pub fn init_tracker(Array[@video.MultiDetectedObject], @video.MultiTrackingConfig) -> Array[@video.MultiTrackedObject]
+
+pub fn initialize_object_tracking(@detection.YoloDetectionResult) -> Array[@detection.YoloTrackedObject] raise @types.LoadError
+
+pub fn initialize_slam(@slam.SLAMConfig) -> @slam.SLAMState
+
+pub fn initialize_tracking(@types.Image, Int32, Int32, Int32, Int32, String) -> @video.TrackedObject
+
+pub fn inpaint(@types.Image, @types.Image, iterations? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn inpaint_16(@types.Image16, @types.Image16, iterations? : Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn inpaint_diffusion(@types.Image, @types.Image, Int32) -> @types.Image
+
+pub fn inpaint_f(@types.ImageF, @types.ImageF, iterations? : Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn inpaint_fast(@types.Image, @types.Image, radius? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn inpaint_fast_16(@types.Image16, @types.Image16, radius? : Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn inpaint_fast_f(@types.ImageF, @types.ImageF, radius? : Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn inpaint_pipeline(Array[@types.Image], Array[Bool], @video.VideoInpaintConfig, @video.FlickerConfig, Double) -> Array[@types.Image]
+
+pub fn inpaint_simple(@types.Image, @types.Image, Int32) -> @types.Image
+
+pub fn inpainting_report_to_string(@inpainting.InpaintingResult) -> String
+
+pub fn integral_image(@types.Image) -> @feature.IntegralImage raise @types.LoadError
+
+pub fn integral_image_16(@types.Image16) -> @feature.IntegralImage raise @types.LoadError
+
+pub fn integral_image_f(@types.ImageF) -> @feature.IntegralImage raise @types.LoadError
+
+pub fn integral_image_sq(@types.Image) -> @feature.IntegralImageSq raise @types.LoadError
+
+pub fn integral_image_sq_16(@types.Image16) -> @feature.IntegralImageSq raise @types.LoadError
+
+pub fn integral_image_sq_f(@types.ImageF) -> @feature.IntegralImageSq raise @types.LoadError
+
+pub fn integral_mean(@feature.IntegralImage, Int32, Int32, Int32, Int32) -> Float raise @types.LoadError
+
+pub fn integral_sum(@feature.IntegralImage, Int32, Int32, Int32, Int32) -> Int64 raise @types.LoadError
+
+pub fn integral_sum_sq(@feature.IntegralImageSq, Int32, Int32, Int32, Int32) -> Int64 raise @types.LoadError
+
+pub fn integral_variance(@feature.IntegralImage, @feature.IntegralImageSq, Int32, Int32, Int32, Int32) -> Float raise @types.LoadError
+
+pub fn intelligent_decision(@forensics.SourceVerificationResult, @forensics.UIDetectionResult, @forensics.TextDetectionResult, @forensics.GeometryAnalysisResult, @forensics.ColorQuantizationResult, Double, Double, Double, @forensics.EnhancedVerificationConfig) -> (@forensics.ImageSourceType, Double, Double, Double, String)
+
+pub fn intelligent_vision_report_to_string(String, Int32, Double, @intelligent_vision.IntelligentVisionConfig) -> String
+
+pub fn interp_pipeline(Array[@types.Image], @video.FrameInterpConfig) -> Array[@types.Image]
+
+pub fn interpolate_frame_blend(@types.Image, @types.Image, Double) -> @types.Image
+
+pub fn interpolate_frame_motion_compensation(@types.Image, @types.Image, Double) -> @types.Image
+
+pub fn interpolate_frame_optical_flow(@types.Image, @types.Image, Double) -> @types.Image
+
+pub fn interpolate_frames(@types.Image, @types.Image, num_frames? : Int32) -> Array[@types.Image]
+
+pub fn interpolate_frames_slow_motion(@types.Image, @types.Image, Double, @video.SlowMotionMethod) -> @types.Image
+
+pub fn invert_homography(@stitch.Homography) -> @stitch.Homography?
+
+pub fn ir_describe(@imgir.IRPipeline) -> String
+
+pub fn ir_deserialize(Bytes) -> @imgir.IRPipeline raise @types.LoadError
+
+pub fn ir_deserialize_op(Bytes, Int32) -> (@imgir.IROp, Int32) raise @types.LoadError
+
+pub fn ir_execute(@imgir.IRPipeline, @imgir.IRValue) -> @imgir.IRValue raise @types.LoadError
+
+pub fn ir_execute_op(@imgir.IROp, @imgir.IRValue) -> @imgir.IRValue raise @types.LoadError
+
+pub fn ir_serialize(@imgir.IRPipeline) -> Bytes
+
+pub fn ir_serialize_op(@imgir.IROp, Array[Byte]) -> Unit
+
+pub fn ir_type_check(@imgir.IRPipeline, String) -> String raise @types.LoadError
+
+pub fn is_identity_op(@imgir.IROp) -> Bool
+
+pub fn is_valid_2d_index(Int32, Int32, Int32, Int32) -> Bool
+
+pub fn is_valid_index(Int32, Int32) -> Bool
+
+pub fn kmeans_segment(@types.Image, Int32, max_iters? : Int32) -> (@segment.SegmentLabelImage, Array[@segment.SegmentRegion]) raise @types.LoadError
+
+pub fn kmeans_segment_16(@types.Image16, Int32, max_iters? : Int32) -> (@segment.SegmentLabelImage, Array[@segment.SegmentRegion]) raise @types.LoadError
+
+pub fn kmeans_segment_f(@types.ImageF, Int32, max_iters? : Int32) -> (@segment.SegmentLabelImage, Array[@segment.SegmentRegion]) raise @types.LoadError
+
+pub fn kmeans_segmentation(@types.Image, @segment.KMeansConfig) -> @segment.SemanticSegmentationResult raise @types.LoadError
+
+pub fn knn_search(@point_cloud.PointCloud3D, @point_cloud.Point3DLight, Int32) -> Array[Int32]
+
+pub fn land_cover_classification(@types.Image, @types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn lbp(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn lbp_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn lbp_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn lbp_uniform(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn lbp_uniform_16(@types.Image16) -> @types.Image16 raise @types.LoadError
+
+pub fn lbp_uniform_f(@types.ImageF) -> @types.ImageF raise @types.LoadError
+
+pub fn lightfield_refocus(@computational_imaging.LightFieldData, Double, Double) -> @computational_imaging.RefocusResult
+
+pub fn linear_interpolate_frames(@types.Image, @types.Image, Int32) -> Array[@types.Image]
+
+pub fn loop_subdivision(@mesh.Mesh3D) -> @mesh.Mesh3D
+
+pub fn low_light_default_config() -> @photo_enhance.LowLightConfig
+
+pub fn low_light_enhance(@types.Image, config? : @photo_enhance.LowLightConfig) -> @types.Image
+
+pub fn lucas_kanade(@types.Image, @types.Image, Array[(Int32, Int32)], window_size? : Int32, max_iter? : Int32) -> Array[@feature.FlowResult] raise @types.LoadError
+
+pub fn lucas_kanade_16(@types.Image16, @types.Image16, Array[(Int32, Int32)], window_size? : Int32, max_iter? : Int32) -> Array[@feature.FlowResult] raise @types.LoadError
+
+pub fn lucas_kanade_f(@types.ImageF, @types.ImageF, Array[(Int32, Int32)], window_size? : Int32, max_iter? : Int32) -> Array[@feature.FlowResult] raise @types.LoadError
+
+pub fn manhattan_distance_cbir(Array[Double], Array[Double]) -> Double
+
+pub fn mask_blend(@types.Image, @types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn match_feature_points(Array[@registration.FeaturePoint], Array[@registration.FeaturePoint], Double) -> Array[@registration.FeatureMatch]
+
+pub fn match_features(Array[@stitch.FeaturePoint], Array[@stitch.FeaturePoint], ratio_threshold? : Double) -> Array[@stitch.MatchPair]
+
+pub fn mean_value(@types.Image) -> Float
+
+pub fn mean_value_16(@types.Image16) -> Float
+
+pub fn mean_value_f(@types.ImageF) -> Float
+
+pub fn measure_area(@types.Image, pixel_area? : Double) -> Double
+
+pub fn measure_distance(Int32, Int32, Int32, Int32, pixel_spacing? : Double) -> Double
+
+pub fn median_blur(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn median_blur_16(@types.Image16, Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn median_blur_f(@types.ImageF, Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn median_value(@types.Image) -> Int32
+
+pub fn medical_colormap(@types.Image, colormap? : String) -> @types.Image
+
+pub fn medical_contrast_enhance(@types.Image, clip_limit? : Double, tile_size? : Int32) -> @types.Image
+
+pub fn medical_denoise(@types.Image, iterations? : Int32, kappa? : Double) -> @types.Image
+
+pub fn medical_image_registration(@medical.MedicalImage, @medical.MedicalImage, Int32) -> @medical.MedicalRegistrationResult
+
+pub fn medical_image_report_to_string(@medical.MedicalImage, Array[@medical.Lesion], @medical.MedicalImageQuality) -> String
+
+pub fn medical_threshold_segmentation(@medical.MedicalImage, Double, Double) -> Array[Bool]
+
+pub fn merge_ops(@imgir.IROp, @imgir.IROp) -> @imgir.IROp
+
+pub fn mesh_parameterization(@mesh.Mesh3D) -> Array[@mesh.UVCoord]
+
+pub fn mesh_pipeline(@mesh.Mesh3D, @mesh.MeshConfig) -> (@mesh.Mesh3D, Array[@mesh.UVCoord])
+
+pub fn meta_evolve_all() -> @self_evolve.MetaReport
+
+pub fn meta_evolve_op(@imgir.IROp) -> @self_evolve.MetaReport
+
+pub fn min_enclosing_circle(Array[@edge.ContourPoint]) -> (@edge.ContourPoint, Float)
+
+pub fn morph_blackhat(@types.Image) -> @types.Image
+
+pub fn morph_blackhat_16(@types.Image16) -> @types.Image16
+
+pub fn morph_blackhat_f(@types.ImageF) -> @types.ImageF
+
+pub fn morph_close(@types.Image) -> @types.Image
+
+pub fn morph_close_16(@types.Image16) -> @types.Image16
+
+pub fn morph_close_custom(@types.Image, @segment.StructuringElement) -> @types.Image
+
+pub fn morph_close_custom_16(@types.Image16, @segment.StructuringElement) -> @types.Image16
+
+pub fn morph_close_custom_f(@types.ImageF, @segment.StructuringElement) -> @types.ImageF
+
+pub fn morph_close_f(@types.ImageF) -> @types.ImageF
+
+pub fn morph_gradient(@types.Image) -> @types.Image
+
+pub fn morph_gradient_16(@types.Image16) -> @types.Image16
+
+pub fn morph_gradient_f(@types.ImageF) -> @types.ImageF
+
+pub fn morph_open(@types.Image) -> @types.Image
+
+pub fn morph_open_16(@types.Image16) -> @types.Image16
+
+pub fn morph_open_custom(@types.Image, @segment.StructuringElement) -> @types.Image
+
+pub fn morph_open_custom_16(@types.Image16, @segment.StructuringElement) -> @types.Image16
+
+pub fn morph_open_custom_f(@types.ImageF, @segment.StructuringElement) -> @types.ImageF
+
+pub fn morph_open_f(@types.ImageF) -> @types.ImageF
+
+pub fn morph_tophat(@types.Image) -> @types.Image
+
+pub fn morph_tophat_16(@types.Image16) -> @types.Image16
+
+pub fn morph_tophat_f(@types.ImageF) -> @types.ImageF
+
+pub fn motion_blur_sequence(Array[@types.Image], @video.SlowMotionConfig) -> Array[@types.Image]
+
+pub fn motion_compensation(@types.Image, Array[@video.MotionVector], Int32) -> @types.Image
+
+pub fn motion_consistency(Array[@video.SegmentationResult]) -> Double
+
+pub fn motion_estimate_and_compensate(@types.Image, @types.Image, @video.SearchConfig) -> @types.Image
+
+pub fn mri_synthesize(Int32, Int32, Double) -> @advanced_imaging.MRIData
+
+pub fn mse(@types.Image, @types.Image) -> Double raise @types.LoadError
+
+pub fn mse_16(@types.Image16, @types.Image16) -> Double raise @types.LoadError
+
+pub fn mse_f(@types.ImageF, @types.ImageF) -> Double raise @types.LoadError
+
+pub fn multi_object_track(Array[Array[@video.MultiDetectedObject]], @video.MultiTrackingConfig) -> Array[Array[@video.MultiTrackedObject]]
+
+pub fn multispectral_new(Int32, Int32, Array[@types.Image], band_names? : Array[String]) -> @remote_sensing.MultispectralImage
+
+pub fn multiview_stereo_reconstruction(Array[@types.Image], Array[@neural_rendering.CameraParams]) -> @neural_rendering.ReconstructionResult
+
+pub fn nearest_neighbor_interpolate(@types.Image, Double) -> @types.Image
+
+pub fn nearest_sample(@texture.Texture2D, Double, Double) -> (Double, Double, Double)
+
+pub fn neural_rendering_report_to_string(@neural_rendering.RenderingResult, @neural_rendering.NeuralRenderingAlgorithm) -> String
+
+pub fn nl_describe(Array[@agent_kit.Intent]) -> String
+
+pub fn nl_intents(String) -> Array[@agent_kit.Intent]
+
+pub fn nl_parse(String) -> Array[@agent_kit.Intent]
+
+pub fn nl_pipeline(String) -> @imgir.IRPipeline
+
+pub fn nl_preview(String) -> String
+
+pub fn nl_process(@types.Image, String) -> @types.Image raise @types.LoadError
+
+pub fn nl_process_value(@imgir.IRValue, String) -> @imgir.IRValue raise @types.LoadError
+
+pub fn nl_to_description(String) -> String
+
+pub fn nl_to_pipeline(String) -> @imgir.IRPipeline
+
+pub fn nlm_denoise(@types.Image, patch_size? : Int32, search_size? : Int32, h? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn nlm_denoise_16(@types.Image16, patch_size? : Int32, search_size? : Int32, h? : Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn nlm_denoise_f(@types.ImageF, patch_size? : Int32, search_size? : Int32, h? : Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn nlm_denoise_fast(@types.Image, patch_size? : Int32, search_size? : Int32, h? : Int32, step? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn nlm_denoise_fast_16(@types.Image16, patch_size? : Int32, search_size? : Int32, h? : Int32, step? : Int32) -> @types.Image16 raise @types.LoadError
+
+pub fn nlm_denoise_fast_f(@types.ImageF, patch_size? : Int32, search_size? : Int32, h? : Int32, step? : Int32) -> @types.ImageF raise @types.LoadError
+
+pub fn nms(Array[@detection.BoundingBox], iou_threshold? : Double) -> Array[@detection.BoundingBox] raise @types.LoadError
+
+pub fn non_max_suppression(Array[@detection.YoloBoundingBox], Double, Int32) -> Array[@detection.YoloBoundingBox] raise @types.LoadError
+
+pub fn normalized_cross_correlation(@types.Image, @types.Image) -> Double
+
+pub fn num_tiles(Int32, Int32, @performance.TileConfig) -> (Int32, Int32)
+
+pub fn oil_paint(@types.Image, radius? : Int32, intensity? : Int32) -> @types.Image
+
+pub fn oil_painting(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn optical_flow_interpolate(@types.Image, @types.Image, Int32, @video.FrameInterpConfig) -> Array[@types.Image]
+
+pub fn optimize_all(@imgir.IRPipeline) -> @self_evolve.OptimizationReport
+
+pub fn optimize_pipeline(@imgir.IRPipeline) -> @imgir.IRPipeline
+
+pub fn optimize_verified(@imgir.IRPipeline) -> Bool
+
+pub fn optimized_op_count(@imgir.IRPipeline) -> Int32
+
+pub fn orb_detect(@types.Image, max_features? : Int32, threshold? : Int32) -> Array[@feature.OrbDescriptor] raise @types.LoadError
+
+pub fn orb_detect_16(@types.Image16, max_features? : Int32, threshold? : Int32) -> Array[@feature.OrbDescriptor] raise @types.LoadError
+
+pub fn orb_detect_f(@types.ImageF, max_features? : Int32, threshold? : Int32) -> Array[@feature.OrbDescriptor] raise @types.LoadError
+
+pub fn orb_hamming(@feature.OrbDescriptor, @feature.OrbDescriptor) -> Int32
+
+pub fn orb_match(Array[@feature.OrbDescriptor], Array[@feature.OrbDescriptor], max_distance? : Int32) -> Array[@feature.DescriptorMatch] raise @types.LoadError
+
+pub fn otsu_threshold_value(@types.Image) -> Double raise @types.LoadError
+
+pub fn pad(@types.Image, Int32, Int32, Array[Byte]) -> @types.Image raise @types.LoadError
+
+pub fn pad_image(@types.Image, Int32, Int32, Byte) -> @types.Image
+
+pub fn paste_tile(@types.Image, @types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn perf_optimize_check(@imgir.IRPipeline) -> @self_evolve.PerfRegression
+
+pub fn pet_synthesize(Int32, Int32, String) -> @advanced_imaging.PETData
+
+pub fn phase10_capabilities() -> Array[@self_evolve.Phase10Capability]
+
+pub fn phase10_is_complete() -> Bool
+
+pub fn phase10_report() -> @self_evolve.Phase10Report
+
+pub fn phase10_total_functions() -> Int32
+
+pub fn phase10_total_tests() -> Int32
+
+pub fn phase10_total_types() -> Int32
+
+pub fn phase11_capabilities() -> Array[@self_evolve.Phase11Capability]
+
+pub fn phase11_is_complete() -> Bool
+
+pub fn phase11_report() -> @self_evolve.Phase11Report
+
+pub fn phase11_total_functions() -> Int32
+
+pub fn phase11_total_tests() -> Int32
+
+pub fn phase11_total_types() -> Int32
+
+pub fn phase4_capabilities() -> Array[@self_evolve.Phase4Capability]
+
+pub fn phase4_is_complete() -> Bool
+
+pub fn phase4_report() -> @self_evolve.Phase4Report
+
+pub fn phase4_total_functions() -> Int32
+
+pub fn phase4_total_tests() -> Int32
+
+pub fn phase4_total_types() -> Int32
+
+pub fn phase5_capabilities() -> Array[@self_evolve.Phase5Capability]
+
+pub fn phase5_is_complete() -> Bool
+
+pub fn phase5_report() -> @self_evolve.Phase5Report
+
+pub fn phase5_total_functions() -> Int32
+
+pub fn phase5_total_tests() -> Int32
+
+pub fn phase5_total_types() -> Int32
+
+pub fn phase6_capabilities() -> Array[@self_evolve.Phase6Capability]
+
+pub fn phase6_is_complete() -> Bool
+
+pub fn phase6_report() -> @self_evolve.Phase6Report
+
+pub fn phase6_total_functions() -> Int32
+
+pub fn phase6_total_tests() -> Int32
+
+pub fn phase6_total_types() -> Int32
+
+pub fn phase7_capabilities() -> Array[@self_evolve.Phase7Capability]
+
+pub fn phase7_is_complete() -> Bool
+
+pub fn phase7_report() -> @self_evolve.Phase7Report
+
+pub fn phase7_total_functions() -> Int32
+
+pub fn phase7_total_tests() -> Int32
+
+pub fn phase7_total_types() -> Int32
+
+pub fn phase8_capabilities() -> Array[@self_evolve.Phase8Capability]
+
+pub fn phase8_is_complete() -> Bool
+
+pub fn phase8_report() -> @self_evolve.Phase8Report
+
+pub fn phase8_total_functions() -> Int32
+
+pub fn phase8_total_tests() -> Int32
+
+pub fn phase8_total_types() -> Int32
+
+pub fn phase9_capabilities() -> Array[@self_evolve.Phase9Capability]
+
+pub fn phase9_is_complete() -> Bool
+
+pub fn phase9_report() -> @self_evolve.Phase9Report
+
+pub fn phase9_total_functions() -> Int32
+
+pub fn phase9_total_tests() -> Int32
+
+pub fn phase9_total_types() -> Int32
+
+pub fn phase_correlation_registration(@types.Image, @types.Image) -> @registration.RegistrationResultAdvanced
+
+pub fn phase_interpolate(@types.Image, @types.Image, Int32, @video.FrameInterpConfig) -> Array[@types.Image]
+
+pub fn phase_retrieval(@types.Image, @computational_imaging.PhaseRetrievalConfig) -> @computational_imaging.ImagingReconstructionResult
+
+pub fn phash(@types.Image) -> Array[Int32] raise @types.LoadError
+
+pub fn phash_16(@types.Image16) -> Array[Int32] raise @types.LoadError
+
+pub fn phash_f(@types.ImageF) -> Array[Int32] raise @types.LoadError
+
+pub fn pixelate(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn planar_mapping(Double, Double, Double) -> @texture.TextureCoord
+
+pub fn plane_segmentation(@point_cloud.PointCloud3D, Double, Int32) -> (@point_cloud.Point3DLight, Double, Array[Int32])
+
+pub fn point_cloud_new() -> @stereo3d.PointCloud
+
+pub fn pointcloud_pipeline(@point_cloud.PointCloud3D, @point_cloud.PointCloudConfig) -> (@point_cloud.PointCloud3D, @point_cloud.ClusterResult)
+
+pub fn pointcloud_voxel_downsample(@stereo3d.PointCloud, voxel_size? : Double) -> @stereo3d.PointCloud
+
+pub fn pose_estimation_report_to_string(Array[@pose_estimation.HumanPose], @pose_estimation.ActionRecognitionResult) -> String
+
+pub fn posterize(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn predict_all() -> @self_evolve.PredictionReport
+
+pub fn predict_op(@imgir.IROp) -> @self_evolve.EvolutionPrediction
+
+pub fn predictive_encode(@types.Image) -> Bytes raise @types.LoadError
+
+pub fn priority_from_coverage(Int32) -> @self_evolve.TestPriority
+
+pub fn process_frame_slam(@slam.SLAMState, @types.Image, @slam.SLAMConfig) -> @slam.SLAMState
+
+pub fn process_row_major(@types.Image, (Int32, Array[Byte]) -> Array[Byte]) -> @types.Image
+
+pub fn process_tiled(@types.Image, @performance.TileConfig, (@types.Image) -> @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn production_error_to_string(@production_utils.ProductionError) -> String
+
+pub fn propagation_chain(@imgir.IRPipeline) -> Array[@self_evolve.PropagationStep]
+
+pub fn psnr(@types.Image, @types.Image) -> Double raise @types.LoadError
+
+pub fn psnr_16(@types.Image16, @types.Image16) -> Double raise @types.LoadError
+
+pub fn psnr_f(@types.ImageF, @types.ImageF) -> Double raise @types.LoadError
+
+pub fn quality_pipeline(Array[@types.Image], Array[@types.Image]) -> Array[@video.VideoQualityResult]
+
+pub fn quantize(Array[Int32], Int32) -> Array[Int32]
+
+pub fn quantize_image(@types.Image, Int32) -> @types.Image raise @types.LoadError
+
+pub fn quantum_ghost_imaging(Int32, Int32, Int32, @advanced_imaging.QuantumImagingAlgorithm) -> @types.Image
+
+pub fn random_sampling(@point_cloud.PointCloud3D, Double) -> @point_cloud.PointCloud3D
+
+pub fn ransac_homography(Array[((Float, Float), (Float, Float))], iterations? : Int32, threshold? : Float) -> Array[Float]? raise @types.LoadError
+
+pub fn recognize_action(Array[@pose_estimation.HumanPose], @pose_estimation.ActionRecognitionConfig) -> @pose_estimation.ActionRecognitionResult
+
+pub fn recognize_expression(@types.Image, @face_recognition.FaceDetectionResult) -> @face_recognition.ExpressionRecognitionResult raise @types.LoadError
+
+pub fn recognize_face_in_database(@face_recognition.FaceDatabase, @face_recognition.FaceFeature, Array[Double]) -> @face_recognition.FaceRecognitionResult
+
+pub fn recognize_gesture(@pose_estimation.HumanPose) -> @pose_estimation.GestureRecognitionResult
+
+pub fn recognize_traffic_signs(@types.Image, @intelligent_vision.IntelligentVisionConfig) -> Array[@intelligent_vision.TrafficSignResult]
+
+pub fn recommend_all() -> @self_evolve.RecommendationReport
+
+pub fn recommend_for_pipeline(@imgir.IRPipeline) -> @self_evolve.RecommendationReport
+
+pub fn recommend_next(@imgir.IROp) -> @self_evolve.Recommendation
+
+pub fn reconstruct_hologram(@computational_imaging.Hologram) -> @computational_imaging.ImagingReconstructionResult
+
+pub fn reconstruction_report_to_string(@neural_rendering.ReconstructionResult, @neural_rendering.ReconstructionAlgorithm) -> String
+
+pub fn record_snapshot(@imgir.IRPipeline, String) -> @self_evolve.HistoryEntry
+
+pub fn recursive_sr(Array[@types.Image], @video.VideoSRConfig) -> Array[@types.Image]
+
+pub fn refine_bounding_box(@detection.YoloBoundingBox, Double, Double, Double, Double) -> @detection.YoloBoundingBox raise @types.LoadError
+
+pub fn refine_subpixel(@types.Image, @types.Image, Int32, Int32, @video.MotionVector, Int32) -> @video.SubpixelMotionVector
+
+pub fn region_growing(@types.Image, Array[(Int32, Int32)], threshold? : Double) -> @segment.SegmentationResult
+
+pub fn region_growing_segment(@types.Image, Array[(Int32, Int32)], threshold? : Int32) -> (@segment.SegmentLabelImage, Array[@segment.SegmentRegion]) raise @types.LoadError
+
+pub fn region_growing_segmentation(@medical.MedicalImage, Int32, Int32, Int32, Double) -> Array[Bool]
+
+pub fn register_images_advanced(@types.Image, @types.Image, @fusion.RegistrationAdvancedConfig) -> @fusion.RegistrationResult
+
+pub fn register_phase_correlation(@types.Image, @types.Image) -> @fusion.RegistrationResult
+
+pub fn registration_report_to_string_advanced(@registration.RegistrationResultAdvanced) -> String
+
+pub fn remote_sensing_report_to_string(@remote_sensing.RemoteSensingImage, @remote_sensing.ClassificationResult, @remote_sensing.ChangeDetectionResult, @remote_sensing.RemoteSensingQuality) -> String
+
+pub fn render_gaussian_splatting(@neural_rendering.CameraParams, Array[@neural_rendering.Gaussian3D], @neural_rendering.GaussianSplattingConfig) -> @neural_rendering.RenderingResult
+
+pub fn render_nerf(@neural_rendering.CameraParams, @neural_rendering.NeRFConfig) -> @neural_rendering.RenderingResult
+
+pub fn repair_all() -> Array[@self_evolve.RepairReport]
+
+pub fn repair_op(@imgir.IROp) -> @imgir.IROp
+
+pub fn repair_op_strategy(@imgir.IROp, @self_evolve.RepairStrategy) -> @imgir.IROp
+
+pub fn repair_pipeline(@imgir.IRPipeline) -> @imgir.IRPipeline
+
+pub fn repair_report(@imgir.IRPipeline) -> @self_evolve.RepairReport
+
+pub fn repair_with_strategies(@imgir.IROp) -> Array[@self_evolve.StrategyRepairResult]
+
+pub fn replace_color(@types.Image, Array[Byte], Array[Byte], Int32) -> @types.Image raise @types.LoadError
+
+pub fn resize_image(@types.Image, Int32, Int32, @video.ResolutionMode) -> @types.Image
+
+pub fn retrieval_report_to_string(@retrieval.CBIRRetrievalResultList, @retrieval.CBIRImageFeature) -> String
+
+pub fn retrieve_images(@retrieval.CBIRImageFeature, @retrieval.CBIRImageIndex, Int32, @retrieval.SimilarityMetric) -> @retrieval.CBIRRetrievalResultList
+
+pub fn rle_decode(Bytes) -> Array[Int32]
+
+pub fn rle_encode(Array[Int32]) -> Bytes
+
+pub fn rollback_to(String) -> @self_evolve.HistoryEntry?
+
+pub fn rotate90_power_is_identity(Int32) -> Bool
+
+pub fn route(@aoci.SymbolIndex, String) -> Array[@aoci.SymbolCoord]
+
+pub fn route_by_kind(@aoci.SymbolIndex, @aoci.SymbolKind) -> Array[@aoci.SymbolCoord]
+
+pub fn route_by_package(@aoci.SymbolIndex, String) -> Array[@aoci.SymbolCoord]
+
+pub fn route_top_k(@aoci.SymbolIndex, String, Int32) -> Array[@aoci.SymbolCoord]
+
+pub fn run_evolve_loop(@imgir.IROp) -> @self_evolve.LoopResult
+
+pub fn run_evolve_loop_all() -> @self_evolve.LoopResult
+
+pub fn run_full_evolution() -> @self_evolve.ScheduleResult
+
+pub fn run_grill_all() -> @self_evolve.GrillReport
+
+pub fn run_grill_check(@imgir.IRPipeline) -> @self_evolve.GrillReport
+
+pub fn run_length_decode(Bytes) -> Bytes
+
+pub fn run_length_encode(Bytes) -> Bytes
+
+pub fn run_schedule(@self_evolve.EvolutionSchedule) -> @self_evolve.ScheduleResult
+
+pub fn run_summary(Array[@self_evolve.TestRunResult]) -> @self_evolve.RunSummary
+
+pub fn run_test_case(@self_evolve.TestCase) -> @self_evolve.TestRunResult
+
+pub fn run_test_suite(Array[@self_evolve.TestCase]) -> Array[@self_evolve.TestRunResult]
+
+pub fn run_tests_for_all() -> Array[@self_evolve.TestRunResult]
+
+pub fn run_tests_for_op(@imgir.IROp) -> Array[@self_evolve.TestRunResult]
+
+pub fn sample_frames(Array[@types.Image], Int32) -> Array[@types.Image]
+
+pub fn sample_pointcloud(@point_cloud.PointCloud3D, @point_cloud.PointCloudConfig) -> @point_cloud.PointCloud3D
+
+pub fn sample_texture(@texture.Texture2D, Double, Double) -> (Double, Double, Double)
+
+pub fn scale_image(@types.Image, Int32, Int32) -> @types.Image
+
+pub fn scan_degradations(Array[@imgir.IROp]) -> Array[@self_evolve.DegradationCase]
+
+pub fn scene_understanding_report_to_string(@scene_understanding.SceneClassificationResult, @scene_understanding.ImageCaptioningResult, @scene_understanding.VisualQuestionAnsweringResult, @scene_understanding.SceneGraph) -> String
+
+pub fn score_all_ops() -> @self_evolve.SmartPriorityReport
+
+pub fn score_op(@imgir.IROp) -> @self_evolve.SmartScore
+
+pub fn se_cross(Int32) -> @segment.StructuringElement
+
+pub fn se_ellipse(Int32) -> @segment.StructuringElement
+
+pub fn se_rect(Int32, Int32) -> @segment.StructuringElement
+
+pub fn search_similar_images(@retrieval.ImageDatabase, @retrieval.ImageFeature, top_k? : Int32, method_type? : String) -> Array[@retrieval.SearchResult]
+
+pub fn segment_frame_difference(@types.Image, @types.Image, Double) -> @video.SegmentationResult
+
+pub fn segment_motion(Array[@types.Image], Double) -> Array[@video.SegmentationResult]
+
+pub fn segment_pointcloud(@point_cloud.PointCloud3D, @point_cloud.PointCloudConfig) -> @point_cloud.ClusterResult
+
+pub fn segment_to_color(@segment.SegmentLabelImage) -> @types.Image raise @types.LoadError
+
+pub fn segmentation_report_to_string(@segment.SemanticSegmentationResult, @segment.SegmentationMetrics) -> String
+
+pub fn segmentation_to_color(@segment.SegmentationResult, Int32, Int32) -> @types.Image
+
+pub fn segmentation_to_image(@segment.SemanticSegmentationResult) -> @types.Image
+
+pub fn set_alpha(@types.Image, Byte) -> @types.Image raise @types.LoadError
+
+pub fn sharpen(@types.Image, Float) -> @types.Image raise @types.LoadError
+
+pub fn sharpen_16(@types.Image16, Float) -> @types.Image16 raise @types.LoadError
+
+pub fn sharpen_f(@types.ImageF, Float) -> @types.ImageF raise @types.LoadError
+
+pub fn sharpen_image(@types.Image, Double) -> @types.Image
+
+pub fn sift_detect(@types.Image, max_features? : Int32, contrast_threshold? : Float) -> Array[@feature.SiftDescriptor] raise @types.LoadError
+
+pub fn sift_detect_16(@types.Image16, max_features? : Int32, contrast_threshold? : Float) -> Array[@feature.SiftDescriptor] raise @types.LoadError
+
+pub fn sift_detect_f(@types.ImageF, max_features? : Int32, contrast_threshold? : Float) -> Array[@feature.SiftDescriptor] raise @types.LoadError
+
+pub fn sift_match(Array[@feature.SiftDescriptor], Array[@feature.SiftDescriptor], max_distance? : Float, ratio_test? : Float) -> Array[@feature.SiftMatch] raise @types.LoadError
+
+pub fn simple_bisection_subdivide(@mesh.Mesh3D) -> @mesh.Mesh3D
+
+pub fn simplify_mesh(@mesh.Mesh3D, @mesh.MeshConfig) -> @mesh.Mesh3D
+
+pub fn skeletonize(@types.Image) -> @types.Image raise @types.LoadError
+
+pub fn sketch(@types.Image, blend? : Double) -> @types.Image
+
+pub fn sketch_effect(@types.Image, Double) -> @types.Image raise @types.LoadError
+
+pub fn slam_report_to_string(@slam.SLAMState) -> String
+
+pub fn slic(@types.Image, Int32, Int32, Int32) -> @segment.SuperpixelResult raise @types.LoadError
+
+pub fn slic_16(@types.Image16, Int32, Int32, Int32) -> @segment.SuperpixelResult raise @types.LoadError
+
+pub fn slic_f(@types.ImageF, Int32, Int32, Int32) -> @segment.SuperpixelResult raise @types.LoadError
+
+pub fn slow_motion_pipeline(Array[@types.Image], @video.SlowMotionConfig) -> Array[@types.Image]
+
+pub fn smooth_trajectory(Array[@video.TrajectoryPoint], @video.StabilizationConfig) -> Array[@video.TrajectoryPoint]
+
+pub fn source_verification_report_to_string(@forensics.SourceVerificationResult) -> String
+
+pub fn spatial_inpaint(@types.Image, Array[Bool], @video.VideoInpaintConfig) -> @types.Image
+
+pub fn spatio_temporal_sr(Array[@types.Image], @video.VideoSRConfig) -> Array[@types.Image]
+
+pub fn spherical_mapping(Double, Double, Double) -> @texture.TextureCoord
+
+pub fn sr_default_config() -> @superres.SuperResolutionConfig
+
+pub fn sr_pipeline(Array[@types.Image], @video.VideoSRConfig) -> @video.VideoSRResult
+
+pub fn ssim(@types.Image, @types.Image) -> Double raise @types.LoadError
+
+pub fn ssim_16(@types.Image16, @types.Image16) -> Double raise @types.LoadError
+
+pub fn ssim_f(@types.ImageF, @types.ImageF) -> Double raise @types.LoadError
+
+pub fn st_after(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_before(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_contains(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_during(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_equals(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_extract_frame(@spatiotemporal.TImage, Int32) -> @types.Image raise @types.LoadError
+
+pub fn st_from_gif_animation(@types.GifAnimation) -> @spatiotemporal.TImage raise @types.LoadError
+
+pub fn st_interpolate_at(@spatiotemporal.TImage, Float) -> @types.Image raise @types.LoadError
+
+pub fn st_interpolate_linear(@types.Image, @types.Image, Float) -> @types.Image raise @types.LoadError
+
+pub fn st_intersects(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_meets(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_overlaps(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn st_snapshot(@spatiotemporal.TImage, Float) -> @types.Image
+
+pub fn st_subclip(@spatiotemporal.TImage, Float, Float) -> @spatiotemporal.TImage raise @types.LoadError
+
+pub fn st_within(@spatiotemporal.TInterval, @spatiotemporal.TInterval) -> Bool
+
+pub fn stabilization_score(Array[@video.TrajectoryPoint], Array[@video.TrajectoryPoint]) -> Double
+
+pub fn stabilize_frame(@types.Image, @video.TrajectoryPoint, @video.TrajectoryPoint) -> @types.Image
+
+pub fn stabilize_video(Array[@types.Image], @video.VideoStabilizationConfig) -> Array[@types.Image]
+
+pub fn stabilize_video_sequence(Array[@types.Image], @video.StabilizationConfig) -> @video.StabilizationResult
+
+pub fn statistical_outlier_removal(@stereo3d.PointCloud3D, Int32, Double) -> @stereo3d.PointCloud3D
+
+pub fn stereo_match(@types.Image, @types.Image, @stereo3d.StereoConfig3d) -> @stereo3d.DepthMap3d
+
+pub fn stitch_default_config() -> @stitch.StitchConfig
+
+pub fn stitch_images(@types.Image, @types.Image, config? : @stitch.StitchConfig) -> @types.Image?
+
+pub fn stitch_panorama(Array[@types.Image], @photo_enhance.PanoramaConfig) -> @photo_enhance.PanoramaResult
+
+pub fn style_transfer(@types.Image, @types.Image, @style_transfer.StyleTransferConfig) -> @style_transfer.StyleTransferResult raise @types.LoadError
+
+pub fn style_transfer_report_to_string(@style_transfer.StyleTransferResult, @style_transfer.ColorStatistics, @style_transfer.ColorStatistics, @style_transfer.StyleTransferTextureFeatures) -> String
+
+pub fn stylize(@types.Image, String, config? : @style_transfer.StylizeConfig) -> @types.Image
+
+pub fn stylize_default_config() -> @style_transfer.StylizeConfig
+
+pub fn subdivide_mesh(@mesh.Mesh3D, @mesh.MeshConfig) -> @mesh.Mesh3D
+
+pub fn subtract_background(@types.Image, @video.BackgroundModel, Double) -> @video.SegmentationResult
+
+pub fn suggest_optimization(@imgir.IRPipeline) -> @self_evolve.PipelineOptReport
+
+pub fn suggest_optimizations(@imgir.IRPipeline) -> Array[@self_evolve.OptimizationSuggestion]
+
+pub fn suggest_test_count(Int32) -> Int32
+
+pub fn super_resolution(@types.Image, config? : @superres.SuperResolutionConfig) -> @types.Image
+
+pub fn super_resolution_bicubic(@types.Image, Double) -> @types.Image
+
+pub fn super_resolution_edge_preserving(@types.Image, Double, edge_threshold? : Double, sharpen_amount? : Double) -> @types.Image
+
+pub fn super_resolution_lanczos(@types.Image, Double, a? : Int32) -> @types.Image
+
+pub fn super_resolution_report_to_string(@superres.SuperResolutionResult, @superres.ImageQualityMetrics) -> String
+
+pub fn super_resolve(@types.Image, @superres.InterpolationConfig) -> @superres.SuperResolutionResult
+
+pub fn superpixel_segmentation(@types.Image, Int32) -> @segment.SuperpixelResultAdv raise @types.LoadError
+
+pub fn swap_channels(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn synthesize_view(@computational_imaging.LightFieldData, Double, Double) -> @computational_imaging.ViewSynthesisResult
+
+pub fn template_match(@types.Image, @types.Image, match_method? : @feature.TemplateMatchMethod) -> Array[@feature.TemplateMatchResult] raise @types.LoadError
+
+pub fn template_match_16(@types.Image16, @types.Image16, match_method? : @feature.TemplateMatchMethod) -> Array[@feature.TemplateMatchResult] raise @types.LoadError
+
+pub fn template_match_best(@types.Image, @types.Image, match_method? : @feature.TemplateMatchMethod) -> @feature.TemplateMatchResult? raise @types.LoadError
+
+pub fn template_match_best_16(@types.Image16, @types.Image16, match_method? : @feature.TemplateMatchMethod) -> @feature.TemplateMatchResult? raise @types.LoadError
+
+pub fn template_match_best_f(@types.ImageF, @types.ImageF, match_method? : @feature.TemplateMatchMethod) -> @feature.TemplateMatchResult? raise @types.LoadError
+
+pub fn template_match_f(@types.ImageF, @types.ImageF, match_method? : @feature.TemplateMatchMethod) -> Array[@feature.TemplateMatchResult] raise @types.LoadError
+
+pub fn temporal_inpaint(@types.Image, @types.Image, @types.Image, Array[Bool], @video.VideoInpaintConfig) -> @types.Image
+
+pub fn text_to_image(String, @vlm_multimodal.GenerativeAIConfig, Int32) -> @vlm_multimodal.GenerativeAIResult
+
+pub fn texture_pipeline(Array[(Double, Double, Double)], Array[(Double, Double, Double)], @texture.TextureConfig, Int32, Int32) -> (Array[@texture.TextureCoord], @types.Image)
+
+pub fn thermal_to_temperature(@types.Image, Double, Double, Double) -> @advanced_imaging.ThermalData
+
+pub fn threshold(@types.Image, Int32) -> @types.Image
+
+pub fn threshold_otsu(@types.Image) -> @types.Image
+
+pub fn threshold_segmentation(@types.Image, Double) -> @segment.SemanticSegmentationResult raise @types.LoadError
+
+pub fn tile(@types.Image, Int32, Int32) -> @types.Image raise @types.LoadError
+
+pub fn tile_region(Int32, Int32, @performance.TileConfig) -> (Int32, Int32, Int32, Int32)
+
+pub fn timelapse_pipeline(Array[@types.Image], @video.TimelapseConfig, Double) -> Array[@types.Image]
+
+pub fn tone_map(@photo_enhance.HdrImage, @photo_enhance.ToneMappingConfig) -> @types.Image
+
+pub fn tone_mapping_gamma(@types.Image, gamma? : Double) -> @types.Image raise @types.LoadError
+
+pub fn tone_mapping_reinhard(@types.Image, key? : Double) -> @types.Image raise @types.LoadError
+
+pub fn tone_mapping_sigmoid(@types.Image, strength? : Double) -> @types.Image raise @types.LoadError
+
+pub fn track_features_slam(@types.Image, @types.Image, Array[Array[Double]], Int32) -> @slam.FeatureTrackingResult
+
+pub fn tracking_stability(Array[@video.MultiTrackedObject]) -> Double
+
+pub fn transcode_compression_ratio(Int32, Int32) -> Double
+
+pub fn transcode_video(Array[@types.Image], @video.TranscodeParams) -> @video.TranscodeResult
+
+pub fn transpose(@types.Image) -> @types.Image
+
+pub fn triangulate_points(Array[Array[Double]], @slam.CameraPose, @slam.CameraPose, @slam.SLAMConfig) -> Array[@slam.MapPoint]
+
+pub fn true_color_composite(@types.Image, @types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn tune_all_params() -> @self_evolve.TuneReport
+
+pub fn tune_params(@imgir.IROp) -> Array[@self_evolve.TunedParam]
+
+pub fn ultrasound_synthesize(Int32, Int32, Double, Double) -> @advanced_imaging.UltrasoundData
+
+pub fn understand_scene(@types.Image, @scene_understanding.SceneUnderstandingConfig) -> (@scene_understanding.SceneClassificationResult, @scene_understanding.ImageCaptioningResult, @scene_understanding.SceneGraph)
+
+pub fn uniform_sampling(@point_cloud.PointCloud3D, Int32) -> @point_cloud.PointCloud3D
+
+pub fn unique_combo_count() -> Int32
+
+pub fn update_background_model(@video.BackgroundModel, @types.Image, Double) -> @video.BackgroundModel
+
+pub fn update_object_tracking(Array[@detection.YoloTrackedObject], @detection.YoloDetectionResult, Int32) -> Array[@detection.YoloTrackedObject] raise @types.LoadError
+
+pub fn update_tracker(Array[@video.MultiTrackedObject], Array[@video.MultiDetectedObject], @video.MultiTrackingConfig) -> Array[@video.MultiTrackedObject]
+
+pub fn update_tracking(@video.TrackedObject, @types.Image) -> @video.TrackedObject
+
+pub fn upsample_fe(@types.Image) -> @types.Image
+
+pub fn upscale_2x(@types.Image) -> @types.Image
+
+pub fn upscale_4x(@types.Image) -> @types.Image
+
+pub fn validate_channels(@types.Image, Array[Int32]) -> Bool
+
+pub fn validate_channels_or_raise(@types.Image, Array[Int32], String) -> Unit raise @types.LoadError
+
+pub fn validate_image(@types.Image) -> @production_utils.ImageValidationResult
+
+pub fn validate_image_or_raise(@types.Image) -> Unit raise @types.LoadError
+
+pub fn validate_int_range(Int32, Int32, Int32, String) -> Result[Unit, String]
+
+pub fn validate_int_range_or_raise(Int32, Int32, Int32, String) -> Unit raise @types.LoadError
+
+pub fn validate_range(Double, Double, Double, String) -> Result[Unit, String]
+
+pub fn validate_range_or_raise(Double, Double, Double, String) -> Unit raise @types.LoadError
+
+pub fn validation_result_to_string(@production_utils.ImageValidationResult) -> String
+
+pub fn variance_value(@types.Image) -> Float
+
+pub fn vegetation_coverage(@types.Image, ndvi_soil? : Double, ndvi_veg? : Double) -> @types.Image raise @types.LoadError
+
+pub fn verify_all(@aoci.SymbolIndex, budget? : @aoci.ContextBudget) -> @aoci.VerifyResult
+
+pub fn verify_budget(@aoci.SymbolIndex, @aoci.ContextBudget) -> @aoci.VerifyResult
+
+pub fn verify_consistency(@aoci.SymbolIndex) -> @aoci.VerifyResult
+
+pub fn verify_dependencies(@aoci.SymbolIndex, Array[(String, Array[String])]) -> @aoci.VerifyResult
+
+pub fn verify_image_source_enhanced(@types.Image, @forensics.EnhancedVerificationConfig) -> @forensics.EnhancedVerificationResult raise @types.LoadError
+
+pub fn verify_keyword_coverage(@aoci.SymbolIndex) -> @aoci.VerifyResult
+
+pub fn vertex_clustering_simplify(@mesh.Mesh3D, Double) -> @mesh.Mesh3D
+
+pub fn video_concat(@video.VideoFrames, @video.VideoFrames) -> @video.VideoFrames
+
+pub fn video_deflicker(Array[@types.Image], @video.FlickerConfig) -> Array[@types.Image]
+
+pub fn video_effects_pipeline(Array[@types.Image], @video.VideoFilterParams?, @video.TransitionParams?) -> Array[@types.Image]
+
+pub fn video_fade_in(@video.VideoFrames, duration_frames? : Int32) -> @video.VideoFrames
+
+pub fn video_fade_out(@video.VideoFrames, duration_frames? : Int32) -> @video.VideoFrames
+
+pub fn video_frame_average(@video.VideoFrames) -> @types.Image
+
+pub fn video_frame_count(@video.VideoFrames) -> Int32
+
+pub fn video_frames_new(Array[@types.Image], fps? : Double) -> @video.VideoFrames
+
+pub fn video_get_frame(@video.VideoFrames, Int32) -> @types.Image?
+
+pub fn video_inpaint(Array[@types.Image], Array[Bool], @video.VideoInpaintConfig) -> Array[@types.Image]
+
+pub fn video_interpolate_frames(Array[@types.Image], @video.FrameInterpConfig) -> Array[@types.Image]
+
+pub fn video_reverse(@video.VideoFrames) -> @video.VideoFrames
+
+pub fn video_sample(@video.VideoFrames, interval? : Int32) -> @video.VideoFrames
+
+pub fn video_segmentation_pipeline(Array[@types.Image], @video.SegmentationConfig) -> Array[@video.SegmentationResult]
+
+pub fn video_super_resolve(Array[@types.Image], @video.VideoSRConfig) -> @video.VideoSRResult
+
+pub fn vision_3d_report_to_string(@stereo3d.PointCloud3D, @stereo3d.DepthMap3d, @stereo3d.RegistrationResult3d) -> String
+
+pub fn visualize_distance_transform(Array[Float], Int32, Int32) -> @types.Image
+
+pub fn visualize_point_cloud(Array[@neural_rendering.Point3D], Int32, Int32) -> @types.Image
+
+pub fn visualize_pose(@types.Image, @pose_estimation.HumanPose) -> @types.Image raise @types.LoadError
+
+pub fn visualize_propagation(@imgir.IRPipeline, @self_evolve.VizFormat) -> @self_evolve.PropagationViz
+
+pub fn visualize_propagation_ascii(@imgir.IRPipeline) -> String
+
+pub fn visualize_propagation_mermaid(@imgir.IRPipeline) -> String
+
+pub fn visualize_propagation_text(@imgir.IRPipeline) -> String
+
+pub fn vlm_report_to_string(@vlm_multimodal.VisionTextEmbedding, @vlm_multimodal.VisionLanguageModelType) -> String
+
+pub fn volume_render(@neural_rendering.Ray, Array[@neural_rendering.Voxel], @neural_rendering.NeRFConfig) -> (Array[Double], Double)
+
+pub fn voxel_downsample(@stereo3d.PointCloud3D, Double) -> @stereo3d.PointCloud3D
+
+pub fn voxel_grid_sampling(@point_cloud.PointCloud3D, Double) -> @point_cloud.PointCloud3D
+
+pub fn vstack(@types.Image, @types.Image) -> @types.Image raise @types.LoadError
+
+pub fn warp_affine_transform(@types.Image, @registration.AffineTransform, out_width? : Int32, out_height? : Int32) -> @types.Image raise @types.LoadError
+
+pub fn watercolor(@types.Image, blur_radius? : Int32) -> @types.Image
+
+pub fn watershed(@types.Image, Array[Int32]) -> Array[Int32] raise @types.LoadError
+
+pub fn watershed_16(@types.Image16, Array[Int32]) -> Array[Int32] raise @types.LoadError
+
+pub fn watershed_auto(@types.Image) -> (Array[Int32], Int32) raise @types.LoadError
+
+pub fn watershed_auto_16(@types.Image16) -> (Array[Int32], Int32) raise @types.LoadError
+
+pub fn watershed_auto_f(@types.ImageF) -> (Array[Int32], Int32) raise @types.LoadError
+
+pub fn watershed_default_config() -> @segment.WatershedConfig
+
+pub fn watershed_f(@types.ImageF, Array[Int32]) -> Array[Int32] raise @types.LoadError
+
+pub fn watershed_segment(@types.Image, config? : @segment.WatershedConfig) -> @segment.SegmentationResult
+
+pub fn watershed_segmentation(@types.Image, @segment.WatershedConfigAdv) -> @segment.SemanticSegmentationResult raise @types.LoadError
+
+pub fn white_balance(@types.Image) -> @types.Image
+
+pub fn window_level_bone() -> @medical.WindowLevel
+
+pub fn window_level_brain() -> @medical.WindowLevel
+
+pub fn window_level_lung() -> @medical.WindowLevel
+
+pub fn window_level_mediastinum() -> @medical.WindowLevel
+
+pub fn xray_enhance(@types.Image, Double) -> @advanced_imaging.XRayData
+
+pub fn zero_motion_ratio(Array[@video.MotionVector]) -> Double
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @pose_estimation {type ActionRecognitionAlgorithm}
+
+pub using @pose_estimation {type ActionRecognitionConfig}
+
+pub using @pose_estimation {type ActionRecognitionResult}
+
+pub using @video {type ActionType}
+
+pub using @self_evolve {type AdaptiveReport}
+
+pub using @self_evolve {type AdaptiveStrategy}
+
+pub using @advanced_imaging {type AdvancedImagingConfig}
+
+pub using @registration {type AffineTransform}
+
+pub using @face_recognition {type AgeGenderEstimationResult}
+
+pub using @intelligent_vision {type AgriculturalVisionTask}
+
+pub using @detection {type AnchorBox}
+
+pub using @style_transfer {type ArtStyle}
+
+pub using @intelligent_vision {type AstronomicalImageTask}
+
+pub using @self_evolve {type AutoDecision}
+
+pub using @intelligent_vision {type AutonomousDrivingTask}
+
+pub using @video {type BackgroundModel}
+
+pub using @video {type BitrateMode}
+
+pub using @detection {type BoundingBox}
+
+pub using @stereo3d {type BoundingBox3d}
+
+pub using @retrieval {type CBIRImageFeature}
+
+pub using @retrieval {type CBIRImageIndex}
+
+pub using @retrieval {type CBIRRetrievalResult}
+
+pub using @retrieval {type CBIRRetrievalResultList}
+
+pub using @self_evolve {type CIGateResult}
+
+pub using @computational_imaging {type CTProjectionData}
+
+pub using @stereo3d {type CameraExtrinsics3d}
+
+pub using @stereo3d {type CameraIntrinsics3d}
+
+pub using @neural_rendering {type CameraParams}
+
+pub using @slam {type CameraPose}
+
+pub using @forensics {type CfaAnalysisResult}
+
+pub using @remote_sensing {type ChangeDetectionResult}
+
+pub using @edge {type Circle}
+
+pub using @remote_sensing {type ClassificationResult}
+
+pub using @forensics {type CloneDetectionResult}
+
+pub using @point_cloud {type ClusterResult}
+
+pub using @self_evolve {type CoEvolveAction}
+
+pub using @self_evolve {type CoEvolveActionKind}
+
+pub using @self_evolve {type CoEvolveReport}
+
+pub using @computational_imaging {type CodedAperturePattern}
+
+pub using @forensics {type ColorAnalysisResult}
+
+pub using @retrieval {type ColorHistogramConfig}
+
+pub using @forensics {type ColorQuantizationResult}
+
+pub using @style_transfer {type ColorStatistics}
+
+pub using @self_evolve {type ComboCoverageReport}
+
+pub using @self_evolve {type ComboReport}
+
+pub using @frequency {type Complex}
+
+pub using @compression {type CompressionAlgorithm}
+
+pub using @forensics {type CompressionAnalysisResult}
+
+pub using @compression {type CompressionConfig}
+
+pub using @compression {type CompressionQualityMetrics}
+
+pub using @compression {type CompressionResult}
+
+pub using @computational_imaging {type ComputationalImagingAlgorithm}
+
+pub using @segment {type ConnectedComponent}
+
+pub using @segment {type ConnectedComponentLabelImage}
+
+pub using @aoci {type ContextBudget}
+
+pub using @edge {type Contour}
+
+pub using @edge {type ContourPoint}
+
+pub using @feature {type CornerPoint}
+
+pub using @self_evolve {type CoverageGap}
+
+pub using @self_evolve {type CoverageGapReport}
+
+pub using @intelligent_vision {type CropDetectionResult}
+
+pub using @compression {type DCTBlock}
+
+pub using @forensics {type DctCoefficientResult}
+
+pub using @self_evolve {type DecisionAction}
+
+pub using @self_evolve {type DecisionReport}
+
+pub using @intelligent_vision {type DefectDetectionResult}
+
+pub using @self_evolve {type DegradationCase}
+
+pub using @self_evolve {type DegradationKind}
+
+pub using @inpainting {type DehazeAlgorithm}
+
+pub using @inpainting {type DehazeResult}
+
+pub using @stereo3d {type DepthMap3d}
+
+pub using @photo_enhance {type DepthOfFieldConfig}
+
+pub using @inpainting {type DerainAlgorithm}
+
+pub using @inpainting {type DerainResult}
+
+pub using @feature {type DescriptorMatch}
+
+pub using @forensics {type DetailAnalysisResult}
+
+pub using @intelligent_vision {type DetectionResultIV}
+
+pub using @vlm_multimodal {type DiffusionConfig}
+
+pub using @vlm_multimodal {type DiffusionModelType}
+
+pub using @vlm_multimodal {type DiffusionResult}
+
+pub using @forensics {type EdgeAnalysisResult}
+
+pub using @forensics {type ElaAnalysisResult}
+
+pub using @video {type EncodedFrame}
+
+pub using @video {type EncodedVideo}
+
+pub using @forensics {type EnhancedVerificationConfig}
+
+pub using @forensics {type EnhancedVerificationFeatures}
+
+pub using @forensics {type EnhancedVerificationResult}
+
+pub using @superres {type EnhancementConfig}
+
+pub using @self_evolve {type EquivalenceCheck}
+
+pub using @self_evolve {type EquivalenceReport}
+
+pub using @self_evolve {type EvolutionPrediction}
+
+pub using @self_evolve {type EvolutionSchedule}
+
+pub using @self_evolve {type EvolveCycleReport}
+
+pub using @self_evolve {type EvolveReport}
+
+pub using @self_evolve {type ExecutableTest}
+
+pub using @self_evolve {type ExecutableTestFile}
+
+pub using @video {type ExposureMode}
+
+pub using @photo_enhance {type ExposureType}
+
+pub using @face_recognition {type ExpressionRecognitionResult}
+
+pub using @face_recognition {type ExpressionType}
+
+pub using @frequency {type FFTResult}
+
+pub using @face_recognition {type FaceAttributeAnalysis}
+
+pub using @face_recognition {type FaceDatabase}
+
+pub using @face_recognition {type FaceDetectionAlgorithm}
+
+pub using @face_recognition {type FaceDetectionResult}
+
+pub using @face_recognition {type FaceFeature}
+
+pub using @face_recognition {type FaceRecognitionAlgorithm}
+
+pub using @face_recognition {type FaceRecognitionConfig}
+
+pub using @face_recognition {type FaceRecognitionResult}
+
+pub using @registration {type FeatureMatch}
+
+pub using @stitch {type FeaturePoint}
+
+pub using @slam {type FeatureTrackingResult}
+
+pub using @retrieval {type FeatureType}
+
+pub using @video {type FlickerConfig}
+
+pub using @video {type FlickerDetection}
+
+pub using @video {type FlickerMethod}
+
+pub using @feature {type FlowResult}
+
+pub using @video {type FrameInterpConfig}
+
+pub using @video {type FrameInterpMethod}
+
+pub using @video {type FrameType}
+
+pub using @frequency {type FreqFilterType}
+
+pub using @forensics {type FrequencyAnalysisResult}
+
+pub using @fusion {type FusionAlgorithm}
+
+pub using @vlm_multimodal {type FusionConfig}
+
+pub using @fusion {type FusionEnhancedConfig}
+
+pub using @vlm_multimodal {type FusionResult}
+
+pub using @retrieval {type GaborConfig}
+
+pub using @self_evolve {type GapKind}
+
+pub using @neural_rendering {type Gaussian3D}
+
+pub using @neural_rendering {type GaussianSplattingConfig}
+
+pub using @vlm_multimodal {type GenerativeAIConfig}
+
+pub using @vlm_multimodal {type GenerativeAIResult}
+
+pub using @vlm_multimodal {type GenerativeAITaskType}
+
+pub using @forensics {type GeometryAnalysisResult}
+
+pub using @pose_estimation {type GestureRecognitionResult}
+
+pub using @pose_estimation {type GestureType}
+
+pub using @feature {type GlcmFeatures}
+
+pub using @segment {type GrabCutConfig}
+
+pub using @self_evolve {type GrillReport}
+
+pub using @self_evolve {type GrillResult}
+
+pub using @self_evolve {type GrillRule}
+
+pub using @retrieval {type HOGConfig}
+
+pub using @frequency {type HaarWaveletResult}
+
+pub using @photo_enhance {type HdrConfig}
+
+pub using @photo_enhance {type HdrImage}
+
+pub using @feature {type HistCompareMethod}
+
+pub using @self_evolve {type HistoryEntry}
+
+pub using @self_evolve {type HistoryLog}
+
+pub using @computational_imaging {type Hologram}
+
+pub using @computational_imaging {type HologramType}
+
+pub using @stitch {type Homography}
+
+pub using @edge {type HoughLine}
+
+pub using @compression {type HuffmanTable}
+
+pub using @pose_estimation {type HumanPose}
+
+pub using @advanced_imaging {type HyperspectralData}
+
+pub using @imgir {type IROp}
+
+pub using @imgir {type IRPipeline}
+
+pub using @imgir {type IRValue}
+
+pub using @forensics {type IlluminationConsistencyResult}
+
+pub using @scene_understanding {type ImageCaptioningAlgorithm}
+
+pub using @scene_understanding {type ImageCaptioningResult}
+
+pub using @retrieval {type ImageDatabase}
+
+pub using @retrieval {type ImageFeature}
+
+pub using @superres {type ImageQualityMetrics}
+
+pub using @forensics {type ImageSourceType}
+
+pub using @util {type ImageStats}
+
+pub using @util {type ImageStatsF}
+
+pub using @production_utils {type ImageValidationResult}
+
+pub using @advanced_imaging {type ImagingModality}
+
+pub using @computational_imaging {type ImagingReconstructionResult}
+
+pub using @intelligent_vision {type IndustrialInspectionTask}
+
+pub using @advanced_imaging {type InfraredImagingType}
+
+pub using @inpainting {type InpaintingAlgorithm}
+
+pub using @inpainting {type InpaintingConfig}
+
+pub using @inpainting {type InpaintingResult}
+
+pub using @segment {type InstanceSegmentationResult}
+
+pub using @feature {type IntegralImage}
+
+pub using @feature {type IntegralImageSq}
+
+pub using @intelligent_vision {type IntelligentVisionConfig}
+
+pub using @agent_kit {type Intent}
+
+pub using @superres {type InterpolationConfig}
+
+pub using @intelligent_vision {type IntrusionDetectionResult}
+
+pub using @forensics {type JpegGhostResult}
+
+pub using @segment {type KMeansConfig}
+
+pub using @slam {type KeyFrame}
+
+pub using @video {type Keyframe}
+
+pub using @video {type KeyframeType}
+
+pub using @pose_estimation {type Keypoint}
+
+pub using @self_evolve {type KnowledgeEdge}
+
+pub using @self_evolve {type KnowledgeEdgeKind}
+
+pub using @self_evolve {type KnowledgeGraph}
+
+pub using @self_evolve {type KnowledgeNode}
+
+pub using @self_evolve {type KnowledgeNodeKind}
+
+pub using @retrieval {type LBPConfig}
+
+pub using @remote_sensing {type LandCoverClass}
+
+pub using @intelligent_vision {type LaneDetectionResult}
+
+pub using @medical {type Lesion}
+
+pub using @computational_imaging {type LightFieldCameraParams}
+
+pub using @computational_imaging {type LightFieldData}
+
+pub using @computational_imaging {type LightFieldRepresentation}
+
+pub using @slam {type LoopClosureResult}
+
+pub using @self_evolve {type LoopPhase}
+
+pub using @self_evolve {type LoopResult}
+
+pub using @self_evolve {type LoopStep}
+
+pub using @photo_enhance {type LowLightConfig}
+
+pub using @advanced_imaging {type MRIData}
+
+pub using @slam {type MapPoint}
+
+pub using @stitch {type MatchPair}
+
+pub using @medical {type MedicalImage}
+
+pub using @medical {type MedicalImageQuality}
+
+pub using @medical {type MedicalImageType}
+
+pub using @medical {type MedicalRegistrationResult}
+
+pub using @medical {type MedicalSegmentationConfig}
+
+pub using @production_utils {type MemoryUsageStats}
+
+pub using @mesh {type Mesh3D}
+
+pub using @stereo3d {type Mesh3d}
+
+pub using @mesh {type MeshConfig}
+
+pub using @mesh {type MeshSimplifyMethod}
+
+pub using @mesh {type MeshSubdivideMethod}
+
+pub using @self_evolve {type MetaAction}
+
+pub using @self_evolve {type MetaReport}
+
+pub using @self_evolve {type MetaStrategy}
+
+pub using @forensics {type MetadataForensicsResult}
+
+pub using @self_evolve {type ModuleDep}
+
+pub using @self_evolve {type ModuleDepKind}
+
+pub using @edge {type Moments}
+
+pub using @video {type MotionEstimateResult}
+
+pub using @video {type MotionEstimationMethod}
+
+pub using @video {type MotionVector}
+
+pub using @video {type MultiDetectedObject}
+
+pub using @video {type MultiTrackState}
+
+pub using @video {type MultiTrackedObject}
+
+pub using @video {type MultiTrackingConfig}
+
+pub using @video {type MultiTrackingMethod}
+
+pub using @vlm_multimodal {type MultimodalFusionStrategy}
+
+pub using @remote_sensing {type MultispectralImage}
+
+pub using @neural_rendering {type NeRFConfig}
+
+pub using @neural_rendering {type NeuralRenderingAlgorithm}
+
+pub using @photo_enhance {type NightEnhanceConfig}
+
+pub using @forensics {type NoiseAnalysisResult}
+
+pub using @forensics {type NoiseResidualResult}
+
+pub using @point_cloud {type NormalEstimationMethod}
+
+pub using @detection {type ObjectClass}
+
+pub using @self_evolve {type OpCombo}
+
+pub using @self_evolve {type OpCost}
+
+pub using @video {type OpticalFlowField}
+
+pub using @video {type OpticalFlowVector}
+
+pub using @self_evolve {type OptimizationKind}
+
+pub using @self_evolve {type OptimizationReport}
+
+pub using @self_evolve {type OptimizationSuggestion}
+
+pub using @self_evolve {type OptimizeExecResult}
+
+pub using @feature {type OrbDescriptor}
+
+pub using @feature {type OrbKeyPoint}
+
+pub using @advanced_imaging {type PETData}
+
+pub using @photo_enhance {type PanoramaConfig}
+
+pub using @photo_enhance {type PanoramaResult}
+
+pub using @self_evolve {type ParamKind}
+
+pub using @self_evolve {type PerfBaseline}
+
+pub using @self_evolve {type PerfRegression}
+
+pub using @production_utils {type PerformanceTimer}
+
+pub using @self_evolve {type Phase10Capability}
+
+pub using @self_evolve {type Phase10Report}
+
+pub using @self_evolve {type Phase11Capability}
+
+pub using @self_evolve {type Phase11Report}
+
+pub using @self_evolve {type Phase4Capability}
+
+pub using @self_evolve {type Phase4Report}
+
+pub using @self_evolve {type Phase5Capability}
+
+pub using @self_evolve {type Phase5Report}
+
+pub using @self_evolve {type Phase6Capability}
+
+pub using @self_evolve {type Phase6Report}
+
+pub using @self_evolve {type Phase7Capability}
+
+pub using @self_evolve {type Phase7Report}
+
+pub using @self_evolve {type Phase8Capability}
+
+pub using @self_evolve {type Phase8Report}
+
+pub using @self_evolve {type Phase9Capability}
+
+pub using @self_evolve {type Phase9Report}
+
+pub using @computational_imaging {type PhaseRetrievalConfig}
+
+pub using @self_evolve {type PipelineOptReport}
+
+pub using @self_evolve {type PipelineOptSuggestion}
+
+pub using @neural_rendering {type Point3D}
+
+pub using @point_cloud {type Point3DLight}
+
+pub using @stereo3d {type Point3d}
+
+pub using @stereo3d {type PointCloud}
+
+pub using @stereo3d {type PointCloud3D}
+
+pub using @point_cloud {type PointCloudConfig}
+
+pub using @point_cloud {type PointCloudSampleMethod}
+
+pub using @point_cloud {type PointCloudSegmentMethod}
+
+pub using @advanced_imaging {type PolarizationData}
+
+pub using @pose_estimation {type PoseEstimationAlgorithm}
+
+pub using @pose_estimation {type PoseEstimationConfig}
+
+pub using @self_evolve {type PredictionKind}
+
+pub using @self_evolve {type PredictionReport}
+
+pub using @production_utils {type ProductionError}
+
+pub using @production_utils {type ProductionErrorCode}
+
+pub using @self_evolve {type PropagationReport}
+
+pub using @self_evolve {type PropagationStep}
+
+pub using @self_evolve {type PropagationViz}
+
+pub using @self_evolve {type QualityDimension}
+
+pub using @self_evolve {type QualityGrade}
+
+pub using @self_evolve {type QualityReport}
+
+pub using @self_evolve {type QualityScore}
+
+pub using @compression {type QuantizationTableType}
+
+pub using @advanced_imaging {type QuantumImagingAlgorithm}
+
+pub using @neural_rendering {type Ray}
+
+pub using @self_evolve {type RecommendAction}
+
+pub using @self_evolve {type Recommendation}
+
+pub using @self_evolve {type RecommendationReport}
+
+pub using @neural_rendering {type ReconstructionAlgorithm}
+
+pub using @neural_rendering {type ReconstructionResult}
+
+pub using @computational_imaging {type RefocusResult}
+
+pub using @medical {type RegionOfInterest}
+
+pub using @fusion {type RegistrationAdvancedConfig}
+
+pub using @fusion {type RegistrationAlgorithm}
+
+pub using @registration {type RegistrationConfigAdvanced}
+
+pub using @fusion {type RegistrationResult}
+
+pub using @stereo3d {type RegistrationResult3d}
+
+pub using @registration {type RegistrationResultAdvanced}
+
+pub using @self_evolve {type RegressionCase}
+
+pub using @self_evolve {type RegressionKind}
+
+pub using @self_evolve {type RegressionReport}
+
+pub using @remote_sensing {type RemoteSensingImage}
+
+pub using @remote_sensing {type RemoteSensingImageType}
+
+pub using @remote_sensing {type RemoteSensingQuality}
+
+pub using @neural_rendering {type RenderingResult}
+
+pub using @self_evolve {type RepairAction}
+
+pub using @self_evolve {type RepairReport}
+
+pub using @self_evolve {type RepairStrategy}
+
+pub using @video {type ResolutionMode}
+
+pub using @production_utils {type RetryConfig}
+
+pub using @intelligent_vision {type RobotVisionTask}
+
+pub using @self_evolve {type RootCause}
+
+pub using @self_evolve {type RootCauseReport}
+
+pub using @self_evolve {type RunSummary}
+
+pub using @slam {type SLAMAlgorithm}
+
+pub using @slam {type SLAMConfig}
+
+pub using @slam {type SLAMState}
+
+pub using @scene_understanding {type SceneClassificationAlgorithm}
+
+pub using @scene_understanding {type SceneClassificationResult}
+
+pub using @scene_understanding {type SceneGraph}
+
+pub using @scene_understanding {type SceneGraphNode}
+
+pub using @scene_understanding {type SceneGraphRelation}
+
+pub using @scene_understanding {type SceneUnderstandingConfig}
+
+pub using @self_evolve {type ScheduleResult}
+
+pub using @self_evolve {type ScheduleStatus}
+
+pub using @self_evolve {type ScoreFactor}
+
+pub using @video {type SearchConfig}
+
+pub using @retrieval {type SearchResult}
+
+pub using @intelligent_vision {type SecurityMonitoringTask}
+
+pub using @segment {type SegmentLabelImage}
+
+pub using @segment {type SegmentRegion}
+
+pub using @video {type SegmentationConfig}
+
+pub using @segment {type SegmentationLabel}
+
+pub using @segment {type SegmentationMetrics}
+
+pub using @segment {type SegmentationResult}
+
+pub using @segment {type SemanticSegmentationResult}
+
+pub using @self_evolve {type Severity}
+
+pub using @feature {type SiftDescriptor}
+
+pub using @feature {type SiftKeyPoint}
+
+pub using @feature {type SiftMatch}
+
+pub using @retrieval {type SimilarityMetric}
+
+pub using @pose_estimation {type SkeletonConnection}
+
+pub using @video {type SlowMotionConfig}
+
+pub using @video {type SlowMotionMethod}
+
+pub using @self_evolve {type SmartPriorityReport}
+
+pub using @self_evolve {type SmartScore}
+
+pub using @forensics {type SourceVerificationConfig}
+
+pub using @forensics {type SourceVerificationFeatures}
+
+pub using @forensics {type SourceVerificationResult}
+
+pub using @remote_sensing {type SpectralSignature}
+
+pub using @video {type StabilizationConfig}
+
+pub using @video {type StabilizationMethod}
+
+pub using @video {type StabilizationResult}
+
+pub using @intelligent_vision {type StarDetectionResult}
+
+pub using @stereo3d {type StereoConfig3d}
+
+pub using @stitch {type StitchConfig}
+
+pub using @self_evolve {type StrategyCombo}
+
+pub using @self_evolve {type StrategyKind}
+
+pub using @self_evolve {type StrategyRepairResult}
+
+pub using @segment {type StructuringElement}
+
+pub using @style_transfer {type StyleTransferAlgorithm}
+
+pub using @style_transfer {type StyleTransferConfig}
+
+pub using @style_transfer {type StyleTransferResult}
+
+pub using @style_transfer {type StyleTransferTextureFeatures}
+
+pub using @style_transfer {type StylizeConfig}
+
+pub using @video {type SubpixelMotionVector}
+
+pub using @self_evolve {type SuggestionKind}
+
+pub using @superres {type SuperResolutionAlgorithm}
+
+pub using @superres {type SuperResolutionConfig}
+
+pub using @superres {type SuperResolutionResult}
+
+pub using @segment {type Superpixel}
+
+pub using @segment {type SuperpixelResult}
+
+pub using @segment {type SuperpixelResultAdv}
+
+pub using @aoci {type SymbolCoord}
+
+pub using @aoci {type SymbolIndex}
+
+pub using @aoci {type SymbolKind}
+
+pub using @spatiotemporal {type TContext}
+
+pub using @spatiotemporal {type TFrame}
+
+pub using @spatiotemporal {type TImage}
+
+pub using @spatiotemporal {type TInterval}
+
+pub using @spatiotemporal {type TVideo}
+
+pub using @forensics {type TamperDetectionResult}
+
+pub using @feature {type TemplateMatchMethod}
+
+pub using @feature {type TemplateMatchResult}
+
+pub using @self_evolve {type TestCase}
+
+pub using @self_evolve {type TestCategory}
+
+pub using @self_evolve {type TestPriority}
+
+pub using @self_evolve {type TestRunResult}
+
+pub using @forensics {type TextDetectionResult}
+
+pub using @texture {type Texture2D}
+
+pub using @forensics {type TextureAnalysisResult}
+
+pub using @texture {type TextureConfig}
+
+pub using @texture {type TextureCoord}
+
+pub using @remote_sensing {type TextureFeatures}
+
+pub using @texture {type TextureFilterMode}
+
+pub using @texture {type TextureMappingMethod}
+
+pub using @advanced_imaging {type ThermalData}
+
+pub using @performance {type TileConfig}
+
+pub using @video {type TimelapseConfig}
+
+pub using @photo_enhance {type ToneMappingConfig}
+
+pub using @photo_enhance {type ToneMappingType}
+
+pub using @video {type TrackedObject}
+
+pub using @video {type TrackingResult}
+
+pub using @intelligent_vision {type TrafficSignResult}
+
+pub using @video {type TrajectoryPoint}
+
+pub using @video {type TrajectorySmoothing}
+
+pub using @video {type TranscodeParams}
+
+pub using @video {type TranscodeResult}
+
+pub using @fusion {type TransformMatrix}
+
+pub using @registration {type TransformType}
+
+pub using @video {type TransitionParams}
+
+pub using @video {type TransitionType}
+
+pub using @mesh {type TriangleFace}
+
+pub using @self_evolve {type TuneReport}
+
+pub using @self_evolve {type TunedParam}
+
+pub using @forensics {type UIDetectionResult}
+
+pub using @mesh {type UVCoord}
+
+pub using @advanced_imaging {type UltrasoundData}
+
+pub using @vlm_multimodal {type VLMConfig}
+
+pub using @remote_sensing {type VegetationIndices}
+
+pub using @aoci {type VerifyResult}
+
+pub using @mesh {type Vertex3D}
+
+pub using @video {type VideoCodecParams}
+
+pub using @video {type VideoFilterParams}
+
+pub using @video {type VideoFilterType}
+
+pub using @video {type VideoFormat}
+
+pub using @video {type VideoFrames}
+
+pub using @video {type VideoInpaintConfig}
+
+pub using @video {type VideoInpaintMethod}
+
+pub using @video {type VideoQualityMetric}
+
+pub using @video {type VideoQualityResult}
+
+pub using @video {type VideoSRConfig}
+
+pub using @video {type VideoSRMethod}
+
+pub using @video {type VideoSRResult}
+
+pub using @video {type VideoSegmentationMethod}
+
+pub using @video {type VideoStabilizationConfig}
+
+pub using @video {type VideoSummary}
+
+pub using @computational_imaging {type ViewSynthesisResult}
+
+pub using @vlm_multimodal {type VisionLanguageModelType}
+
+pub using @vlm_multimodal {type VisionTextEmbedding}
+
+pub using @scene_understanding {type VisualQuestionAnsweringAlgorithm}
+
+pub using @scene_understanding {type VisualQuestionAnsweringResult}
+
+pub using @self_evolve {type VizFormat}
+
+pub using @neural_rendering {type Voxel}
+
+pub using @segment {type WatershedConfig}
+
+pub using @segment {type WatershedConfigAdv}
+
+pub using @medical {type WindowLevel}
+
+pub using @medical {type WindowLevelConfig}
+
+pub using @advanced_imaging {type XRayData}
+
+pub using @detection {type YoloBoundingBox}
+
+pub using @detection {type YoloConfig}
+
+pub using @detection {type YoloDetectionMetrics}
+
+pub using @detection {type YoloDetectionResult}
+
+pub using @detection {type YoloTrackedObject}
+
+pub using @detection {type YoloTrackingResult}
+
+// Traits

@@ -1,0 +1,8 @@
+import {
+  "walkzzz/image.process/transform",
+  "walkzzz/image.process/color",
+  "walkzzz/image.process/enhance",
+  "walkzzz/image.codec/barcode",
+  "walkzzz/image.domain/watermark",
+  "walkzzz/image.photography/quality",
+}

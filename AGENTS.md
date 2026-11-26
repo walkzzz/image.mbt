@@ -12,7 +12,7 @@ You can browse and install extra skills here:
 | 属性 | 值 |
 |------|-----|
 | 版本 | 0.1.1（包重命名重构版：walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀） |
-| 测试 | 7391 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
+| 测试 | 7395 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
 | 架构 | 6 子模块工作空间 (image.core/image.codec/image.process/image.photography/image.vision/image.domain)，子模块独立发布（各 0.1.0，按依赖顺序 core → codec → process → photography/vision → domain） |
 | 格式 | 18 种编解码 (PNG/JPEG/BMP/GIF/QOI/TGA/PSD/HDR/PNM/TIFF/ICO/CUR/ICNS/APNG/WebP/AVIF/HEIF/JPEG-XL) |
 | 形式化验证 | core/safe_math `moon prove` **8 goals proved**（safe_mul_ok/clamp_pixel_ok/dims_valid_pred/int_max_ok/int_min_ok/valid_index/valid_2d_index/rotate90_identity）；另有 8 条谓词预留（SMT 超时与前端限制，见 safe_math.mbtp 注释） |
@@ -58,6 +58,14 @@ src/  (已迁移为根目录 6 子模块工作空间；0.1.0 起子模块目录�
 └── (无 reexport.mbt)          #   用户直接 import 子模块包
 ```
 
+
+### 场景入口（S16，11 个模块）
+
+- 场景入口 4 个：`image.doc`（OCR/条码/文档元数据/表单）、`image.media`（编解码/元数据/变换/加密/流水线）、`image.commerce`（裁切调色增强/水印/码图/画质）、`image.pro`（其余全部原子包）。photo 场景用既有 `image.photography`，不另建模块。
+- 入口包里**只有** `pub using @pkg { … }` 再导出，没有实现、没有测试主体；不要手改 `image.<scene>/moon.pkg` 与 `<scene>_scene.mbt`（生成物）。
+- 改归属：编辑 `docs/scenes.json`（场景 → 包列表 + `modDeps`），再 `node scripts/gen_scenes.mjs`；`--check` 由 `check_docs` 的 **B11** 门禁调用，漂移即红。
+- 生成器跳过 `#deprecated` 符号（否则 `--deny-warn` 失败），跨包同名按 JSON 顺序先到先得并写进生成文件顶部冲突清单。
+- 新增/删除场景模块时同步：`moon.work` members、`scripts/check_version.mjs` 的 `MODULES`、`docs/release.md` 发布链、README 的 `packages-` 徽章与 `docs/architecture.md` 首行包数。
 ## Core Constraints
 
 > [!WARNING]
@@ -217,7 +225,7 @@ moon check --target wasm-gc
 moon check --target js
 moon check --target wasm
 
-# 运行测试（四目标各 7,391）
+# 运行测试（四目标各 7,395）
 moon test --target native
 moon test --target wasm-gc
 moon test --target js
