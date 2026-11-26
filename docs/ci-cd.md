@@ -55,7 +55,10 @@ Pages 单独拿 `pages: write` / `id-token: write`，`concurrency: pages` 且不
 
 - **发布方式**：artifact 部署（不走 Jekyll），产物 = `docs/` 整个目录；首页 `docs/index.html` 是纯静态页 + 浏览器内演示。
 - **URL**：`https://walkzzz.github.io/image.mbt/`
-- **首次启用**：`actions/configure-pages@v5` 带 `enablement: true`，仓库第一次跑本工作流会自动开启 Pages；若组织策略禁止自动开启，需在 Settings → Pages 手动选 "GitHub Actions"。
+- **当前状态（2026-11-27 实测）**：已启用并部署成功，`https://walkzzz.github.io/image.mbt/` 返回 200，`/playground.js` 267,318 字节由当次源码构建。
+- **首次开启**：`configure-pages@v5` 的 `enablement: true` 需要 `GITHUB_TOKEN` 有建站权限，实测报 `Resource not accessible by integration`——**首次必须手工开一次**：`gh api -X POST repos/<owner>/<repo>/pages -f build_type=workflow`（或 Settings → Pages → Source 选 "GitHub Actions"）。开过之后工作流才能部署。
+- **装完 CLI 必须 `moon update`**：CI 每个作业在 `Install MoonBit` 后都有 `Update registry index`（`moon update`）。缺这一步时 `moon check` 会直接报 `Failed to resolve registry dependency moonbitlang/x`，10 个作业同时红（2026-11-27 实测）。
+
 - **发布前自检**：`pages.yml` 先跑 `sync_pages --check` 与 `check_pages`，再上传；`check_pages` 会把 `_build/js/.../playground.js` 拷到 `docs/playground.js`，所以线上包一定是当次源码构建的。
 - **演示能做什么**：QR 生成、滤镜（亮度/模糊）、PNG 摘要，全部在浏览器内算（wasm/js 后端），不联网、无 CDN。
 
@@ -70,7 +73,7 @@ node scripts/check_release_ready.mjs               # 全量（含 moon check / t
 
 ## 6. 已知限制（不粉饰）
 
-- Pages **在仓库设置里尚未启用**（`gh api repos/walkzzz/image.mbt/pages` 实测 404）；工作流已就绪，推送后首次运行即自动开启。
+- `imgtool` 产物命名跨平台不一致：Linux runner 上 `moon build --release cmd/imgtool` 输出的是 **`imgtool.exe`**（不是 `imgtool`）。脚本统一走 `scripts/imgtool_path.mjs` 解析，新增脚本不要自己拼路径。
 - `prove` 作业依赖 `why3` + `z3` 的 apt 版本，与本地 WSL 里 8 goals 的版本不完全一致，可能多出/少掉个别 goal。
 - `mutation` 作业只跑 7 包 12 个变异点，不是全库变异。
 - 最近两次远程 CI 跑（`45528065485` / `45154611067`）失败点都是 `quality` 的 **Format check**，且都发生在 2026-11-23/25 的历史提交上；本地当前 `moon fmt --check` 全绿，推送后重跑即可验证是否只剩这一条。

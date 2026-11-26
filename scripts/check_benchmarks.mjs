@@ -22,6 +22,7 @@
 
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, writeFileSync, statSync } from 'node:fs';
+import { resolveImgtool } from './imgtool_path.mjs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -29,20 +30,7 @@ const ROOT = resolve(process.env.ROOT || join(import.meta.dirname, '..'));
 const GOLDEN_DIR = join(ROOT, 'benchmarks', 'golden');
 const MALFORMED_DIR = join(ROOT, 'benchmarks', 'malformed');
 const MANIFEST_PATH = join(ROOT, 'benchmarks', 'manifest.json');
-const IMGTOOL =
-  process.env.IMGTOOL ||
-  join(
-    ROOT,
-    '_build',
-    'native',
-    'release',
-    'build',
-    'walkzzz',
-    'image.mbt',
-    'cmd',
-    'imgtool',
-    process.platform === 'win32' ? 'imgtool.exe' : 'imgtool',
-  );
+const IMGTOOL = resolveImgtool(ROOT);
 const TIMEOUT_MS = Number(process.env.BENCH_TIMEOUT || 5000);
 
 const LIMITS = {

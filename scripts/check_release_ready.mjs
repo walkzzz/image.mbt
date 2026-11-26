@@ -17,6 +17,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveImgtool } from './imgtool_path.mjs';
 
 const root = process.env.ROOT
   ? resolve(process.env.ROOT)
@@ -24,8 +25,7 @@ const root = process.env.ROOT
 const skipSlow = process.argv.includes('--skip-slow');
 const asJson = process.argv.includes('--json');
 
-const exeName = process.platform === 'win32' ? 'imgtool.exe' : 'imgtool';
-const imgtool = join(root, '_build', 'native', 'release', 'build', 'walkzzz', 'image.mbt', 'cmd', 'imgtool', exeName);
+const imgtool = resolveImgtool(root);
 const ink = (s) => process.stdout.write(s);
 
 const steps = [

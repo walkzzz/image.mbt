@@ -53,9 +53,11 @@
 |------|------|------|
 | GAP-15 | `moon coverage analyze` 在 Windows 本地有路径拼接问题 | 覆盖率基线在 CI（ubuntu）与 WSL 生成 |
 | GAP-16 | `moon test` 中 `Int64::from_int` 等弃用警告不影响 `check --deny-warn` | 逐步迁移到 `to_int64()` 等新 API |
-| GAP-37 | **GitHub Pages 未在仓库设置里启用** | `gh api repos/walkzzz/image.mbt/pages` 返回 404；站点文件与 `pages.yml` 都已就绪 | `pages.yml` 用 `configure-pages@v5` + `enablement: true`，推送后首次运行自动开启；若组织策略禁止，需在 Settings → Pages 选 “GitHub Actions” |
+| GAP-37 | ~~GitHub Pages 未启用~~ **已启用（2026-11-27）** | 已部署 `https://walkzzz.github.io/image.mbt/`（200，playground.js 267,318 B） | `configure-pages` 的 `enablement` 用 GITHUB_TOKEN 建不了站，首次须手工 `gh api -X POST .../pages -f build_type=workflow`，已写进 `docs/ci-cd.md` |
 | GAP-38 | **4 个场景模块此前无 README** | `image.doc/media/commerce/pro` 在 mooncakes 上无说明页（S16 只生成了入口包） | 已补 4 份手写 README（定位/再导出表/生成物约定/文档链接）；`check_links` 的 B13 会把“子模块缺 README”拦成红灯 |
 | GAP-39 | **展示页口径曾长期漂移** | `docs/index.html` 停留在 0.1.1 / 6664 / 83.4% / 73 包 | 新增 `scripts/sync_pages.mjs`（真值 = moon.mod + README 徽章 + `docs/coverage.json`），`bump_version` 末尾自动调用，`sync_pages --check` 进 CI |
+| GAP-40 | **CI 各作业缺 `moon update`** | 2026-11-27 首次推送后 10 个作业全红在 `Failed to resolve registry dependency moonbitlang/x` | 每个作业装完 CLI 后补 `moon update`；已在 ci.yml / pages.yml 落地并复跑验证 |
+| GAP-41 | **`imgtool` 产物后缀跨平台不一致** | Linux runner 输出 `imgtool.exe`，脚本按 `process.platform` 猜 `imgtool` 会误报「未找到」，连带基准门禁与 Dart 自测整条红 | 抽出 `scripts/imgtool_path.mjs`（环境变量 → 固定路径 → `_build` 兜底扫描），benchmarks / dart / release-ready 三处已切换 |
 
 ## 测试口径
 

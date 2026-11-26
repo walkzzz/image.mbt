@@ -23,15 +23,13 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveImgtool } from './imgtool_path.mjs';
 
 const root = process.env.ROOT
   ? resolve(process.env.ROOT)
   : resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const noBuild = process.argv.includes('--no-build');
-const exeName = process.platform === 'win32' ? 'imgtool.exe' : 'imgtool';
-const imgtool =
-  process.env.IMGTOOL ??
-  join(root, '_build', 'native', 'release', 'build', 'walkzzz', 'image.mbt', 'cmd', 'imgtool', exeName);
+const imgtool = resolveImgtool(root);
 
 function run(cmd, args, opts = {}) {
   const res = spawnSync(cmd, args, { cwd: opts.cwd ?? root, encoding: 'utf8', env: { ...process.env, ...(opts.env ?? {}) } });
