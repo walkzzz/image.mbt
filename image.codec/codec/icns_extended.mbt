@@ -48,7 +48,7 @@ pub fn icns_info_extended(
   while pos + 8 <= len {
     let type_code = icns_type_to_string(data, pos)
     let chunk_len = read_u32_be(data, pos + 4)
-    if chunk_len < 8 || pos + chunk_len > len {
+    if chunk_len < 8 || chunk_len > len - pos {
       break
     }
     let (icon_size, is_png) = icns_icon_info(type_code)

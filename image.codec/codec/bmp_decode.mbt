@@ -90,7 +90,7 @@ pub fn decode_bmp_pure(data : Bytes) -> @types.Image raise @types.LoadError {
     let row_start = data_offset + file_row * row_size
     for x in 0..<abs_width {
       let pixel_offset = row_start + x * bytes_per_pixel
-      if pixel_offset + bytes_per_pixel > len {
+      if pixel_offset > len - bytes_per_pixel {
         raise @types.LoadError::DecodeFailed("BMP 像素数据越界")
       }
       // BGR(A) -> RGB(A)

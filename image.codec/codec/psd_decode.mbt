@@ -79,7 +79,7 @@ pub fn decode_psd_pure(data : Bytes) -> @types.Image raise @types.LoadError {
     }
     let seg_len = read_u32_be(data, pos)
     pos += 4
-    if pos + seg_len > len {
+    if seg_len > len - pos {
       raise @types.LoadError::DecodeFailed("PSD 段数据越界")
     }
     pos += seg_len

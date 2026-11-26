@@ -93,7 +93,7 @@ fn parse_icns(data : Bytes) -> Array[IcnsChunk] raise @types.LoadError {
   while pos + 8 <= end {
     let type_code = icns_type_to_string(data, pos)
     let chunk_len = read_u32_be(data, pos + 4)
-    if chunk_len < 8 || pos + chunk_len > end {
+    if chunk_len < 8 || chunk_len > end - pos {
       break
     }
     let data_offset = pos + 8

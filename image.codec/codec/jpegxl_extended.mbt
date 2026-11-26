@@ -111,7 +111,7 @@ fn jxl_find_codestream(data : Bytes) -> Int32 {
   let mut offset = 0
   while offset + 8 <= len {
     let box_size = read_u32_be(data, offset)
-    if box_size < 8 || offset + box_size > len {
+    if box_size < 8 || box_size > len - offset {
       break
     }
     let btype = box_type_str(data, offset)

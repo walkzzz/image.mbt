@@ -27,6 +27,10 @@
   `@types.ImageFormat::..`，漏分支会在 `--deny-warn` 下直接编译失败。
 - **TGA 无法自动分派**：`@lib.detect_format` 末位接入 `@codec.is_tga_format`（扩展覆盖
   1/2/3/9/10/11 图像类型与 8/15/16/24/32 bpp、宽高非零、调色板头一致性），`imgtool convert` 可直通 TGA。
+- **同型整数回绕收口（GAP-35）**：`avif_decode` / `avif_extended` / `heif_decode` / `heif_extended` /
+  `icns_codec` / `icns_extended` / `jpegxl_extended` / `psd_decode` / `psd_extended` / `bmp_decode`
+  共 10 处 `offset + size > len` 改为减法形式；新增白盒回归 `codec/bounds_overflow_wbtest.mbt`
+  （声明长度 `0x7FFFFFF0` 的 ICNS / PSD / AVIF / HEIF / JPEG-XL 必须返回 `LoadError` 而非 panic）。
 
 ## [0.1.19] - 2026-11-26
 

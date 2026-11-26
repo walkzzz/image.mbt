@@ -88,7 +88,7 @@ pub fn psd_info_extended(
     }
     let seg_len = read_u32_be(data, pos)
     pos += 4
-    if pos + seg_len > len {
+    if seg_len > len - pos {
       break
     }
     pos += seg_len

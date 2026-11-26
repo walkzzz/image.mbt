@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-26）：版本 0.1.20 · 7,387 测试 × 4 目标 · 78 包 · 覆盖率 90.1% · prove 8 goals。
+> 当前口径（2026-11-26）：版本 0.1.20 · 7,388 测试 × 4 目标 · 78 包 · 覆盖率 90.1% · prove 8 goals。
 
 ## 功能边界
 
@@ -33,7 +33,7 @@
 | GAP-32 | 根 `moon.mod` 依赖钉停在 `@0.1.1`，与工作区 0.1.7 错配 → `moon publish --dry-run` 拿旧版子模块编新代码，报 56 个 API 缺失 | **钉子部分已闭环（2026-11-25）**：`bump_version.mjs` 同步改写 7 个 `moon.mod` 的 `walkzzz/image.*@x.y.z` 钉，`check_version.mjs` 新增第 14 项守门。残余只差发布顺序：registry 里没有 0.1.7 子模块 | ✅ 钉子现为 `@0.1.7`、门禁 14 项全绿；⏳ 待发六个子模块 0.1.7 后根包 dry-run 转绿（详见 `docs/release.md`） |
 | GAP-33 | wasm-gc 产物无法在 Node 直接实例化 | `use-js-builtin-string` 下每个字符串常量都被编成 `"_"` 模块的 `(ref extern)` 全局导入（本包 460 条）；JS 只能创建可空 `externref`，`WebAssembly.Global` 类型不匹配 → `LinkError` | npm 改走 **wasm MVP 字节 ABI**（导出 `memory`，`Bytes` = i32 指针，0 import，110.6 KiB gzip）；wasm-gc 导出仅保留给 MoonBit 自有 host，S17 若需要再评估 |
 | GAP-34 | ~~PNG 家族 chunk 长度整数回绕导致 panic~~ **已闭环（2026-11-26）** | 基准集 m2（chunk 声明 0x7FFFFFF0）实测打出 `0xC0000409`：`pos + chunk_len > len` 在 Int32 上回绕为负，越界检查被绕过 | ✅ `png_decode` / `png_decode_16` / `apng_codec` / `apng_extended` / `region_decode` 改为溢出安全比较 `chunk_len > len - pos`；m2 现返回 `decode/decode_failed` |
-| GAP-35 | **同型整数回绕隐患未逐格式审计** | 仍存在 `offset + box_size > len` 一类写法：`avif_decode.mbt:74`、`avif_extended.mbt:159`、`heif_decode.mbt:80`、`heif_extended.mbt:145`、`icns_codec.mbt:96`、`icns_extended.mbt:51`、`jpegxl_extended.mbt:114`、`psd_decode.mbt:82`、`psd_extended.mbt:91`、`bmp_decode.mbt:93` | 按格式逐个改成减法形式并各配一个畸形样本（复用 `benchmarks/gen` 的 `push_u32` 构造器）；未改前不要把 `BENCH_TIMEOUT` 调大掩盖超时 |
+| GAP-35 | ~~同型整数回绕隐患未逐格式审计~~ **已闭环（2026-11-26）** | 10 处 `offset + size > len` 全部改为减法形式：AVIF（2）、HEIF（2）、ICNS（2）、JPEG-XL（1）、PSD（2）、BMP 像素地址（1） | ✅ 白盒回归 `codec/bounds_overflow_wbtest.mbt`：声明 `0x7FFFFFF0` 的 ICNS / PSD / AVIF / HEIF / JPEG-XL 均返回 `LoadError`；benchmarks 侧 m2 覆盖 PNG 家族同型 |
 | GAP-36 | ~~CLI 把 HDR/PSD 报成 `unknown`~~ **已闭环（2026-11-26）** | `imgcli` 自带一份 `format_name`，缺 `Hdr`/`Psd` 分支，默认臂 `_ => "unknown"` 静默兜底 | ✅ 补齐两分支，默认臂改 `@types.ImageFormat::..`（`--deny-warn` 下未匹配新变体会直接编译失败） |
 | GAP-18 | ~~QR 数据级往返未打通~~ **已闭环（2026-11-21）** | 修复 4 处解码器缺陷（垂直验证起点 / 重复计数与坐标语义 / 版本公式 / 格式信息位序） | ✅ testgen `render_qr` → `decode_qrcode_full` 往返 `hello` 成功 |
 | GAP-19 | ~~VP8 inter 帧尺寸取 header（恒 0 → 恒拒绝）~~ **已闭环（2026-11-21）** | inter 帧头无分辨率，改为回退参考帧宽高（保留偶数对齐守卫） | ✅ inter 帧解码 16×16 通过；覆盖率 +88 行 |
@@ -56,7 +56,7 @@
 
 ## 测试口径
 
-- **7,387 为 native 实测**（2026-11-26）；四目标由 CI `test` job 矩阵实测。
+- **7,388 为 native 实测**（2026-11-26）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 

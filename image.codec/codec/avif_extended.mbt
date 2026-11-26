@@ -156,7 +156,7 @@ fn scan_boxes(
   let mut offset = start
   while offset + 8 <= end {
     let box_size = read_u32_be(data, offset)
-    if box_size < 8 || offset + box_size > end {
+    if box_size < 8 || box_size > end - offset {
       break
     }
     let btype = box_type_str(data, offset)

@@ -71,7 +71,7 @@ pub fn avif_info(data : Bytes) -> AvifInfo raise @types.LoadError {
       (data[offset + 1].to_int() << 16) |
       (data[offset + 2].to_int() << 8) |
       data[offset + 3].to_int()
-    if box_size < 8 || offset + box_size > len {
+    if box_size < 8 || box_size > len - offset {
       break
     }
     let box_type_0 = data[offset + 4]
