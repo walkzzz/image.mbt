@@ -51,8 +51,12 @@
   pixel_count` 保护"等价（run 超出部分本来就被丢弃），属等价变异体，已换成
   LUMA 差分基准。
 
-## 未覆盖部分
+## 覆盖率收口
 
-路线图 S18 同时要求"覆盖率 90%"。当前全库行覆盖 35,075/41,889 = 90.1%，距 90%
-尚差约 3,000 行，下一步按"每包未覆盖行数 × 补测成本"排序推进，优先处理
-`webp_vp8_decode`、`image_stitch`、`tiff_codec` 等大段缺断言的路径。
+路线图 S18 同时要求"覆盖率 90%"。收口完成：全库行覆盖 **37,740/41,894 = 90.08%**
+（`moon test --enable-coverage --target native` 后 `moon coverage report -f full_summary`，
+7,387 测试全绿）。分母为最严口径，含 native 不可覆盖的 `wasm/abi.mbt`(89)、`wasm/api.mbt`(85)、
+`playground/playground.mbt`(35)、`examples/quickstart/main.mbt`(37)，未做排除。
+
+仍未覆盖的主要是这些非库体文件，以及 `webp_vp8_decode` 的熵解码残段、`ocr/multilingual_ocr_enhanced`
+按语种分派的分支、`imgtool.run()`（进程内不可测的 env/exit 路径）。
