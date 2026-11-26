@@ -415,15 +415,16 @@ fn split_into_words(text : String) -> Array[String] {
   let words : Array[String] = []
   let mut current_word = ""
   for i in 0..<text.length() {
-    let c = text[i]
-    if c == ' ' || c == '\n' || c == '\t' {
+    let raw = text[i]
+    let c = pp_char_str(raw)
+    if c == " " || c == "\n" || c == "\t" {
       if current_word.length() > 0 {
         words.push(current_word)
         current_word = ""
       }
-      words.push(c.to_string())
+      words.push(c)
     } else {
-      current_word += c.to_string()
+      current_word += c
     }
   }
   if current_word.length() > 0 {
