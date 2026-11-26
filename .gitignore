@@ -27,3 +27,6 @@ mutation-report.json
 .codegraph/
 npm/image.wasm
 npm/node_modules/
+
+# CLI 覆盖率测试临时文件
+_build_cli_*.png
