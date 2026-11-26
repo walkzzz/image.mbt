@@ -218,5 +218,8 @@ jobs:
       - name: Run Dart binding self-test
         run: node scripts/check_dart_binding.mjs --no-build
 
+      - name: Build npm wasm artifact (npm/image.wasm 是构建产物，不入库)
+        run: node scripts/build_npm_wasm.mjs --no-test
+
       - name: Run npm wasm self-test
         run: node npm/test.mjs
