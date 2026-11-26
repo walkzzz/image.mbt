@@ -1,5 +1,6 @@
 // 覆盖率测试：视频超分三种方法与质量评估分支
 
+///|
 fn vsr_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
   let d : Array[Int32] = []
   for y in 0..<h {
@@ -17,6 +18,7 @@ fn vsr_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
   }
 }
 
+///|
 test "vsr: 三种超分方法" {
   let f1 = vsr_img(8, 8, 1, 0)
   let f2 = vsr_img(8, 8, 1, 30)
@@ -80,6 +82,7 @@ test "vsr: 三种超分方法" {
   assert_true(def.sr_method == @video.VideoSRMethod::BicubicSR)
 }
 
+///|
 test "vsr: 质量评估分支" {
   let orig = [vsr_img(8, 8, 1, 0), vsr_img(8, 8, 1, 20)]
   let sr = [

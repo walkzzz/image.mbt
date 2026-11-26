@@ -1,5 +1,6 @@
 // 覆盖率测试：颜色空间与通道转换（色彩转换全家桶）
 
+///|
 fn cc_img(w : Int32, h : Int32, c : Int32, fill : Array[Int32]) -> @types.Image {
   let d : Array[Byte] = []
   let n = w * h * c
@@ -7,9 +8,15 @@ fn cc_img(w : Int32, h : Int32, c : Int32, fill : Array[Int32]) -> @types.Image 
     let v = if i < fill.length() { fill[i] } else { 0 }
     d.push(v.to_byte())
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn cc_bad() -> @types.Image {
   @types.Image::{
     width: 2,
@@ -19,6 +26,7 @@ fn cc_bad() -> @types.Image {
   }
 }
 
+///|
 test "cccov: 通道转换（灰度 / RGB / RGBA）" {
   // 灰度：单通道原样
   let g = cc_img(2, 1, 1, [100, 200])
@@ -56,28 +64,24 @@ test "cccov: 通道转换（灰度 / RGB / RGBA）" {
   assert_true(o8.channels == 4)
   // 错误分支
   try {
-    let _ = @color.to_grayscale(
-      @types.Image::{
-        width: 0,
-        height: 2,
-        channels: 1,
-        data: Bytes::from_array([]),
-      },
-    )
+    let _ = @color.to_grayscale(@types.Image::{
+      width: 0,
+      height: 2,
+      channels: 1,
+      data: Bytes::from_array([]),
+    })
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @color.to_grayscale(
-      @types.Image::{
-        width: 1,
-        height: 1,
-        channels: 5,
-        data: Bytes::from_array(Array::make(5, b'\x00')),
-      },
-    )
+    let _ = @color.to_grayscale(@types.Image::{
+      width: 1,
+      height: 1,
+      channels: 5,
+      data: Bytes::from_array(Array::make(5, b'\x00')),
+    })
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -106,6 +110,7 @@ test "cccov: 通道转换（灰度 / RGB / RGBA）" {
   }
 }
 
+///|
 test "cccov: alpha 预乘与还原" {
   let rgba = cc_img(2, 1, 4, [200, 100, 50, 128, 10, 20, 30, 255])
   let p = @color.premultiply_alpha(rgba)
@@ -145,6 +150,7 @@ test "cccov: alpha 预乘与还原" {
   }
 }
 
+///|
 test "cccov: YCbCr / XYZ / Lab / CMYK 数学转换" {
   // YCbCr 往返
   let (y1, cb1, cr1) = @color.rgb_to_ycbcr(255, 0, 0)

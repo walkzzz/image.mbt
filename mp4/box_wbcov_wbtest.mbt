@@ -1,5 +1,6 @@
 // 白盒覆盖：MP4 box 解析（fourcc / u32/u64 读取 / 单层遍历 / 查找与收集）
 
+///|
 fn mbx_box(size : Int32, ty : String) -> Array[Byte] {
   let out : Array[Byte] = []
   out.push((size >> 24).to_byte())
@@ -15,18 +16,37 @@ fn mbx_box(size : Int32, ty : String) -> Array[Byte] {
   out
 }
 
+///|
 test "mp4box: fourcc 与整数读取" {
   let data = Bytes::from_array([
-    (0x66).to_byte(), (0x74).to_byte(), (0x79).to_byte(), (0x70).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
+    (0x66).to_byte(),
+    (0x74).to_byte(),
+    (0x79).to_byte(),
+    (0x70).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
   ])
   assert_true(fourcc(data, 0) == "ftyp")
   // 非 ASCII 字节 → U+FFFD
   let weird = Bytes::from_array([
-    (0xFF).to_byte(), (0x00).to_byte(), (0x41).to_byte(), (0xFE).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
+    (0xFF).to_byte(),
+    (0x00).to_byte(),
+    (0x41).to_byte(),
+    (0xFE).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
   ])
   let s = fourcc(weird, 0)
   let _ = s
@@ -34,13 +54,20 @@ test "mp4box: fourcc 与整数读取" {
   assert_true(read_u64(weird, 8) == 0L)
   // 大端 u64
   let big = Bytes::from_array([
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (1).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (1).to_byte(),
   ])
   assert_true(read_u64(big, 0) == 1L)
   assert_true(read_u32(weird, 4) == 0)
 }
 
+///|
 test "mp4box: 单层遍历各分支" {
   // 普通 box：ftyp(16) + moov(24)
   let ftyp = mbx_box(16, "ftyp")
@@ -54,22 +81,39 @@ test "mp4box: 单层遍历各分支" {
   }
   let data = Bytes::from_array(buf)
   let seen : Array[String] = []
-  walk_boxes_one_level(data, 0, data.length(), fn(b) {
-    seen.push(b.box_type)
-  })
+  walk_boxes_one_level(data, 0, data.length(), fn(b) { seen.push(b.box_type) })
   assert_true(seen.length() == 2)
   assert_true(seen[0] == "ftyp")
   assert_true(seen[1] == "moov")
 
   // size==0：延伸至末尾（修复后应解析出 2 个 box）
   let z : Array[Byte] = [
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (16).to_byte(),
-    (0x66).to_byte(), (0x74).to_byte(), (0x79).to_byte(), (0x70).to_byte(),
-    (1).to_byte(), (2).to_byte(), (3).to_byte(), (4).to_byte(),
-    (5).to_byte(), (6).to_byte(), (7).to_byte(), (8).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
-    (0x6d).to_byte(), (0x64).to_byte(), (0x61).to_byte(), (0x74).to_byte(),
-    (1).to_byte(), (2).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (16).to_byte(),
+    (0x66).to_byte(),
+    (0x74).to_byte(),
+    (0x79).to_byte(),
+    (0x70).to_byte(),
+    (1).to_byte(),
+    (2).to_byte(),
+    (3).to_byte(),
+    (4).to_byte(),
+    (5).to_byte(),
+    (6).to_byte(),
+    (7).to_byte(),
+    (8).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0x6d).to_byte(),
+    (0x64).to_byte(),
+    (0x61).to_byte(),
+    (0x74).to_byte(),
+    (1).to_byte(),
+    (2).to_byte(),
   ]
   let zeros = Bytes::from_array(z)
   let got : Array[Int32] = []
@@ -83,14 +127,38 @@ test "mp4box: 单层遍历各分支" {
 
   // size==1：largesize 合法（总长 32 = 16 头 + 16 负载）
   let l1 : Array[Byte] = [
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (1).to_byte(),
-    (0x6d).to_byte(), (0x6f).to_byte(), (0x6f).to_byte(), (0x76).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0x20).to_byte(),
-    (7).to_byte(), (7).to_byte(), (7).to_byte(), (7).to_byte(),
-    (7).to_byte(), (7).to_byte(), (7).to_byte(), (7).to_byte(),
-    (7).to_byte(), (7).to_byte(), (7).to_byte(), (7).to_byte(),
-    (7).to_byte(), (7).to_byte(), (7).to_byte(), (7).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (1).to_byte(),
+    (0x6d).to_byte(),
+    (0x6f).to_byte(),
+    (0x6f).to_byte(),
+    (0x76).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0x20).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
+    (7).to_byte(),
   ]
   let large = Bytes::from_array(l1)
   assert_true(large.length() == 32)
@@ -109,40 +177,59 @@ test "mp4box: 单层遍历各分支" {
 
   // size==1 且 largesize 越界 → 提前返回
   let l2 = Bytes::from_array([
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (1).to_byte(),
-    (0x6d).to_byte(), (0x6f).to_byte(), (0x6f).to_byte(), (0x76).to_byte(),
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
-    (0).to_byte(), (0).to_byte(), (1).to_byte(), (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (1).to_byte(),
+    (0x6d).to_byte(),
+    (0x6f).to_byte(),
+    (0x6f).to_byte(),
+    (0x76).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (1).to_byte(),
+    (0).to_byte(),
   ])
   let out3 : Array[String] = []
-  walk_boxes_one_level(l2, 0, l2.length(), fn(b) {
-    out3.push(b.box_type)
-  })
+  walk_boxes_one_level(l2, 0, l2.length(), fn(b) { out3.push(b.box_type) })
   assert_true(out3.length() == 0)
 
   // 非法 size（< header）→ 停止
   let bad = Bytes::from_array([
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (4).to_byte(),
-    (0x61).to_byte(), (0x62).to_byte(), (0x63).to_byte(), (0x64).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (4).to_byte(),
+    (0x61).to_byte(),
+    (0x62).to_byte(),
+    (0x63).to_byte(),
+    (0x64).to_byte(),
   ])
   let out4 : Array[String] = []
-  walk_boxes_one_level(bad, 0, bad.length(), fn(b) {
-    out4.push(b.box_type)
-  })
+  walk_boxes_one_level(bad, 0, bad.length(), fn(b) { out4.push(b.box_type) })
   assert_true(out4.length() == 0)
 
   // off+total 越界 → 停止
   let trunc = Bytes::from_array([
-    (0).to_byte(), (0).to_byte(), (0).to_byte(), (100).to_byte(),
-    (0x61).to_byte(), (0x62).to_byte(), (0x63).to_byte(), (0x64).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (0).to_byte(),
+    (100).to_byte(),
+    (0x61).to_byte(),
+    (0x62).to_byte(),
+    (0x63).to_byte(),
+    (0x64).to_byte(),
   ])
   let out5 : Array[String] = []
-  walk_boxes_one_level(trunc, 0, trunc.length(), fn(b) {
-    out5.push(b.box_type)
-  })
+  walk_boxes_one_level(trunc, 0, trunc.length(), fn(b) { out5.push(b.box_type) })
   assert_true(out5.length() == 0)
 }
 
+///|
 test "mp4box: find / collect" {
   let a = mbx_box(16, "ftyp")
   let b1 = mbx_box(16, "trak")

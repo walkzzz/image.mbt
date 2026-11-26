@@ -1,5 +1,22 @@
 // 覆盖率测试：XMP 元数据读写往返与容错分支
 
+///|
+fn xmc_some(o : @meta.XmpInfo?) -> Bool {
+  match o {
+    Some(_) => true
+    None => false
+  }
+}
+
+///|
+fn xmc_none(o : @meta.XmpInfo?) -> Bool {
+  match o {
+    Some(_) => false
+    None => true
+  }
+}
+
+///|
 fn xmp_full_info() -> @meta.XmpInfo {
   @meta.XmpInfo::{
     creator: "tester",
@@ -16,6 +33,7 @@ fn xmp_full_info() -> @meta.XmpInfo {
   }
 }
 
+///|
 test "xmp: 段构造与字段裁剪" {
   let seg = @meta.create_xmp_segment(xmp_full_info())
   assert_true(seg.length() > 0)
@@ -40,6 +58,7 @@ test "xmp: 段构造与字段裁剪" {
   assert_true(partial.length() > 0)
 }
 
+///|
 test "xmp: JPEG 写入与读回" {
   // 最小 JPEG：SOI + EOI
   let jpeg = Bytes::from_array([b'\xff', b'\xd8', b'\xff', b'\xd9'])
@@ -49,7 +68,7 @@ test "xmp: JPEG 写入与读回" {
   assert_true(with_xmp.length() > jpeg.length())
   // 读回
   let info = @meta.read_xmp_from_bytes(with_xmp)
-  assert_true(info.is_some())
+  assert_true(xmc_some(info))
   match info {
     Some(v) => {
       assert_true(v.creator == "tester")
@@ -61,10 +80,12 @@ test "xmp: JPEG 写入与读回" {
     None => assert_true(false)
   }
   // 无 XMP 的裸 JPEG → None
-  assert_true(@meta.read_xmp_from_bytes(jpeg).is_none())
+  assert_true(xmc_none(@meta.read_xmp_from_bytes(jpeg)))
   // 非 JPEG → None
-  assert_true(@meta.read_xmp_from_bytes(Bytes::from_array([0, 1, 2, 3, 4])).is_none())
-  assert_true(@meta.read_xmp_from_bytes(Bytes::from_array([])).is_none())
+  assert_true(
+    xmc_none(@meta.read_xmp_from_bytes(Bytes::from_array([0, 1, 2, 3, 4]))),
+  )
+  assert_true(xmc_none(@meta.read_xmp_from_bytes(Bytes::from_array([]))))
   // 已有 XMP 再写一次（替换路径）
   let again = @meta.write_xmp_to_bytes(xmp_full_info(), with_xmp) catch {
     _ => Bytes::from_array([])
@@ -72,13 +93,19 @@ test "xmp: JPEG 写入与读回" {
   assert_true(again.length() > 0)
   // 写入非 JPEG → 抛错
   try {
-    let _ = @meta.write_xmp_to_bytes(xmp_full_info(), Bytes::from_array([0, 1, 2, 3]))
+    let _ = @meta.write_xmp_to_bytes(
+      xmp_full_info(),
+      Bytes::from_array([0, 1, 2, 3]),
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
   try {
-    let _ = @meta.write_xmp_to_bytes(xmp_full_info(), Bytes::from_array([b'\xff', b'\xd8']))
+    let _ = @meta.write_xmp_to_bytes(
+      xmp_full_info(),
+      Bytes::from_array([b'\xff', b'\xd8']),
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)

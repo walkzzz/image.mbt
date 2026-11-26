@@ -1,15 +1,25 @@
-﻿// 覆盖率测试：量化钳位、算法枚举映射与压缩分派
+// 覆盖率测试：量化钳位、算法枚举映射与压缩分派
 
+///|
 fn cqc_img(w : Int32, h : Int32, ch : Int32, v : Int32) -> @types.Image {
   let n = w * h * ch
   let data : Array[Byte] = []
   for _i in 0..<n {
     data.push(v.to_byte())
   }
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
-fn cqc_cfg(a : @compression.CompressionAlgorithm, q : Double) -> @compression.CompressionConfig {
+///|
+fn cqc_cfg(
+  a : @compression.CompressionAlgorithm,
+  q : Double,
+) -> @compression.CompressionConfig {
   @compression.CompressionConfig::{
     algorithm: a,
     quality: q,
@@ -53,16 +63,17 @@ test "cqc: 三种算法分派都能产出字节" {
   ]
   for a in algos {
     let r = @compression.compress_image(img, cqc_cfg(a, 85.0)) catch {
-      _ => @compression.CompressionResult::{
-        compressed_data: Bytes::from_array([]),
-        original_size: 0,
-        compressed_size: 0,
-        compression_ratio: 0.0,
-        bits_per_pixel: 0.0,
-        algorithm: @compression.CompressionAlgorithm::Unknown,
-        quality: 0.0,
-        processing_time_ms: 0.0,
-      }
+      _ =>
+        @compression.CompressionResult::{
+          compressed_data: Bytes::from_array([]),
+          original_size: 0,
+          compressed_size: 0,
+          compression_ratio: 0.0,
+          bits_per_pixel: 0.0,
+          algorithm: @compression.CompressionAlgorithm::Unknown,
+          quality: 0.0,
+          processing_time_ms: 0.0,
+        }
     }
     assert_true(r.compressed_size >= 0)
   }
@@ -73,9 +84,7 @@ test "cqc: 质量档位影响量化级别" {
   let img = cqc_img(8, 8, 1, 200)
   let qs : Array[Double] = [95.0, 80.0, 60.0, 30.0]
   for _q in qs {
-    let out = @compression.quantize_image(img, 32) catch {
-      _ => img
-    }
+    let out = @compression.quantize_image(img, 32) catch { _ => img }
     assert_true(out.width == 8)
   }
   for q in qs {
@@ -94,9 +103,7 @@ test "cqc: 质量档位影响量化级别" {
 ///|
 test "cqc: 量化上溢钳位到 255" {
   let img = cqc_img(4, 4, 1, 255)
-  let out = @compression.quantize_image(img, 5) catch {
-    _ => img
-  }
+  let out = @compression.quantize_image(img, 5) catch { _ => img }
   for i in 0..<out.data.length() {
     assert_true(out.data[i].to_int() <= 255)
   }
@@ -141,6 +148,3 @@ test "cqc: 质量指标与报告文本" {
   assert_true(text.contains("PNG"))
   assert_true(text.contains("压缩比"))
 }
-
-
-

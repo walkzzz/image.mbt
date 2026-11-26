@@ -1,7 +1,8 @@
-﻿// 白盒测试：VP8 位读取器 / 布尔解码器 / 自适应概率模型
+// 白盒测试：VP8 位读取器 / 布尔解码器 / 自适应概率模型
 // White-box tests for VP8 bit reader, bool decoder and adaptive probability model.
 
-fn vpw_bytes(vals : Array[Int]) -> Bytes {
+///|
+fn vpw_bytes(vals : Array[Int32]) -> Bytes {
   let out : Array[Byte] = []
   for v in vals {
     out.push(v.to_byte())
@@ -9,6 +10,7 @@ fn vpw_bytes(vals : Array[Int]) -> Bytes {
   Bytes::from_array(out)
 }
 
+///|
 test "vpw: Vp8BitReader 大端读取与越界补零" {
   let br = Vp8BitReader::new(vpw_bytes([0xAA, 0x0F]), 0)
   assert_eq(br.read_bits(4), 10)
@@ -29,6 +31,7 @@ test "vpw: Vp8BitReader 大端读取与越界补零" {
   assert_eq(br3.read_bool(255), 0)
 }
 
+///|
 test "vpw: Vp8BoolDecoder 初始化与解码" {
   // 空数据：内部值补零，读出的都是一位 0
   let empty = Vp8BoolDecoder::new(Bytes::make(0, b'\x00'), 0)
@@ -51,6 +54,7 @@ test "vpw: Vp8BoolDecoder 初始化与解码" {
   assert_eq(off.read_bool(128), 1)
 }
 
+///|
 test "vpw: Vp8BoolDecoder 字面值读取" {
   let z = Vp8BoolDecoder::new(vpw_bytes([0x00, 0x00]), 0)
   assert_eq(z._read_literal(0), 0)
@@ -60,6 +64,7 @@ test "vpw: Vp8BoolDecoder 字面值读取" {
   assert_eq(hi._read_literal(3), 7)
 }
 
+///|
 test "vpw: Vp8AdaptiveProbs 默认表与越界回退" {
   let p = Vp8AdaptiveProbs::new()
   assert_eq(p.prob_zero[0], 200)
@@ -82,6 +87,7 @@ test "vpw: Vp8AdaptiveProbs 默认表与越界回退" {
   assert_eq(p.get_extra_prob(40), 140)
 }
 
+///|
 test "vpw: Vp8AdaptiveProbs 计数与 EMA 更新" {
   let p = Vp8AdaptiveProbs::new()
   // 非法位置只被忽略，不计数

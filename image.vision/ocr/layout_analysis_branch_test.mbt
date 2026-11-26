@@ -1,5 +1,6 @@
 // 覆盖率测试：版面分析各函数错误分支与二值化方法分支
 
+///|
 fn lay_img(w : Int32, h : Int32, c : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn lay_img(w : Int32, h : Int32, c : Int32) -> @types.Image {
   }
 }
 
+///|
 fn lay_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -18,7 +20,12 @@ fn lay_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   }
 }
 
-fn lay_text(w : Int32, h : Int32, lines : Array[(Int32, Int32)]) -> @types.Image {
+///|
+fn lay_text(
+  w : Int32,
+  h : Int32,
+  lines : Array[(Int32, Int32)],
+) -> @types.Image {
   // lines: (起始 y, 行高)；每行铺满宽度的白色文本带
   let data : Array[Int32] = Array::make(w * h, 0)
   for line in lines {
@@ -37,6 +44,7 @@ fn lay_text(w : Int32, h : Int32, lines : Array[(Int32, Int32)]) -> @types.Image
   }
 }
 
+///|
 fn lay_two_cols(w : Int32, h : Int32) -> @types.Image {
   let data : Array[Int32] = Array::make(w * h, 0)
   for y in 0..<h {
@@ -55,6 +63,7 @@ fn lay_two_cols(w : Int32, h : Int32) -> @types.Image {
   }
 }
 
+///|
 test "laycov: detect_text_regions 分支" {
   let ok = lay_text(40, 40, [(4, 8), (20, 8)])
   let r = @ocr.detect_text_regions(ok)
@@ -78,6 +87,7 @@ test "laycov: detect_text_regions 分支" {
   }
 }
 
+///|
 test "laycov: segment_page 与 detect_columns 分支" {
   let ok = lay_text(60, 60, [(5, 10), (30, 10)])
   let r = @ocr.segment_page(ok)
@@ -130,6 +140,7 @@ test "laycov: segment_page 与 detect_columns 分支" {
   }
 }
 
+///|
 test "laycov: extract_text_lines 分支" {
   let ok = lay_text(30, 30, [(3, 6), (12, 6), (21, 6)])
   let lines = @ocr.extract_text_lines(ok)
@@ -153,6 +164,7 @@ test "laycov: extract_text_lines 分支" {
   }
 }
 
+///|
 test "laycov: ocr_preprocess 二值化方法分支" {
   let g = lay_text(24, 24, [(4, 8)])
   // 五种方法分支

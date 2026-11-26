@@ -1,13 +1,20 @@
 // 覆盖率测试：数字 OCR（模板生成 / 区域提取 / 特征 / 模板匹配 / 距离度量）
 
+///|
 fn dw_gray(w : Int32, h : Int32, fill : Byte) -> @types.Image {
   let d : Array[Byte] = []
   for _ in 0..<(w * h) {
     d.push(fill)
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "dw: 模板生成覆盖 0-9" {
   let ts = generate_digit_templates()
   assert_true(ts.length() == 10)
@@ -29,6 +36,7 @@ test "dw: 模板生成覆盖 0-9" {
   assert_true(sum8 > sum1)
 }
 
+///|
 test "dw: set_segment 越界裁剪" {
   let f : Array[Double] = Array::make(64, 0.0)
   set_segment(f, 8, 0, 0, 1, 1)
@@ -40,6 +48,7 @@ test "dw: set_segment 越界裁剪" {
   assert_true(g[62] == 0.0)
 }
 
+///|
 test "dw: 字符区域提取" {
   let img = dw_gray(40, 40, b'\xFF')
   // 正常裁剪 + 缩放到 32
@@ -65,6 +74,7 @@ test "dw: 字符区域提取" {
   assert_true(out_x.data[0].to_int() == 0)
 }
 
+///|
 test "dw: 特征提取与模板匹配" {
   // 全白 32x32：每个网格密度 1
   let white = extract_char_features(dw_gray(32, 32, b'\xFF'), 8)
@@ -96,6 +106,7 @@ test "dw: 特征提取与模板匹配" {
   assert_true(c4 > 0.0 && c4 < 0.0001)
 }
 
+///|
 test "dw: 距离度量边界" {
   let a : Array[Double] = [3.0, 4.0]
   let b : Array[Double] = [0.0, 0.0]
@@ -118,6 +129,7 @@ test "dw: 距离度量边界" {
   assert_true(_max_ocr(5, 3) == 5)
 }
 
+///|
 test "dw: 识别流水线校验与运行" {
   // 尺寸为 0
   try {
@@ -165,7 +177,12 @@ test "dw: 识别流水线校验与运行" {
   assert_true(base.target_size == 32)
   assert_true(base.k == 3)
   assert_true(base.distance_metric == "euclidean")
-  let bad = @types.Image::{ width: 16, height: 16, channels: 1, data: Bytes::from_array(Array::make(256, b'\xFF')) }
+  let bad = @types.Image::{
+    width: 16,
+    height: 16,
+    channels: 1,
+    data: Bytes::from_array(Array::make(256, b'\xFF')),
+  }
   let c_min = DigitOcrConfig::{
     min_char_width: 0,
     max_char_width: 60,
@@ -234,10 +251,21 @@ test "dw: 识别流水线校验与运行" {
   let d : Array[Byte] = []
   for y in 0..<32 {
     for x in 0..<32 {
-      d.push(if x >= 12 && x < 18 && y >= 4 && y < 28 { b'\x00' } else { b'\xFF' })
+      d.push(
+        if x >= 12 && x < 18 && y >= 4 && y < 28 {
+          b'\x00'
+        } else {
+          b'\xFF'
+        },
+      )
     }
   }
-  let glyph = @types.Image::{ width: 32, height: 32, channels: 1, data: Bytes::from_array(d) }
+  let glyph = @types.Image::{
+    width: 32,
+    height: 32,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
   let r1 = recognize_digits(glyph)
   assert_true(r1.text.length() >= 0)
   let c_man = DigitOcrConfig::{

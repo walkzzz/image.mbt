@@ -1,6 +1,12 @@
 // 覆盖率测试：颜色调整（亮度/对比度/Gamma/反色/HSV/HSL/饱和度/色相）
 
-fn cadj_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
+///|
+fn cadj_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Int32,
+) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -9,13 +15,20 @@ fn cadj_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @ty
       }
     }
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn cadj_flat(w : Int32, h : Int32, c : Int32, v : Int32) -> @types.Image {
   cadj_img(w, h, c, fn(_x, _y) { v })
 }
 
+///|
 fn cadj_bad() -> @types.Image {
   @types.Image::{
     width: 2,
@@ -25,6 +38,7 @@ fn cadj_bad() -> @types.Image {
   }
 }
 
+///|
 fn cadj_bad_ch() -> @types.Image {
   @types.Image::{
     width: 1,
@@ -34,6 +48,7 @@ fn cadj_bad_ch() -> @types.Image {
   }
 }
 
+///|
 test "cadjcov: 亮度与对比度" {
   let g = cadj_flat(2, 1, 1, 100)
   let b1 = @color.adjust_brightness(g, 50)
@@ -115,6 +130,7 @@ test "cadjcov: 亮度与对比度" {
   }
 }
 
+///|
 test "cadjcov: Gamma 与反色" {
   let g1 = @color.adjust_gamma(cadj_flat(2, 2, 1, 128), 1.0F)
   assert_true(g1.data[0].to_int() >= 127 && g1.data[0].to_int() <= 129)
@@ -188,6 +204,7 @@ test "cadjcov: Gamma 与反色" {
   }
 }
 
+///|
 test "cadjcov: HSV 与 HSL 转换" {
   // 纯色色相
   let (h1, s1, v1) = @color.rgb_to_hsv(255, 0, 0)
@@ -285,6 +302,7 @@ test "cadjcov: HSV 与 HSL 转换" {
   }
 }
 
+///|
 test "cadjcov: 饱和度与色相调整" {
   // 单通道 → 原样返回
   let gray = cadj_flat(2, 2, 1, 100)

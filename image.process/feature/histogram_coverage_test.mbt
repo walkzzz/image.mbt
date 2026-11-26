@@ -1,6 +1,12 @@
 // 覆盖率测试：直方图（统计 / 均衡化 / 归一化 / 比较 / 匹配）
 
-fn hg_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
+///|
+fn hg_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Int32,
+) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -9,17 +15,25 @@ fn hg_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @type
       }
     }
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn hg_flat(w : Int32, h : Int32, c : Int32, v : Int32) -> @types.Image {
   hg_img(w, h, c, fn(_x, _y) { v })
 }
 
+///|
 fn hg_ramp(w : Int32, h : Int32, c : Int32) -> @types.Image {
   hg_img(w, h, c, fn(x, y) { (x * 16 + y * 4) % 256 })
 }
 
+///|
 test "hgcov: 直方图统计" {
   // 单通道：两像素 10 / 20
   let img = hg_img(2, 1, 1, fn(x, _y) { if x == 0 { 10 } else { 20 } })
@@ -81,6 +95,7 @@ test "hgcov: 直方图统计" {
   }
 }
 
+///|
 test "hgcov: 均衡化与归一化" {
   let bad_small = @types.Image::{
     width: 2,
@@ -164,56 +179,95 @@ test "hgcov: 均衡化与归一化" {
   }
 }
 
+///|
 test "hgcov: 直方图比较" {
   let h1 : Array[Int32] = [1, 2, 3, 4]
   let h2 : Array[Int32] = [1, 2, 3, 4]
   let h3 : Array[Int32] = [4, 3, 2, 1]
   // 相同 → 相关系数为 1
-  let cor = @feature.compare_hist(h1, h2, @feature.HistCompareMethod::Correlation)
+  let cor = @feature.compare_hist(
+    h1,
+    h2,
+    @feature.HistCompareMethod::Correlation,
+  )
   assert_true(cor.to_double() > 0.99)
   // 反向 → 相关系数 -1
-  let cor2 = @feature.compare_hist(h1, h3, @feature.HistCompareMethod::Correlation)
+  let cor2 = @feature.compare_hist(
+    h1,
+    h3,
+    @feature.HistCompareMethod::Correlation,
+  )
   assert_true(cor2.to_double() < -0.99)
   // 常数直方图 → den == 0 → 0
   let const_h : Array[Int32] = [5, 5, 5]
   let cor3 = @feature.compare_hist(
-    const_h, const_h, @feature.HistCompareMethod::Correlation,
+    const_h,
+    const_h,
+    @feature.HistCompareMethod::Correlation,
   )
   assert_true(cor3.to_double() == 0.0)
   // 卡方：相同 → 0
   let chi = @feature.compare_hist(h1, h2, @feature.HistCompareMethod::ChiSquare)
   assert_true(chi.to_double() == 0.0)
-  let chi2 = @feature.compare_hist(h1, h3, @feature.HistCompareMethod::ChiSquare)
+  let chi2 = @feature.compare_hist(
+    h1,
+    h3,
+    @feature.HistCompareMethod::ChiSquare,
+  )
   assert_true(chi2.to_double() > 0.0)
   // 卡方：两者都为 0 的 bin 跳过
   let zeros : Array[Int32] = [0, 0, 0]
-  let chi3 = @feature.compare_hist(zeros, zeros, @feature.HistCompareMethod::ChiSquare)
+  let chi3 = @feature.compare_hist(
+    zeros,
+    zeros,
+    @feature.HistCompareMethod::ChiSquare,
+  )
   assert_true(chi3.to_double() == 0.0)
   // 巴氏距离：相同 → 1
-  let bc = @feature.compare_hist(h1, h2, @feature.HistCompareMethod::Bhattacharyya)
+  let bc = @feature.compare_hist(
+    h1,
+    h2,
+    @feature.HistCompareMethod::Bhattacharyya,
+  )
   assert_true(bc.to_double() > 0.99)
   // 全零 → 0
   let nonempty : Array[Int32] = [1, 2, 3]
-  let bc0 = @feature.compare_hist(zeros, nonempty, @feature.HistCompareMethod::Bhattacharyya)
+  let bc0 = @feature.compare_hist(
+    zeros,
+    nonempty,
+    @feature.HistCompareMethod::Bhattacharyya,
+  )
   assert_true(bc0.to_double() == 0.0)
   // 校验
   let empty : Array[Int32] = []
   try {
-    let _ = @feature.compare_hist(empty, h1, @feature.HistCompareMethod::Correlation)
+    let _ = @feature.compare_hist(
+      empty,
+      h1,
+      @feature.HistCompareMethod::Correlation,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @feature.compare_hist(h1, empty, @feature.HistCompareMethod::Correlation)
+    let _ = @feature.compare_hist(
+      h1,
+      empty,
+      @feature.HistCompareMethod::Correlation,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @feature.compare_hist(h1, const_h, @feature.HistCompareMethod::Correlation)
+    let _ = @feature.compare_hist(
+      h1,
+      const_h,
+      @feature.HistCompareMethod::Correlation,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -221,6 +275,7 @@ test "hgcov: 直方图比较" {
   }
 }
 
+///|
 test "hgcov: 直方图匹配" {
   let bad_small = @types.Image::{
     width: 2,
@@ -230,7 +285,7 @@ test "hgcov: 直方图匹配" {
   }
   // 输入图与参考图均为渐变
   let img = hg_ramp(8, 8, 1)
-  let refimg = hg_img(8, 8, 1, fn(x, y) { (255 - ((x * 16 + y * 4) % 256)) })
+  let refimg = hg_img(8, 8, 1, fn(x, y) { 255 - (x * 16 + y * 4) % 256 })
   let m = @feature.histogram_matching(img, refimg)
   assert_true(m.width == 8 && m.height == 8)
   assert_true(m.channels == 1)

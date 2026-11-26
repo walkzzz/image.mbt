@@ -1,5 +1,6 @@
 // 覆盖率测试：条码解码的错误分支、配置门控与空白图路径
 
+///|
 fn bdc_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn bdc_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   }
 }
 
+///|
 fn bdc_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -18,6 +20,7 @@ fn bdc_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   }
 }
 
+///|
 fn bdc_cfg(
   ean13 : Bool,
   upca : Bool,
@@ -36,6 +39,7 @@ fn bdc_cfg(
   }
 }
 
+///|
 fn bdc_none(r : @barcode.BarcodeResult?) -> Bool {
   match r {
     None => true
@@ -43,6 +47,7 @@ fn bdc_none(r : @barcode.BarcodeResult?) -> Bool {
   }
 }
 
+///|
 test "bdccov: decode_ean13 校验错误与配置门控" {
   // 尺寸非法
   try {
@@ -87,6 +92,7 @@ test "bdccov: decode_ean13 校验错误与配置门控" {
   assert_true(bdc_none(none2))
 }
 
+///|
 test "bdccov: decode_qrcode / detect_qr_finder_patterns" {
   // 校验错误
   try {
@@ -109,7 +115,10 @@ test "bdccov: decode_qrcode / detect_qr_finder_patterns" {
   }
   // 关闭 QR → None
   let blank = bdc_img(32, 32, 1, 255)
-  let off = @barcode.decode_qrcode(blank, config=bdc_cfg(false, false, false, false))
+  let off = @barcode.decode_qrcode(
+    blank,
+    config=bdc_cfg(false, false, false, false),
+  )
   assert_true(bdc_none(off))
   // 空白图 → None
   assert_true(bdc_none(@barcode.decode_qrcode(blank)))
@@ -136,6 +145,7 @@ test "bdccov: decode_qrcode / detect_qr_finder_patterns" {
   }
 }
 
+///|
 test "bdccov: decode_barcode 汇总分支" {
   let blank = bdc_img(24, 24, 1, 255)
   // 校验错误
@@ -161,10 +171,16 @@ test "bdccov: decode_barcode 汇总分支" {
   let r0 = @barcode.decode_barcode(blank)
   assert_true(r0.length() == 0)
   // 全部关闭 → 无结果（两条 None 分支）
-  let r1 = @barcode.decode_barcode(blank, config=bdc_cfg(false, false, false, false))
+  let r1 = @barcode.decode_barcode(
+    blank,
+    config=bdc_cfg(false, false, false, false),
+  )
   assert_true(r1.length() == 0)
   // 仅开 EAN13
-  let r2 = @barcode.decode_barcode(blank, config=bdc_cfg(true, false, false, false))
+  let r2 = @barcode.decode_barcode(
+    blank,
+    config=bdc_cfg(true, false, false, false),
+  )
   assert_true(r2.length() == 0)
   // 默认配置字段
   let d = @barcode.barcode_default_config()

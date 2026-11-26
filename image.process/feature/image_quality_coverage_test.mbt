@@ -1,56 +1,72 @@
 // 覆盖率测试：mse / psnr / ssim 的错误分支与 ssim 大尺寸内积分支
 // 约定：出错时 helper 返回 -1.0
 
+///|
 fn iq_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   let n = w * h * c
   let d : Array[Byte] = []
   for i in 0..<n {
     d.push((fill + i).to_byte())
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn iq_blank(w : Int32, h : Int32, c : Int32) -> @types.Image {
   let n = w * h * c
   let d : Array[Byte] = []
   for _ in 0..<n {
     d.push(b'\x00')
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn iq_mse(r1 : @types.Image, r2 : @types.Image) -> Double {
-  try {
-    @feature.mse(r1, r2)
-  } catch {
+  @feature.mse(r1, r2) catch {
     _ => -1.0
   }
 }
 
+///|
 fn iq_psnr(r1 : @types.Image, r2 : @types.Image) -> Double {
-  try {
-    @feature.psnr(r1, r2)
-  } catch {
+  @feature.psnr(r1, r2) catch {
     _ => -1.0
   }
 }
 
+///|
 fn iq_ssim(r1 : @types.Image, r2 : @types.Image) -> Double {
-  try {
-    @feature.ssim(r1, r2)
-  } catch {
+  @feature.ssim(r1, r2) catch {
     _ => -1.0
   }
 }
 
+///|
 fn iq_bad(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for _ in 0..<len {
     d.push(b'\x01')
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "iqcov: mse 数值与错误分支" {
   let a = iq_img(2, 2, 1, 0)
   assert_true(iq_mse(a, a) >= 0.0)
@@ -73,6 +89,7 @@ test "iqcov: mse 数值与错误分支" {
   assert_true(iq_mse(a, iq_bad(2, 2, 1, 1)) < 0.0)
 }
 
+///|
 test "iqcov: psnr 数值与错误分支" {
   let black = iq_blank(4, 4, 1)
   // 相同图像 → MSE 0 → PSNR 极大值
@@ -92,6 +109,7 @@ test "iqcov: psnr 数值与错误分支" {
   assert_true(iq_psnr(black, iq_bad(4, 4, 1, 1)) < 0.0)
 }
 
+///|
 test "iqcov: ssim 内积分支与错误分支" {
   // 20x20：触发内部区域积分图路径（win=8, half=4）
   let a = iq_img(20, 20, 1, 30)

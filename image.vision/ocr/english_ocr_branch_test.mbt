@@ -1,5 +1,6 @@
 // 覆盖率测试：英文 OCR 模板与识别分支
 
+///|
 fn enoc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn enoc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   }
 }
 
+///|
 test "enocov: 模板生成与配置" {
   let cfg = @ocr.english_ocr_default_config()
   assert_true(cfg.min_char_width == 5)
@@ -22,6 +24,7 @@ test "enocov: 模板生成与配置" {
   assert_true(t1.length() >= t0.length())
 }
 
+///|
 test "enocov: 英文识别流水线" {
   // 白底 + 黑色笔画
   let w : Int32 = 72

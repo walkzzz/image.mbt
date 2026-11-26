@@ -70,6 +70,7 @@ test "cfc: 全黑 CMYK 退化分支" {
   let _ = y16
 }
 
+///|
 fn cfc_img16(w : Int32, h : Int32, ch : Int32, alpha0 : Bool) -> @types.Image16 {
   let n = w * h * ch
   let data : Array[Byte] = []
@@ -78,7 +79,12 @@ fn cfc_img16(w : Int32, h : Int32, ch : Int32, alpha0 : Bool) -> @types.Image16 
     data.push((v & 0xFF).to_byte())
     data.push(((v >> 8) & 0xFF).to_byte())
   }
-  @types.Image16::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image16::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|
@@ -92,6 +98,7 @@ test "cfc: alpha 为 0 时反预乘结果清零" {
   }
 }
 
+///|
 fn cfc_imgf(w : Int32, h : Int32, ch : Int32, alpha0 : Bool) -> @types.ImageF {
   let n = w * h * ch
   let bytes : Array[Byte] = []
@@ -101,7 +108,12 @@ fn cfc_imgf(w : Int32, h : Int32, ch : Int32, alpha0 : Bool) -> @types.ImageF {
       bytes.push(b)
     }
   }
-  @types.ImageF::{ width: w, height: h, channels: ch, data: Bytes::from_array(bytes) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(bytes),
+  }
 }
 
 ///|

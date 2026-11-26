@@ -303,13 +303,21 @@
   **验收**：双帧 APNG（100/200ms）编码 → 解码，帧数与延迟一致；GIF 单帧经统一入口可读；
   空帧、`delays` 长度不一致报 `EncodeFailed`；静态 PNG 报 `DecodeFailed`。
   **口径**：GIF 只解码动画、编码仍为单帧（`encode_gif`），GIF 动画编码未承诺。
-- 🟡 **S18 变异测试（2026-11-26 部分完成）**：`scripts/mutation_test.mjs` 12 个变异点（PNG 反滤波 3、
+- ✅ **S18 变异测试 + 覆盖率 90%（2026-11-26 完成）**：`scripts/mutation_test.mjs` 12 个变异点（PNG 反滤波 3、
   BMP 行对齐、QOI 标签/差分 2、`check_dims` 2、灰度 BT.601、APNG 延迟校验、`decode_region` 分派/文案），
   逐包基线先跑，变异后判定 `failed > 0` 为 killed，`finally` 无条件写回原文。
   **结果**：11 killed / 1 survived（M12 为纯错误文案变异，预期存活），得分 91.7%（门槛 75%）。
   **过程中补的真缺口**：`apply_colormap` 的 BT.601 加权和缺边界断言（补 `(0,5,176)`、加权和 22999 的用例）；
   QOI run-length 变异与 `pixel_idx < pixel_count` 保护等价，换成 LUMA 差分基准。
-  **未完成**：覆盖率 90%（当前全库 35,075/41,889 = 83.7%，距目标约 3,000 行），见 `docs/mutation.md`。
+  **覆盖率推进（第五至九轮，测试 6,926 → 7,387）**：按 `_build\covN.xml` 的 miss 排行逐个收口——
+  OCR 侧 `xmp` / `defile` / `code128` 字符集、TIFF 压缩名与光度全表、区域解码 PNG（PLTE / filter / 交错 /
+  palette 越界）、`english_symbols` 符号模板与距离函数、lib 分发全格式、zlib 动态 Huffman（用 node `zlib.deflateSync`
+  生成真实 BTYPE=2 流内联）、compression 量化钳位与报告、16-bit PNG 直读与 `req_channels`、`integral_image`
+  空壳构造与零面积均值、`optical_flow` 九条校验链、`draw_polygon` 扫描线填充、registration / retrieval
+  报告枚举映射、16f 色彩空间越界与 alpha=0 反预乘。
+  **结果**：全库 35,075 → **37,740/41,894 = 90.08%**（`moon coverage report -f full_summary`，native，7,387 测试全绿）。
+  **口径说明**：分母含 native 下不可覆盖的 `wasm/abi.mbt`(89) + `wasm/api.mbt`(85) + `playground`(35) +
+  `examples/quickstart`(37)，未做任何排除——即 90% 是在最严分母下取得的。
   **覆盖率推进（2026-11-26 第二轮）**：补 `codec_trait` 全枚举分支（format_name / can_encode / is_lossless /
   detect_format 全魔数）、`limits` 的 `info_dims` 各格式分支与 `check_decode_budget`、`ocr_accuracy` 的
   数据集 / 增广 / Hu 矩 / 集成投票；`codec_trait` 104→178、`limits` 19→62、`ocr_accuracy` 60→130。
@@ -356,7 +364,7 @@
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
-| S18 🟡 | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 83.7%（进行中） |
+| S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.08%（见 `docs/known-gaps.md`） |
 | S19 | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写能力表全部替换，CI 校验 |
 | S20 | 公开基准集（golden 20 张 + 6 类恶意样本） | 版权自查清单齐全，样本可分发 |
 | S21 | 0.1.21 收口 + 迁移指南 + 弃用策略 | 从 0.1.x 早期版本迁移只需 3 处改动 |

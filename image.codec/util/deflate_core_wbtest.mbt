@@ -1,17 +1,20 @@
 // 白盒覆盖率：DEFLATE 位读取器、Huffman 树与块解码核心
 
+///|
 fn zbt_emit_lsb(bits : Array[Int32], v : Int32, n : Int32) -> Unit {
   for i in 0..<n {
     bits.push((v >> i) & 1)
   }
 }
 
+///|
 fn zbt_emit_msb(bits : Array[Int32], v : Int32, n : Int32) -> Unit {
   for i in 0..<n {
     bits.push((v >> (n - 1 - i)) & 1)
   }
 }
 
+///|
 fn zbt_pack(bits : Array[Int32]) -> Bytes {
   let bytes : Array[Byte] = []
   let mut cur = 0
@@ -33,6 +36,7 @@ fn zbt_pack(bits : Array[Int32]) -> Bytes {
   Bytes::from_array(bytes)
 }
 
+///|
 fn zbt_byte_of(data : Bytes, i : Int32) -> Int32 {
   data[i].to_int()
 }
@@ -42,13 +46,13 @@ test "zbt: CRC32 与 Adler32 已知值" {
   let t = crc32_table()
   assert_true(t.length() == 256)
   assert_true(t[0] == 0)
-  let crc = crc32(Bytes::from_array([
-    b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9',
-  ]))
+  let crc = crc32(
+    Bytes::from_array([b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9']),
+  )
   assert_true(crc == 0xCBF43926 || crc == -873223898)
-  let ad = adler32(Bytes::from_array([
-    b'W', b'i', b'k', b'i', b'p', b'e', b'd', b'i', b'a',
-  ]))
+  let ad = adler32(
+    Bytes::from_array([b'W', b'i', b'k', b'i', b'p', b'e', b'd', b'i', b'a']),
+  )
   assert_true(ad == 0x11E60398)
 }
 

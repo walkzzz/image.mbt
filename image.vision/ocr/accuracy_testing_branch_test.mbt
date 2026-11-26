@@ -1,5 +1,6 @@
 // 覆盖率测试：OCR 准确率评估体系
 
+///|
 fn acc_stats(
   char_acc : Double,
   word_acc : Double,
@@ -23,6 +24,7 @@ fn acc_stats(
   }
 }
 
+///|
 test "accov: 字符/词准确率与编辑距离" {
   // 空 × 空 → 1.0；空 × 非空 → 0.0
   assert_true(@ocr.calculate_char_accuracy("", "") == 1.0)
@@ -51,21 +53,20 @@ test "accov: 字符/词准确率与编辑距离" {
   assert_true(@ocr.calculate_edit_distance("same", "same") == 0)
 }
 
+///|
 test "accov: 统计与报告" {
   // 正常输入
-  let stats = @ocr.calculate_accuracy_stats(
-    ["hello world", "second line"],
-    ["hello world", "second line"],
-  )
+  let stats = @ocr.calculate_accuracy_stats(["hello world", "second line"], [
+    "hello world", "second line",
+  ])
   assert_true(stats.char_accuracy >= 0.0)
   assert_true(stats.word_accuracy >= 0.0)
   assert_true(stats.line_accuracy >= 0.0)
   assert_true(stats.total_chars > 0)
   // 部分错误 + 行数不等
-  let stats2 = @ocr.calculate_accuracy_stats(
-    ["abc", "def", "ghi"],
-    ["abx", "de"],
-  )
+  let stats2 = @ocr.calculate_accuracy_stats(["abc", "def", "ghi"], [
+    "abx", "de",
+  ])
   assert_true(stats2.line_accuracy < 1.0)
   assert_true(stats2.false_positives >= 0)
   assert_true(stats2.false_negatives >= 0)
@@ -114,6 +115,7 @@ test "accov: 统计与报告" {
   assert_true(prep2.length() > 0)
 }
 
+///|
 test "accov: 阈值校验" {
   let pass = @ocr.check_accuracy_threshold(acc_stats(0.99, 0.99, 0.99))
   let (ok1, issues1) = pass
@@ -129,19 +131,28 @@ test "accov: 阈值校验" {
   assert_true(issues2.length() > 0)
   // 阈值越界 → 抛错
   try {
-    let _ = @ocr.check_accuracy_threshold(acc_stats(0.9, 0.9, 0.9), min_char_accuracy=1.5)
+    let _ = @ocr.check_accuracy_threshold(
+      acc_stats(0.9, 0.9, 0.9),
+      min_char_accuracy=1.5,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
   try {
-    let _ = @ocr.check_accuracy_threshold(acc_stats(0.9, 0.9, 0.9), min_word_accuracy=(-0.5))
+    let _ = @ocr.check_accuracy_threshold(
+      acc_stats(0.9, 0.9, 0.9),
+      min_word_accuracy=-0.5,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
   try {
-    let _ = @ocr.check_accuracy_threshold(acc_stats(0.9, 0.9, 0.9), min_f1_score=2.0)
+    let _ = @ocr.check_accuracy_threshold(
+      acc_stats(0.9, 0.9, 0.9),
+      min_f1_score=2.0,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)

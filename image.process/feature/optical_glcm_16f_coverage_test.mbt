@@ -1,6 +1,12 @@
 // 覆盖率测试：光流与 GLCM 的 16-bit / float 变体
 
-fn og16_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @types.Image16 {
+///|
+fn og16_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Int32,
+) -> @types.Image16 {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -11,10 +17,21 @@ fn og16_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @ty
       }
     }
   }
-  @types.Image16::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image16::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
-fn ogf_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Double) -> @types.ImageF {
+///|
+fn ogf_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Double,
+) -> @types.ImageF {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -26,9 +43,15 @@ fn ogf_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Double) -> @ty
       }
     }
   }
-  @types.ImageF::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "og16: Lucas-Kanade 16/" {
   // 平移到右下的合成图案
   let prev = og16_img(32, 32, 1, fn(x, y) { (x * 700 + y * 300) % 65536 })
@@ -48,7 +71,9 @@ test "og16: Lucas-Kanade 16/" {
     _ => assert_true(true)
   }
   // float 版
-  let fprev = ogf_img(32, 32, 1, fn(x, y) { ((x * 41 + y * 17) % 255).to_double() / 255.0 })
+  let fprev = ogf_img(32, 32, 1, fn(x, y) {
+    ((x * 41 + y * 17) % 255).to_double() / 255.0
+  })
   let fnext = ogf_img(32, 32, 1, fn(x, y) {
     (((x + 1) * 41 + (y + 1) * 17) % 255).to_double() / 255.0
   })
@@ -56,15 +81,16 @@ test "og16: Lucas-Kanade 16/" {
   assert_true(fr.length() == 2)
 }
 
+///|
 test "og16: Horn-Schunck 16/" {
   let prev = og16_img(24, 24, 1, fn(x, y) { (x * 1200 + y * 500) % 65536 })
-  let next = og16_img(24, 24, 1, fn(x, y) {
-    ((x + 1) * 1200 + y * 500) % 65536
-  })
+  let next = og16_img(24, 24, 1, fn(x, y) { ((x + 1) * 1200 + y * 500) % 65536 })
   let (ux, uy) = @feature.horn_schunck_16(prev, next)
   assert_true(ux.length() <= 4096)
   assert_true(uy.length() <= 4096)
-  let fprev = ogf_img(24, 24, 1, fn(x, y) { ((x * 9 + y * 3) % 64).to_double() / 64.0 })
+  let fprev = ogf_img(24, 24, 1, fn(x, y) {
+    ((x * 9 + y * 3) % 64).to_double() / 64.0
+  })
   let fnext = ogf_img(24, 24, 1, fn(x, y) {
     (((x + 1) * 9 + y * 3) % 64).to_double() / 64.0
   })
@@ -73,6 +99,7 @@ test "og16: Horn-Schunck 16/" {
   assert_true(fuy.length() <= 4096)
 }
 
+///|
 test "og16: GLCM 与多方向特征" {
   let tex = og16_img(20, 20, 1, fn(x, y) { (x * 3000 + y * 1200) % 65536 })
   let m = @feature.compute_glcm_16(tex, 1, 0)
@@ -88,25 +115,36 @@ test "og16: GLCM 与多方向特征" {
   let feats2 = @feature.glcm_features_multi_direction_16(tex, levels=32)
   assert_true(feats2.length() > 0)
   // float 变体
-  let ftex = ogf_img(20, 20, 1, fn(x, y) { ((x * 13 + y * 7) % 256).to_double() / 256.0 })
+  let ftex = ogf_img(20, 20, 1, fn(x, y) {
+    ((x * 13 + y * 7) % 256).to_double() / 256.0
+  })
   let fm = @feature.compute_glcm_f(ftex, 1, 0)
   assert_true(fm.length() > 0)
   let ff = @feature.glcm_features_multi_direction_f(ftex)
   assert_true(ff.length() > 0)
 }
 
+///|
 test "og16: 错误分支" {
   let ok16 = og16_img(8, 8, 1, fn(_x, _y) { 10 })
   let okf = ogf_img(8, 8, 1, fn(_x, _y) { 0.1 })
   // 尺寸 / 通道 / 长度 / levels
   try {
-    let _ = @feature.lucas_kanade_16(og16_img(0, 8, 1, fn(_x, _y) { 0 }), ok16, [(1, 1)])
+    let _ = @feature.lucas_kanade_16(
+      og16_img(0, 8, 1, fn(_x, _y) { 0 }),
+      ok16,
+      [(1, 1)],
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
   try {
-    let _ = @feature.lucas_kanade_16(ok16, og16_img(8, 8, 5, fn(_x, _y) { 0 }), [(1, 1)])
+    let _ = @feature.lucas_kanade_16(
+      ok16,
+      og16_img(8, 8, 5, fn(_x, _y) { 0 }),
+      [(1, 1)],
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)

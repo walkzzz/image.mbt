@@ -1,5 +1,6 @@
 // 覆盖率测试：双边滤波（标准/快速）分支
 
+///|
 fn bil_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
   let d : Array[Int32] = []
   for y in 0..<h {
@@ -17,6 +18,7 @@ fn bil_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
   }
 }
 
+///|
 test "bil: 标准双边滤波" {
   // 灰度
   let g = @filter.bilateral_filter(bil_img(16, 16, 1, 7), 1, 1.5F, 20.0F)
@@ -35,6 +37,7 @@ test "bil: 标准双边滤波" {
   assert_true(big.height == 12)
 }
 
+///|
 test "bil: 快速双边滤波" {
   let img = bil_img(32, 32, 3, 9)
   let f1 = @filter.bilateral_filter_fast(img, 2, 2.0F, 30.0F, 1)
@@ -53,6 +56,7 @@ test "bil: 快速双边滤波" {
   assert_true(fr.channels == 4)
 }
 
+///|
 test "bil: 错误分支" {
   // 尺寸非法
   try {
@@ -62,7 +66,13 @@ test "bil: 错误分支" {
     _ => assert_true(true)
   }
   try {
-    let _ = @filter.bilateral_filter_fast(bil_img(8, 0, 3, 0), 1, 1.0F, 10.0F, 1)
+    let _ = @filter.bilateral_filter_fast(
+      bil_img(8, 0, 3, 0),
+      1,
+      1.0F,
+      10.0F,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -75,7 +85,13 @@ test "bil: 错误分支" {
     _ => assert_true(true)
   }
   try {
-    let _ = @filter.bilateral_filter_fast(bil_img(8, 8, 5, 0), 1, 1.0F, 10.0F, 1)
+    let _ = @filter.bilateral_filter_fast(
+      bil_img(8, 8, 5, 0),
+      1,
+      1.0F,
+      10.0F,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -95,13 +111,25 @@ test "bil: 错误分支" {
     _ => assert_true(true)
   }
   try {
-    let _ = @filter.bilateral_filter_fast(bil_img(8, 8, 3, 1), 0, 1.0F, 10.0F, 1)
+    let _ = @filter.bilateral_filter_fast(
+      bil_img(8, 8, 3, 1),
+      0,
+      1.0F,
+      10.0F,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
   try {
-    let _ = @filter.bilateral_filter_fast(bil_img(8, 8, 3, 1), 1, (-1.0F), 10.0F, 1)
+    let _ = @filter.bilateral_filter_fast(
+      bil_img(8, 8, 3, 1),
+      1,
+      -1.0F,
+      10.0F,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)

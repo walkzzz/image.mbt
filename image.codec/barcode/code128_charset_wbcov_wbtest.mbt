@@ -1,5 +1,6 @@
-﻿// 白盒覆盖率：Code128 字符集切换与码字映射
+// 白盒覆盖率：Code128 字符集切换与码字映射
 
+///|
 fn c1c_runs(widths : Array[Int32]) -> Array[Int32] {
   let out : Array[Int32] = []
   let mut is_bar = true
@@ -13,6 +14,7 @@ fn c1c_runs(widths : Array[Int32]) -> Array[Int32] {
   out
 }
 
+///|
 fn c1c_px(codes : Array[Int32], pad : Int32) -> Array[Int32] {
   let px : Array[Int32] = []
   for c in codes {
@@ -27,12 +29,18 @@ fn c1c_px(codes : Array[Int32], pad : Int32) -> Array[Int32] {
   px
 }
 
+///|
 fn c1c_image(px : Array[Int32], h : Int32) -> @types.Image {
   let data : Array[Byte] = []
   for v in px {
     data.push(if v == 1 { b'\x00' } else { b'\xff' })
   }
-  @types.Image::{ width: px.length(), height: h, channels: 1, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: px.length(),
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|

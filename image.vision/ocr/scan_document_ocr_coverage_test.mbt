@@ -1,5 +1,6 @@
 // 覆盖率测试：扫描文档 OCR（质量评估 / 预处理 / 版面分析 / 批量 / 多格式导出）
 
+///|
 fn sdc_gray(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -7,14 +8,25 @@ fn sdc_gray(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
       d.push(f(x, y).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn sdc_flat(w : Int32, h : Int32, v : Int32) -> @types.Image {
   sdc_gray(w, h, fn(_x, _y) { v })
 }
 
-fn sdc_rgb(w : Int32, h : Int32, f : (Int32, Int32) -> (Int32, Int32, Int32)) -> @types.Image {
+///|
+fn sdc_rgb(
+  w : Int32,
+  h : Int32,
+  f : (Int32, Int32) -> (Int32, Int32, Int32),
+) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -24,21 +36,28 @@ fn sdc_rgb(w : Int32, h : Int32, f : (Int32, Int32) -> (Int32, Int32, Int32)) ->
       d.push(b.to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 3, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(d),
+  }
 }
 
-fn sdc_scan_cfg(method : String) -> @ocr.ScanOCRConfig {
+///|
+fn sdc_scan_cfg(bin_method : String) -> @ocr.ScanOCRConfig {
   @ocr.ScanOCRConfig::{
     language: "english",
     dpi: 300,
     deskew: true,
     denoise: true,
-    binarization_method: method,
+    binarization_method: bin_method,
     layout_analysis: true,
     confidence_threshold: 0.6,
   }
 }
 
+///|
 test "sdcov: 默认配置与质量评估" {
   let cfg = @ocr.scan_ocr_default_config()
   assert_true(cfg.language == "english")
@@ -75,12 +94,20 @@ test "sdcov: 默认配置与质量评估" {
   assert_true(qt.sharpness == 0.0)
   assert_true(qt.issues.contains("图像模糊"))
   // RGB 分支
-  let rgb = sdc_rgb(8, 8, fn(x, y) { (x * 10 % 256, y * 10 % 256, (x + y) % 256) })
+  let rgb = sdc_rgb(8, 8, fn(x, y) {
+    (x * 10 % 256, y * 10 % 256, (x + y) % 256)
+  })
   let qr = @ocr.evaluate_scan_quality(rgb)
   assert_true(qr.brightness > 0.0)
   assert_true(qr.sharpness >= 0.0)
   // 高对比 + 高噪声：噪声较高分支
-  let noisy = sdc_gray(16, 16, fn(x, y) { if (x + y) % 2 == 0 { 0 } else { 255 } })
+  let noisy = sdc_gray(16, 16, fn(x, y) {
+    if (x + y) % 2 == 0 {
+      0
+    } else {
+      255
+    }
+  })
   let qn = @ocr.evaluate_scan_quality(noisy)
   assert_true(qn.contrast > 50.0)
   // 校验
@@ -119,8 +146,9 @@ test "sdcov: 默认配置与质量评估" {
   }
 }
 
+///|
 test "sdcov: 预处理各二值化分支" {
-  let img = sdc_gray(16, 16, fn(x, y) { if x < 8 { 30 } else { 220 } })
+  let img = sdc_gray(16, 16, fn(x, _y) { if x < 8 { 30 } else { 220 } })
   // otsu
   let o = @ocr.scan_document_preprocess(img, sdc_scan_cfg("otsu"))
   assert_true(o.width == 16 && o.height == 16)
@@ -148,7 +176,10 @@ test "sdcov: 预处理各二值化分支" {
   assert_true(nd.data.length() == 256)
   // 校验
   try {
-    let _ = @ocr.scan_document_preprocess(sdc_flat(0, 4, 10), sdc_scan_cfg("otsu"))
+    let _ = @ocr.scan_document_preprocess(
+      sdc_flat(0, 4, 10),
+      sdc_scan_cfg("otsu"),
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -182,14 +213,20 @@ test "sdcov: 预处理各二值化分支" {
   }
 }
 
+///|
 fn sdc_doc() -> @types.Image {
   // 20 行 30 列，行 4..7 与 12..15 有黑字（x 2..20）
   sdc_gray(30, 20, fn(x, y) {
     let in_band = (y >= 4 && y <= 7) || (y >= 12 && y <= 15)
-    if in_band && x >= 2 && x <= 20 { 0 } else { 255 }
+    if in_band && x >= 2 && x <= 20 {
+      0
+    } else {
+      255
+    }
   })
 }
 
+///|
 test "sdcov: 版面分析与完整流水线" {
   let doc = sdc_doc()
   // 明显二值图：两行文本块
@@ -279,6 +316,7 @@ test "sdcov: 版面分析与完整流水线" {
   }
 }
 
+///|
 test "sdcov: 批量处理与导出" {
   let doc = sdc_doc()
   let imgs : Array[@types.Image] = [doc, sdc_flat(32, 32, 255)]

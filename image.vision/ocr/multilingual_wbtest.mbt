@@ -1,13 +1,20 @@
 // 覆盖率白盒：增强多语言 OCR（语言检测 / 智能分割 / 空格与标点后处理 / 识别流水线）
 
+///|
 fn moe_gray(w : Int32, h : Int32, fill : Byte) -> @types.Image {
   let data : Array[Byte] = []
   for _ in 0..<(w * h) {
     data.push(fill)
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 fn moe_block(
   w : Int32,
   h : Int32,
@@ -23,9 +30,15 @@ fn moe_block(
       data.push(if inside { b'\xFF' } else { b'\x00' })
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 fn moe_catch_dims(img : @types.Image) -> Bool {
   try {
     let _ = detect_language_enhanced(img)
@@ -36,6 +49,7 @@ fn moe_catch_dims(img : @types.Image) -> Bool {
   }
 }
 
+///|
 test "moe: 默认配置与语言检测分支" {
   let cfg = multilingual_ocr_enhanced_default_config()
   assert_true(cfg.enable_chinese)
@@ -66,12 +80,23 @@ test "moe: 默认配置与语言检测分支" {
   for _ in 0..<16 {
     rgb.push(b'\x01')
   }
-  let img3 = @types.Image::{ width: 2, height: 2, channels: 3, data: Bytes::from_array(rgb) }
+  let img3 = @types.Image::{
+    width: 2,
+    height: 2,
+    channels: 3,
+    data: Bytes::from_array(rgb),
+  }
   assert_true(moe_catch_dims(img3))
-  let bad = @types.Image::{ width: 4, height: 4, channels: 1, data: Bytes::from_array([b'\x00']) }
+  let bad = @types.Image::{
+    width: 4,
+    height: 4,
+    channels: 1,
+    data: Bytes::from_array([b'\x00']),
+  }
   assert_true(moe_catch_dims(bad))
 }
 
+///|
 test "moe: 智能字符分割" {
   let cfg = multilingual_ocr_enhanced_default_config()
   // 两个合法字符块 + 一个小噪点
@@ -86,7 +111,12 @@ test "moe: 智能字符分割" {
       data.push(if in_a || in_b || noise { b'\xFF' } else { b'\x00' })
     }
   }
-  let img = @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  let img = @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
   let regions = smart_segment_chars(img, cfg)
   // 噪点被面积/尺寸过滤；两个字符块保留
   assert_true(regions.length() == 2)
@@ -123,6 +153,7 @@ test "moe: 智能字符分割" {
   }
 }
 
+///|
 test "moe: 字符区域提取边界" {
   let img = moe_block(20, 20, 0, 0, 20, 20)
   // 正常裁剪并缩放
@@ -138,6 +169,7 @@ test "moe: 字符区域提取边界" {
   assert_eq(c3.data[0].to_int(), 0)
 }
 
+///|
 test "moe: 空格与标点后处理" {
   let text = "中文AB"
   let langs : Array[String] = ["chinese", "chinese", "english", "english"]
@@ -157,14 +189,14 @@ test "moe: 空格与标点后处理" {
   assert_true(smart_spacing_process(t3, ["japanese", "english"]) == "あ A")
   // 标点规范化：中文语境
   let punct_cn = normalize_punctuation(",.;:()!?", [
-    "chinese", "chinese", "chinese", "chinese", "chinese", "chinese",
-    "chinese", "chinese",
+    "chinese", "chinese", "chinese", "chinese", "chinese", "chinese", "chinese",
+    "chinese",
   ])
   assert_true(punct_cn == "，。；：（）！？")
   // 英文语境反向
   let punct_en = normalize_punctuation("，。；：（）！？", [
-    "english", "english", "english", "english", "english", "english",
-    "english", "english",
+    "english", "english", "english", "english", "english", "english", "english",
+    "english",
   ])
   assert_true(punct_en == ",.;:()!?")
   // 未命中的字符保留
@@ -175,6 +207,7 @@ test "moe: 空格与标点后处理" {
   assert_true(normalize_punctuation("", []) == "")
 }
 
+///|
 test "moe: 语言模型后处理" {
   let text = "abc"
   let langs : Array[String] = ["english", "english", "english"]
@@ -190,6 +223,7 @@ test "moe: 语言模型后处理" {
   assert_true(c2.length() == 0)
 }
 
+///|
 test "moe: 识别流水线校验与空图" {
   // 零尺寸
   try {
@@ -204,7 +238,12 @@ test "moe: 识别流水线校验与空图" {
   for _ in 0..<20 {
     bad_ch.push(b'\x00')
   }
-  let img5 = @types.Image::{ width: 2, height: 2, channels: 5, data: Bytes::from_array(bad_ch) }
+  let img5 = @types.Image::{
+    width: 2,
+    height: 2,
+    channels: 5,
+    data: Bytes::from_array(bad_ch),
+  }
   try {
     let _ = recognize_multilingual_enhanced(img5)
     assert_true(false)
@@ -213,7 +252,12 @@ test "moe: 识别流水线校验与空图" {
     _ => assert_true(false)
   }
   // 数据不足
-  let img_bad = @types.Image::{ width: 4, height: 4, channels: 1, data: Bytes::from_array([b'\x00']) }
+  let img_bad = @types.Image::{
+    width: 4,
+    height: 4,
+    channels: 1,
+    data: Bytes::from_array([b'\x00']),
+  }
   try {
     let _ = recognize_multilingual_enhanced(img_bad)
     assert_true(false)
@@ -229,6 +273,7 @@ test "moe: 识别流水线校验与空图" {
   assert_true(res.confidence == 0.0)
 }
 
+///|
 test "moe: 识别流水线全模板关闭与默认模板" {
   // 全部模板关闭 → 命中 "?" 分支
   let cfg_off = MultilingualOcrEnhancedConfig::{

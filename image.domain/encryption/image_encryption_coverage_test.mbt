@@ -1,5 +1,6 @@
 // 覆盖率测试：Logistic/XOR 图像加解密与质量评估的错误与正常分支
 
+///|
 fn encw_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
   let d : Array[Int32] = []
   for y in 0..<h {
@@ -17,6 +18,7 @@ fn encw_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
   }
 }
 
+///|
 test "enc: Logistic 加解密" {
   let img = encw_img(16, 16, 3, 7)
   let cfg = @encryption.encryption_default_config()
@@ -37,9 +39,13 @@ test "enc: Logistic 加解密" {
   let g = encw_img(12, 12, 1, 3)
   assert_true(@encryption.encrypt_image_logistic(g).channels == 1)
   let rgba = encw_img(8, 8, 4, 5)
-  assert_true(@encryption.decrypt_image_logistic(@encryption.encrypt_image_logistic(rgba)).channels == 4)
+  assert_true(
+    @encryption.decrypt_image_logistic(@encryption.encrypt_image_logistic(rgba)).channels ==
+    4,
+  )
 }
 
+///|
 test "enc: XOR 加解密与熵/相关性" {
   let img = encw_img(20, 20, 1, 9)
   let c = @encryption.encrypt_image_xor(img, "key123")
@@ -75,6 +81,7 @@ test "enc: XOR 加解密与熵/相关性" {
   assert_true(cu >= -1.0 && cu <= 1.0)
 }
 
+///|
 test "enc: 质量评估 / 密钥敏感性 / 批处理" {
   let img = encw_img(16, 16, 3, 11)
   let enc = @encryption.encrypt_image_logistic(img)
@@ -91,6 +98,7 @@ test "enc: 质量评估 / 密钥敏感性 / 批处理" {
   assert_true(empty.length() == 0)
 }
 
+///|
 test "enc: 错误分支" {
   // 尺寸 / 通道 / 长度
   try {

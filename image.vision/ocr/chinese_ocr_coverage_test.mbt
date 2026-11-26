@@ -1,10 +1,17 @@
 // 覆盖率测试：中文 OCR（模板 / 分割 / 距离度量 / 校验）
 
+///|
 fn chc_blank(w : Int32, h : Int32) -> @types.Image {
   let d : Array[Byte] = Array::make(w * h, b'\x00')
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn chc_square(size : Int32, blk : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<size {
@@ -13,9 +20,15 @@ fn chc_square(size : Int32, blk : Int32) -> @types.Image {
       d.push(if inside { b'\xff' } else { b'\x00' })
     }
   }
-  @types.Image::{ width: size, height: size, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: size,
+    height: size,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "chicov: 默认配置与模板生成" {
   let cfg = @ocr.chinese_ocr_default_config()
   assert_true(cfg.min_char_width == 10)
@@ -36,6 +49,7 @@ test "chicov: 默认配置与模板生成" {
   assert_true(t2[1].1 == t[1].1)
 }
 
+///|
 test "chicov: 识别主流程与距离度量分支" {
   let img = chc_square(64, 32)
   // 默认配置（欧氏度量 + common 字符集）
@@ -81,6 +95,7 @@ test "chicov: 识别主流程与距离度量分支" {
   assert_true(rb.confidence == 0.0)
 }
 
+///|
 test "chicov: 输入与配置校验" {
   // 尺寸非法
   try {

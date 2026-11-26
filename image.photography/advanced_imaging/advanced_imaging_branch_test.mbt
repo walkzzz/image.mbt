@@ -1,5 +1,6 @@
 // 覆盖率测试（分支补充）：高级成像各模态的分支组合
 
+///|
 fn ai_gray(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -7,9 +8,15 @@ fn ai_gray(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
       d.push(f(x, y).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "aicov: 量子成像分支" {
   // 零模式 → 全零图
   let z = @advanced_imaging.quantum_ghost_imaging(
@@ -54,6 +61,7 @@ test "aicov: 量子成像分支" {
   assert_true(o4.data.length() == 4)
 }
 
+///|
 test "aicov: 红外伪彩色四段分支" {
   // 覆盖 <0.25 / <0.5 / <0.75 / >=0.75 四段
   let img = @types.Image::{
@@ -86,10 +94,13 @@ test "aicov: 红外伪彩色四段分支" {
   assert_true(o3.data.length() == 12)
 }
 
+///|
 test "aicov: 高光谱立方体波长分支" {
   let base = ai_gray(4, 4, fn(x, y) { 100 + x * 10 + y })
   // 400→800 覆盖全部四个波长分支
-  let cube = @advanced_imaging.generate_hyperspectral_cube(base, 4, 400.0, 800.0)
+  let cube = @advanced_imaging.generate_hyperspectral_cube(
+    base, 4, 400.0, 800.0,
+  )
   assert_true(cube.num_bands == 4)
   assert_true(cube.image_cube.length() == 4)
   assert_true(cube.wavelengths.length() == 4)
@@ -101,11 +112,14 @@ test "aicov: 高光谱立方体波长分支" {
   // 第二波段（<600）响应 1.0
   assert_true(cube.image_cube[1].data[0].to_int() == 100)
   // 单波段
-  let cube1 = @advanced_imaging.generate_hyperspectral_cube(base, 1, 300.0, 400.0)
+  let cube1 = @advanced_imaging.generate_hyperspectral_cube(
+    base, 1, 300.0, 400.0,
+  )
   assert_true(cube1.num_bands == 1)
   assert_true(cube1.image_cube.length() == 1)
 }
 
+///|
 test "aicov: 偏振与热成像" {
   let a = ai_gray(4, 4, fn(x, _y) { 100 + x })
   let b = ai_gray(4, 4, fn(_x, y) { 120 - y })
@@ -137,6 +151,7 @@ test "aicov: 偏振与热成像" {
   assert_true(t3.average_temperature > 20.0)
 }
 
+///|
 test "aicov: X 射线 / 超声 / MRI / PET 与报告" {
   // X 射线：平坦图（std_dev 兜底 1.0）
   let flat = ai_gray(4, 4, fn(_x, _y) { 50 })

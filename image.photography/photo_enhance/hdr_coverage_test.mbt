@@ -1,21 +1,30 @@
 // 覆盖率测试：HDR（融合 / 色调映射 / 流水线 / 校验分支）
 
+///|
 fn hdc_img(w : Int32, h : Int32, c : Int32, v : Byte) -> @types.Image {
   let d : Array[Byte] = []
   for _ in 0..<(w * h * c) {
     d.push(v)
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn hdc_bad_dims() -> @types.Image {
   hdc_img(0, 2, 1, b'\x00')
 }
 
+///|
 fn hdc_bad_channels() -> @types.Image {
   hdc_img(2, 2, 5, b'\x00')
 }
 
+///|
 fn hdc_bad_data() -> @types.Image {
   @types.Image::{
     width: 2,
@@ -25,6 +34,7 @@ fn hdc_bad_data() -> @types.Image {
   }
 }
 
+///|
 test "hdcov: 默认配置" {
   let c = @photo_enhance.hdr_default_config()
   assert_true(c.fusion_method == "weighted")
@@ -34,6 +44,7 @@ test "hdcov: 默认配置" {
   assert_true(c.gamma > 0.0)
 }
 
+///|
 test "hdcov: 平均融合" {
   let a = hdc_img(2, 2, 1, b'\x00')
   let b = hdc_img(2, 2, 1, b'\x80')
@@ -108,6 +119,7 @@ test "hdcov: 平均融合" {
   }
 }
 
+///|
 test "hdcov: 加权融合" {
   let dark = hdc_img(2, 2, 1, b'\x00')
   let mid = hdc_img(2, 2, 1, b'\x80')
@@ -176,6 +188,7 @@ test "hdcov: 加权融合" {
   }
 }
 
+///|
 test "hdcov: Reinhard 色调映射" {
   let flat = hdc_img(2, 2, 1, b'\x80')
   let r = @photo_enhance.tone_mapping_reinhard(flat)
@@ -227,6 +240,7 @@ test "hdcov: Reinhard 色调映射" {
   }
 }
 
+///|
 test "hdcov: Gamma 色调映射" {
   let flat = hdc_img(2, 2, 1, b'\x80')
   // gamma 1.0 → 原值
@@ -269,6 +283,7 @@ test "hdcov: Gamma 色调映射" {
   }
 }
 
+///|
 test "hdcov: Sigmoid 色调映射" {
   let flat = hdc_img(2, 2, 1, b'\x80')
   // 中间值附近几乎不变
@@ -315,6 +330,7 @@ test "hdcov: Sigmoid 色调映射" {
   }
 }
 
+///|
 test "hdcov: HDR 流水线" {
   let a = hdc_img(2, 2, 1, b'\x00')
   let b = hdc_img(2, 2, 1, b'\x80')

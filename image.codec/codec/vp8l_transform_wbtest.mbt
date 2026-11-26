@@ -6,13 +6,17 @@ fn vp8t_argb(a : Int32, r : Int32, g : Int32, b : Int32) -> Int32 {
   (a << 24) | (r << 16) | (g << 8) | b
 }
 
+///|
 test "vp8t: 像素辅助函数" {
   assert_eq(vp8l_c1(vp8t_argb(0x11, 0x22, 0x33, 0x44), 24), 0x11)
   assert_eq(vp8l_c1(vp8t_argb(0x11, 0x22, 0x33, 0x44), 16), 0x22)
   assert_eq(vp8l_c1(vp8t_argb(0x11, 0x22, 0x33, 0x44), 8), 0x33)
   assert_eq(vp8l_c1(vp8t_argb(0x11, 0x22, 0x33, 0x44), 0), 0x44)
   // 逐通道取平均（向下取整）
-  let avg = vp8l_avg2(vp8t_argb(0x10, 0x20, 0x30, 0x40), vp8t_argb(0x30, 0x40, 0x50, 0x60))
+  let avg = vp8l_avg2(
+    vp8t_argb(0x10, 0x20, 0x30, 0x40),
+    vp8t_argb(0x30, 0x40, 0x50, 0x60),
+  )
   assert_eq(avg, vp8t_argb(0x20, 0x30, 0x40, 0x50))
   // 奇数相加向下取整
   assert_eq(vp8l_avg2(0x01, 0x02), 0x01)
@@ -22,7 +26,8 @@ test "vp8t: 像素辅助函数" {
   assert_eq(vp8l_clamp8(128), 128)
   // a + b - c
   let full = vp8l_clamp_add_full(
-    vp8t_argb(0x10, 0x20, 0x30, 0x40), vp8t_argb(0x20, 0x40, 0x60, 0x80),
+    vp8t_argb(0x10, 0x20, 0x30, 0x40),
+    vp8t_argb(0x20, 0x40, 0x60, 0x80),
     vp8t_argb(0x10, 0x10, 0x10, 0x10),
   )
   assert_eq(full, vp8t_argb(0x20, 0x50, 0x80, 0xB0))
@@ -47,12 +52,13 @@ test "vp8t: 像素辅助函数" {
   assert_eq(vp8l_div_round_up(0, 4), 0)
 }
 
+///|
 test "vp8t: 色彩缓存哈希与 cross-color" {
   // 哈希取无符号 32 位乘法的高 bits 位，结果必落在 [0, 2^bits)
   for bits in [1, 2, 3, 4] {
     let h = vp8l_cache_hash(0x1E35A7BD, bits)
     assert_true(h >= 0)
-    assert_true(h < (1 << bits))
+    assert_true(h < 1 << bits)
   }
   assert_eq(vp8l_cache_hash(0, 4), 0)
   // color_delta：两个通道都按有符号处理
@@ -65,6 +71,7 @@ test "vp8t: 色彩缓存哈希与 cross-color" {
   assert_eq(vp8l_color_delta(200, 56), -98)
 }
 
+///|
 test "vp8t: Select 预测器距离比较" {
   // p = l + t - tl 后比较谁更近
   let l = vp8t_argb(0x10, 0x20, 0x30, 0x40)
@@ -78,6 +85,7 @@ test "vp8t: Select 预测器距离比较" {
   assert_eq(vp8l_select(l, l, l), l)
 }
 
+///|
 test "vp8t: predictor 逆变换全模式" {
   // 4x4 单块（block_bits=2）逐模式跑一遍，覆盖 match 全分支
   for mode in 0..<14 {
@@ -113,6 +121,7 @@ test "vp8t: predictor 逆变换全模式" {
   assert_true(px3.length() == w3 * h3)
 }
 
+///|
 test "vp8t: cross-color 逆变换" {
   // e = green_to_red 100 | green_to_blue 50 << 8 | red_to_blue 8 << 16
   let e : Int32 = 100 | (50 << 8) | (8 << 16)
@@ -133,6 +142,7 @@ test "vp8t: cross-color 逆变换" {
   assert_true(px3.length() == 32)
 }
 
+///|
 test "vp8t: color indexing 未打包与打包" {
   let pal : Array[Int32] = [vp8t_argb(0xFF, 1, 2, 3), vp8t_argb(0xFF, 4, 5, 6)]
   // 未打包：索引取 green 通道
@@ -148,6 +158,7 @@ test "vp8t: color indexing 未打包与打包" {
   assert_eq(out0[2], 0)
 }
 
+///|
 test "vp8t: color indexing 打包展开" {
   let pal : Array[Int32] = [
     vp8t_argb(0xFF, 0, 0, 0),

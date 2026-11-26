@@ -32,69 +32,96 @@ test "pcov: describe 全操作类型" {
 ///|
 test "pcov: CLI 解析全命令" {
   // 空参数 → Help
-  assert_true(match @pipeline.cli_parse([]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse([]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
   // convert
-  assert_true(match @pipeline.cli_parse(["convert", "in.png", "out.jpg"]) {
-    @pipeline.CliCommand::Convert(i, o) => i == "in.png" && o == "out.jpg"
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["convert", "in.png", "out.jpg"]) {
+      @pipeline.CliCommand::Convert(i, o) => i == "in.png" && o == "out.jpg"
+      _ => false
+    },
+  )
   // convert 参数不足
-  assert_true(match @pipeline.cli_parse(["convert", "in.png"]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["convert", "in.png"]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
   // resize
-  assert_true(match @pipeline.cli_parse(["resize", "a.png", "b.png", "120", "90"]) {
-    @pipeline.CliCommand::Resize(_i, _o, w, h) => w == 120 && h == 90
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["resize", "a.png", "b.png", "120", "90"]) {
+      @pipeline.CliCommand::Resize(_i, _o, w, h) => w == 120 && h == 90
+      _ => false
+    },
+  )
   // resize 参数不足
-  assert_true(match @pipeline.cli_parse(["resize", "a.png", "b.png", "120"]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["resize", "a.png", "b.png", "120"]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
   // rotate（含负角度）
-  assert_true(match @pipeline.cli_parse(["rotate", "a.png", "b.png", "-33.5"]) {
-    @pipeline.CliCommand::Rotate(_i, _o, angle) => angle < 0.0
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["rotate", "a.png", "b.png", "-33.5"]) {
+      @pipeline.CliCommand::Rotate(_i, _o, angle) => angle < 0.0
+      _ => false
+    },
+  )
   // rotate 参数不足
-  assert_true(match @pipeline.cli_parse(["rotate", "a.png", "b.png"]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["rotate", "a.png", "b.png"]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
   // batch
-  assert_true(match @pipeline.cli_parse(["batch", "in_dir", "out_dir", "cfg"]) {
-    @pipeline.CliCommand::Batch(i, o, c) => i == "in_dir" && o == "out_dir" && c == "cfg"
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["batch", "in_dir", "out_dir", "cfg"]) {
+      @pipeline.CliCommand::Batch(i, o, c) =>
+        i == "in_dir" && o == "out_dir" && c == "cfg"
+      _ => false
+    },
+  )
   // batch 参数不足
-  assert_true(match @pipeline.cli_parse(["batch", "in_dir", "out_dir"]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["batch", "in_dir", "out_dir"]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
   // info
-  assert_true(match @pipeline.cli_parse(["info", "a.png"]) {
-    @pipeline.CliCommand::Info(p) => p == "a.png"
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["info", "a.png"]) {
+      @pipeline.CliCommand::Info(p) => p == "a.png"
+      _ => false
+    },
+  )
   // info 参数不足
-  assert_true(match @pipeline.cli_parse(["info"]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["info"]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
   // help / 未知命令
-  assert_true(match @pipeline.cli_parse(["help"]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
-  assert_true(match @pipeline.cli_parse(["unknown"]) {
-    @pipeline.CliCommand::Help => true
-    _ => false
-  })
+  assert_true(
+    match @pipeline.cli_parse(["help"]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
+  assert_true(
+    match @pipeline.cli_parse(["unknown"]) {
+      @pipeline.CliCommand::Help => true
+      _ => false
+    },
+  )
   // 帮助文本
   let help = @pipeline.cli_help()
   assert_true(help.contains("convert"))

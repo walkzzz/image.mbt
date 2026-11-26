@@ -15,6 +15,7 @@ fn lb_runs_px(widths : Array[Int32]) -> Array[Int32] {
   out
 }
 
+///|
 fn lb_cat(a : Array[Int32], b : Array[Int32]) -> Array[Int32] {
   let out : Array[Int32] = []
   for v in a {
@@ -26,6 +27,7 @@ fn lb_cat(a : Array[Int32], b : Array[Int32]) -> Array[Int32] {
   out
 }
 
+///|
 fn lb_zeros(px : Array[Int32], n : Int32) -> Array[Int32] {
   let out : Array[Int32] = []
   for v in px {
@@ -57,6 +59,7 @@ fn lb_from_px(px : Array[Int32], h : Int32) -> @types.Image {
   }
 }
 
+///|
 fn lb_blank(w : Int32, h : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -66,6 +69,7 @@ fn lb_blank(w : Int32, h : Int32) -> @types.Image {
   }
 }
 
+///|
 test "lbcov: Code128 合成图形解码" {
   // Start B(104) + 数据 33('A') + 校验 69 + Stop(106) + 终止条 + 空白区
   let px = lb_cat(
@@ -111,6 +115,7 @@ test "lbcov: Code128 合成图形解码" {
   }
 }
 
+///|
 test "lbcov: Code39 合成图形解码" {
   // * + '1' + *
   let px = lb_cat(
@@ -135,6 +140,7 @@ test "lbcov: Code39 合成图形解码" {
   }
 }
 
+///|
 test "lbcov: 通用一维码识别与 UPC-A" {
   let px = lb_cat(
     lb_runs_px([1, 2, 1, 1, 2, 1, 2, 1, 1]),
@@ -157,28 +163,24 @@ test "lbcov: 通用一维码识别与 UPC-A" {
   let _upca = @barcode.decode_upca(img)
   // 错误分支
   try {
-    let _ = @barcode.decode_linear_barcode(
-      @types.Image::{
-        width: 0,
-        height: 4,
-        channels: 1,
-        data: Bytes::from_array([]),
-      },
-    )
+    let _ = @barcode.decode_linear_barcode(@types.Image::{
+      width: 0,
+      height: 4,
+      channels: 1,
+      data: Bytes::from_array([]),
+    })
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @barcode.decode_linear_barcode(
-      @types.Image::{
-        width: 2,
-        height: 2,
-        channels: 1,
-        data: Bytes::from_array([b'\x00']),
-      },
-    )
+    let _ = @barcode.decode_linear_barcode(@types.Image::{
+      width: 2,
+      height: 2,
+      channels: 1,
+      data: Bytes::from_array([b'\x00']),
+    })
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)

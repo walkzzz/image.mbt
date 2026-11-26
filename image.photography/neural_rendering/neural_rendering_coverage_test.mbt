@@ -1,6 +1,11 @@
 // 覆盖率测试：神经渲染与 3D 重建（射线 / 体渲染 / NeRF / 高斯泼溅 / 重建 / 报告）
 
-fn nr_cam(w : Int32, h : Int32, focal : Double) -> @neural_rendering.CameraParams {
+///|
+fn nr_cam(
+  w : Int32,
+  h : Int32,
+  focal : Double,
+) -> @neural_rendering.CameraParams {
   @neural_rendering.CameraParams::{
     position: [0.0, 0.0, 0.0],
     rotation: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0],
@@ -13,7 +18,12 @@ fn nr_cam(w : Int32, h : Int32, focal : Double) -> @neural_rendering.CameraParam
   }
 }
 
-fn nr_voxel(occ : Bool, density : Double, r : Double) -> @neural_rendering.Voxel {
+///|
+fn nr_voxel(
+  occ : Bool,
+  density : Double,
+  r : Double,
+) -> @neural_rendering.Voxel {
   @neural_rendering.Voxel::{
     position: [0.0, 0.0, 1.0],
     size: 0.1,
@@ -23,6 +33,7 @@ fn nr_voxel(occ : Bool, density : Double, r : Double) -> @neural_rendering.Voxel
   }
 }
 
+///|
 fn nr_gauss(x : Double, y : Double, r : Double) -> @neural_rendering.Gaussian3D {
   @neural_rendering.Gaussian3D::{
     position: [x, y, 0.0],
@@ -34,6 +45,7 @@ fn nr_gauss(x : Double, y : Double, r : Double) -> @neural_rendering.Gaussian3D 
   }
 }
 
+///|
 fn nr_grad_img(w : Int32, h : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -41,10 +53,21 @@ fn nr_grad_img(w : Int32, h : Int32) -> @types.Image {
       d.push(((x * 20 + y * 3) % 256).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
-fn nr_pt(x : Double, y : Double, z : Double, r : Double) -> @neural_rendering.Point3D {
+///|
+fn nr_pt(
+  x : Double,
+  y : Double,
+  z : Double,
+  r : Double,
+) -> @neural_rendering.Point3D {
   @neural_rendering.Point3D::{
     position: [x, y, z],
     color: [r, 10.0, 20.0],
@@ -53,6 +76,7 @@ fn nr_pt(x : Double, y : Double, z : Double, r : Double) -> @neural_rendering.Po
   }
 }
 
+///|
 test "nrcov: 默认配置" {
   let nerf = @neural_rendering.create_default_nerf_config()
   assert_true(nerf.num_samples_per_ray == 64)
@@ -73,6 +97,7 @@ test "nrcov: 默认配置" {
   assert_true(cam.principal_point[0] == 320.0)
 }
 
+///|
 test "nrcov: 射线生成" {
   let cam = nr_cam(2, 2, 2.0)
   let rays = @neural_rendering.generate_rays(cam)
@@ -90,6 +115,7 @@ test "nrcov: 射线生成" {
   assert_true(rays[3].direction[1] == 0.0)
 }
 
+///|
 test "nrcov: 体渲染" {
   let cfg = @neural_rendering.create_default_nerf_config()
   let ray = @neural_rendering.Ray::{
@@ -112,7 +138,7 @@ test "nrcov: 体渲染" {
   // 密度为 0 被跳过
   let zero_d = nr_voxel(true, 0.0, 200.0)
   let zeros : Array[@neural_rendering.Voxel] = [zero_d]
-  let (c2, a2) = @neural_rendering.volume_render(ray, zeros, cfg)
+  let (_, a2) = @neural_rendering.volume_render(ray, zeros, cfg)
   assert_true(a2 == 0.0)
   // 单样本 density 1.0 → alpha_i 0.1 → 颜色 0.1*200 = 20
   let one = nr_voxel(true, 1.0, 200.0)
@@ -127,6 +153,7 @@ test "nrcov: 体渲染" {
   assert_true(c4[0] > 37.0 && c4[0] < 39.0)
 }
 
+///|
 test "nrcov: NeRF 渲染" {
   let cam = nr_cam(4, 4, 2.0)
   let cfg = @neural_rendering.create_default_nerf_config()
@@ -152,6 +179,7 @@ test "nrcov: NeRF 渲染" {
   assert_true(r.psnr == 0.0)
 }
 
+///|
 test "nrcov: 高斯泼溅渲染" {
   let cam = nr_cam(4, 4, 2.0)
   let cfg = @neural_rendering.create_default_gaussian_config()
@@ -175,6 +203,7 @@ test "nrcov: 高斯泼溅渲染" {
   assert_true(r2.image.data[0].to_int() == 0)
 }
 
+///|
 test "nrcov: 示例高斯生成" {
   let none = @neural_rendering.generate_sample_gaussians(0)
   assert_true(none.length() == 0)
@@ -190,6 +219,7 @@ test "nrcov: 示例高斯生成" {
   assert_true(gs[4].color[0] >= 0.0 && gs[4].color[0] <= 255.0)
 }
 
+///|
 test "nrcov: 多视图重建" {
   // 输入不足：空点云但保留元信息
   let one : Array[@types.Image] = [nr_grad_img(10, 10)]
@@ -217,6 +247,7 @@ test "nrcov: 多视图重建" {
   assert_true(r2.point_cloud.length() == 0)
 }
 
+///|
 test "nrcov: 点云可视化" {
   // 空点云 → 全黑
   let empty : Array[@neural_rendering.Point3D] = []
@@ -237,11 +268,14 @@ test "nrcov: 点云可视化" {
   let img3 = @neural_rendering.visualize_point_cloud(behind, 8, 8)
   assert_true(img3.data[(4 * 8 + 4) * 3].to_int() == 0)
   // 投影到画布外 → 跳过
-  let outside : Array[@neural_rendering.Point3D] = [nr_pt(1000.0, 0.0, 1.0, 99.0)]
+  let outside : Array[@neural_rendering.Point3D] = [
+    nr_pt(1000.0, 0.0, 1.0, 99.0),
+  ]
   let img4 = @neural_rendering.visualize_point_cloud(outside, 8, 8)
   assert_true(img4.data[0].to_int() == 0)
 }
 
+///|
 test "nrcov: 报告" {
   let cam = nr_cam(2, 2, 2.0)
   let cfg = @neural_rendering.create_default_nerf_config()

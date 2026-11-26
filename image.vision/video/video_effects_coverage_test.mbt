@@ -1,13 +1,20 @@
 // 覆盖率测试：视频特效（滤镜 / 转场 / 叠加 / 水印 / 流水线）
 
+///|
 fn vc_img(w : Int32, h : Int32, c : Int32, v : Byte) -> @types.Image {
   let data : Array[Byte] = []
   for _ in 0..<(w * h * c) {
     data.push(v)
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 test "vcov: 默认参数" {
   let fp = @video.default_video_filter_params(@video.VideoFilterType::Blur)
   assert_true(fp.intensity == 0.5)
@@ -18,6 +25,7 @@ test "vcov: 默认参数" {
   assert_true(tp.transition_type == @video.TransitionType::Fade)
 }
 
+///|
 test "vcov: 滤镜分支" {
   let flat = vc_img(4, 4, 1, b'\x64')
   // Blur：平坦图保持原值；intensity 0 → 半径仍为 1
@@ -107,6 +115,7 @@ test "vcov: 滤镜分支" {
   assert_true(vg0.data[0].to_int() == 100)
 }
 
+///|
 test "vcov: 淡入淡出 / 溶解" {
   let from = vc_img(4, 2, 1, b'\x0A')
   let to_ = vc_img(4, 2, 1, b'\xC8')
@@ -136,75 +145,145 @@ test "vcov: 淡入淡出 / 溶解" {
   assert_true(diss.data[0].to_int() == 105)
 }
 
+///|
 fn vc_trans(t : @video.TransitionType, dir : Int32) -> @video.TransitionParams {
-  @video.TransitionParams::{ transition_type: t, duration: 4, direction: dir }
+  @video.TransitionParams::{ transition_type: t, duration: 4, direction: dir, }
 }
 
+///|
 test "vcov: 滑动转场四方向" {
   let from = vc_img(8, 4, 1, b'\x0A')
   let to_ = vc_img(8, 4, 1, b'\xC8')
   // 方向 0：左半来自目标图
-  let s0 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Slide, 0))
+  let s0 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Slide, 0),
+  )
   assert_true(s0.data[0].to_int() == 200)
   assert_true(s0.data[0 * 8 + 5].to_int() == 10)
   // 方向 1：右半来自目标图
-  let s1 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Slide, 1))
+  let s1 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Slide, 1),
+  )
   assert_true(s1.data[0].to_int() == 10)
   assert_true(s1.data[0 * 8 + 5].to_int() == 200)
   // 方向 2：上半来自目标图（h=4，offset=2）
-  let s2 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Slide, 2))
+  let s2 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Slide, 2),
+  )
   assert_true(s2.data[0].to_int() == 200)
   assert_true(s2.data[3 * 8].to_int() == 10)
   // 方向 3：下半来自目标图
-  let s3 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Slide, 3))
+  let s3 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Slide, 3),
+  )
   assert_true(s3.data[0].to_int() == 10)
   assert_true(s3.data[3 * 8].to_int() == 200)
 }
 
+///|
 test "vcov: 擦除转场四方向" {
   let from = vc_img(8, 4, 1, b'\x0A')
   let to_ = vc_img(8, 4, 1, b'\xC8')
-  let w0 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Wipe, 0))
+  let w0 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Wipe, 0),
+  )
   assert_true(w0.data[0].to_int() == 200)
   assert_true(w0.data[7].to_int() == 10)
-  let w1 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Wipe, 1))
+  let w1 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Wipe, 1),
+  )
   assert_true(w1.data[0].to_int() == 10)
   assert_true(w1.data[7].to_int() == 200)
-  let w2 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Wipe, 2))
+  let w2 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Wipe, 2),
+  )
   assert_true(w2.data[0].to_int() == 200)
   assert_true(w2.data[3 * 8].to_int() == 10)
-  let w3 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Wipe, 3))
+  let w3 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Wipe, 3),
+  )
   assert_true(w3.data[0].to_int() == 10)
   assert_true(w3.data[3 * 8].to_int() == 200)
 }
 
+///|
 test "vcov: 推送转场四方向" {
   let from = vc_img(8, 4, 1, b'\x0A')
   let to_ = vc_img(8, 4, 1, b'\xC8')
-  let p0 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Push, 0))
+  let p0 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Push, 0),
+  )
   assert_true(p0.data[0].to_int() == 200)
   assert_true(p0.data[7].to_int() == 10)
-  let p1 = @video.create_transition_frame(from, to_, 0.5, vc_trans(@video.TransitionType::Push, 1))
+  let p1 = @video.create_transition_frame(
+    from,
+    to_,
+    0.5,
+    vc_trans(@video.TransitionType::Push, 1),
+  )
   assert_true(p1.data[0].to_int() == 10)
   assert_true(p1.data[7].to_int() == 200)
-  let p2 = @video.create_transition_frame(from, to_, 0.25, vc_trans(@video.TransitionType::Push, 2))
+  let p2 = @video.create_transition_frame(
+    from,
+    to_,
+    0.25,
+    vc_trans(@video.TransitionType::Push, 2),
+  )
   assert_true(p2.data[0].to_int() == 200)
   assert_true(p2.data[3 * 8].to_int() == 10)
-  let p3 = @video.create_transition_frame(from, to_, 0.25, vc_trans(@video.TransitionType::Push, 3))
+  let p3 = @video.create_transition_frame(
+    from,
+    to_,
+    0.25,
+    vc_trans(@video.TransitionType::Push, 3),
+  )
   assert_true(p3.data[0].to_int() == 10)
   assert_true(p3.data[3 * 8].to_int() == 200)
 }
 
+///|
 test "vcov: 转场序列生成" {
   let from = vc_img(4, 4, 1, b'\x0A')
   let to_ = vc_img(4, 4, 1, b'\xC8')
-  let frames = @video.generate_transition(from, to_, vc_trans(@video.TransitionType::Fade, 0))
+  let frames = @video.generate_transition(
+    from,
+    to_,
+    vc_trans(@video.TransitionType::Fade, 0),
+  )
   assert_true(frames.length() == 4)
   assert_true(frames[0].data[0].to_int() == 10)
   // 最后一帧 progress = 3/4 = 0.75 → 10*0.25 + 200*0.75 = 152.5 → 152
   assert_true(frames[3].data[0].to_int() == 152)
 }
 
+///|
 test "vcov: 文字叠加 / 时间戳" {
   let img = vc_img(8, 6, 1, b'\x00')
   let o = @video.add_text_overlay(img, 2, 1, 3, 2, b'\xFF')
@@ -231,6 +310,7 @@ test "vcov: 文字叠加 / 时间戳" {
   assert_true(tz.data[5 * 10 + 2].to_int() == 255)
 }
 
+///|
 test "vcov: 水印叠加" {
   let img = vc_img(8, 8, 1, b'\x00')
   let wm = vc_img(2, 2, 1, b'\xFF')
@@ -254,6 +334,7 @@ test "vcov: 水印叠加" {
   assert_true(r3.data[2].to_int() == 255)
 }
 
+///|
 test "vcov: 流水线" {
   let empty : Array[@types.Image] = []
   let none = @video.video_effects_pipeline(empty, None, None)

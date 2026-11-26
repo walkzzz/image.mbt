@@ -1,5 +1,6 @@
 // 覆盖率测试（白盒）：imgtool CLI 的分发、参数解析、格式推断、端到端子命令
 
+///|
 fn cli_tmp_img(w : Int32, h : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -9,19 +10,29 @@ fn cli_tmp_img(w : Int32, h : Int32) -> @types.Image {
       d.push(((x * 5 + y * 3) % 256).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 3, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 3,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn cli_png_bytes() -> Bytes {
   @lib.save_image_with_quality(cli_tmp_img(6, 4), @types.ImageFormat::Png, 90) catch {
     _ => Bytes::from_array([])
   }
 }
 
+///|
 fn cli_write_png(path : String) -> Unit {
-  write_bytes(path, cli_png_bytes()) catch { _ => () }
+  write_bytes(path, cli_png_bytes()) catch {
+    _ => ()
+  }
 }
 
+///|
 fn cli_ok(out : Out) -> Bool {
   match out.get("ok") {
     Some(j) => j.stringify() == "true"
@@ -29,18 +40,19 @@ fn cli_ok(out : Out) -> Bool {
   }
 }
 
+///|
 fn cli_has(out : Out, key : String) -> Bool {
   out.contains(key)
 }
 
+///|
 fn cli_dispatch(args : Array[String]) -> Out {
-  try {
-    dispatch(args)
-  } catch {
+  dispatch(args) catch {
     _ => usage()
   }
 }
 
+///|
 test "clicov: 参数解析" {
   let f = parse_flags(["a.png", "--width", "8", "--flag", "b.png"])
   assert_true(f.positional.length() == 1)
@@ -71,6 +83,7 @@ test "clicov: 参数解析" {
   assert_true(e.positional.length() == 0)
 }
 
+///|
 test "clicov: 格式名与解析" {
   assert_true(format_name(@types.ImageFormat::Png) == "png")
   assert_true(format_name(@types.ImageFormat::Jpeg) == "jpeg")
@@ -135,6 +148,7 @@ test "clicov: 格式名与解析" {
   assert_true(format_from_ext("a") == None)
 }
 
+///|
 test "clicov: 输出格式优先级" {
   let dst = "out.jpg"
   // 显式 --format 优先
@@ -154,7 +168,8 @@ test "clicov: 输出格式优先级" {
   )
   // 未知扩展名 → 回退
   assert_true(
-    out_format(f3, "out.zzz", @types.ImageFormat::Webp) == @types.ImageFormat::Webp,
+    out_format(f3, "out.zzz", @types.ImageFormat::Webp) ==
+    @types.ImageFormat::Webp,
   )
   // 显式非法格式报错
   let f4 = parse_flags(["--format", "psd"])
@@ -167,13 +182,16 @@ test "clicov: 输出格式优先级" {
   }
 }
 
+///|
 test "clicov: 源格式与内存预算" {
   let png = cli_png_bytes()
   assert_true(writable_format_of(png) == @types.ImageFormat::Png)
   assert_true(src_out_format(png) == @types.ImageFormat::Png)
   // 不可写容器退回 PNG：TIFF 头
   let tiff : Array[Byte] = [b'\x49', b'\x49', b'\x2A', b'\x00']
-  assert_true(writable_format_of(Bytes::from_array(tiff)) == @types.ImageFormat::Png)
+  assert_true(
+    writable_format_of(Bytes::from_array(tiff)) == @types.ImageFormat::Png,
+  )
   // 默认上限
   let f0 = parse_flags([])
   let l0 = limits_of(f0)
@@ -201,6 +219,7 @@ test "clicov: 源格式与内存预算" {
   assert_true(l4.max_pixels == 0L)
 }
 
+///|
 test "clicov: 小工具函数" {
   // contains_ascii
   let data = Bytes::from_array([b'\x00', b'A', b'B', b'\x00'])
@@ -209,7 +228,10 @@ test "clicov: 小工具函数" {
   assert_true(!contains_ascii(data, ""))
   assert_true(!contains_ascii(Bytes::from_array([b'\x01']), "AB"))
   // error_json
-  let e = @types.ImageError::Process(@types.ErrorCode::InvalidArgument, "bad arg")
+  let e = @types.ImageError::Process(
+    @types.ErrorCode::InvalidArgument,
+    "bad arg",
+  )
   let j = error_json(e)
   assert_true(!cli_ok(j))
   assert_true(cli_has(j, "code"))
@@ -223,21 +245,38 @@ test "clicov: 小工具函数" {
   let u = usage()
   assert_true(!cli_ok(u))
   // dispatch 空参数 / 未知子命令 → usage
-  let u0 = try {
-    dispatch([])
-  } catch {
-    _ => usage()
-  }
+  let u0 = dispatch([]) catch { _ => usage() }
   assert_true(!cli_ok(u0))
-  let u1 = try {
-    dispatch(["bogus"])
-  } catch {
-    _ => usage()
-  }
+  let u1 = dispatch(["bogus"]) catch { _ => usage() }
   assert_true(!cli_ok(u1))
 }
 
+///|
+
+///|
+fn cli_fs_writable() -> Bool {
+  let p = "_build_cli_fs_probe.bin"
+  let wrote = try {
+    write_bytes(p, Bytes::from_array([1, 2, 3]))
+    true
+  } catch {
+    _ => false
+  }
+  if !wrote {
+    return false
+  }
+  let back = Some(read_bytes(p)) catch { _ => None }
+  match back {
+    Some(b) => b.length() == 3
+    None => false
+  }
+}
+
+///|
 test "clicov: 端到端 info / analyze / convert" {
+  if !cli_fs_writable() {
+    return
+  }
   let path = "_build_cli_cov_in.png"
   cli_write_png(path)
   // info
@@ -285,7 +324,11 @@ test "clicov: 端到端 info / analyze / convert" {
   assert_true(!cli_ok(e5))
 }
 
+///|
 test "clicov: 端到端 resize / crop / filter / sanitize" {
+  if !cli_fs_writable() {
+    return
+  }
   let path = "_build_cli_cov_in2.png"
   cli_write_png(path)
   // resize cover
@@ -332,16 +375,22 @@ test "clicov: 端到端 resize / crop / filter / sanitize" {
     "filter", path, "o.png", "--op", "median", "--ksize", "3", "--dry-run",
   ])
   assert_true(cli_ok(f5))
-  let f6 = cli_dispatch(["filter", path, "o.png", "--op", "bilateral", "--dry-run"])
+  let f6 = cli_dispatch([
+    "filter", path, "o.png", "--op", "bilateral", "--dry-run",
+  ])
   assert_true(cli_ok(f6))
-  let f7 = cli_dispatch(["filter", path, "o.png", "--op", "denoise", "--dry-run"])
+  let f7 = cli_dispatch([
+    "filter", path, "o.png", "--op", "denoise", "--dry-run",
+  ])
   assert_true(cli_ok(f7))
   // 未知算子 / 负半径 / 非法 ksize
   let e1 = cli_dispatch(["filter", path, "o.png", "--op", "sobel"])
   assert_true(!cli_ok(e1))
   let e2 = cli_dispatch(["filter", path, "o.png", "--radius", "-1"])
   assert_true(!cli_ok(e2))
-  let e3 = cli_dispatch(["filter", path, "o.png", "--op", "median", "--ksize", "4"])
+  let e3 = cli_dispatch([
+    "filter", path, "o.png", "--op", "median", "--ksize", "4",
+  ])
   assert_true(!cli_ok(e3))
   // normalize_filter_op 直接验证
   assert_true(normalize_filter_op("box") == Some("box"))
@@ -357,27 +406,31 @@ test "clicov: 端到端 resize / crop / filter / sanitize" {
   assert_true(cli_has(s1, "metadata_free"))
   // sanitize：standard + regions
   let s2 = cli_dispatch([
-    "sanitize", path, "o.png", "--policy", "standard", "--regions", "0,0,3,2",
-    "--dry-run",
+    "sanitize", path, "o.png", "--policy", "standard", "--regions", "0,0,3,2", "--dry-run",
   ])
   assert_true(cli_ok(s2))
   assert_true(cli_has(s2, "regions_redacted"))
   // sanitize：strict + 单数 --region
   let s3 = cli_dispatch([
-    "sanitize", path, "o.png", "--policy", "strict", "--region", "0,0,2,2",
-    "--dry-run",
+    "sanitize", path, "o.png", "--policy", "strict", "--region", "0,0,2,2", "--dry-run",
   ])
   assert_true(cli_ok(s3))
   assert_true(cli_has(s3, "blurred"))
   // sanitize 的 quality 走自己的 flags.int，不经过 quality_of（300 由编码器内部处理）
-  let e4 = cli_dispatch(["sanitize", path, "o.png", "--quality", "300", "--dry-run"])
+  let e4 = cli_dispatch([
+    "sanitize", path, "o.png", "--quality", "300", "--dry-run",
+  ])
   assert_true(cli_has(e4, "policy"))
   // emit_bytes：dry-run 返回 false
   let enc = cli_png_bytes()
-  assert_true(!(emit_bytes("o.png", enc, true)))
+  assert_true(!emit_bytes("o.png", enc, true))
 }
 
+///|
 test "clicov: 端到端 bench" {
+  if !cli_fs_writable() {
+    return
+  }
   let path = "_build_cli_cov_in3.png"
   cli_write_png(path)
   let b = cli_dispatch([
@@ -388,7 +441,8 @@ test "clicov: 端到端 bench" {
   assert_true(cli_has(b, "encode"))
   // 带缩放
   let b2 = cli_dispatch([
-    "bench", path, "--iters", "1", "--formats", "png", "--width", "2", "--height", "2",
+    "bench", path, "--iters", "1", "--formats", "png", "--width", "2", "--height",
+    "2",
   ])
   assert_true(cli_ok(b2))
   assert_true(cli_has(b2, "resize"))
@@ -405,6 +459,7 @@ test "clicov: 端到端 bench" {
   assert_true(parse_format_list("").length() == 0)
 }
 
+///|
 test "clicov: stdout 判定" {
   assert_true(!json_to_stderr([]))
   assert_true(!json_to_stderr(["info"]))

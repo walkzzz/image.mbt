@@ -1,5 +1,6 @@
 // 覆盖率测试：多尺度 Retinex 16-bit / float 变体（SSR / MSR / MSRCR）
 
+///|
 fn r16_img(w : Int32, h : Int32, ch : Int32, v : Int32) -> @types.Image16 {
   let n = w * h * ch
   let d : Array[Byte] = Array::make(n * 2, b'\x00')
@@ -7,9 +8,15 @@ fn r16_img(w : Int32, h : Int32, ch : Int32, v : Int32) -> @types.Image16 {
     d[i * 2] = (v & 0xFF).to_byte()
     d[i * 2 + 1] = ((v >> 8) & 0xFF).to_byte()
   }
-  @types.Image16::{ width: w, height: h, channels: ch, data: Bytes::from_array(d) }
+  @types.Image16::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn rf_img(w : Int32, h : Int32, ch : Int32, v : Float) -> @types.ImageF {
   let n = w * h * ch
   let d : Array[Byte] = Array::make(n * 4, b'\x00')
@@ -20,13 +27,20 @@ fn rf_img(w : Int32, h : Int32, ch : Int32, v : Float) -> @types.ImageF {
     d[i * 4 + 2] = ((bits >> 16) & 0xFF).to_byte()
     d[i * 4 + 3] = ((bits >> 24) & 0xFF).to_byte()
   }
-  @types.ImageF::{ width: w, height: h, channels: ch, data: Bytes::from_array(d) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn r16_read(d : Bytes, idx : Int32) -> Int32 {
   d[idx].to_int() | (d[idx + 1].to_int() << 8)
 }
 
+///|
 fn rf_read(d : Bytes, idx : Int32) -> Float {
   let b0 = d[idx].to_int()
   let b1 = d[idx + 1].to_int()
@@ -35,10 +49,12 @@ fn rf_read(d : Bytes, idx : Int32) -> Float {
   Float::reinterpret_from_int(b0 | (b1 << 8) | (b2 << 16) | (b3 << 24))
 }
 
+///|
 fn r16_bad_ch() -> @types.Image16 {
   r16_img(2, 2, 2, 128)
 }
 
+///|
 fn r16_bad_data() -> @types.Image16 {
   @types.Image16::{
     width: 2,
@@ -48,10 +64,12 @@ fn r16_bad_data() -> @types.Image16 {
   }
 }
 
+///|
 fn rf_bad_ch() -> @types.ImageF {
   rf_img(2, 2, 2, 0.5F)
 }
 
+///|
 test "r16cov: ssr_16 正常与校验" {
   // 平坦图：log 差 0 → 32768
   let flat = r16_img(3, 3, 1, 128)
@@ -117,6 +135,7 @@ test "r16cov: ssr_16 正常与校验" {
   }
 }
 
+///|
 test "r16cov: ssr_f 正常与校验" {
   let flat = rf_img(3, 3, 1, 0.5F)
   let s = @color.ssr_f(flat, sigma=10.0F)
@@ -180,19 +199,20 @@ test "r16cov: ssr_f 正常与校验" {
   }
 }
 
+///|
 test "r16cov: msr_16 正常与校验" {
   let flat = r16_img(3, 3, 1, 128)
   let sigmas : Array[Float] = [5.0F, 10.0F]
-  let m = @color.msr_16(flat, sigmas=sigmas)
+  let m = @color.msr_16(flat, sigmas~)
   assert_true(m.width == 3)
   assert_true(r16_read(m.data, 0) == 32768)
   // 三通道 + gain/offset
   let rgb = r16_img(3, 3, 3, 128)
-  let mr = @color.msr_16(rgb, sigmas=sigmas, gain=2.0F, offset=0.5F)
+  let mr = @color.msr_16(rgb, sigmas~, gain=2.0F, offset=0.5F)
   assert_true(mr.channels == 3)
   // 四通道 alpha 透传
   let rgba = r16_img(3, 3, 4, 128)
-  let ma = @color.msr_16(rgba, sigmas=sigmas)
+  let ma = @color.msr_16(rgba, sigmas~)
   assert_true(r16_read(ma.data, 3 * 2) == 128)
   // 默认 sigmas
   let md = @color.msr_16(flat)
@@ -242,26 +262,27 @@ test "r16cov: msr_16 正常与校验" {
   }
 }
 
+///|
 test "r16cov: msr_f 正常与校验" {
   let flat = rf_img(3, 3, 1, 0.5F)
   let sigmas : Array[Float] = [5.0F, 10.0F]
-  let m = @color.msr_f(flat, sigmas=sigmas)
+  let m = @color.msr_f(flat, sigmas~)
   assert_true(m.channels == 1)
   assert_true(rf_read(m.data, 0) > -1.0F && rf_read(m.data, 0) < 1.0F)
   // 三通道 + 参数
   let rgb = rf_img(3, 3, 3, 0.5F)
-  let mr = @color.msr_f(rgb, sigmas=sigmas, gain=2.0F, offset=1.0F)
+  let mr = @color.msr_f(rgb, sigmas~, gain=2.0F, offset=1.0F)
   assert_true(mr.channels == 3)
   // 四通道 alpha 透传
   let rgba = rf_img(3, 3, 4, 0.5F)
-  let ma = @color.msr_f(rgba, sigmas=sigmas)
+  let ma = @color.msr_f(rgba, sigmas~)
   assert_true(rf_read(ma.data, 3 * 4) == 0.5F)
   // 零尺寸
   let zero = rf_img(0, 4, 1, 0.0F)
-  assert_true(@color.msr_f(zero, sigmas=sigmas).width == 0)
+  assert_true(@color.msr_f(zero, sigmas~).width == 0)
   // 通道非法
   try {
-    let _ = @color.msr_f(rf_bad_ch(), sigmas=sigmas)
+    let _ = @color.msr_f(rf_bad_ch(), sigmas~)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -287,11 +308,12 @@ test "r16cov: msr_f 正常与校验" {
   }
 }
 
+///|
 test "r16cov: msrcr_16 正常与校验" {
   let sigmas : Array[Float] = [5.0F, 10.0F]
   // 3 通道灰：crf = ln(125*128/(384+1))*46 ≈ 174.95 → 38016
   let rgb = r16_img(2, 2, 3, 128)
-  let r = @color.msrcr_16(rgb, sigmas=sigmas)
+  let r = @color.msrcr_16(rgb, sigmas~)
   assert_true(r.channels == 3)
   assert_true(r16_read(r.data, 0) > 32768)
   let v0 = r16_read(r.data, 0)
@@ -301,12 +323,12 @@ test "r16cov: msrcr_16 正常与校验" {
   assert_true(v1 == v2)
   // 4 通道 alpha 透传
   let rgba = r16_img(2, 2, 4, 128)
-  let ra = @color.msrcr_16(rgba, sigmas=sigmas)
+  let ra = @color.msrcr_16(rgba, sigmas~)
   assert_true(ra.channels == 4)
   assert_true(r16_read(ra.data, 3 * 2) == 128)
   // 单通道非法
   try {
-    let _ = @color.msrcr_16(r16_img(2, 2, 1, 128), sigmas=sigmas)
+    let _ = @color.msrcr_16(r16_img(2, 2, 1, 128), sigmas~)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -314,7 +336,7 @@ test "r16cov: msrcr_16 正常与校验" {
   }
   // 尺寸 <= 0
   try {
-    let _ = @color.msrcr_16(r16_img(0, 2, 3, 128), sigmas=sigmas)
+    let _ = @color.msrcr_16(r16_img(0, 2, 3, 128), sigmas~)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -328,7 +350,7 @@ test "r16cov: msrcr_16 正常与校验" {
       channels: 3,
       data: Bytes::from_array([b'\x01']),
     }
-    let _ = @color.msrcr_16(bad, sigmas=sigmas)
+    let _ = @color.msrcr_16(bad, sigmas~)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -345,10 +367,11 @@ test "r16cov: msrcr_16 正常与校验" {
   }
 }
 
+///|
 test "r16cov: msrcr_f 正常与校验" {
   let sigmas : Array[Float] = [5.0F, 10.0F]
   let rgb = rf_img(2, 2, 3, 0.5F)
-  let r = @color.msrcr_f(rgb, sigmas=sigmas)
+  let r = @color.msrcr_f(rgb, sigmas~)
   assert_true(r.channels == 3)
   let v0 = rf_read(r.data, 0)
   let v1 = rf_read(r.data, 4)
@@ -356,14 +379,14 @@ test "r16cov: msrcr_f 正常与校验" {
   assert_true(v0 > 0.0F)
   // 4 通道 alpha 透传
   let rgba = rf_img(2, 2, 4, 0.5F)
-  let ra = @color.msrcr_f(rgba, sigmas=sigmas)
+  let ra = @color.msrcr_f(rgba, sigmas~)
   assert_true(rf_read(ra.data, 3 * 4) == 0.5F)
   // 零尺寸
   let zero = rf_img(0, 2, 3, 0.0F)
-  assert_true(@color.msrcr_f(zero, sigmas=sigmas).width == 0)
+  assert_true(@color.msrcr_f(zero, sigmas~).width == 0)
   // 单通道非法
   try {
-    let _ = @color.msrcr_f(rf_img(2, 2, 1, 0.5F), sigmas=sigmas)
+    let _ = @color.msrcr_f(rf_img(2, 2, 1, 0.5F), sigmas~)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)

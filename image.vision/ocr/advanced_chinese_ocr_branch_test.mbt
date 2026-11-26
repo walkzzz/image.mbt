@@ -1,5 +1,6 @@
 // 覆盖率测试：进阶中文 OCR 模板与结构分解
 
+///|
 fn acoc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn acoc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   }
 }
 
+///|
 test "acocov: 模板生成与结构分解" {
   // 默认配置字段
   let cfg = @ocr.advanced_chinese_ocr_default_config()
@@ -53,6 +55,7 @@ test "acocov: 模板生成与结构分解" {
   }
 }
 
+///|
 test "acocov: 进阶中文识别流水线" {
   // 白底黑块（多列墨迹）
   let w : Int32 = 64

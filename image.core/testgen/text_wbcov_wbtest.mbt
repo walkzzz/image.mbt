@@ -1,5 +1,6 @@
 // 覆盖测试：5×7 点阵字形与数字/字母渲染
 
+///|
 test "text: 全部数字字形" {
   for d in 0..<10 {
     let g = digit_glyph(d)
@@ -12,6 +13,7 @@ test "text: 全部数字字形" {
   assert_true(neg.length() == 7)
 }
 
+///|
 test "text: 全部字母字形" {
   for i in 0..<26 {
     let g = letter_glyph(i)
@@ -22,6 +24,7 @@ test "text: 全部字母字形" {
   assert_true(bad[0] == 0)
 }
 
+///|
 test "text: 数字渲染参数" {
   let img = render_digits([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
   assert_true(img.channels == 1)
@@ -50,6 +53,7 @@ test "text: 数字渲染参数" {
   assert_true(s3.width == (5 + 8) * 4)
 }
 
+///|
 test "text: 字母渲染参数" {
   let img = render_letters([0, 25])
   assert_true(img.width == (2 * 6 - 1 + 8) * 4)

@@ -1,5 +1,6 @@
 // 覆盖率测试：TIFF 编解码 / 扩展信息 / 区域解码
 
+///|
 fn trc_img(w : Int32, h : Int32, c : Int32) -> @types.Image {
   let d : Array[Int32] = []
   for y in 0..<h {
@@ -17,6 +18,7 @@ fn trc_img(w : Int32, h : Int32, c : Int32) -> @types.Image {
   }
 }
 
+///|
 test "tiff: 编码解码往返与扩展信息" {
   let rgb = trc_img(6, 4, 3)
   let bytes = encode_tiff_pure(rgb)
@@ -38,6 +40,7 @@ test "tiff: 编码解码往返与扩展信息" {
   assert_true(rgba.height == 5)
 }
 
+///|
 test "tiff: is_tiff_format 分支" {
   let le = Bytes::from_array([
     b'\x49', b'\x49', b'\x2a', b'\x00', b'\x08', b'\x00', b'\x00', b'\x00',
@@ -48,12 +51,19 @@ test "tiff: is_tiff_format 分支" {
   assert_true(is_tiff_format(le))
   assert_true(is_tiff_format(be))
   assert_true(!is_tiff_format(Bytes::from_array([b'\x49', b'\x49'])))
-  assert_true(!is_tiff_format(Bytes::from_array([
-    b'\x50', b'\x4e', b'\x47', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
-  ])))
-  assert_true(!is_tiff_format(Bytes::from_array([b'\x49', b'\x58', b'\x2a', b'\x00'])))
+  assert_true(
+    !is_tiff_format(
+      Bytes::from_array([
+        b'\x50', b'\x4e', b'\x47', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
+      ]),
+    ),
+  )
+  assert_true(
+    !is_tiff_format(Bytes::from_array([b'\x49', b'\x58', b'\x2a', b'\x00'])),
+  )
 }
 
+///|
 test "tiff: err 过短" {
   // 过短
   try {
@@ -64,28 +74,35 @@ test "tiff: err 过短" {
   }
 }
 
+///|
 test "tiff: err 魔数" {
   // 魔数错误
   try {
-    let _ = decode_tiff_pure(Bytes::from_array([
-      b'\x42', b'\x42', b'\x2a', b'\x00', b'\x08', b'\x00', b'\x00', b'\x00',
-    ]))
+    let _ = decode_tiff_pure(
+      Bytes::from_array([
+        b'\x42', b'\x42', b'\x2a', b'\x00', b'\x08', b'\x00', b'\x00', b'\x00',
+      ]),
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
 }
 
+///|
 test "tiff: err 非TIFF" {
   // 非 TIFF
   try {
-    let _ = tiff_info_extended(Bytes::from_array([b'\x00', b'\x00', b'\x00', b'\x00']))
+    let _ = tiff_info_extended(
+      Bytes::from_array([b'\x00', b'\x00', b'\x00', b'\x00']),
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
 }
 
+///|
 test "tiff: err 编码尺寸" {
   // 编码错误
   try {
@@ -96,6 +113,7 @@ test "tiff: err 编码尺寸" {
   }
 }
 
+///|
 test "tiff: err 编码通道" {
   try {
     let _ = encode_tiff_pure(trc_img(4, 4, 5))
@@ -105,9 +123,15 @@ test "tiff: err 编码通道" {
   }
 }
 
+///|
 test "tiff: PackBits 解码分支" {
   // 纯字面串
-  let lit = Bytes::from_array([b'\x02', (65).to_byte(), (66).to_byte(), (67).to_byte()])
+  let lit = Bytes::from_array([
+    b'\x02',
+    (65).to_byte(),
+    (66).to_byte(),
+    (67).to_byte(),
+  ])
   let a = tiff_packbits_decode(lit)
   assert_true(a.length() == 3)
   // 重复串：254 => 257-254=3 次
@@ -116,7 +140,11 @@ test "tiff: PackBits 解码分支" {
   assert_true(b.length() == 3)
   // 重复串 + 字面串混合
   let mix = Bytes::from_array([
-    b'\xfe', (65).to_byte(), b'\x01', (66).to_byte(), (67).to_byte(),
+    b'\xfe',
+    (65).to_byte(),
+    b'\x01',
+    (66).to_byte(),
+    (67).to_byte(),
   ])
   let c = tiff_packbits_decode(mix)
   assert_true(c.length() == 5)
@@ -136,6 +164,7 @@ test "tiff: PackBits 解码分支" {
   }
 }
 
+///|
 fn trc_lzw_pack(codes : Array[Int32], width : Int32) -> Bytes {
   let bits : Array[Int32] = []
   for code in codes {
@@ -153,6 +182,7 @@ fn trc_lzw_pack(codes : Array[Int32], width : Int32) -> Bytes {
   Bytes::from_array(out.map(fn(v) { v.to_byte() }))
 }
 
+///|
 test "tiff: LZW 解码分支" {
   // 码流：头字节 8，CLEAR(256) + 'A'(65) + 'B'(66) + EOI(257)，9 位 LSB 优先
   let body = trc_lzw_pack([256, 65, 66, 257], 9)
@@ -179,15 +209,21 @@ test "tiff: LZW 解码分支" {
   }
   // 首码非 CLEAR
   try {
-    let _ = tiff_lzw_decode(Bytes::from_array([
-      (8).to_byte(), (0).to_byte(), (0).to_byte(), (0).to_byte(),
-    ]))
+    let _ = tiff_lzw_decode(
+      Bytes::from_array([
+        (8).to_byte(),
+        (0).to_byte(),
+        (0).to_byte(),
+        (0).to_byte(),
+      ]),
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
 }
 
+///|
 test "region: PNG / BMP / QOI 区域解码" {
   let img = trc_img(8, 6, 3)
   let png = encode_png_pure(img)

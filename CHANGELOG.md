@@ -4,6 +4,28 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.18] - 2026-11-26
+
+### Added
+
+- **S18 覆盖率 90%（native 全量实测 37,740/41,894 = 90.08%）**：按 cobertura 行级缺口排行逐个收口，新增
+  40+ 个针对性测试文件（OCR 字符集与符号模板、TIFF 压缩名/光度全表、区域解码 PNG、zlib 动态 Huffman、
+  16-bit PNG 直读、积分图、光流、多边形填充、registration/retrieval 报告枚举、16f 色彩空间等）。
+- `scripts/mutation_test.mjs` 12 点变异，11 killed / 1 survived（91.7%，M12 为纯文案变异预期存活），见 `docs/mutation.md`。
+
+### Fixed
+
+- `is_cur_format` / `is_ico_format` 只看前 4 字节，24/32-bit TGA 被误判为 CUR；现补「条目数 ≥1 且目录表装得下」。
+- `codec_detect_format` 缺 TGA 分支；`ftyp` 的 `mif1` 品牌被写成 `mifs`（字节 0x73 应为 0x31），`mif1` 容器识别失败。
+- 光标 / 标点归一化把 `String[i]` 的 `UInt16` 码元直接 `.to_string()`，产出 `"65"` 这类数字串；统一改走
+  `UInt16 → Int → Char → String`（`smart_spacing_process` / `normalize_punctuation` / `ngram_create` / `ngram_score`）。
+- `mp4/box.mbt` size==0 / size==1 分支早退不可达。
+
+### Changed
+
+- 覆盖率分母不做任何排除：90% 是在含 `wasm/abi.mbt`(89) + `wasm/api.mbt`(85) + `playground`(35) +
+  `examples/quickstart`(37) 这些 native 不可覆盖文件的最严口径下取得。
+
 ## [0.1.17] - 2026-11-25
 
 ### Added

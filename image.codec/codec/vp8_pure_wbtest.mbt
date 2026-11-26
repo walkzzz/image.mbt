@@ -1,11 +1,9 @@
-﻿// 白盒：VP8 纯函数分支（IDCT / WHT / 帧内预测 / 滤波 / 插值）
+// 白盒：VP8 纯函数分支（IDCT / WHT / 帧内预测 / 滤波 / 插值）
 
 ///|
 fn vpw_arr(n : Int32, v : Int32) -> Array[Int32] {
   Array::make(n, v)
 }
-
-
 
 ///|
 test "vpw: IDCT 与 WHT 直流/全零" {
@@ -45,11 +43,21 @@ test "vpw: I16x16 四种预测模式" {
   assert_eq(tm[0], 133)
   // x=1,y=0: (256+128+10 + 1)/3 = 131
   assert_eq(tm[1], 131)
-  let hp = vp8_intra_predict_16x16(I16x16HPred, above, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 0)
+  let hp = vp8_intra_predict_16x16(
+    I16x16HPred,
+    above,
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+    0,
+  )
   assert_eq(hp[0], 1)
   assert_eq(hp[15], 1)
   assert_eq(hp[16], 2)
-  let vp = vp8_intra_predict_16x16(I16x16VPred, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], left, 0)
+  let vp = vp8_intra_predict_16x16(
+    I16x16VPred,
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+    left,
+    0,
+  )
   assert_eq(vp[0], 1)
   assert_eq(vp[15], 16)
   assert_eq(vp[16], 1)
@@ -65,9 +73,19 @@ test "vpw: I4x4 十种预测模式" {
   assert_eq(dc[0], (sum + 4) >> 3)
   assert_eq(dc[0], dc[15])
   // TrueMotion：夹取上下界
-  let tm = _vp8_intra_predict_4x4(I4x4TrueMotionPred, vpw_arr(8, 10), vpw_arr(8, 10), 100)
+  let tm = _vp8_intra_predict_4x4(
+    I4x4TrueMotionPred,
+    vpw_arr(8, 10),
+    vpw_arr(8, 10),
+    100,
+  )
   assert_eq(tm[0], 0)
-  let tm2 = _vp8_intra_predict_4x4(I4x4TrueMotionPred, vpw_arr(8, 200), vpw_arr(8, 200), 100)
+  let tm2 = _vp8_intra_predict_4x4(
+    I4x4TrueMotionPred,
+    vpw_arr(8, 200),
+    vpw_arr(8, 200),
+    100,
+  )
   assert_eq(tm2[0], 255)
   let tm3 = _vp8_intra_predict_4x4(I4x4TrueMotionPred, above8, left8, 5)
   // x=0,y=0: 10+11-5=16
@@ -208,7 +226,7 @@ test "vpw: 亚像素插值四条路径" {
   // 8×8 渐变平面
   let plane : Array[Int32] = []
   for i in 0..<64 {
-    plane.push((i % 8) * 20 + (i / 8) * 10)
+    plane.push(i % 8 * 20 + i / 8 * 10)
   }
   // 整数像素
   assert_eq(vp8_interpolate_subpixel(plane, 0, 0, 0, 0, 8, 8), plane[0])

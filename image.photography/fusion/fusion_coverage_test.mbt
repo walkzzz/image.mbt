@@ -1,9 +1,16 @@
 // 覆盖率测试：融合与配准增强
 
+///|
 fn fr_img(w : Int32, h : Int32, c : Int32, d : Array[Byte]) -> @types.Image {
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn fr_const(w : Int32, h : Int32, v : Byte) -> @types.Image {
   let d : Array[Byte] = []
   for _ in 0..<(w * h) {
@@ -12,10 +19,7 @@ fn fr_const(w : Int32, h : Int32, v : Byte) -> @types.Image {
   fr_img(w, h, 1, d)
 }
 
-fn fr_empty() -> @types.Image {
-  fr_img(0, 0, 1, [])
-}
-
+///|
 test "frcov: 默认配置" {
   let fc = @fusion.create_default_fusion_enhanced_config()
   assert_true(fc.algorithm == @fusion.WeightedAverage)
@@ -30,6 +34,7 @@ test "frcov: 默认配置" {
   assert_true(rc.use_multiscale)
 }
 
+///|
 test "frcov: 加权/最大/最小/均值融合" {
   let a = fr_const(4, 4, b'\x10')
   let b = fr_const(4, 4, b'\x30')
@@ -67,6 +72,7 @@ test "frcov: 加权/最大/最小/均值融合" {
   assert_true(emean.width == 0)
 }
 
+///|
 test "frcov: 高斯模糊与金字塔采样" {
   let img = fr_const(4, 4, b'\x40')
   // kernel 1 → radius 0 → 权重和为 0 → 保持原值
@@ -112,6 +118,7 @@ test "frcov: 高斯模糊与金字塔采样" {
   assert_true(tiny.data[3].to_int() == 17)
 }
 
+///|
 test "frcov: 拉普拉斯金字塔与高级融合分派" {
   let a = fr_const(2, 2, b'\x00')
   let b = fr_const(2, 2, b'\x40')
@@ -184,6 +191,7 @@ test "frcov: 拉普拉斯金字塔与高级融合分派" {
   assert_true(r_empty.image.width == 0)
 }
 
+///|
 test "frcov: 相位相关配准与平移" {
   let pd : Array[Byte] = []
   for y in 0..<8 {
@@ -229,6 +237,7 @@ test "frcov: 相位相关配准与平移" {
   assert_true(tall.data[0].to_int() == 0)
 }
 
+///|
 test "frcov: 融合质量与报告" {
   // 平坦图：空间频率 0
   assert_true(@fusion.calculate_fusion_quality(fr_const(4, 4, b'\x80')) == 0.0)
@@ -246,7 +255,10 @@ test "frcov: 融合质量与报告" {
   assert_true(@fusion.calculate_fusion_quality(fr_const(1, 1, b'\x10')) == 0.0)
   // 报告文本：加权平均 / 拉普拉斯金字塔
   let cfg = @fusion.create_default_fusion_enhanced_config()
-  let r = @fusion.fuse_images_advanced([fr_const(2, 2, b'\x00'), fr_const(2, 2, b'\x40')], cfg)
+  let r = @fusion.fuse_images_advanced(
+    [fr_const(2, 2, b'\x00'), fr_const(2, 2, b'\x40')],
+    cfg,
+  )
   let report = @fusion.fusion_report_to_string(r, q)
   assert_true(report.contains("图像融合报告"))
   assert_true(report.contains("加权平均"))

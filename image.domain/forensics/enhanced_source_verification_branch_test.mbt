@@ -1,5 +1,6 @@
 // 覆盖率测试：增强来源鉴定的错误分支与简单统计函数
 
+///|
 fn frc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn frc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   }
 }
 
+///|
 fn frc_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -18,6 +20,7 @@ fn frc_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   }
 }
 
+///|
 fn frc_grad(w : Int32, h : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -25,9 +28,15 @@ fn frc_grad(w : Int32, h : Int32) -> @types.Image {
       d.push((x * 13 + y * 7).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "frcov: 三个统计函数正常与错误分支" {
   let g = frc_grad(8, 8)
   // 正常调用
@@ -108,6 +117,7 @@ test "frcov: 三个统计函数正常与错误分支" {
   }
 }
 
+///|
 test "frcov: UI/文字/几何/量化 错误分支" {
   let g = frc_grad(10, 10)
   // 正常调用（不崩溃）
@@ -190,6 +200,7 @@ test "frcov: UI/文字/几何/量化 错误分支" {
   }
 }
 
+///|
 test "frcov: 增强鉴定入口与报告" {
   let g = frc_grad(12, 12)
   let cfg = @forensics.create_default_enhanced_verification_config()

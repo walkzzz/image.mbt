@@ -1,14 +1,24 @@
 // 覆盖率测试（白盒）：imgtool 格式推断、Flags 取值、错误 JSON 与分发兜底
 
+///|
+fn[T] iwo_some(o : T?) -> Bool {
+  match o {
+    Some(_) => true
+    None => false
+  }
+}
+
+///|
 fn itw_flags(pairs : Array[(String, String)]) -> Flags {
   let pos : Array[String] = []
   let vals : Map[String, String] = Map([])
   for (k, v) in pairs {
     vals[k] = v
   }
-  { positional: pos, values: vals }
+  { positional: pos, values: vals, }
 }
 
+///|
 test "itw: 格式名与解析" {
   assert_true(format_name(@types.ImageFormat::Png) == "png")
   assert_true(format_name(@types.ImageFormat::Jpeg) == "jpeg")
@@ -52,6 +62,7 @@ test "itw: 格式名与解析" {
   assert_true(!is_writable_format(@types.ImageFormat::Avif))
 }
 
+///|
 test "itw: 扩展名推断与输出格式优先级" {
   assert_true(format_from_ext("a.png") == Some(@types.ImageFormat::Png))
   assert_true(format_from_ext("A.PNG") == Some(@types.ImageFormat::Png))
@@ -72,16 +83,26 @@ test "itw: 扩展名推断与输出格式优先级" {
   assert_true(format_from_ext("noext") == None)
   // out_format：显式 --format 优先
   let f1 = itw_flags([("format", "webp")])
-  assert_true(out_format(f1, "x.png", @types.ImageFormat::Png) == @types.ImageFormat::Webp)
+  assert_true(
+    out_format(f1, "x.png", @types.ImageFormat::Png) == @types.ImageFormat::Webp,
+  )
   // format=auto 视为未指定 → 走扩展名
   let f2 = itw_flags([("format", "auto")])
-  assert_true(out_format(f2, "x.gif", @types.ImageFormat::Png) == @types.ImageFormat::Gif)
+  assert_true(
+    out_format(f2, "x.gif", @types.ImageFormat::Png) == @types.ImageFormat::Gif,
+  )
   // 无 format、无可识别扩展名 → fallback
   let f3 = itw_flags([])
-  assert_true(out_format(f3, "x.tiff", @types.ImageFormat::Bmp) == @types.ImageFormat::Bmp)
+  assert_true(
+    out_format(f3, "x.tiff", @types.ImageFormat::Bmp) == @types.ImageFormat::Bmp,
+  )
   // 非法 --format → 抛错
   try {
-    let _ = out_format(itw_flags([("format", "ico")]), "x.png", @types.ImageFormat::Png)
+    let _ = out_format(
+      itw_flags([("format", "ico")]),
+      "x.png",
+      @types.ImageFormat::Png,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -103,6 +124,7 @@ test "itw: 扩展名推断与输出格式优先级" {
   assert_true(src_out_format(Bytes::from_array([])) == @types.ImageFormat::Png)
 }
 
+///|
 test "itw: Flags 取值与限制" {
   let f = itw_flags([("width", "120"), ("mode", "cover"), ("sigma", "2.5")])
   assert_true(f.int("width", 0) == 120)
@@ -126,13 +148,16 @@ test "itw: Flags 取值与限制" {
   let budget = limits_of(itw_flags([("mem-budget", "8000000")]))
   assert_true(budget.max_bytes == 8000000L)
   assert_true(budget.max_pixels == 1000000L)
-  let px = limits_of(itw_flags([("max-pixels", "500000"), ("mem-budget", "8000000")]))
+  let px = limits_of(
+    itw_flags([("max-pixels", "500000"), ("mem-budget", "8000000")]),
+  )
   assert_true(px.max_pixels == 500000L)
   // 非法 mem-budget 视为 0 → 保持默认
   let neg = limits_of(itw_flags([("mem-budget", "-100")]))
   assert_true(neg.max_bytes == base.max_bytes)
 }
 
+///|
 test "itw: ASCII 搜索与错误 JSON" {
   // 空 needle → false；非法（n==0）分支
   assert_true(contains_ascii(Bytes::from_array([b'a', b'b', b'c']), "bc"))
@@ -144,10 +169,10 @@ test "itw: ASCII 搜索与错误 JSON" {
     "测试错误",
   )
   let out = error_json(err)
-  assert_true(out.get("ok").is_some())
-  assert_true(out.get("code").is_some())
-  assert_true(out.get("message").is_some())
-  assert_true(out.get("hint").is_some())
+  assert_true(iwo_some(out.get("ok")))
+  assert_true(iwo_some(out.get("code")))
+  assert_true(iwo_some(out.get("message")))
+  assert_true(iwo_some(out.get("hint")))
   // help / version 文本
   let help = help_text()
   assert_true(help.contains("imgtool"))
@@ -155,7 +180,7 @@ test "itw: ASCII 搜索与错误 JSON" {
   let ver = version_text()
   assert_true(ver.contains("imgtool"))
   // 分发：空参数与未知子命令走 usage；help 同样兜底
-  assert_true(dispatch([]).get("code").is_some())
-  assert_true(dispatch(["unknown"]).get("code").is_some())
-  assert_true(dispatch(["help"]).get("code").is_some())
+  assert_true(iwo_some(dispatch([]).get("code")))
+  assert_true(iwo_some(dispatch(["unknown"]).get("code")))
+  assert_true(iwo_some(dispatch(["help"]).get("code")))
 }

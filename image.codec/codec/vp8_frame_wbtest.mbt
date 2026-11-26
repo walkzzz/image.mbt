@@ -1,7 +1,8 @@
 // 白盒测试：VP8 环路滤波 / 参考帧 / 运动补偿 / Golomb / 帧解码错误路径
 // White-box tests for loop filter, reference frames, motion compensation, Golomb and decode errors.
 
-fn vp8b_bytes(vals : Array[Int]) -> Bytes {
+///|
+fn vp8b_bytes(vals : Array[Int32]) -> Bytes {
   let out : Array[Byte] = []
   for v in vals {
     out.push(v.to_byte())
@@ -9,7 +10,8 @@ fn vp8b_bytes(vals : Array[Int]) -> Bytes {
   Bytes::from_array(out)
 }
 
-fn vp8b_ref_id(f : Vp8RefFrame) -> Int {
+///|
+fn vp8b_ref_id(f : Vp8RefFrame) -> Int32 {
   match f {
     Vp8RefFrame::RefLast => 0
     Vp8RefFrame::RefGolden => 1
@@ -17,6 +19,7 @@ fn vp8b_ref_id(f : Vp8RefFrame) -> Int {
   }
 }
 
+///|
 fn vp8b_mv(x : Int32, y : Int32) -> Vp8MotionVector {
   let mv = Vp8MotionVector::new()
   mv.mv_x = x
@@ -24,6 +27,7 @@ fn vp8b_mv(x : Int32, y : Int32) -> Vp8MotionVector {
   mv
 }
 
+///|
 test "vp8b: 环路滤波宏块入口" {
   let w = 32
   let h = 32
@@ -45,6 +49,7 @@ test "vp8b: 环路滤波宏块入口" {
   }
 }
 
+///|
 test "vp8b: 参考帧初始化与更新" {
   let refs = Vp8ReferenceFrames::new(16, 16)
   assert_eq(refs.width, 16)
@@ -66,6 +71,7 @@ test "vp8b: 参考帧初始化与更新" {
   assert_eq(refs.altref_u[0], 128)
 }
 
+///|
 test "vp8b: 运动补偿整数像素与边界钳制" {
   let w = 32
   let h = 32
@@ -77,7 +83,14 @@ test "vp8b: 运动补偿整数像素与边界钳制" {
     ref_y[i] = i % 256
   }
   let (py, pu, pv) = _vp8_motion_compensate_16x16(
-    ref_y, ref_u, ref_v, 1, 1, vp8b_mv(0, 0), w, h,
+    ref_y,
+    ref_u,
+    ref_v,
+    1,
+    1,
+    vp8b_mv(0, 0),
+    w,
+    h,
   )
   assert_true(py.length() == 256)
   assert_true(pu.length() == 64)
@@ -87,16 +100,31 @@ test "vp8b: 运动补偿整数像素与边界钳制" {
   ignore(pv)
   // 负向运动向量 → 钳到 0 行/列
   let (py0, _, _) = _vp8_motion_compensate_16x16(
-    ref_y, ref_u, ref_v, 1, 1, vp8b_mv(-100, -100), w, h,
+    ref_y,
+    ref_u,
+    ref_v,
+    1,
+    1,
+    vp8b_mv(-100, -100),
+    w,
+    h,
   )
   assert_eq(py0[0], ref_y[0])
   // 正向越界 → 钳到 width-1 / height-1
   let (py1, _, _) = _vp8_motion_compensate_16x16(
-    ref_y, ref_u, ref_v, 0, 0, vp8b_mv(100, 100), w, h,
+    ref_y,
+    ref_u,
+    ref_v,
+    0,
+    0,
+    vp8b_mv(100, 100),
+    w,
+    h,
   )
   assert_eq(py1[0], ref_y[(h - 1) * w + (w - 1)])
 }
 
+///|
 test "vp8b: Golomb 编码解析" {
   // 全 1：首位即 1 → leading_zeros=0 → 0
   let bd_hi = Vp8BoolDecoder::new(vp8b_bytes([0xFF, 0xFF]), 0)
@@ -118,6 +146,7 @@ test "vp8b: Golomb 编码解析" {
   assert_eq(vp8_parse_mv_residual(bd_res, 128), 4)
 }
 
+///|
 test "vp8b: 参考帧选择与平面获取" {
   // ref_prob=0 时首位必为 1 → last
   let bd_last = Vp8BoolDecoder::new(vp8b_bytes([0x01, 0x00]), 0)
@@ -144,17 +173,26 @@ test "vp8b: 参考帧选择与平面获取" {
   assert_eq(av[63], 128)
 }
 
+///|
 test "vp8b: 运动向量预测中值" {
   // x: left=2, above=8, above_left=5 → 中值 5
   let p = vp8_predict_motion_vector(vp8b_mv(2, 1), vp8b_mv(8, 3), vp8b_mv(5, 2))
   assert_eq(p.mv_x, 5)
   assert_eq(p.mv_y, 2)
   // 三者相同
-  let same = vp8_predict_motion_vector(vp8b_mv(4, 4), vp8b_mv(4, 4), vp8b_mv(4, 4))
+  let same = vp8_predict_motion_vector(
+    vp8b_mv(4, 4),
+    vp8b_mv(4, 4),
+    vp8b_mv(4, 4),
+  )
   assert_eq(same.mv_x, 4)
   assert_eq(same.mv_y, 4)
   // 负值中值
-  let neg = vp8_predict_motion_vector(vp8b_mv(-3, -3), vp8b_mv(-1, -1), vp8b_mv(-2, -2))
+  let neg = vp8_predict_motion_vector(
+    vp8b_mv(-3, -3),
+    vp8b_mv(-1, -1),
+    vp8b_mv(-2, -2),
+  )
   assert_eq(neg.mv_x, -2)
   assert_eq(neg.mv_y, -2)
   // 简化解析直接复制预测值
@@ -169,6 +207,7 @@ test "vp8b: 运动向量预测中值" {
   assert_eq(fy, -8)
 }
 
+///|
 test "vp8b: 帧解码错误路径与最小关键帧" {
   // 非关键帧
   let inter = vp8b_bytes([1, 0, 0])
@@ -206,6 +245,7 @@ test "vp8b: 帧解码错误路径与最小关键帧" {
   assert_true(img.data.length() == 16 * 16 * 3)
 }
 
+///|
 test "vp8b: inter 帧入口与参考帧回填" {
   // 关键帧走常规解码并写回参考帧
   let tiny = vp8b_bytes([0, 0, 0, 0x9D, 0x01, 0x2A, 16, 0, 16, 0])
@@ -217,7 +257,11 @@ test "vp8b: inter 帧入口与参考帧回填" {
   assert_eq(new_refs.last_u[0], 128)
   // inter 帧 + 空参考帧 → 尺寸无效
   try {
-    let _ = decode_vp8_inter_frame(inter_frame_tag(), 0, Vp8ReferenceFrames::new(0, 0))
+    let _ = decode_vp8_inter_frame(
+      inter_frame_tag(),
+      0,
+      Vp8ReferenceFrames::new(0, 0),
+    )
     assert_true(false)
   } catch {
     @types.DecodeFailed(_) => assert_true(true)
@@ -225,6 +269,7 @@ test "vp8b: inter 帧入口与参考帧回填" {
   }
 }
 
+///|
 fn inter_frame_tag() -> Bytes {
   vp8b_bytes([1, 0, 0])
 }

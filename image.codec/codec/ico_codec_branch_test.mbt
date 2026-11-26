@@ -1,11 +1,13 @@
 // 覆盖率测试：ICO/CUR 编解码的错误分支、24-bit AND 掩码、多条目选优、
 // 256 尺寸编码、CUR 热点
 
+///|
 fn ic_u16(a : Array[Byte], off : Int32, v : Int32) -> Unit {
   a[off] = (v & 0xFF).to_byte()
   a[off + 1] = ((v >> 8) & 0xFF).to_byte()
 }
 
+///|
 fn ic_u32(a : Array[Byte], off : Int32, v : Int32) -> Unit {
   a[off] = (v & 0xFF).to_byte()
   a[off + 1] = ((v >> 8) & 0xFF).to_byte()
@@ -13,7 +15,14 @@ fn ic_u32(a : Array[Byte], off : Int32, v : Int32) -> Unit {
   a[off + 3] = ((v >> 24) & 0xFF).to_byte()
 }
 
-fn ic_dib(w : Int32, h2 : Int32, bpp : Int32, comp : Int32, size : Int32) -> Array[Byte] {
+///|
+fn ic_dib(
+  w : Int32,
+  h2 : Int32,
+  bpp : Int32,
+  comp : Int32,
+  size : Int32,
+) -> Array[Byte] {
   let d : Array[Byte] = Array::make(40, b'\x00')
   ic_u32(d, 0, size)
   ic_u32(d, 4, w)
@@ -23,6 +32,7 @@ fn ic_dib(w : Int32, h2 : Int32, bpp : Int32, comp : Int32, size : Int32) -> Arr
   d
 }
 
+///|
 fn ic_header(type_ : Int32, count : Int32) -> Array[Byte] {
   let h : Array[Byte] = Array::make(6, b'\x00')
   ic_u16(h, 2, type_)
@@ -30,7 +40,13 @@ fn ic_header(type_ : Int32, count : Int32) -> Array[Byte] {
   h
 }
 
-fn ic_entry(wbyte : Int32, hbyte : Int32, bsize : Int32, off : Int32) -> Array[Byte] {
+///|
+fn ic_entry(
+  wbyte : Int32,
+  hbyte : Int32,
+  bsize : Int32,
+  off : Int32,
+) -> Array[Byte] {
   let e : Array[Byte] = Array::make(16, b'\x00')
   e[0] = wbyte.to_byte()
   e[1] = hbyte.to_byte()
@@ -41,7 +57,13 @@ fn ic_entry(wbyte : Int32, hbyte : Int32, bsize : Int32, off : Int32) -> Array[B
   e
 }
 
-fn ic_single(type_ : Int32, payload : Array[Byte], off : Int32, bsize : Int32) -> Bytes {
+///|
+fn ic_single(
+  type_ : Int32,
+  payload : Array[Byte],
+  off : Int32,
+  bsize : Int32,
+) -> Bytes {
   let out = ic_header(type_, 1)
   for i in 0..<16 {
     out.push(ic_entry(1, 1, bsize, off)[i])
@@ -52,6 +74,7 @@ fn ic_single(type_ : Int32, payload : Array[Byte], off : Int32, bsize : Int32) -
   Bytes::from_array(out)
 }
 
+///|
 fn ic_bmp32(w : Int32, h : Int32, pixels : Array[Int32]) -> Array[Byte] {
   // 32-bit BMP 子图像：DIB(40) + 像素（BGRA，自下而上）
   let dib = ic_dib(w, h * 2, 32, 0, 40)
@@ -64,16 +87,22 @@ fn ic_bmp32(w : Int32, h : Int32, pixels : Array[Int32]) -> Array[Byte] {
   dib
 }
 
-fn ic_bmp24_masked(w : Int32, h : Int32, value : Int32, mask_first_bit : Bool) -> Array[Byte] {
+///|
+fn ic_bmp24_masked(
+  w : Int32,
+  h : Int32,
+  value : Int32,
+  mask_first_bit : Bool,
+) -> Array[Byte] {
   // 24-bit BMP 子图像 + AND 掩码
   let out = ic_dib(w, h * 2, 24, 0, 40)
-  let row_size = ((w * 3 + 3) / 4) * 4
+  let row_size = (w * 3 + 3) / 4 * 4
   for _r in 0..<h {
     for _x in 0..<row_size {
       out.push(value.to_byte())
     }
   }
-  let and_row_size = ((w + 31) / 32) * 4
+  let and_row_size = (w + 31) / 32 * 4
   let first_mask = if mask_first_bit { b'\x80' } else { b'\x00' }
   for _r in 0..<h {
     for x in 0..<and_row_size {
@@ -83,6 +112,7 @@ fn ic_bmp24_masked(w : Int32, h : Int32, value : Int32, mask_first_bit : Bool) -
   out
 }
 
+///|
 fn ic_img_rgba(w : Int32, h : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -92,6 +122,7 @@ fn ic_img_rgba(w : Int32, h : Int32) -> @types.Image {
   }
 }
 
+///|
 test "icocov: 目录解析错误分支" {
   // 数据过短
   try {
@@ -134,6 +165,7 @@ test "icocov: 目录解析错误分支" {
   }
 }
 
+///|
 test "icocov: BMP 子图像错误分支" {
   // DIB 头过短
   let short_dib = ic_dib(1, 2, 32, 0, 30)
@@ -171,12 +203,11 @@ test "icocov: BMP 子图像错误分支" {
   }
 }
 
+///|
 test "icocov: 24-bit AND 掩码透明度" {
   // 掩码首位置 1 → alpha = 0
   let masked = ic_bmp24_masked(1, 1, 0x40, true)
-  let img = try {
-    @codec.decode_ico_pure(ic_single(1, masked, 22, masked.length()))
-  } catch {
+  let img = @codec.decode_ico_pure(ic_single(1, masked, 22, masked.length())) catch {
     _ => ic_img_rgba(0, 0)
   }
   assert_true(img.channels == 4)
@@ -186,10 +217,10 @@ test "icocov: 24-bit AND 掩码透明度" {
     assert_true(img.data[1].to_int() == 0x40)
   }
   // 掩码全 0 → alpha = 255
-  let opaque = ic_bmp24_masked(1, 1, 0x40, false)
-  let img2 = try {
-    @codec.decode_ico_pure(ic_single(1, opaque, 22, opaque.length()))
-  } catch {
+  let solid_mask = ic_bmp24_masked(1, 1, 0x40, false)
+  let img2 = @codec.decode_ico_pure(
+    ic_single(1, solid_mask, 22, solid_mask.length()),
+  ) catch {
     _ => ic_img_rgba(0, 0)
   }
   if img2.width == 1 && img2.height == 1 {
@@ -197,6 +228,7 @@ test "icocov: 24-bit AND 掩码透明度" {
   }
 }
 
+///|
 test "icocov: 多条目选优与 256 尺寸" {
   // 两个条目：1x1 与 2x2，应选 2x2（面积最大）
   let small = ic_bmp32(1, 1, [1])
@@ -214,9 +246,7 @@ test "icocov: 多条目选优与 256 尺寸" {
   for i in 0..<big.length() {
     out.push(big[i])
   }
-  let img = try {
-    @codec.decode_ico_pure(Bytes::from_array(out))
-  } catch {
+  let img = @codec.decode_ico_pure(Bytes::from_array(out)) catch {
     _ => ic_img_rgba(0, 0)
   }
   assert_true(img.width == 2 || img.width == 0)
@@ -229,12 +259,16 @@ test "icocov: 多条目选优与 256 尺寸" {
   assert_true(back.width == 256)
   assert_true(back.height == 256)
   // 多尺寸编码
-  let ico2 = @codec.encode_ico_with_sizes_pure([ic_img_rgba(2, 2), ic_img_rgba(4, 4)])
+  let ico2 = @codec.encode_ico_with_sizes_pure([
+    ic_img_rgba(2, 2),
+    ic_img_rgba(4, 4),
+  ])
   let back2 = @codec.decode_ico_pure(ico2)
   assert_true(back2.width == 4)
   assert_true(back2.height == 4)
 }
 
+///|
 test "icocov: CUR 编解码与类型校验" {
   let img = ic_img_rgba(3, 3)
   let cur = @codec.encode_cur_pure(img)

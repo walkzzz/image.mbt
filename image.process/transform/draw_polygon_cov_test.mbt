@@ -1,9 +1,15 @@
 // 覆盖率测试：多边形填充与越界像素丢弃
 
+///|
 fn dwc_img(w : Int32, h : Int32, ch : Int32) -> @types.Image {
   let n = w * h * ch
   let data : Array[Byte] = Array::make(n, b'\x00')
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|
@@ -44,6 +50,8 @@ test "dwc: 细线加粗与多边形轮廓" {
   let img = dwc_img(12, 12, 3)
   let out = @transform.draw_line(img, 2, 2, 9, 2, [0, 255, 0], thickness=3)
   assert_true(out.width == 12)
-  let out2 = @transform.draw_polygon(img, [(1, 1), (10, 1), (1, 10)], [0, 0, 255])
+  let out2 = @transform.draw_polygon(img, [(1, 1), (10, 1), (1, 10)], [
+    0, 0, 255,
+  ])
   assert_true(out2.width == 12)
 }

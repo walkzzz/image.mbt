@@ -1,10 +1,22 @@
 // 覆盖率测试（补充分支）：16f 自适应阈值 —— 错误分支与 RGBA alpha 保留
 
-fn at16_data(w : Int32, h : Int32, c : Int32, alpha : (Int32) -> Int32) -> Bytes {
+///|
+fn at16_data(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  alpha : (Int32) -> Int32,
+) -> Bytes {
   let d : Array[Byte] = []
   for _i in 0..<(w * h) {
     for k in 0..<c {
-      let v = if c == 1 { 100 } else if k == 3 { alpha(_i) } else { 40 + k * 30 }
+      let v = if c == 1 {
+        100
+      } else if k == 3 {
+        alpha(_i)
+      } else {
+        40 + k * 30
+      }
       d.push((v % 256).to_byte())
       d.push((v / 256).to_byte())
     }
@@ -12,15 +24,17 @@ fn at16_data(w : Int32, h : Int32, c : Int32, alpha : (Int32) -> Int32) -> Bytes
   Bytes::from_array(d)
 }
 
+///|
 fn at16_img(w : Int32, h : Int32, c : Int32) -> @types.Image16 {
   @types.Image16::{
     width: w,
     height: h,
     channels: c,
-    data: at16_data(w, h, c, fn(idx) { 200 + (idx % 20) }),
+    data: at16_data(w, h, c, fn(idx) { 200 + idx % 20 }),
   }
 }
 
+///|
 fn atf_px(v : Float) -> Array[Byte] {
   if v == 1.0F {
     [b'\x00', b'\x00', b'\x80', b'\x3f']
@@ -33,6 +47,7 @@ fn atf_px(v : Float) -> Array[Byte] {
   }
 }
 
+///|
 fn atf_data(w : Int32, h : Int32, c : Int32) -> Bytes {
   let d : Array[Byte] = []
   for _i in 0..<(w * h) {
@@ -46,15 +61,12 @@ fn atf_data(w : Int32, h : Int32, c : Int32) -> Bytes {
   Bytes::from_array(d)
 }
 
+///|
 fn atf_img(w : Int32, h : Int32, c : Int32) -> @types.ImageF {
-  @types.ImageF::{
-    width: w,
-    height: h,
-    channels: c,
-    data: atf_data(w, h, c),
-  }
+  @types.ImageF::{ width: w, height: h, channels: c, data: atf_data(w, h, c), }
 }
 
+///|
 test "at16cov: mean_16 RGBA alpha 与错误分支" {
   let rgba = at16_img(6, 6, 4)
   let o = @color.adaptive_threshold_mean_16(rgba, 3, 5)
@@ -124,6 +136,7 @@ test "at16cov: mean_16 RGBA alpha 与错误分支" {
   }
 }
 
+///|
 test "at16cov: mean_f RGBA alpha 与错误分支" {
   let rgba = atf_img(6, 6, 4)
   let o = @color.adaptive_threshold_mean_f(rgba, 3, 0.1F)
@@ -160,6 +173,7 @@ test "at16cov: mean_f RGBA alpha 与错误分支" {
   }
 }
 
+///|
 test "at16cov: gaussian_16 RGBA alpha 与错误分支" {
   let rgba = at16_img(5, 5, 4)
   let o = @color.adaptive_threshold_gaussian_16(rgba, 3, 4)
@@ -210,6 +224,7 @@ test "at16cov: gaussian_16 RGBA alpha 与错误分支" {
   }
 }
 
+///|
 test "at16cov: gaussian_f RGBA alpha 与错误分支" {
   let rgba = atf_img(5, 5, 4)
   let o = @color.adaptive_threshold_gaussian_f(rgba, 3, 0.05F)

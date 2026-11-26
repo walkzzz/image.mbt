@@ -1,10 +1,12 @@
-﻿// 覆盖率测试：TIFF 头部标签映射与缺失标签的默认值
+// 覆盖率测试：TIFF 头部标签映射与缺失标签的默认值
 
+///|
 fn tne_push_u16(out : Array[Byte], v : Int32) -> Unit {
   out.push((v & 0xFF).to_byte())
   out.push(((v >> 8) & 0xFF).to_byte())
 }
 
+///|
 fn tne_push_u32(out : Array[Byte], v : Int32) -> Unit {
   out.push((v & 0xFF).to_byte())
   out.push(((v >> 8) & 0xFF).to_byte())
@@ -30,6 +32,7 @@ fn tne_tiff(pairs : Array[(Int32, Int32)]) -> Bytes {
   Bytes::from_array(out)
 }
 
+///|
 fn tne_base() -> Array[(Int32, Int32)] {
   [(256, 4), (257, 3), (258, 8), (277, 3)]
 }
@@ -144,4 +147,3 @@ test "tne: 非 TIFF 数据抛不支持的格式" {
     _ => assert_true(true)
   }
 }
-

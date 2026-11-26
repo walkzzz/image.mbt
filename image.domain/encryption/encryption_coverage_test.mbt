@@ -1,9 +1,16 @@
 // 覆盖率测试：加密与水印（XOR / 混沌 / Arnold / LSB / 可见水印 / 指标 / 报告）
 
+///|
 fn cv_img(w : Int32, h : Int32, c : Int32, d : Array[Byte]) -> @types.Image {
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn cv_pattern(w : Int32, h : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -14,6 +21,7 @@ fn cv_pattern(w : Int32, h : Int32) -> @types.Image {
   cv_img(w, h, 1, d)
 }
 
+///|
 fn cv_flat(w : Int32, h : Int32, v : Byte) -> @types.Image {
   let d : Array[Byte] = []
   for _ in 0..<(w * h) {
@@ -22,18 +30,22 @@ fn cv_flat(w : Int32, h : Int32, v : Byte) -> @types.Image {
   cv_img(w, h, 1, d)
 }
 
+///|
 fn cv_bad_dims() -> @types.Image {
   cv_img(0, 4, 1, [])
 }
 
+///|
 fn cv_bad_channels() -> @types.Image {
   cv_img(2, 2, 5, [])
 }
 
+///|
 fn cv_bad_data() -> @types.Image {
   cv_img(2, 2, 1, [b'\x00'])
 }
 
+///|
 test "encov: 默认参数与 XOR 往返" {
   let cp = @encryption.create_default_chaotic_params()
   assert_true(cp.x0 == 0.1)
@@ -91,6 +103,7 @@ test "encov: 默认参数与 XOR 往返" {
   }
 }
 
+///|
 test "encov: 混沌序列与加密" {
   let params = @encryption.create_default_chaotic_params()
   let seq = @encryption.generate_chaotic_sequence_enc(params, 20)
@@ -104,7 +117,9 @@ test "encov: 混沌序列与加密" {
   }
   assert_true(changed > 0)
   // 长度 0 的序列
-  assert_true(@encryption.generate_chaotic_sequence_enc(params, 0).length() == 0)
+  assert_true(
+    @encryption.generate_chaotic_sequence_enc(params, 0).length() == 0,
+  )
   // 混沌加密：输出长度一致且发生改变
   let img = cv_pattern(6, 6)
   let r = @encryption.chaotic_encrypt(img, params)
@@ -142,6 +157,7 @@ test "encov: 混沌序列与加密" {
   }
 }
 
+///|
 test "encov: Arnold 置乱" {
   let img = cv_pattern(8, 8)
   let p = @encryption.create_default_arnold_params()
@@ -158,7 +174,7 @@ test "encov: Arnold 置乱" {
   }
   assert_true(rearranged > 0)
   // 迭代 0 次：保持原图
-  let p0 = @encryption.ArnoldParams::{ iterations: 0, a: 1, b: 1 }
+  let p0 = @encryption.ArnoldParams::{ iterations: 0, a: 1, b: 1, }
   let r0 = @encryption.arnold_scramble(img, p0)
   assert_true(r0.encrypted_data[0].to_int() == img.data[0].to_int())
   // 三类校验
@@ -185,6 +201,7 @@ test "encov: Arnold 置乱" {
   }
 }
 
+///|
 test "encov: LSB 水印嵌入与提取" {
   let img = cv_flat(16, 16, b'\x40')
   let wm : Array[Byte] = [b'\x41', b'\x42', b'\x43', b'\x44']
@@ -273,6 +290,7 @@ test "encov: LSB 水印嵌入与提取" {
   }
 }
 
+///|
 test "encov: 可见水印" {
   let img = cv_flat(32, 32, b'\x00')
   let r = @encryption.embed_visible_watermark(img, "AB", 2, 2, 1.0)
@@ -303,7 +321,13 @@ test "encov: 可见水印" {
     _ => assert_true(false)
   }
   try {
-    let _ = @encryption.embed_visible_watermark(cv_bad_channels(), "A", 0, 0, 1.0)
+    let _ = @encryption.embed_visible_watermark(
+      cv_bad_channels(),
+      "A",
+      0,
+      0,
+      1.0,
+    )
     assert_true(false)
   } catch {
     @types.DecodeFailed(_) => assert_true(true)
@@ -318,6 +342,7 @@ test "encov: 可见水印" {
   }
 }
 
+///|
 test "encov: 熵 / 相关性 / PSNR / 质量" {
   let flat = cv_flat(8, 8, b'\x80')
   let noise = cv_pattern(8, 8)
@@ -346,7 +371,7 @@ test "encov: 熵 / 相关性 / PSNR / 质量" {
   assert_true(q_diff.uaci == q_diff.npcr * 0.5)
   // 报告（需要 加密结果 + 水印信息 + 质量三项）
   let enc_res = @encryption.xor_encrypt(noise, [b'\x01', b'\x02'])
-  let (wm_marked, wm_info) = @encryption.embed_watermark_lsb(noise, [b'\x41'], 0)
+  let (_, wm_info) = @encryption.embed_watermark_lsb(noise, [b'\x41'], 0)
   let report = @encryption.encryption_report_to_string(enc_res, wm_info, q_diff)
   assert_true(report.contains("加密"))
   // 校验（熵 / 相关性 / PSNR / 质量各测一条最小分支）

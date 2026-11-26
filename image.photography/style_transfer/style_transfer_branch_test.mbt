@@ -1,5 +1,6 @@
 // 覆盖率测试：风格迁移的错误分支、算法分发与报告文本分支
 
+///|
 fn stc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn stc_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   }
 }
 
+///|
 fn stc_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -18,6 +20,7 @@ fn stc_short(w : Int32, h : Int32, c : Int32, len : Int32) -> @types.Image {
   }
 }
 
+///|
 fn stc_grad(w : Int32, h : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -25,10 +28,18 @@ fn stc_grad(w : Int32, h : Int32) -> @types.Image {
       d.push((x * 5 + y * 2).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
-fn stc_cfg(algo : @style_transfer.StyleTransferAlgorithm) -> @style_transfer.StyleTransferConfig {
+///|
+fn stc_cfg(
+  algo : @style_transfer.StyleTransferAlgorithm,
+) -> @style_transfer.StyleTransferConfig {
   @style_transfer.StyleTransferConfig::{
     algorithm: algo,
     style_strength: 0.6,
@@ -40,6 +51,7 @@ fn stc_cfg(algo : @style_transfer.StyleTransferAlgorithm) -> @style_transfer.Sty
   }
 }
 
+///|
 test "stcov: 颜色统计与纹理特征" {
   let gray = stc_grad(8, 8)
   let s1 = @style_transfer.calculate_color_statistics(gray)
@@ -101,6 +113,7 @@ test "stcov: 颜色统计与纹理特征" {
   }
 }
 
+///|
 test "stcov: color_transfer 强度与错误分支" {
   let content = stc_grad(8, 8)
   let style = stc_img(8, 8, 1, 200)
@@ -154,6 +167,7 @@ test "stcov: color_transfer 强度与错误分支" {
   }
 }
 
+///|
 test "stcov: cartoonize / oil_painting / sketch_effect" {
   let img = stc_grad(10, 10)
   // cartoonize 强度 0 与 1
@@ -224,6 +238,7 @@ test "stcov: cartoonize / oil_painting / sketch_effect" {
   }
 }
 
+///|
 test "stcov: style_transfer 算法分发与报告" {
   let content = stc_grad(8, 8)
   let style = stc_img(8, 8, 1, 220)

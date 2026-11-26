@@ -1,5 +1,6 @@
 // 覆盖率测试：统一 info API 的多格式分支与摘要文本
 
+///|
 fn uic_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn uic_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   }
 }
 
+///|
 test "uicov: 多格式统一 info" {
   let rgb = uic_img(6, 5, 3, 80)
   let gray = uic_img(6, 5, 1, 120)

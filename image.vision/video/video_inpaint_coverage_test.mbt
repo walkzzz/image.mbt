@@ -1,11 +1,18 @@
 // 覆盖率测试：视频修复与去闪烁
 
+///|
 fn vi_img(w : Int32, h : Int32, c : Int32, v : Int32) -> @types.Image {
   let n = w * h * c
   let d : Array[Byte] = Array::make(n, v.to_byte())
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn vi_mask(w : Int32, h : Int32, on : Bool) -> Array[Bool] {
   let m : Array[Bool] = []
   for _i in 0..<(w * h) {
@@ -14,6 +21,7 @@ fn vi_mask(w : Int32, h : Int32, on : Bool) -> Array[Bool] {
   m
 }
 
+///|
 fn vi_cfg(mi : @video.VideoInpaintMethod) -> @video.VideoInpaintConfig {
   @video.VideoInpaintConfig::{
     inpaint_method: mi,
@@ -23,6 +31,7 @@ fn vi_cfg(mi : @video.VideoInpaintMethod) -> @video.VideoInpaintConfig {
   }
 }
 
+///|
 test "vicov: 默认配置" {
   let c = @video.default_inpaint_config()
   assert_true(c.inpaint_method == @video.VideoInpaintMethod::Temporal)
@@ -35,18 +44,31 @@ test "vicov: 默认配置" {
   assert_true(f.strength == 0.8)
 }
 
+///|
 test "vicov: temporal_inpaint 与 spatial_inpaint" {
   let cur = vi_img(4, 4, 1, 10)
   let prev = vi_img(4, 4, 1, 200)
   let next = vi_img(4, 4, 1, 100)
   // 全掩码 → 用前帧/后帧混合
   let m_all = vi_mask(4, 4, true)
-  let o1 = @video.temporal_inpaint(cur, prev, next, m_all, vi_cfg(@video.VideoInpaintMethod::Temporal))
+  let o1 = @video.temporal_inpaint(
+    cur,
+    prev,
+    next,
+    m_all,
+    vi_cfg(@video.VideoInpaintMethod::Temporal),
+  )
   assert_true(o1.width == 4)
   assert_true(o1.data.length() == 16)
   // 无掩码 → 原样
   let m_none = vi_mask(4, 4, false)
-  let o2 = @video.temporal_inpaint(cur, prev, next, m_none, vi_cfg(@video.VideoInpaintMethod::Temporal))
+  let o2 = @video.temporal_inpaint(
+    cur,
+    prev,
+    next,
+    m_none,
+    vi_cfg(@video.VideoInpaintMethod::Temporal),
+  )
   assert_true(o2.data[0].to_int() == 10)
   // RGB
   let cur3 = vi_img(4, 4, 3, 30)
@@ -73,16 +95,29 @@ test "vicov: temporal_inpaint 与 spatial_inpaint" {
   for i in 0..<16 {
     m2.push(i == 5 || i == 6 || i == 9 || i == 10)
   }
-  let s1 = @video.spatial_inpaint(grid, m2, vi_cfg(@video.VideoInpaintMethod::Spatial))
+  let s1 = @video.spatial_inpaint(
+    grid,
+    m2,
+    vi_cfg(@video.VideoInpaintMethod::Spatial),
+  )
   assert_true(s1.data.length() == 16)
   // 无掩码空域 → 原样
-  let s2 = @video.spatial_inpaint(grid, vi_mask(4, 4, false), vi_cfg(@video.VideoInpaintMethod::Hybrid))
+  let s2 = @video.spatial_inpaint(
+    grid,
+    vi_mask(4, 4, false),
+    vi_cfg(@video.VideoInpaintMethod::Hybrid),
+  )
   assert_true(s2.data[5].to_int() == 50)
   // 全掩码空域（无邻域可借）也不崩溃
-  let s3 = @video.spatial_inpaint(grid, vi_mask(4, 4, true), vi_cfg(@video.VideoInpaintMethod::Spatial))
+  let s3 = @video.spatial_inpaint(
+    grid,
+    vi_mask(4, 4, true),
+    vi_cfg(@video.VideoInpaintMethod::Spatial),
+  )
   assert_true(s3.data.length() == 16)
 }
 
+///|
 test "vicov: video_inpaint 多帧" {
   let frames : Array[@types.Image] = [
     vi_img(3, 3, 1, 20),
@@ -111,6 +146,7 @@ test "vicov: video_inpaint 多帧" {
   assert_true(r2.length() == 3)
 }
 
+///|
 test "vicov: 闪烁检测与去闪烁" {
   // 少于 2 帧
   let one : Array[@types.Image] = [vi_img(2, 2, 1, 50)]
@@ -129,7 +165,10 @@ test "vicov: 闪烁检测与去闪烁" {
   assert_true(d1.flicker_score > 0.05)
   assert_true(d1.has_flicker)
   // 稳定帧 → 无闪烁
-  let stable : Array[@types.Image] = [vi_img(4, 4, 1, 100), vi_img(4, 4, 1, 100)]
+  let stable : Array[@types.Image] = [
+    vi_img(4, 4, 1, 100),
+    vi_img(4, 4, 1, 100),
+  ]
   let d2 = @video.detect_flicker(stable, 10.0)
   assert_true(!d2.has_flicker)
   // 时域去闪烁

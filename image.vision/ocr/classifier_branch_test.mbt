@@ -1,5 +1,6 @@
 // 覆盖率测试：距离度量、KNN 与模板匹配的分支补充
 
+///|
 test "clfcov: 四种距离与空向量校验" {
   // 欧氏 / 曼哈顿 / 切比雪夫
   assert_true(@ocr.euclidean_distance([1.0, 2.0], [4.0, 6.0]) == 5.0)
@@ -55,15 +56,22 @@ test "clfcov: 四种距离与空向量校验" {
   }
 }
 
+///|
 test "clfcov: compute_distance 四种度量分发" {
   let a = [1.0, 3.0]
   let b = [4.0, 3.0]
-  assert_true(@ocr.compute_distance(a, b, @ocr.DistanceMetric::Euclidean) == 3.0)
-  assert_true(@ocr.compute_distance(a, b, @ocr.DistanceMetric::Manhattan) == 3.0)
+  assert_true(
+    @ocr.compute_distance(a, b, @ocr.DistanceMetric::Euclidean) == 3.0,
+  )
+  assert_true(
+    @ocr.compute_distance(a, b, @ocr.DistanceMetric::Manhattan) == 3.0,
+  )
   // 余弦结果在 [0,2]
   let cos = @ocr.compute_distance(a, b, @ocr.DistanceMetric::Cosine)
   assert_true(cos >= 0.0 && cos <= 2.0)
-  assert_true(@ocr.compute_distance(a, b, @ocr.DistanceMetric::Chebyshev) == 3.0)
+  assert_true(
+    @ocr.compute_distance(a, b, @ocr.DistanceMetric::Chebyshev) == 3.0,
+  )
   // 空向量错误
   try {
     let _ = @ocr.compute_distance([], b, @ocr.DistanceMetric::Euclidean)
@@ -79,6 +87,7 @@ test "clfcov: compute_distance 四种度量分发" {
   }
 }
 
+///|
 test "clfcov: KNN 创建/加样/预测" {
   // k <= 0 报错
   try {
@@ -109,10 +118,10 @@ test "clfcov: KNN 创建/加样/预测" {
   assert_true(res2.top_k.length() == 1)
   assert_true(res2.confidence == 1.0)
   // 批量加样
-  let clf3 = @ocr.knn_add_samples(
-    @ocr.knn_create(k=2),
-    [([1.0], "P"), ([2.0], "Q")],
-  )
+  let clf3 = @ocr.knn_add_samples(@ocr.knn_create(k=2), [
+    ([1.0], "P"),
+    ([2.0], "Q"),
+  ])
   assert_true(clf3.samples.length() == 2)
   // 空特征 / 无样本错误
   try {
@@ -136,6 +145,7 @@ test "clfcov: KNN 创建/加样/预测" {
   }
 }
 
+///|
 test "clfcov: 模板匹配分支" {
   // 非法度量字符串 → 兜底 euclidean
   let m0 = @ocr.template_matcher_create(distance_metric="unknown-metric")

@@ -1,5 +1,6 @@
-﻿// 覆盖率测试：PNG 区域解码的调色板 / 滤波类型 / 异常分支
+// 覆盖率测试：PNG 区域解码的调色板 / 滤波类型 / 异常分支
 
+///|
 fn rd_u32be(out : Array[Byte], v : Int32) -> Unit {
   out.push(((v >> 24) & 0xFF).to_byte())
   out.push(((v >> 16) & 0xFF).to_byte())
@@ -7,6 +8,7 @@ fn rd_u32be(out : Array[Byte], v : Int32) -> Unit {
   out.push((v & 0xFF).to_byte())
 }
 
+///|
 fn rd_chunk(
   out : Array[Byte],
   t : (Int32, Int32, Int32, Int32),
@@ -41,6 +43,7 @@ fn rd_zlib_stored(raw : Array[Byte]) -> Array[Byte] {
   out
 }
 
+///|
 fn rd_png(
   w : Int32,
   h : Int32,
@@ -83,8 +86,7 @@ test "rd: 调色板图像 + filter 2/3 行重建" {
   }
   // 3 行 × 2 像素，通道 1
   let raw : Array[Byte] = [
-    b'\x00', b'\x00', b'\x01', b'\x02', b'\x01', b'\x00', b'\x03', b'\x05',
-    b'\x05',
+    b'\x00', b'\x00', b'\x01', b'\x02', b'\x01', b'\x00', b'\x03', b'\x05', b'\x05',
   ]
   let png = rd_png(2, 3, 8, 3, 0, plte, [], raw)
   try {
@@ -112,13 +114,25 @@ test "rd: 未知 chunk 跳过不影响解码" {
 ///|
 test "rd: interlace 与位深不支持时报错" {
   try {
-    let _ = @codec.decode_png_region(rd_png(1, 1, 8, 0, 1, [], [], []), 0, 0, 1, 1)
+    let _ = @codec.decode_png_region(
+      rd_png(1, 1, 8, 0, 1, [], [], []),
+      0,
+      0,
+      1,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
   }
   try {
-    let _ = @codec.decode_png_region(rd_png(1, 1, 16, 0, 0, [], [], []), 0, 0, 1, 1)
+    let _ = @codec.decode_png_region(
+      rd_png(1, 1, 16, 0, 0, [], [], []),
+      0,
+      0,
+      1,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -129,7 +143,13 @@ test "rd: interlace 与位深不支持时报错" {
 test "rd: 非法 filter type 报错" {
   let raw : Array[Byte] = [b'\x09', b'\x00', b'\x00']
   try {
-    let _ = @codec.decode_png_region(rd_png(1, 1, 8, 0, 0, [], [], raw), 0, 0, 1, 1)
+    let _ = @codec.decode_png_region(
+      rd_png(1, 1, 8, 0, 0, [], [], raw),
+      0,
+      0,
+      1,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -140,7 +160,13 @@ test "rd: 非法 filter type 报错" {
 test "rd: 解压数据短于图像行数时报错" {
   let raw : Array[Byte] = [b'\x00', b'\x00', b'\x00']
   try {
-    let _ = @codec.decode_png_region(rd_png(4, 4, 8, 0, 0, [], [], raw), 0, 0, 4, 4)
+    let _ = @codec.decode_png_region(
+      rd_png(4, 4, 8, 0, 0, [], [], raw),
+      0,
+      0,
+      4,
+      4,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -152,7 +178,13 @@ test "rd: 调色板索引越界报错" {
   let plte : Array[Byte] = [0, 0, 0]
   let raw : Array[Byte] = [b'\x00', b'\x0F', b'\x00']
   try {
-    let _ = @codec.decode_png_region(rd_png(1, 1, 8, 3, 0, plte, [], raw), 0, 0, 1, 1)
+    let _ = @codec.decode_png_region(
+      rd_png(1, 1, 8, 3, 0, plte, [], raw),
+      0,
+      0,
+      1,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -163,7 +195,13 @@ test "rd: 调色板索引越界报错" {
 test "rd: 调色板缺失报错" {
   let raw : Array[Byte] = [b'\x00', b'\x00', b'\x00']
   try {
-    let _ = @codec.decode_png_region(rd_png(1, 1, 8, 3, 0, [], [], raw), 0, 0, 1, 1)
+    let _ = @codec.decode_png_region(
+      rd_png(1, 1, 8, 3, 0, [], [], raw),
+      0,
+      0,
+      1,
+      1,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -187,4 +225,3 @@ test "rd: 区域参数与签名校验" {
     _ => assert_true(true)
   }
 }
-

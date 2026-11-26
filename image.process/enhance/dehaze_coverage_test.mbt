@@ -1,6 +1,12 @@
 // 覆盖率测试：去雾流水线各阶段与参数校验
 
-fn dhz_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32, Int32) -> Int32) -> @types.Image {
+///|
+fn dhz_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32, Int32) -> Int32,
+) -> @types.Image {
   let d : Array[Int32] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -17,9 +23,12 @@ fn dhz_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32, Int32) -> Int32) 
   }
 }
 
+///|
 test "dhz: 各阶段" {
   // 灰白雾化图
-  let hazy = dhz_img(32, 24, 3, fn(x, y, c) { 150 + (x * 3 + y * 2 + c * 5) % 60 })
+  let hazy = dhz_img(32, 24, 3, fn(x, y, c) {
+    150 + (x * 3 + y * 2 + c * 5) % 60
+  })
   // 暗通道
   let dark = @enhance.dark_channel(hazy)
   assert_true(dark.width == 32)
@@ -59,11 +68,14 @@ test "dhz: 各阶段" {
   let out2 = @enhance.dehaze_advanced(gray, config=cfg)
   assert_true(out2.width == 24)
   // RGBA
-  let rgba = dhz_img(16, 16, 4, fn(x, y, c) { 90 + (x * 7 + y * 5 + c * 11) % 100 })
+  let rgba = dhz_img(16, 16, 4, fn(x, y, c) {
+    90 + (x * 7 + y * 5 + c * 11) % 100
+  })
   let out3 = @enhance.dehaze_advanced(rgba)
   assert_true(out3.channels >= 3)
 }
 
+///|
 test "dhz: 错误分支" {
   let ok = dhz_img(16, 16, 3, fn(_x, _y, _c) { 128 })
   // 尺寸非法

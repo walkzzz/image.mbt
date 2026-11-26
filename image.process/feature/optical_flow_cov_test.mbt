@@ -1,17 +1,35 @@
 // 覆盖率测试：光流的参数校验分支
 
+///|
 fn ofc_img(w : Int32, h : Int32, ch : Int32) -> @types.Image {
   let n = w * h * ch
   let data : Array[Byte] = Array::make(n, b'\x80')
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 fn ofc_bad(w : Int32, h : Int32, ch : Int32) -> @types.Image {
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array([1, 2]) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array([1, 2]),
+  }
 }
 
+///|
 fn ofc_zero() -> @types.Image {
-  @types.Image::{ width: 0, height: 0, channels: 1, data: Bytes::from_array([]) }
+  @types.Image::{
+    width: 0,
+    height: 0,
+    channels: 1,
+    data: Bytes::from_array([]),
+  }
 }
 
 ///|

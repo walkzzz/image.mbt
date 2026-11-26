@@ -1,5 +1,6 @@
 // 覆盖率测试：高级分割的校验分支与配置变体
 
+///|
 fn asc_gray(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
   let data : Array[Byte] = []
   for y in 0..<h {
@@ -7,22 +8,46 @@ fn asc_gray(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
       data.push(f(x, y).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 fn asc_bad_dims() -> @types.Image {
-  @types.Image::{ width: 0, height: 4, channels: 1, data: Bytes::from_array([]) }
+  @types.Image::{
+    width: 0,
+    height: 4,
+    channels: 1,
+    data: Bytes::from_array([]),
+  }
 }
 
+///|
 fn asc_bad_channels() -> @types.Image {
-  @types.Image::{ width: 2, height: 2, channels: 5, data: Bytes::from_array([]) }
+  @types.Image::{
+    width: 2,
+    height: 2,
+    channels: 5,
+    data: Bytes::from_array([]),
+  }
 }
 
+///|
 fn asc_bad_data() -> @types.Image {
   let d : Array[Byte] = [b'\x00', b'\x10']
-  @types.Image::{ width: 2, height: 2, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: 2,
+    height: 2,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn asc_err_threshold(img : @types.Image) -> Bool {
   try {
     let _ = @segment.threshold_segmentation(img, 1.0)
@@ -33,6 +58,7 @@ fn asc_err_threshold(img : @types.Image) -> Bool {
   }
 }
 
+///|
 fn asc_err_otsu(img : @types.Image) -> Bool {
   try {
     let _ = @segment.otsu_threshold_value(img)
@@ -43,9 +69,13 @@ fn asc_err_otsu(img : @types.Image) -> Bool {
   }
 }
 
+///|
 fn asc_err_kmeans(img : @types.Image) -> Bool {
   try {
-    let _ = @segment.kmeans_segmentation(img, @segment.create_default_kmeans_config())
+    let _ = @segment.kmeans_segmentation(
+      img,
+      @segment.create_default_kmeans_config(),
+    )
     false
   } catch {
     @types.DecodeFailed(_) => true
@@ -53,6 +83,7 @@ fn asc_err_kmeans(img : @types.Image) -> Bool {
   }
 }
 
+///|
 fn asc_err_superpixel(img : @types.Image) -> Bool {
   try {
     let _ = @segment.superpixel_segmentation(img, 4)
@@ -63,9 +94,13 @@ fn asc_err_superpixel(img : @types.Image) -> Bool {
   }
 }
 
+///|
 fn asc_err_watershed(img : @types.Image) -> Bool {
   try {
-    let _ = @segment.watershed_segmentation(img, @segment.create_default_watershed_config())
+    let _ = @segment.watershed_segmentation(
+      img,
+      @segment.create_default_watershed_config(),
+    )
     false
   } catch {
     @types.DecodeFailed(_) => true
@@ -73,6 +108,7 @@ fn asc_err_watershed(img : @types.Image) -> Bool {
   }
 }
 
+///|
 fn asc_err_grabcut(img : @types.Image) -> Bool {
   try {
     let _ = @segment.grabcut_segmentation(
@@ -90,8 +126,9 @@ fn asc_err_grabcut(img : @types.Image) -> Bool {
   }
 }
 
+///|
 test "ascov: 阈值分割校验与全前景/全背景" {
-  let img = asc_gray(4, 4, fn (x, _y) { if x < 2 { 10 } else { 200 } })
+  let img = asc_gray(4, 4, fn(x, _y) { if x < 2 { 10 } else { 200 } })
   let r = @segment.threshold_segmentation(img, 100.0)
   assert_true(r.labels.length() == 16)
   assert_true(r.num_classes == 2)
@@ -111,8 +148,9 @@ test "ascov: 阈值分割校验与全前景/全背景" {
   assert_true(asc_err_threshold(asc_bad_data()))
 }
 
+///|
 test "ascov: Otsu 校验与双峰图" {
-  let img = asc_gray(8, 8, fn (x, _y) { if x < 4 { 0 } else { 255 } })
+  let img = asc_gray(8, 8, fn(x, _y) { if x < 4 { 0 } else { 255 } })
   let t = @segment.otsu_threshold_value(img)
   assert_true(t >= 0.0 && t <= 255.0)
   assert_true(asc_err_otsu(asc_bad_dims()))
@@ -120,8 +158,9 @@ test "ascov: Otsu 校验与双峰图" {
   assert_true(asc_err_otsu(asc_bad_data()))
 }
 
+///|
 test "ascov: K-Means 配置变体" {
-  let img = asc_gray(8, 8, fn (x, y) { (x * 30 + y * 10) % 256 })
+  let img = asc_gray(8, 8, fn(x, y) { (x * 30 + y * 10) % 256 })
   let cfg = @segment.create_default_kmeans_config()
   let r = @segment.kmeans_segmentation(img, cfg)
   assert_true(r.label_info.length() == r.num_classes)
@@ -151,8 +190,9 @@ test "ascov: K-Means 配置变体" {
   assert_true(asc_err_kmeans(asc_bad_data()))
 }
 
+///|
 test "ascov: 超像素变体" {
-  let img = asc_gray(8, 8, fn (x, y) { (x + y) * 8 })
+  let img = asc_gray(8, 8, fn(x, y) { (x + y) * 8 })
   let r = @segment.superpixel_segmentation(img, 4)
   assert_true(r.labels.length() == 64)
   assert_true(r.num_superpixels >= 1)
@@ -169,8 +209,9 @@ test "ascov: 超像素变体" {
   assert_true(asc_err_superpixel(asc_bad_data()))
 }
 
+///|
 test "ascov: 分水岭配置变体" {
-  let img = asc_gray(10, 10, fn (x, y) {
+  let img = asc_gray(10, 10, fn(x, y) {
     if (x - 5) * (x - 5) + (y - 5) * (y - 5) < 9 {
       200
     } else {
@@ -205,8 +246,9 @@ test "ascov: 分水岭配置变体" {
   assert_true(asc_err_watershed(asc_bad_data()))
 }
 
+///|
 test "ascov: GrabCut 矩形变体" {
-  let img = asc_gray(10, 10, fn (x, y) {
+  let img = asc_gray(10, 10, fn(x, y) {
     if x >= 3 && x < 7 && y >= 3 && y < 7 {
       220
     } else {
@@ -219,10 +261,14 @@ test "ascov: GrabCut 矩形变体" {
   assert_true(r.num_classes == 2)
   // 矩形覆盖整图
   let full = @segment.grabcut_segmentation(img, 0, 0, 10, 10, cfg)
-  assert_true(full.label_info[0].pixel_count + full.label_info[1].pixel_count == 100)
+  assert_true(
+    full.label_info[0].pixel_count + full.label_info[1].pixel_count == 100,
+  )
   // 零面积矩形
   let empty = @segment.grabcut_segmentation(img, 5, 5, 0, 0, cfg)
-  assert_true(empty.label_info[0].pixel_count + empty.label_info[1].pixel_count == 100)
+  assert_true(
+    empty.label_info[0].pixel_count + empty.label_info[1].pixel_count == 100,
+  )
   // 越界矩形（裁剪后仍需正常返回）
   let over = @segment.grabcut_segmentation(img, 8, 8, 10, 10, cfg)
   assert_true(over.labels.length() == 100)
@@ -231,6 +277,7 @@ test "ascov: GrabCut 矩形变体" {
   assert_true(asc_err_grabcut(asc_bad_data()))
 }
 
+///|
 test "ascov: 指标计算边界" {
   // 完全一致
   let same : Array[Int32] = [1, 1, 0, 0]
@@ -261,8 +308,9 @@ test "ascov: 指标计算边界" {
   assert_true(m4.mean_iou == 0.0)
 }
 
+///|
 test "ascov: 可视化与报告" {
-  let img = asc_gray(4, 4, fn (x, _y) { if x < 2 { 0 } else { 255 } })
+  let img = asc_gray(4, 4, fn(x, _y) { if x < 2 { 0 } else { 255 } })
   let r = @segment.threshold_segmentation(img, 100.0)
   let vis = @segment.segmentation_to_image(r)
   assert_true(vis.width == 4)

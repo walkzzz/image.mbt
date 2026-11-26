@@ -1,22 +1,44 @@
 // 覆盖率测试：多尺度 Retinex（SSR / MSR / MSRCR）
 
-fn rtx_img(w : Int32, h : Int32, c : Int32, f : (Int32) -> Int32) -> @types.Image {
+///|
+fn rtx_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32) -> Int32,
+) -> @types.Image {
   let d : Array[Byte] = []
   let n = w * h * c
   for i in 0..<n {
     d.push(f(i).to_byte())
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn rtx_gray(w : Int32, h : Int32) -> @types.Image {
-  rtx_img(w, h, 1, fn(i) { 40 + (i % 8) * 20 })
+  rtx_img(w, h, 1, fn(i) { 40 + i % 8 * 20 })
 }
 
+///|
 fn rtx_rgb(w : Int32, h : Int32, c : Int32) -> @types.Image {
-  rtx_img(w, h, c, fn(i) { if i % 3 == 0 { 200 } else if i % 3 == 1 { 120 } else { 60 } })
+  rtx_img(w, h, c, fn(i) {
+    if i % 3 == 0 {
+      200
+    } else if i % 3 == 1 {
+      120
+    } else {
+      60
+    }
+  })
 }
 
+///|
 fn rtx_bad_size() -> @types.Image {
   @types.Image::{
     width: 2,
@@ -26,6 +48,7 @@ fn rtx_bad_size() -> @types.Image {
   }
 }
 
+///|
 test "rtxcov: SSR 主流程与校验" {
   // 灰度
   let g = rtx_gray(8, 8)
@@ -59,14 +82,12 @@ test "rtxcov: SSR 主流程与校验" {
   assert_true(o5.channels == 5)
   // 通道数非法
   try {
-    let _ = @color.ssr(
-      @types.Image::{
-        width: 2,
-        height: 2,
-        channels: 2,
-        data: Bytes::from_array(Array::make(8, b'\x10')),
-      },
-    )
+    let _ = @color.ssr(@types.Image::{
+      width: 2,
+      height: 2,
+      channels: 2,
+      data: Bytes::from_array(Array::make(8, b'\x10')),
+    })
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -90,6 +111,7 @@ test "rtxcov: SSR 主流程与校验" {
   }
 }
 
+///|
 test "rtxcov: MSR 主流程与校验" {
   let g = rtx_gray(8, 8)
   let o1 = @color.msr(g, sigmas=[2.0F, 3.0F])
@@ -114,14 +136,12 @@ test "rtxcov: MSR 主流程与校验" {
   assert_true(o4.width == 0)
   // 通道数非法
   try {
-    let _ = @color.msr(
-      @types.Image::{
-        width: 2,
-        height: 2,
-        channels: 2,
-        data: Bytes::from_array(Array::make(8, b'\x10')),
-      },
-    )
+    let _ = @color.msr(@types.Image::{
+      width: 2,
+      height: 2,
+      channels: 2,
+      data: Bytes::from_array(Array::make(8, b'\x10')),
+    })
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -153,13 +173,21 @@ test "rtxcov: MSR 主流程与校验" {
   }
 }
 
+///|
 test "rtxcov: MSRCR 主流程与校验" {
   // RGB
   let o1 = @color.msrcr(rtx_rgb(4, 4, 3), sigmas=[2.0F])
   assert_true(o1.channels == 3)
   assert_true(o1.data.length() == 48)
   // 增益/偏移/alpha/beta 参数
-  let o2 = @color.msrcr(rtx_rgb(4, 4, 3), sigmas=[1.5F, 2.5F], gain=1.2F, offset=3.0F, alpha=100.0F, beta=40.0F)
+  let o2 = @color.msrcr(
+    rtx_rgb(4, 4, 3),
+    sigmas=[1.5F, 2.5F],
+    gain=1.2F,
+    offset=3.0F,
+    alpha=100.0F,
+    beta=40.0F,
+  )
   assert_true(o2.data.length() == 48)
   // RGBA：alpha 保留
   let rgba = rtx_img(3, 3, 4, fn(i) { if i % 4 == 3 { 77 } else { 130 } })

@@ -1,23 +1,49 @@
 // 覆盖率测试：英文 OCR 与多语言 OCR 的内部辅助函数（白盒）
 
+///|
 fn em_gray(w : Int32, h : Int32, fill : Byte) -> @types.Image {
   let d : Array[Byte] = []
   for _ in 0..<(w * h) {
     d.push(fill)
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
-fn em_glyph(w : Int32, h : Int32, bx0 : Int32, bx1 : Int32, by0 : Int32, by1 : Int32) -> @types.Image {
+///|
+fn em_glyph(
+  w : Int32,
+  h : Int32,
+  bx0 : Int32,
+  bx1 : Int32,
+  by0 : Int32,
+  by1 : Int32,
+) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
-      d.push(if x >= bx0 && x < bx1 && y >= by0 && y < by1 { b'\x00' } else { b'\xFF' })
+      d.push(
+        if x >= bx0 && x < bx1 && y >= by0 && y < by1 {
+          b'\x00'
+        } else {
+          b'\xFF'
+        },
+      )
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "em: 英文字符区域与特征" {
   let img = em_gray(40, 40, b'\xFF')
   let r = extract_char_region_english(img, 4, 4, 16, 20, 32)
@@ -41,6 +67,7 @@ test "em: 英文字符区域与特征" {
   assert_true(mid[0] == 0.0)
 }
 
+///|
 test "em: 英文模板匹配与距离" {
   let ts = generate_english_templates(case_sensitive=true)
   assert_true(ts.length() == 10 + 26 + 26)
@@ -83,6 +110,7 @@ test "em: 英文模板匹配与距离" {
   assert_true(euclidean_distance_eng(a, short) == 0.0)
 }
 
+///|
 test "em: 英文识别流水线校验与运行" {
   // 配置默认值
   let cfg = english_ocr_default_config()
@@ -93,7 +121,12 @@ test "em: 英文识别流水线校验与运行" {
   assert_true(!cfg.case_sensitive)
   // 校验：尺寸 / 通道 / 数据 / 三个配置项
   try {
-    let _ = recognize_english(@types.Image::{ width: 0, height: 4, channels: 1, data: Bytes::from_array([]) })
+    let _ = recognize_english(@types.Image::{
+      width: 0,
+      height: 4,
+      channels: 1,
+      data: Bytes::from_array([]),
+    })
     assert_true(false)
   } catch {
     @types.DecodeFailed(_) => assert_true(true)
@@ -184,6 +217,7 @@ test "em: 英文识别流水线校验与运行" {
   assert_true(g2.characters.length() >= 0)
 }
 
+///|
 test "em: 多语言标点模板与特征" {
   let ts = generate_punctuation_templates()
   assert_true(ts.length() >= 20)
@@ -202,6 +236,7 @@ test "em: 多语言标点模板与特征" {
   assert_true(f_empty != f_dot)
 }
 
+///|
 test "em: 字符语言判定分支" {
   // 中文字符：接近正方形且 > 20
   let chinese = detect_char_language(em_gray(24, 24, b'\x00'))
@@ -220,7 +255,12 @@ test "em: 字符语言判定分支" {
   assert_true(small_square == Unknown)
   // 校验：尺寸 / 通道 / 数据
   try {
-    let _ = detect_char_language(@types.Image::{ width: 0, height: 4, channels: 1, data: Bytes::from_array([]) })
+    let _ = detect_char_language(@types.Image::{
+      width: 0,
+      height: 4,
+      channels: 1,
+      data: Bytes::from_array([]),
+    })
     assert_true(false)
   } catch {
     @types.DecodeFailed(_) => assert_true(true)
@@ -252,20 +292,29 @@ test "em: 字符语言判定分支" {
   }
 }
 
+///|
 test "em: 多语言分割/区域/特征/匹配" {
   let cfg = multilingual_ocr_default_config()
   assert_true(cfg.target_size == 48)
   // 分割：空白图无区域
-  assert_true(segment_multilingual_chars(em_gray(32, 32, b'\xFF'), cfg).length() == 1)
+  assert_true(
+    segment_multilingual_chars(em_gray(32, 32, b'\xFF'), cfg).length() == 1,
+  )
   // 分割：两个块
   let d : Array[Byte] = []
   for y in 0..<32 {
     for x in 0..<32 {
-      let on = (x >= 4 && x < 12 && y >= 4 && y < 24) || (x >= 18 && x < 26 && y >= 4 && y < 24)
+      let on = (x >= 4 && x < 12 && y >= 4 && y < 24) ||
+        (x >= 18 && x < 26 && y >= 4 && y < 24)
       d.push(if on { b'\x00' } else { b'\xFF' })
     }
   }
-  let img = @types.Image::{ width: 32, height: 32, channels: 1, data: Bytes::from_array(d) }
+  let img = @types.Image::{
+    width: 32,
+    height: 32,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
   let regions = segment_multilingual_chars(img, cfg)
   assert_true(regions.length() >= 1 && regions.length() <= 2)
   // 区域提取：正常 / 负尺寸 / 越界
@@ -317,7 +366,12 @@ test "em: 多语言分割/区域/特征/匹配" {
   assert_true(cosine_ml(e, e) == 1.0)
   // 文档语言检测的三类校验
   try {
-    let _ = detect_document_language(@types.Image::{ width: 0, height: 4, channels: 1, data: Bytes::from_array([]) })
+    let _ = detect_document_language(@types.Image::{
+      width: 0,
+      height: 4,
+      channels: 1,
+      data: Bytes::from_array([]),
+    })
     assert_true(false)
   } catch {
     @types.DecodeFailed(_) => assert_true(true)
@@ -349,7 +403,11 @@ test "em: 多语言分割/区域/特征/匹配" {
   }
   // 空白文档 & 有字文档都能返回语言
   let blank_lang = detect_document_language(em_gray(64, 64, b'\xFF'))
-  assert_true(blank_lang == Unknown || blank_lang == Chinese || blank_lang == English)
+  assert_true(
+    blank_lang == Unknown || blank_lang == Chinese || blank_lang == English,
+  )
   let glyph_lang = detect_document_language(em_glyph(64, 64, 10, 30, 10, 30))
-  assert_true(glyph_lang == Unknown || glyph_lang == Chinese || glyph_lang == English)
+  assert_true(
+    glyph_lang == Unknown || glyph_lang == Chinese || glyph_lang == English,
+  )
 }

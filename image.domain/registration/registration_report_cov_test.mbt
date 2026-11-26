@@ -1,10 +1,17 @@
-﻿// 覆盖率测试：配准与检索报告中的枚举名称映射
+// 覆盖率测试：配准与检索报告中的枚举名称映射
 
+///|
 fn rpc_img(w : Int32, h : Int32) -> @types.Image {
   let data : Array[Byte] = Array::make(w * h, b'\x10')
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 fn rpc_result(
   a : @registration.RegistrationAlgorithm,
   t : @registration.TransformType,
@@ -58,5 +65,3 @@ test "rpc: 配准算法与变换名称全枚举" {
     assert_true(text.contains("配准"))
   }
 }
-
-

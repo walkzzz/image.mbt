@@ -1,5 +1,6 @@
 // 覆盖率测试：文档理解增强的结构化 API 分支
 
+///|
 fn ducb_block(
   t : @ocr.DocumentBlockType,
   x : Int32,
@@ -30,6 +31,7 @@ fn ducb_block(
   }
 }
 
+///|
 fn ducb_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -39,12 +41,40 @@ fn ducb_img(w : Int32, h : Int32, c : Int32, value : Int32) -> @types.Image {
   }
 }
 
+///|
 test "ducov: 阅读顺序 / 段落 / 标题" {
   // 双栏：右栏块先出现，阅读顺序应重排
   let blocks = [
-    ducb_block(@ocr.DocumentBlockType::Paragraph, 200, 10, 100, 20, "right", 12, 1),
-    ducb_block(@ocr.DocumentBlockType::Paragraph, 10, 10, 100, 20, "left", 12, 0),
-    ducb_block(@ocr.DocumentBlockType::Paragraph, 10, 40, 100, 20, "left2", 12, 0),
+    ducb_block(
+      @ocr.DocumentBlockType::Paragraph,
+      200,
+      10,
+      100,
+      20,
+      "right",
+      12,
+      1,
+    ),
+    ducb_block(
+      @ocr.DocumentBlockType::Paragraph,
+      10,
+      10,
+      100,
+      20,
+      "left",
+      12,
+      0,
+    ),
+    ducb_block(
+      @ocr.DocumentBlockType::Paragraph,
+      10,
+      40,
+      100,
+      20,
+      "left2",
+      12,
+      0,
+    ),
   ]
   let order = @ocr.optimize_reading_order(blocks, 2)
   assert_true(order.length() == 3)
@@ -77,7 +107,16 @@ test "ducov: 阅读顺序 / 段落 / 标题" {
   // 标题：字号阈值
   let mixed = [
     ducb_block(@ocr.DocumentBlockType::Title, 10, 0, 200, 40, "BIG", 32, 0),
-    ducb_block(@ocr.DocumentBlockType::Paragraph, 10, 60, 200, 20, "body", 12, 0),
+    ducb_block(
+      @ocr.DocumentBlockType::Paragraph,
+      10,
+      60,
+      200,
+      20,
+      "body",
+      12,
+      0,
+    ),
   ]
   let titles = @ocr.detect_titles(mixed)
   assert_true(titles.length() >= 1)
@@ -87,13 +126,41 @@ test "ducov: 阅读顺序 / 段落 / 标题" {
   assert_true(titles0.length() == 0)
 }
 
+///|
 test "ducov: 结构树 / 文本提取 / 统计" {
   let blocks = [
     ducb_block(@ocr.DocumentBlockType::Title, 10, 0, 200, 40, "标题", 32, 0),
-    ducb_block(@ocr.DocumentBlockType::Heading2, 10, 50, 180, 20, "小节", 18, 0),
-    ducb_block(@ocr.DocumentBlockType::Paragraph, 10, 80, 180, 20, "正文一", 12, 0),
+    ducb_block(
+      @ocr.DocumentBlockType::Heading2,
+      10,
+      50,
+      180,
+      20,
+      "小节",
+      18,
+      0,
+    ),
+    ducb_block(
+      @ocr.DocumentBlockType::Paragraph,
+      10,
+      80,
+      180,
+      20,
+      "正文一",
+      12,
+      0,
+    ),
     ducb_block(@ocr.DocumentBlockType::Header, 10, 0, 180, 10, "页眉", 10, 0),
-    ducb_block(@ocr.DocumentBlockType::Footer, 10, 300, 180, 10, "页脚", 10, 0),
+    ducb_block(
+      @ocr.DocumentBlockType::Footer,
+      10,
+      300,
+      180,
+      10,
+      "页脚",
+      10,
+      0,
+    ),
   ]
   let tree = @ocr.build_document_structure_tree(blocks)
   assert_true(tree.length() >= 1)
@@ -135,6 +202,7 @@ test "ducov: 结构树 / 文本提取 / 统计" {
   assert_true(a0 == 0)
 }
 
+///|
 test "ducov: 版面分析与整体流水线" {
   // 空白图 → 无块
   let blank = ducb_img(64, 64, 1, 0)
@@ -177,7 +245,7 @@ test "ducov: 版面分析与整体流水线" {
   assert_true(blocks.length() >= 0)
   assert_true(tree.length() >= 0)
   assert_true(text.length() >= 0)
-  let (b3, _t3, s3) = @ocr.understand_document_enhanced(blank)
+  let (_b3, _t3, s3) = @ocr.understand_document_enhanced(blank)
   assert_true(s3.length() >= 0)
   // 流水线错误分支
   try {

@@ -878,7 +878,7 @@ fn vp8_build_webp_container(
 /// quality: 1-100 (越高越好质量，文件越大)
 /// ⚠️ 实测（2026-11-25）：产物同样不符合 VP8 规范（ffmpeg 报 `Invalid partitions`）。
 /// 合法 WebP 编码请用 [`encode_webp_lossless`]。
-#deprecated("产物不符合 VP8 规范，请改用 encode_webp_lossless")
+#deprecated("产物不符合 VP8 规范，请改用 encode_webp_lossless", skip_current_package=true)
 pub fn encode_webp_lossy_full(
   img : @types.Image,
   quality~ : Int32 = 75,

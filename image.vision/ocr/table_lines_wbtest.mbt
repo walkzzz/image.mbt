@@ -1,9 +1,17 @@
 // 白盒覆盖率：表格线合并与灰度化
 
-fn tbl_line(x1 : Int32, y1 : Int32, x2 : Int32, y2 : Int32, kind : TableLineType) -> TableLine {
-  TableLine::{ x1, y1, x2, y2, line_type: kind, thickness: 1 }
+///|
+fn tbl_line(
+  x1 : Int32,
+  y1 : Int32,
+  x2 : Int32,
+  y2 : Int32,
+  kind : TableLineType,
+) -> TableLine {
+  TableLine::{ x1, y1, x2, y2, line_type: kind, thickness: 1, }
 }
 
+///|
 fn tbl_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   @types.Image::{
     width: w,

@@ -1,9 +1,16 @@
 // 覆盖率测试：OCR 鲁棒性增强（自适应配置 / 倾斜检测 / 畸变检测 / 版面分析 / 报告）
 
+///|
 fn rb_img(w : Int32, h : Int32, c : Int32, d : Array[Byte]) -> @types.Image {
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn rb_flat(w : Int32, h : Int32, fill : Byte) -> @types.Image {
   let d : Array[Byte] = []
   for _ in 0..<(w * h) {
@@ -12,6 +19,7 @@ fn rb_flat(w : Int32, h : Int32, fill : Byte) -> @types.Image {
   rb_img(w, h, 1, d)
 }
 
+///|
 fn rb_scan(score : Double) -> @ocr.ScanQuality {
   @ocr.ScanQuality::{
     brightness: 128.0,
@@ -24,6 +32,7 @@ fn rb_scan(score : Double) -> @ocr.ScanQuality {
   }
 }
 
+///|
 fn rb_has_distortion(
   rs : Array[@ocr.DistortionDetectionResult],
   t : @ocr.DistortionType,
@@ -36,6 +45,7 @@ fn rb_has_distortion(
   false
 }
 
+///|
 test "rbcov: 自适应配置五档" {
   let c90 = @ocr.select_adaptive_config(rb_scan(95.0))
   assert_true(c90.quality_level == @ocr.Excellent)
@@ -84,6 +94,7 @@ test "rbcov: 自适应配置五档" {
   }
 }
 
+///|
 test "rbcov: 倾斜检测" {
   // 校验：尺寸为 0
   let empty = rb_img(0, 4, 1, [])
@@ -117,7 +128,7 @@ test "rbcov: 倾斜检测" {
   // 水平粗线：只有一行，first_y == last_y → 0
   let hline_d : Array[Byte] = []
   for y in 0..<20 {
-    for x in 0..<20 {
+    for _ in 0..<20 {
       hline_d.push(if y == 10 { b'\x00' } else { b'\xFF' })
     }
   }
@@ -144,6 +155,7 @@ test "rbcov: 倾斜检测" {
   assert_true(neg < 0.0 && neg >= -90.0)
 }
 
+///|
 test "rbcov: 畸变检测" {
   // 校验
   try {
@@ -192,7 +204,7 @@ test "rbcov: 畸变检测" {
   assert_true(rb_has_distortion(noisy, @ocr.Noise))
   // 左右明暗差 > 50：光照不均
   let light_d : Array[Byte] = []
-  for y in 0..<40 {
+  for _ in 0..<40 {
     for x in 0..<40 {
       light_d.push(if x < 20 { b'\x0A' } else { b'\xF0' })
     }
@@ -204,6 +216,7 @@ test "rbcov: 畸变检测" {
   assert_true(!rb_has_distortion(small, @ocr.UnevenLighting))
 }
 
+///|
 test "rbcov: 复杂版面分析" {
   // 空块 → Unknown
   let empty = @ocr.analyze_complex_layout([], 200, 300)
@@ -307,6 +320,7 @@ test "rbcov: 复杂版面分析" {
   assert_true(mixed.column_boundaries.length() == 2)
 }
 
+///|
 test "rbcov: 鲁棒性报告与文本" {
   // 高质量 + 单栏 + 无畸变 → 标准流程，建议为「质量良好」
   let good_layout = @ocr.analyze_complex_layout([], 200, 300)

@@ -1,5 +1,6 @@
 // 覆盖率测试：文档理解（版面分析 / 阅读顺序 / 标题正文提取 / 结构统计 / 多栏）
 
+///|
 fn duc_img(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -7,27 +8,38 @@ fn duc_img(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
       d.push(f(x, y).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn duc_page() -> @types.Image {
   // 200x200：标题行 20..54（高 35），正文行 80..90 / 110..120
   duc_img(200, 200, fn(x, y) {
     let title = y >= 20 && y < 55 && x >= 20 && x < 180
     let body1 = y >= 80 && y < 91 && x >= 20 && x < 180
     let body2 = y >= 110 && y < 121 && x >= 20 && x < 180
-    if title || body1 || body2 { 0 } else { 255 }
+    if title || body1 || body2 {
+      0
+    } else {
+      255
+    }
   })
 }
 
+///|
 fn duc_elem(
-  kind : @ocr.DocumentElementType,
+  kind : DocumentElementType,
   x : Int32,
   y : Int32,
   text : String,
   size : Int32,
-) -> @ocr.DocumentElement {
-  @ocr.DocumentElement::{
+) -> DocumentElement {
+  DocumentElement::{
     element_type: kind,
     x,
     y,
@@ -41,8 +53,9 @@ fn duc_elem(
   }
 }
 
-fn duc_struct(elements : Array[@ocr.DocumentElement]) -> @ocr.DocumentStructure {
-  @ocr.DocumentStructure::{
+///|
+fn duc_struct(elements : Array[DocumentElement]) -> DocumentStructure {
+  DocumentStructure::{
     elements,
     num_elements: elements.length(),
     title: "",
@@ -53,9 +66,10 @@ fn duc_struct(elements : Array[@ocr.DocumentElement]) -> @ocr.DocumentStructure 
   }
 }
 
+///|
 test "ducov: 版面分析流水线" {
   let page = duc_page()
-  let st = @ocr.analyze_document_layout(page)
+  let st = analyze_document_layout(page)
   assert_true(st.num_elements == st.elements.length())
   assert_true(st.num_elements >= 1)
   assert_true(st.reading_order.length() == st.elements.length())
@@ -70,12 +84,12 @@ test "ducov: 版面分析流水线" {
   assert_true(st.bounding_box.3 >= 0)
   // 空白页：预处理可能留下噪点，只要求一致性与无标题
   let blank = duc_img(64, 64, fn(_x, _y) { 255 })
-  let sb = @ocr.analyze_document_layout(blank)
+  let sb = analyze_document_layout(blank)
   assert_true(sb.num_elements == sb.elements.length())
   assert_true(sb.title == "")
   // 校验
   try {
-    let _ = @ocr.analyze_document_layout(duc_img(0, 8, fn(_x, _y) { 0 }))
+    let _ = analyze_document_layout(duc_img(0, 8, fn(_x, _y) { 0 }))
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -88,7 +102,7 @@ test "ducov: 版面分析流水线" {
     data: Bytes::from_array(Array::make(320, b'\x00')),
   }
   try {
-    let _ = @ocr.analyze_document_layout(bad_ch)
+    let _ = analyze_document_layout(bad_ch)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -101,7 +115,7 @@ test "ducov: 版面分析流水线" {
     data: Bytes::from_array([b'\x00']),
   }
   try {
-    let _ = @ocr.analyze_document_layout(bad_data)
+    let _ = analyze_document_layout(bad_data)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -109,15 +123,16 @@ test "ducov: 版面分析流水线" {
   }
 }
 
+///|
 test "ducov: 阅读顺序与标题提取" {
   // 乱序元素 → 按 (y, x) 排序
-  let elems : Array[@ocr.DocumentElement] = [
-    duc_elem(@ocr.DocumentElementType::Body, 50, 100, "c", 12),
-    duc_elem(@ocr.DocumentElementType::Title, 20, 10, "大标题", 30),
-    duc_elem(@ocr.DocumentElementType::Body, 20, 100, "b", 12),
-    duc_elem(@ocr.DocumentElementType::Header, 10, 10, "页眉", 12),
+  let elems : Array[DocumentElement] = [
+    duc_elem(DocumentElementType::Body, 50, 100, "c", 12),
+    duc_elem(DocumentElementType::Title, 20, 10, "大标题", 30),
+    duc_elem(DocumentElementType::Body, 20, 100, "b", 12),
+    duc_elem(DocumentElementType::Header, 10, 10, "页眉", 12),
   ]
-  let order = @ocr.compute_reading_order(elems)
+  let order = compute_reading_order(elems)
   assert_true(order.length() == 4)
   // 第 0 位应是 y=10 且 x=10 的页眉，第 1 位是 x=20 的标题
   assert_true(order[0] == 3)
@@ -125,9 +140,9 @@ test "ducov: 阅读顺序与标题提取" {
   assert_true(order[2] == 2)
   assert_true(order[3] == 0)
   // 空列表报错
-  let empty : Array[@ocr.DocumentElement] = []
+  let empty : Array[DocumentElement] = []
   try {
-    let _ = @ocr.compute_reading_order(empty)
+    let _ = compute_reading_order(empty)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -135,38 +150,39 @@ test "ducov: 阅读顺序与标题提取" {
   }
   // 标题：优先 Title
   let st1 = duc_struct(elems)
-  assert_true(@ocr.extract_title(st1) == "大标题")
+  assert_true(extract_title(st1) == "大标题")
   // 无 Title 但有大字号 → 该元素
-  let elems2 : Array[@ocr.DocumentElement] = [
-    duc_elem(@ocr.DocumentElementType::Body, 0, 0, "正文", 12),
-    duc_elem(@ocr.DocumentElementType::Body, 0, 20, "大字号", 26),
+  let elems2 : Array[DocumentElement] = [
+    duc_elem(DocumentElementType::Body, 0, 0, "正文", 12),
+    duc_elem(DocumentElementType::Body, 0, 20, "大字号", 26),
   ]
-  assert_true(@ocr.extract_title(duc_struct(elems2)) == "大字号")
+  assert_true(extract_title(duc_struct(elems2)) == "大字号")
   // 都没有 → 空串
-  let elems3 : Array[@ocr.DocumentElement] = [
-    duc_elem(@ocr.DocumentElementType::Body, 0, 0, "正文", 12),
+  let elems3 : Array[DocumentElement] = [
+    duc_elem(DocumentElementType::Body, 0, 0, "正文", 12),
   ]
-  assert_true(@ocr.extract_title(duc_struct(elems3)) == "")
+  assert_true(extract_title(duc_struct(elems3)) == "")
 }
 
+///|
 test "ducov: 标题/正文/阅读顺序/统计" {
-  let elems : Array[@ocr.DocumentElement] = [
-    duc_elem(@ocr.DocumentElementType::Title, 0, 0, "题目", 30),
-    duc_elem(@ocr.DocumentElementType::Heading1, 0, 40, "一级", 20),
-    duc_elem(@ocr.DocumentElementType::Heading2, 0, 60, "二级", 16),
-    duc_elem(@ocr.DocumentElementType::Heading3, 0, 80, "三级", 14),
-    duc_elem(@ocr.DocumentElementType::Body, 0, 100, "正文1", 12),
-    duc_elem(@ocr.DocumentElementType::Body, 0, 120, "正文2", 12),
-    duc_elem(@ocr.DocumentElementType::List, 0, 140, "列表", 12),
-    duc_elem(@ocr.DocumentElementType::Image, 0, 160, "", 50),
-    duc_elem(@ocr.DocumentElementType::Caption, 0, 200, "图注", 10),
+  let elems : Array[DocumentElement] = [
+    duc_elem(DocumentElementType::Title, 0, 0, "题目", 30),
+    duc_elem(DocumentElementType::Heading1, 0, 40, "一级", 20),
+    duc_elem(DocumentElementType::Heading2, 0, 60, "二级", 16),
+    duc_elem(DocumentElementType::Heading3, 0, 80, "三级", 14),
+    duc_elem(DocumentElementType::Body, 0, 100, "正文1", 12),
+    duc_elem(DocumentElementType::Body, 0, 120, "正文2", 12),
+    duc_elem(DocumentElementType::List, 0, 140, "列表", 12),
+    duc_elem(DocumentElementType::Image, 0, 160, "", 50),
+    duc_elem(DocumentElementType::Caption, 0, 200, "图注", 10),
   ]
-  let headings = @ocr.extract_headings(duc_struct(elems))
+  let headings = extract_headings(duc_struct(elems))
   assert_true(headings.length() == 4)
-  let paragraphs = @ocr.extract_paragraphs(duc_struct(elems))
+  let paragraphs = extract_paragraphs(duc_struct(elems))
   assert_true(paragraphs.length() == 2)
   // 阅读顺序取元素（含越界索引跳过）
-  let st = @ocr.DocumentStructure::{
+  let st = DocumentStructure::{
     elements: elems,
     num_elements: elems.length(),
     title: "题目",
@@ -175,12 +191,12 @@ test "ducov: 标题/正文/阅读顺序/统计" {
     reading_order: [2, 0, 99],
     bounding_box: (0, 0, 10, 500),
   }
-  let ordered = @ocr.get_elements_in_reading_order(st)
+  let ordered = get_elements_in_reading_order(st)
   assert_true(ordered.length() == 2)
   assert_true(ordered[0].text == "二级")
   assert_true(ordered[1].text == "题目")
   // 统计
-  let (t, h, p, l, i) = @ocr.document_structure_stats(st)
+  let (t, h, p, l, i) = document_structure_stats(st)
   assert_true(t == 1)
   assert_true(h == 3)
   assert_true(p == 2)
@@ -188,21 +204,26 @@ test "ducov: 标题/正文/阅读顺序/统计" {
   assert_true(i == 1)
 }
 
+///|
 test "ducov: 多栏检测与完整理解" {
   let page = duc_page()
-  let cols = @ocr.detect_document_columns(page)
+  let cols = detect_document_columns(page)
   assert_true(cols >= 1)
   // 双栏：左右两块中间留白
   let two = duc_img(200, 100, fn(x, y) {
     let left = x >= 10 && x < 80 && y >= 20 && y < 80
     let right = x >= 120 && x < 190 && y >= 20 && y < 80
-    if left || right { 0 } else { 255 }
+    if left || right {
+      0
+    } else {
+      255
+    }
   })
-  let cols2 = @ocr.detect_document_columns(two)
+  let cols2 = detect_document_columns(two)
   assert_true(cols2 >= 1)
   // 校验
   try {
-    let _ = @ocr.detect_document_columns(duc_img(0, 8, fn(_x, _y) { 0 }))
+    let _ = detect_document_columns(duc_img(0, 8, fn(_x, _y) { 0 }))
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -215,25 +236,25 @@ test "ducov: 多栏检测与完整理解" {
     data: Bytes::from_array(Array::make(320, b'\x00')),
   }
   try {
-    let _ = @ocr.detect_document_columns(bad_ch)
+    let _ = detect_document_columns(bad_ch)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   // 完整流水线
-  let st = @ocr.understand_document(page)
+  let st = understand_document(page)
   assert_true(st.num_elements >= 1)
   assert_true(st.reading_order.length() == st.num_elements)
   assert_true(st.num_elements == st.elements.length())
   // 空白页：预处理可能留下噪点，只要求结构自洽
   let blank = duc_img(32, 32, fn(_x, _y) { 255 })
-  let s2 = @ocr.understand_document(blank)
+  let s2 = understand_document(blank)
   assert_true(s2.num_elements == s2.elements.length())
   assert_true(s2.title == "")
   // 输入校验
   try {
-    let _ = @ocr.understand_document(duc_img(0, 8, fn(_x, _y) { 0 }))
+    let _ = understand_document(duc_img(0, 8, fn(_x, _y) { 0 }))
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)

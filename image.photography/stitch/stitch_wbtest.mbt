@@ -209,7 +209,7 @@ test "wbtest: blend_images 三条分支（仅 img1 / 融合 / 仅 img2）" {
   let img1 = wb_solid(4, 2, 3, 10)
   // img2：左半全黑（只有 img1），右半非零（融合）
   let px : Array[Byte] = []
-  for y in 0..<2 {
+  for _ in 0..<2 {
     for x in 0..<6 {
       let v = if x >= 2 { 200 } else { 0 }
       for _c in 0..<3 {

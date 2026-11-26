@@ -1,7 +1,8 @@
 // 白盒测试：VP8 宏块预测模式概率模型
 // White-box tests for VP8 macroblock mode probability model.
 
-fn vp8m_bytes(vals : Array[Int]) -> Bytes {
+///|
+fn vp8m_bytes(vals : Array[Int32]) -> Bytes {
   let out : Array[Byte] = []
   for v in vals {
     out.push(v.to_byte())
@@ -9,7 +10,8 @@ fn vp8m_bytes(vals : Array[Int]) -> Bytes {
   Bytes::from_array(out)
 }
 
-fn vp8m_i16_id(m : Vp8I16x16Mode) -> Int {
+///|
+fn vp8m_i16_id(m : Vp8I16x16Mode) -> Int32 {
   match m {
     Vp8I16x16Mode::I16x16DcPred => 0
     Vp8I16x16Mode::I16x16TrueMotionPred => 1
@@ -18,7 +20,8 @@ fn vp8m_i16_id(m : Vp8I16x16Mode) -> Int {
   }
 }
 
-fn vp8m_i4_id(m : Vp8I4x4Mode) -> Int {
+///|
+fn vp8m_i4_id(m : Vp8I4x4Mode) -> Int32 {
   match m {
     Vp8I4x4Mode::I4x4DcPred => 0
     Vp8I4x4Mode::I4x4TrueMotionPred => 1
@@ -33,6 +36,7 @@ fn vp8m_i4_id(m : Vp8I4x4Mode) -> Int {
   }
 }
 
+///|
 test "vp8m: I16x16 模式解析与计数" {
   let probs = Vp8MbModeProbs::new()
   assert_eq(probs.i16x16_prob[0], 180)
@@ -71,6 +75,7 @@ test "vp8m: I16x16 模式解析与计数" {
   assert_eq(probs.i16x16_count[3], 1)
 }
 
+///|
 test "vp8m: I4x4 与 UV 模式解析" {
   let probs = Vp8MbModeProbs::new()
   let m_dc = _vp8_parse_i4x4_mode(
@@ -121,6 +126,7 @@ test "vp8m: I4x4 与 UV 模式解析" {
   assert_eq(probs.submb_type_count, 1)
 }
 
+///|
 test "vp8m: 模式概率 EMA 更新" {
   let probs = Vp8MbModeProbs::new()
   // 各记一次 DC
@@ -161,6 +167,7 @@ test "vp8m: 模式概率 EMA 更新" {
   assert_eq(probs.submb_type_count, 0)
 }
 
+///|
 test "vp8m: 环路滤波参数默认值" {
   let lf = Vp8LoopFilterParams::_new()
   assert_eq(lf.filter_level, 0)

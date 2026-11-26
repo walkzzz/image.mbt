@@ -1,5 +1,6 @@
 // 覆盖率测试：检索报告中的特征类型名称映射
 
+///|
 fn rqc_feat(t : @retrieval.FeatureType) -> @retrieval.CBIRImageFeature {
   @retrieval.CBIRImageFeature::{
     feature_type: t,

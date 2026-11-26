@@ -1,6 +1,12 @@
 // 覆盖率测试：16f 滤波（box / gaussian / median / sharpen 的 Image16 与 ImageF 变体）
 
-fn f16_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @types.Image16 {
+///|
+fn f16_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Int32,
+) -> @types.Image16 {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -11,9 +17,15 @@ fn f16_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @typ
       }
     }
   }
-  @types.Image16::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image16::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn f16_px(v : Float) -> Array[Byte] {
   if v == 1.0F {
     [b'\x00', b'\x00', b'\x80', b'\x3f']
@@ -24,7 +36,13 @@ fn f16_px(v : Float) -> Array[Byte] {
   }
 }
 
-fn ff_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Float) -> @types.ImageF {
+///|
+fn ff_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Float,
+) -> @types.ImageF {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -35,17 +53,25 @@ fn ff_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Float) -> @type
       }
     }
   }
-  @types.ImageF::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn f16_gray(w : Int32, h : Int32) -> @types.Image16 {
   f16_img(w, h, 1, fn(x, y) { if (x + y) % 2 == 0 { 60000 } else { 1000 } })
 }
 
+///|
 fn f16_rgba(w : Int32, h : Int32) -> @types.Image16 {
   f16_img(w, h, 4, fn(x, y) { if (x + y) % 2 == 0 { 40000 } else { 5000 } })
 }
 
+///|
 fn f16_short() -> @types.Image16 {
   @types.Image16::{
     width: 4,
@@ -55,14 +81,17 @@ fn f16_short() -> @types.Image16 {
   }
 }
 
+///|
 fn ff_gray(w : Int32, h : Int32) -> @types.ImageF {
   ff_img(w, h, 1, fn(x, y) { if (x + y) % 2 == 0 { 1.0F } else { 0.2F } })
 }
 
+///|
 fn ff_rgba(w : Int32, h : Int32) -> @types.ImageF {
   ff_img(w, h, 4, fn(x, y) { if (x + y) % 2 == 0 { 0.75F } else { 0.2F } })
 }
 
+///|
 fn ff_short() -> @types.ImageF {
   @types.ImageF::{
     width: 4,
@@ -72,6 +101,7 @@ fn ff_short() -> @types.ImageF {
   }
 }
 
+///|
 test "f16cov: box_blur 16/f" {
   let g = f16_gray(6, 6)
   let o1 = @filter.box_blur_16(g, 1)
@@ -151,6 +181,7 @@ test "f16cov: box_blur 16/f" {
   }
 }
 
+///|
 test "f16cov: gaussian_blur 16/f" {
   let g = f16_gray(6, 6)
   let o1 = @filter.gaussian_blur_16(g, 1, 1.0F)
@@ -159,14 +190,22 @@ test "f16cov: gaussian_blur 16/f" {
   assert_true(o2.channels == 4)
   // 错误
   try {
-    let _ = @filter.gaussian_blur_16(f16_img(0, 4, 1, fn(_x, _y) { 1 }), 1, 1.0F)
+    let _ = @filter.gaussian_blur_16(
+      f16_img(0, 4, 1, fn(_x, _y) { 1 }),
+      1,
+      1.0F,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @filter.gaussian_blur_16(f16_img(4, 4, 5, fn(_x, _y) { 1 }), 1, 1.0F)
+    let _ = @filter.gaussian_blur_16(
+      f16_img(4, 4, 5, fn(_x, _y) { 1 }),
+      1,
+      1.0F,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -200,14 +239,22 @@ test "f16cov: gaussian_blur 16/f" {
   let fo2 = @filter.gaussian_blur_f(ff_rgba(5, 5), 2, 1.5F)
   assert_true(fo2.channels == 4)
   try {
-    let _ = @filter.gaussian_blur_f(ff_img(0, 4, 1, fn(_x, _y) { 0.5F }), 1, 1.0F)
+    let _ = @filter.gaussian_blur_f(
+      ff_img(0, 4, 1, fn(_x, _y) { 0.5F }),
+      1,
+      1.0F,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @filter.gaussian_blur_f(ff_img(4, 4, 5, fn(_x, _y) { 0.5F }), 1, 1.0F)
+    let _ = @filter.gaussian_blur_f(
+      ff_img(4, 4, 5, fn(_x, _y) { 0.5F }),
+      1,
+      1.0F,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -229,6 +276,7 @@ test "f16cov: gaussian_blur 16/f" {
   }
 }
 
+///|
 test "f16cov: median_blur 与 sharpen 16/f" {
   let g = f16_gray(6, 6)
   let m1 = @filter.median_blur_16(g, 3)

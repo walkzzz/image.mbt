@@ -1,5 +1,6 @@
 // 覆盖率测试：遥感指数、地物分类、变化检测、纹理/光谱特征与报告分支
 
+///|
 fn rsc_img(
   w : Int32,
   h : Int32,
@@ -27,7 +28,13 @@ fn rsc_img(
   }
 }
 
-fn rsc_fill(w : Int32, h : Int32, bands : Int32, base : Double) -> @remote_sensing.RemoteSensingImage {
+///|
+fn rsc_fill(
+  w : Int32,
+  h : Int32,
+  bands : Int32,
+  base : Double,
+) -> @remote_sensing.RemoteSensingImage {
   let n = w * h * bands
   let data : Array[Double] = []
   for i in 0..<n {
@@ -36,6 +43,7 @@ fn rsc_fill(w : Int32, h : Int32, bands : Int32, base : Double) -> @remote_sensi
   rsc_img(w, h, bands, data)
 }
 
+///|
 fn rsc_gray(w : Int32, h : Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -43,16 +51,24 @@ fn rsc_gray(w : Int32, h : Int32) -> @types.Image {
       d.push((x * 11 + y * 5).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "rscov: 默认影像与三种归一化指数" {
   let img = @remote_sensing.create_default_remote_sensing_image(4, 4, 5)
   assert_true(img.width == 4)
   assert_true(img.bands == 5)
   assert_true(img.data.length() == 80)
   assert_true(img.wavelength.length() == 5)
-  assert_true(img.image_type == @remote_sensing.RemoteSensingImageType::Multispectral)
+  assert_true(
+    img.image_type == @remote_sensing.RemoteSensingImageType::Multispectral,
+  )
   // NDVI：nir > red → 正值；(0,0) → 分母过小走 0.0 分支
   let img2 = rsc_img(2, 1, 4, [0.1, 0.2, 0.3, 0.9, 0.0, 0.0, 0.0, 0.0])
   let ndvi = @remote_sensing.calculate_ndvi(img2, 2, 3)
@@ -66,6 +82,7 @@ test "rscov: 默认影像与三种归一化指数" {
   assert_true(ndbi.length() == 2)
 }
 
+///|
 test "rscov: 全部植被指数（bands>4 与 <=4）" {
   let many = rsc_fill(4, 4, 6, 100.0)
   let vi = @remote_sensing.calculate_all_vegetation_indices(many)
@@ -80,6 +97,7 @@ test "rscov: 全部植被指数（bands>4 与 <=4）" {
   assert_true(vi2.ndvi.length() == 0)
 }
 
+///|
 test "rscov: 地物分类与变化检测" {
   let img = rsc_fill(6, 6, 5, 80.0)
   let cls = @remote_sensing.classify_land_cover_simple(img)
@@ -105,6 +123,7 @@ test "rscov: 地物分类与变化检测" {
   assert_true(strict.num_changed_pixels == 0)
 }
 
+///|
 test "rscov: 纹理特征、光谱特征与质量" {
   let g = rsc_gray(8, 8)
   // 中心窗口
@@ -165,6 +184,7 @@ test "rscov: 纹理特征、光谱特征与质量" {
   assert_true(q2.cloud_cover >= 0.0)
 }
 
+///|
 test "rscov: 遥感报告文本分支" {
   let img = rsc_fill(6, 6, 5, 90.0)
   let cls = @remote_sensing.classify_land_cover_simple(img)
@@ -175,10 +195,7 @@ test "rscov: 遥感报告文本分支" {
   )
   let q = @remote_sensing.calculate_remote_sensing_quality(img)
   let rep = @remote_sensing.remote_sensing_report_to_string(
-    img,
-    cls,
-    changes,
-    q,
+    img, cls, changes, q,
   )
   assert_true(rep.has_prefix("## 遥感图像分析报告"))
   assert_true(rep.length() > 20)
@@ -196,10 +213,7 @@ test "rscov: 遥感报告文本分支" {
     cloud_cover: 30.0,
   }
   let rep2 = @remote_sensing.remote_sensing_report_to_string(
-    optical2,
-    cls,
-    changes,
-    q,
+    optical2, cls, changes, q,
   )
   assert_true(rep2.contains("光学"))
 }

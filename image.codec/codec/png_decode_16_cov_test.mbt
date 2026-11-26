@@ -1,5 +1,6 @@
-﻿// 覆盖率测试：16-bit PNG 解码的调色板/滤波/位深/通道分支
+// 覆盖率测试：16-bit PNG 解码的调色板/滤波/位深/通道分支
 
+///|
 fn p16_u32be(out : Array[Byte], v : Int32) -> Unit {
   out.push(((v >> 24) & 0xFF).to_byte())
   out.push(((v >> 16) & 0xFF).to_byte())
@@ -7,6 +8,7 @@ fn p16_u32be(out : Array[Byte], v : Int32) -> Unit {
   out.push((v & 0xFF).to_byte())
 }
 
+///|
 fn p16_chunk(
   out : Array[Byte],
   t : (Int32, Int32, Int32, Int32),
@@ -24,6 +26,7 @@ fn p16_chunk(
   p16_u32be(out, 0)
 }
 
+///|
 fn p16_zlib(raw : Array[Byte]) -> Array[Byte] {
   let out : Array[Byte] = [0x78, 0x01, 0x01]
   let n = raw.length()
@@ -39,6 +42,7 @@ fn p16_zlib(raw : Array[Byte]) -> Array[Byte] {
   out
 }
 
+///|
 fn p16_png(
   w : Int32,
   h : Int32,
@@ -158,4 +162,3 @@ test "p16: 通道转换（GA/RGBA/指定输出通道）" {
     _ => assert_true(false)
   }
 }
-

@@ -1,6 +1,7 @@
 // 覆盖率测试：detect_format 全签名分支与 auto 分派解码
 
-fn libb_bytes(vals : Array[Int]) -> Bytes {
+///|
+fn libb_bytes(vals : Array[Int32]) -> Bytes {
   let a : Array[Byte] = []
   for v in vals {
     a.push(v.to_byte())
@@ -8,6 +9,7 @@ fn libb_bytes(vals : Array[Int]) -> Bytes {
   Bytes::from_array(a)
 }
 
+///|
 fn libb_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -17,60 +19,80 @@ fn libb_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   }
 }
 
+///|
 test "libcov: detect_format 各签名" {
   // 过短
-  assert_true(@lib.detect_format(libb_bytes([0x42])) == @types.ImageFormat::Unknown)
+  assert_true(
+    @lib.detect_format(libb_bytes([0x42])) == @types.ImageFormat::Unknown,
+  )
   // PNG
   let png = libb_bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
   assert_true(@lib.detect_format(png) == @types.ImageFormat::Png)
   // JPEG
-  assert_true(@lib.detect_format(libb_bytes([0xFF, 0xD8])) == @types.ImageFormat::Jpeg)
+  assert_true(
+    @lib.detect_format(libb_bytes([0xFF, 0xD8])) == @types.ImageFormat::Jpeg,
+  )
   // BMP
-  assert_true(@lib.detect_format(libb_bytes([0x42, 0x4D])) == @types.ImageFormat::Bmp)
+  assert_true(
+    @lib.detect_format(libb_bytes([0x42, 0x4D])) == @types.ImageFormat::Bmp,
+  )
   // QOI
   assert_true(
-    @lib.detect_format(libb_bytes([0x71, 0x6F, 0x69, 0x66])) == @types.ImageFormat::Qoi,
+    @lib.detect_format(libb_bytes([0x71, 0x6F, 0x69, 0x66])) ==
+    @types.ImageFormat::Qoi,
   )
   // PNM (P5 / P6)
-  assert_true(@lib.detect_format(libb_bytes([0x50, 0x35])) == @types.ImageFormat::Pnm)
-  assert_true(@lib.detect_format(libb_bytes([0x50, 0x36])) == @types.ImageFormat::Pnm)
+  assert_true(
+    @lib.detect_format(libb_bytes([0x50, 0x35])) == @types.ImageFormat::Pnm,
+  )
+  assert_true(
+    @lib.detect_format(libb_bytes([0x50, 0x36])) == @types.ImageFormat::Pnm,
+  )
   // P1 不是 PNM
-  assert_true(@lib.detect_format(libb_bytes([0x50, 0x31])) == @types.ImageFormat::Unknown)
+  assert_true(
+    @lib.detect_format(libb_bytes([0x50, 0x31])) == @types.ImageFormat::Unknown,
+  )
   // PSD
   assert_true(
-    @lib.detect_format(libb_bytes([0x38, 0x42, 0x50, 0x53])) == @types.ImageFormat::Psd,
+    @lib.detect_format(libb_bytes([0x38, 0x42, 0x50, 0x53])) ==
+    @types.ImageFormat::Psd,
   )
   // GIF
   assert_true(
-    @lib.detect_format(
-      libb_bytes([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]),
-    ) == @types.ImageFormat::Gif,
+    @lib.detect_format(libb_bytes([0x47, 0x49, 0x46, 0x38, 0x39, 0x61])) ==
+    @types.ImageFormat::Gif,
   )
   // HDR
   assert_true(
     @lib.detect_format(
       libb_bytes([0x23, 0x3F, 0x52, 0x41, 0x44, 0x49, 0x41, 0x4E, 0x43, 0x45]),
-    ) == @types.ImageFormat::Hdr,
+    ) ==
+    @types.ImageFormat::Hdr,
   )
   // WebP
   assert_true(
     @lib.detect_format(
       libb_bytes([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]),
-    ) == @types.ImageFormat::Webp,
+    ) ==
+    @types.ImageFormat::Webp,
   )
   // ICNS
   assert_true(
-    @lib.detect_format(libb_bytes([0x69, 0x63, 0x6E, 0x73])) == @types.ImageFormat::Icns,
+    @lib.detect_format(libb_bytes([0x69, 0x63, 0x6E, 0x73])) ==
+    @types.ImageFormat::Icns,
   )
   // TIFF 小端 / 大端 / 魔数错误
   assert_true(
-    @lib.detect_format(libb_bytes([0x49, 0x49, 0x2A, 0x00])) == @types.ImageFormat::Tiff,
+    @lib.detect_format(libb_bytes([0x49, 0x49, 0x2A, 0x00])) ==
+    @types.ImageFormat::Tiff,
   )
   assert_true(
-    @lib.detect_format(libb_bytes([0x4D, 0x4D, 0x00, 0x2A])) == @types.ImageFormat::Tiff,
+    @lib.detect_format(libb_bytes([0x4D, 0x4D, 0x00, 0x2A])) ==
+    @types.ImageFormat::Tiff,
   )
   assert_true(
-    @lib.detect_format(libb_bytes([0x49, 0x49, 0x2B, 0x00])) == @types.ImageFormat::Unknown,
+    @lib.detect_format(libb_bytes([0x49, 0x49, 0x2B, 0x00])) ==
+    @types.ImageFormat::Unknown,
   )
   // JPEG-XL 裸码流
   assert_true(
@@ -78,72 +100,82 @@ test "libcov: detect_format 各签名" {
   )
 }
 
+///|
 test "libcov: ICO / CUR / AVIF / HEIF 检测" {
   // ICO：22 字节以上，type=1，条目非零
-  let ico : Array[Int] = [
+  let ico : Array[Int32] = [
     0x00, 0x00, 0x01, 0x00, 0x01, 0x00, //
-    0x10, 0x10, 0x00, 0x00, 0x01, 0x00, 0x20, 0x00, 0x40, 0x00, 0x00, 0x00,
-    0x16, 0x00, 0x00, 0x00,
+     0x10, 0x10, 0x00, 0x00, 0x01, 0x00, 0x20, 0x00, 0x40, 0x00, 0x00, 0x00, 0x16,
+    0x00, 0x00, 0x00,
   ]
   assert_true(@lib.detect_format(libb_bytes(ico)) == @types.ImageFormat::Ico)
   // CUR：type=2 且宽高为 0 → 热点占位
-  let cur : Array[Int] = [
+  let cur : Array[Int32] = [
     0x00, 0x00, 0x02, 0x00, 0x01, 0x00, //
-    0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x20, 0x00, 0x40, 0x00, 0x00, 0x00,
-    0x16, 0x00, 0x00, 0x00,
+     0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x20, 0x00, 0x40, 0x00, 0x00, 0x00, 0x16,
+    0x00, 0x00, 0x00,
   ]
   assert_true(@lib.detect_format(libb_bytes(cur)) == @types.ImageFormat::Cur)
   // CUR 但宽高非 0 → 归为 ICO
-  let cur2 : Array[Int] = [
+  let cur2 : Array[Int32] = [
     0x00, 0x00, 0x02, 0x00, 0x01, 0x00, //
-    0x10, 0x10, 0x00, 0x00, 0x01, 0x00, 0x20, 0x00, 0x40, 0x00, 0x00, 0x00,
-    0x16, 0x00, 0x00, 0x00,
+     0x10, 0x10, 0x00, 0x00, 0x01, 0x00, 0x20, 0x00, 0x40, 0x00, 0x00, 0x00, 0x16,
+    0x00, 0x00, 0x00,
   ]
   assert_true(@lib.detect_format(libb_bytes(cur2)) == @types.ImageFormat::Ico)
   // 条目数为 0 → 不识别
-  let zero_count : Array[Int] = [
-    0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  let zero_count : Array[Int32] = [
+    0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   ]
-  assert_true(@lib.detect_format(libb_bytes(zero_count)) == @types.ImageFormat::Unknown)
+  assert_true(
+    @lib.detect_format(libb_bytes(zero_count)) == @types.ImageFormat::Unknown,
+  )
   // JXL ISOBMFF 容器
   assert_true(
     @lib.detect_format(
       libb_bytes([0x00, 0x00, 0x00, 0x0C, 0x4A, 0x58, 0x4C, 0x20, 0, 0, 0, 0]),
-    ) == @types.ImageFormat::JpegXl,
+    ) ==
+    @types.ImageFormat::JpegXl,
   )
   // AVIF
   assert_true(
     @lib.detect_format(
       libb_bytes([0, 0, 0, 0x20, 0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x66]),
-    ) == @types.ImageFormat::Avif,
+    ) ==
+    @types.ImageFormat::Avif,
   )
   // AVIF（avis）
   assert_true(
     @lib.detect_format(
       libb_bytes([0, 0, 0, 0x20, 0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x73]),
-    ) == @types.ImageFormat::Avif,
+    ) ==
+    @types.ImageFormat::Avif,
   )
   // HEIF（heic）
   assert_true(
     @lib.detect_format(
       libb_bytes([0, 0, 0, 0x20, 0x66, 0x74, 0x79, 0x70, 0x68, 0x65, 0x69, 0x63]),
-    ) == @types.ImageFormat::Heif,
+    ) ==
+    @types.ImageFormat::Heif,
   )
   // HEIF（mif1）
   assert_true(
     @lib.detect_format(
       libb_bytes([0, 0, 0, 0x20, 0x66, 0x74, 0x79, 0x70, 0x6D, 0x69, 0x66, 0x31]),
-    ) == @types.ImageFormat::Heif,
+    ) ==
+    @types.ImageFormat::Heif,
   )
   // ftyp 但品牌未知 → Unknown
   assert_true(
     @lib.detect_format(
       libb_bytes([0, 0, 0, 0x20, 0x66, 0x74, 0x79, 0x70, 0x78, 0x78, 0x78, 0x78]),
-    ) == @types.ImageFormat::Unknown,
+    ) ==
+    @types.ImageFormat::Unknown,
   )
 }
 
+///|
 test "libcov: auto 分派往返与未识别错误" {
   let img = libb_img(4, 4, 3, 90)
   // BMP

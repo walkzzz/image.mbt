@@ -1,5 +1,6 @@
 // 覆盖率测试：字符分割后处理与完整流水线分支补充
 
+///|
 fn cs_img(w : Int32, h : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn cs_img(w : Int32, h : Int32) -> @types.Image {
   }
 }
 
+///|
 fn cs_bar(w : Int32, h : Int32, bars : Array[(Int32, Int32)]) -> @types.Image {
   // bars: (起始 x, 宽度)；前景（255）竖条，其余背景（0）
   let data : Array[Int32] = Array::make(w * h, 0)
@@ -28,6 +30,7 @@ fn cs_bar(w : Int32, h : Int32, bars : Array[(Int32, Int32)]) -> @types.Image {
   }
 }
 
+///|
 fn cs_full(w : Int32, h : Int32, filler : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -37,6 +40,7 @@ fn cs_full(w : Int32, h : Int32, filler : Int32) -> @types.Image {
   }
 }
 
+///|
 test "cscov: merge_small_segments 分支" {
   // 空列表报错
   try {
@@ -78,6 +82,7 @@ test "cscov: merge_small_segments 分支" {
   assert_true(flat.length() == 1)
 }
 
+///|
 test "cscov: filter_noise_segments 分支" {
   let segs = [(0, 0, 10, 10), (20, 0, 1, 1), (30, 0, 150, 150)]
   // 空列表
@@ -132,10 +137,15 @@ test "cscov: filter_noise_segments 分支" {
   assert_true(out[0].2 == 10)
 }
 
+///|
 test "cscov: 连通域与完整流水线" {
   // 两条字符（宽 6）
   let img = cs_bar(30, 12, [(2, 6), (20, 6)])
-  let segs = @ocr.segment_by_connected_components(img, min_area=5, max_area=100000)
+  let segs = @ocr.segment_by_connected_components(
+    img,
+    min_area=5,
+    max_area=100000,
+  )
   assert_true(segs.length() == 2)
   // 错误分支
   try {
@@ -181,7 +191,11 @@ test "cscov: 连通域与完整流水线" {
     _ => assert_true(true)
   }
   // 完整流水线：两条字符
-  let res = @ocr.complete_char_segmentation(img, min_char_width=5, max_char_width=20)
+  let res = @ocr.complete_char_segmentation(
+    img,
+    min_char_width=5,
+    max_char_width=20,
+  )
   assert_true(res.length() >= 1)
   // 完整流水线：宽粘连块触发滴水分割路径
   let glued = cs_bar(48, 14, [(2, 44)])
@@ -228,13 +242,22 @@ test "cscov: 连通域与完整流水线" {
   }
 }
 
+///|
 test "cscov: detect_touching_chars 与滴水分割" {
   let img = cs_bar(40, 12, [(2, 6), (22, 6)])
-  let touch = @ocr.detect_touching_chars(img, min_char_width=5, max_char_width=10)
+  let touch = @ocr.detect_touching_chars(
+    img,
+    min_char_width=5,
+    max_char_width=10,
+  )
   assert_true(touch.length() >= 0)
   // 宽块 → 检出粘连
   let glued = cs_bar(40, 12, [(2, 36)])
-  let touch2 = @ocr.detect_touching_chars(glued, min_char_width=5, max_char_width=10)
+  let touch2 = @ocr.detect_touching_chars(
+    glued,
+    min_char_width=5,
+    max_char_width=10,
+  )
   assert_true(touch2.length() >= 0)
   // 错误分支
   try {

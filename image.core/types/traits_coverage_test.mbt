@@ -1,23 +1,36 @@
 // 覆盖率测试：ImageLike trait 在四种容器上的默认方法，以及 AnyImage 转换
 
+///|
 fn tk_u8(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   let n = w * h * c
   let d : Array[Byte] = []
   for i in 0..<n {
     d.push((fill + i).to_byte())
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn tk_u16(w : Int32, h : Int32, vals : Array[Int32]) -> @types.Image16 {
   let d : Array[Byte] = []
   for v in vals {
     d.push((v & 0xff).to_byte())
     d.push(((v >> 8) & 0xff).to_byte())
   }
-  @types.Image16::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image16::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn tk_f32(w : Int32, h : Int32, vals : Array[Float]) -> @types.ImageF {
   let d : Array[Byte] = []
   for v in vals {
@@ -26,9 +39,15 @@ fn tk_f32(w : Int32, h : Int32, vals : Array[Float]) -> @types.ImageF {
       d.push(b[j])
     }
   }
-  @types.ImageF::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "tkcov: ImageLike 在 @types.Image 上" {
   let img = tk_u8(2, 3, 3, 10)
   assert_true(img.width() == 2)
@@ -51,6 +70,7 @@ test "tkcov: ImageLike 在 @types.Image 上" {
   assert_true(a.byte_count() == 16)
 }
 
+///|
 test "tkcov: ImageLike 在 @types.Image16 上" {
   let img = tk_u16(2, 2, [1000, 2000, 3000, 4000])
   assert_true(img.width() == 2)
@@ -64,6 +84,7 @@ test "tkcov: ImageLike 在 @types.Image16 上" {
   assert_true(!img.is_rgba())
 }
 
+///|
 test "tkcov: ImageLike 在 @types.ImageF 与 AnyImage 上" {
   let img = tk_f32(2, 2, [0.0F, 0.5F, 1.0F, 2.0F])
   assert_true(img.width() == 2)
@@ -93,13 +114,16 @@ test "tkcov: ImageLike 在 @types.ImageF 与 AnyImage 上" {
   assert_true(f32img.byte_count() == 8)
 }
 
+///|
 test "tkcov: AnyImage 降级到 8-bit" {
   // U8 原样返回
   let src = tk_u8(2, 1, 1, 5)
   let o0 = @types.any_image_to_u8(@types.image_to_any(src))
   assert_true(o0.data[0].to_int() == 5)
   // U16：低位截断 + 高位钳制
-  let o1 = @types.any_image_to_u8(@types.image16_to_any(tk_u16(3, 1, [0x00FF, 0x01FF, 0xABCD])))
+  let o1 = @types.any_image_to_u8(
+    @types.image16_to_any(tk_u16(3, 1, [0x00FF, 0x01FF, 0xABCD])),
+  )
   assert_true(o1.data[0].to_int() == 255)
   assert_true(o1.data[1].to_int() == 255)
   assert_true(o1.data[2].to_int() == 255)
@@ -114,6 +138,7 @@ test "tkcov: AnyImage 降级到 8-bit" {
   assert_true(o2.data[3].to_int() == 255)
 }
 
+///|
 test "tkcov: @types.hdr_from_u8 归一化" {
   let src = tk_u8(2, 1, 1, 0)
   let f = @types.hdr_from_u8(src)

@@ -1,6 +1,9 @@
 // 覆盖率测试：加密报告的全部算法/水印类型分支
 
-fn erc_result(algo : @encryption.EncryptionAlgorithm) -> @encryption.EncryptionResult {
+///|
+fn erc_result(
+  algo : @encryption.EncryptionAlgorithm,
+) -> @encryption.EncryptionResult {
   @encryption.EncryptionResult::{
     encrypted_data: [b'\x01', b'\x02'],
     width: 2,
@@ -14,6 +17,7 @@ fn erc_result(algo : @encryption.EncryptionAlgorithm) -> @encryption.EncryptionR
   }
 }
 
+///|
 fn erc_watermark(kind : @encryption.WatermarkType) -> @encryption.WatermarkInfo {
   @encryption.WatermarkInfo::{
     watermark_type: kind,

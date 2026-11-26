@@ -1,6 +1,14 @@
 // 白盒覆盖率测试：中文 / 手写 OCR 内部流程（分割、裁剪、特征、模板匹配）
 
-fn chw_bin(w : Int32, h : Int32, x0 : Int32, y0 : Int32, bw : Int32, bh : Int32) -> @types.Image {
+///|
+fn chw_bin(
+  w : Int32,
+  h : Int32,
+  x0 : Int32,
+  y0 : Int32,
+  bw : Int32,
+  bh : Int32,
+) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -8,9 +16,15 @@ fn chw_bin(w : Int32, h : Int32, x0 : Int32, y0 : Int32, bw : Int32, bh : Int32)
       d.push(if inside { b'\xff' } else { b'\x00' })
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn chw_chicfg() -> ChineseOcrConfig {
   ChineseOcrConfig::{
     min_char_width: 10,
@@ -21,6 +35,7 @@ fn chw_chicfg() -> ChineseOcrConfig {
   }
 }
 
+///|
 fn chw_hwcfg() -> HandwritingOcrConfig {
   HandwritingOcrConfig::{
     min_char_width: 8,
@@ -34,6 +49,7 @@ fn chw_hwcfg() -> HandwritingOcrConfig {
   }
 }
 
+///|
 test "chicov-wb: 中文分割 / 裁剪 / 特征" {
   let img = chw_bin(64, 64, 16, 16, 32, 32)
   let regions = segment_chinese_chars(img, chw_chicfg())
@@ -74,6 +90,7 @@ test "chicov-wb: 中文分割 / 裁剪 / 特征" {
   assert_true(f2[0] == 0.0)
 }
 
+///|
 test "chicov-wb: 中文模板匹配各度量" {
   let f : Array[Double] = []
   for i in 0..<256 {
@@ -110,6 +127,7 @@ test "chicov-wb: 中文模板匹配各度量" {
   assert_true(r3.1 > 0.0 && r3.1 < 0.1)
 }
 
+///|
 test "hwcov-wb: 手写分割 / 裁剪 / 特征" {
   let img = chw_bin(64, 64, 20, 20, 30, 30)
   let cfg = chw_hwcfg()
@@ -137,6 +155,7 @@ test "hwcov-wb: 手写分割 / 裁剪 / 特征" {
   assert_true(f2[0] == 0.0)
 }
 
+///|
 test "hwcov-wb: 手写模板匹配投票" {
   let f : Array[Double] = []
   for i in 0..<256 {
@@ -144,7 +163,9 @@ test "hwcov-wb: 手写模板匹配投票" {
   }
   // 三变体：0 的两票胜出
   let tpls : Array[(String, Array[Double])] = [
-    ("0_v0", f), ("0_v1", f), ("1_v0", f),
+    ("0_v0", f),
+    ("0_v1", f),
+    ("1_v0", f),
   ]
   let r = match_handwriting_template(f, tpls, "euclidean")
   assert_true(r.0 == "0")
@@ -163,6 +184,7 @@ test "hwcov-wb: 手写模板匹配投票" {
   assert_true(r2.1 == 0.0)
 }
 
+///|
 test "hwcov-wb: 倾斜角度与旋转" {
   let flat = chw_bin(32, 32, 0, 0, 0, 0)
   let a1 = estimate_slant_angle(flat)

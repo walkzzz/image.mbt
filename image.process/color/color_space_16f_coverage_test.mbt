@@ -1,5 +1,6 @@
 // 覆盖率测试：16-bit / float 色彩空间转换（HSL / HSV / XYZ / LAB）
 
+///|
 test "cs16cov: HSL 16-bit 与 float" {
   // 纯红
   let (h1, s1, l1) = @color.rgb_to_hsl_16(65535, 0, 0)
@@ -77,6 +78,7 @@ test "cs16cov: HSL 16-bit 与 float" {
   }
 }
 
+///|
 test "cs16cov: HSV 16-bit 与 float" {
   let (h1, s1, v1) = @color.rgb_to_hsv_16(65535, 0, 0)
   assert_true(h1 == 0.0F)
@@ -149,6 +151,7 @@ test "cs16cov: HSV 16-bit 与 float" {
   }
 }
 
+///|
 test "cs16cov: XYZ 与 LAB" {
   // 白 → X≈0.9505, Y=1, Z≈1.089
   let (x1, y1, z1) = @color.rgb_to_xyz_16(65535, 65535, 65535)

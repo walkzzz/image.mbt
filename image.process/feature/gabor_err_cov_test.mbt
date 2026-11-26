@@ -1,27 +1,40 @@
 // 覆盖率测试：Gabor 滤波与模板匹配的输入校验分支
 
+///|
 fn gbe_i16(w : Int32, h : Int32, c : Int32) -> @types.Image16 {
   let d : Array[Int32] = []
   for i in 0..<(w * h * c) {
-    let v = (i * 97) % 65536
+    let v = i * 97 % 65536
     d.push(v & 0xFF)
     d.push((v >> 8) & 0xFF)
   }
-  @types.Image16::{ width: w, height: h, channels: c, data: Bytes::from_array(d.map(fn(v) { v.to_byte() })) }
+  @types.Image16::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d.map(fn(v) { v.to_byte() })),
+  }
 }
 
+///|
 fn gbe_if(w : Int32, h : Int32, c : Int32) -> @types.ImageF {
   let d : Array[Byte] = []
   for i in 0..<(w * h * c) {
-    let v = Float::from_int((i * 13) % 256) / 255.0F
+    let v = Float::from_int(i * 13 % 256) / 255.0F
     let b = v.to_le_bytes()
     for k in 0..<4 {
       d.push(b[k])
     }
   }
-  @types.ImageF::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "gabor: gabor_filter_16 校验" {
   let img = gbe_i16(8, 8, 1)
   let ok = @feature.gabor_filter_16(img, 3, 1.0F, 0.0F)
@@ -39,9 +52,17 @@ test "gabor: gabor_filter_16 校验" {
     _ => assert_true(true)
   }
   try {
-    let _ = @feature.gabor_filter_16(@types.Image16::{
-      width: 4, height: 4, channels: 1, data: Bytes::from_array([]),
-    }, 3, 1.0F, 0.0F)
+    let _ = @feature.gabor_filter_16(
+      @types.Image16::{
+        width: 4,
+        height: 4,
+        channels: 1,
+        data: Bytes::from_array([]),
+      },
+      3,
+      1.0F,
+      0.0F,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -60,6 +81,7 @@ test "gabor: gabor_filter_16 校验" {
   }
 }
 
+///|
 test "gabor: gabor_filter_f 校验" {
   let img = gbe_if(8, 8, 1)
   let ok = @feature.gabor_filter_f(img, 3, 1.0F, 0.5F)
@@ -77,9 +99,17 @@ test "gabor: gabor_filter_f 校验" {
     _ => assert_true(true)
   }
   try {
-    let _ = @feature.gabor_filter_f(@types.ImageF::{
-      width: 4, height: 4, channels: 1, data: Bytes::from_array([]),
-    }, 3, 1.0F, 0.0F)
+    let _ = @feature.gabor_filter_f(
+      @types.ImageF::{
+        width: 4,
+        height: 4,
+        channels: 1,
+        data: Bytes::from_array([]),
+      },
+      3,
+      1.0F,
+      0.0F,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -98,6 +128,7 @@ test "gabor: gabor_filter_f 校验" {
   }
 }
 
+///|
 test "gabor: 滤波器组校验" {
   let i = gbe_i16(8, 8, 1)
   let bank = @feature.gabor_filter_bank_16(i, 3, 1.0F, num_orientations=4)
@@ -115,9 +146,16 @@ test "gabor: 滤波器组校验" {
     _ => assert_true(true)
   }
   try {
-    let _ = @feature.gabor_filter_bank_16(@types.Image16::{
-      width: 4, height: 4, channels: 1, data: Bytes::from_array([]),
-    }, 3, 1.0F)
+    let _ = @feature.gabor_filter_bank_16(
+      @types.Image16::{
+        width: 4,
+        height: 4,
+        channels: 1,
+        data: Bytes::from_array([]),
+      },
+      3,
+      1.0F,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -144,9 +182,16 @@ test "gabor: 滤波器组校验" {
     _ => assert_true(true)
   }
   try {
-    let _ = @feature.gabor_filter_bank_f(@types.ImageF::{
-      width: 4, height: 4, channels: 1, data: Bytes::from_array([]),
-    }, 3, 1.0F)
+    let _ = @feature.gabor_filter_bank_f(
+      @types.ImageF::{
+        width: 4,
+        height: 4,
+        channels: 1,
+        data: Bytes::from_array([]),
+      },
+      3,
+      1.0F,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -159,6 +204,7 @@ test "gabor: 滤波器组校验" {
   }
 }
 
+///|
 test "gabor: 模板匹配校验" {
   let img = gbe_i16(16, 16, 1)
   let tpl = gbe_i16(4, 4, 1)
@@ -182,9 +228,15 @@ test "gabor: 模板匹配校验" {
     _ => assert_true(true)
   }
   try {
-    let _ = @feature.template_match_16(@types.Image16::{
-      width: 4, height: 4, channels: 1, data: Bytes::from_array([]),
-    }, tpl)
+    let _ = @feature.template_match_16(
+      @types.Image16::{
+        width: 4,
+        height: 4,
+        channels: 1,
+        data: Bytes::from_array([]),
+      },
+      tpl,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -203,7 +255,10 @@ test "gabor: 模板匹配校验" {
   }
   try {
     let _ = @feature.template_match_16(img, @types.Image16::{
-      width: 2, height: 2, channels: 1, data: Bytes::from_array([]),
+      width: 2,
+      height: 2,
+      channels: 1,
+      data: Bytes::from_array([]),
     })
     assert_true(false)
   } catch {

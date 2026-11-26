@@ -1,5 +1,6 @@
 // 覆盖率测试：多语言 OCR 增强（语言检测 / 智能分割 / 空格与标点 / 后处理 / 流水线）
 
+///|
 fn mle_img(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
@@ -7,9 +8,15 @@ fn mle_img(w : Int32, h : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
       d.push(f(x, y).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn mle_all_off() -> @ocr.MultilingualOcrEnhancedConfig {
   @ocr.MultilingualOcrEnhancedConfig::{
     enable_chinese: false,
@@ -27,6 +34,7 @@ fn mle_all_off() -> @ocr.MultilingualOcrEnhancedConfig {
   }
 }
 
+///|
 test "mleov: 默认配置" {
   let cfg = @ocr.multilingual_ocr_enhanced_default_config()
   assert_true(cfg.enable_chinese)
@@ -43,25 +51,32 @@ test "mleov: 默认配置" {
   assert_true(cfg.use_language_model)
 }
 
+///|
 test "mleov: 语言检测分支" {
   // 近方形、适中密度 → chinese 最高分
   let square = mle_img(16, 16, fn(x, y) {
-    if x >= 3 && x < 13 && y >= 3 && y < 13 { 255 } else { 0 }
+    if x >= 3 && x < 13 && y >= 3 && y < 13 {
+      255
+    } else {
+      0
+    }
   })
   let r1 = @ocr.detect_language_enhanced(square)
   assert_true(r1.language == "chinese")
   assert_true(r1.probabilities.length() == 4)
   assert_true(r1.confidence > 0.6 && r1.confidence < 0.8)
   // 窄条、密度适中 → english / digit 领先
-  let narrow = mle_img(8, 16, fn(x, y) {
-    if x >= 2 && x < 5 { 255 } else { 0 }
+  let narrow = mle_img(8, 16, fn(x, _y) {
+    if x >= 2 && x < 5 {
+      255
+    } else {
+      0
+    }
   })
   let r2 = @ocr.detect_language_enhanced(narrow)
   assert_true(r2.language == "english" || r2.language == "digit")
   // 极低密度 → punctuation
-  let sparse = mle_img(32, 8, fn(x, y) {
-    if y == 3 && x < 4 { 255 } else { 0 }
-  })
+  let sparse = mle_img(32, 8, fn(x, y) { if y == 3 && x < 4 { 255 } else { 0 } })
   let r3 = @ocr.detect_language_enhanced(sparse)
   assert_true(r3.language == "punctuation")
   // 全黑（密度 0）→ punctuation
@@ -104,9 +119,14 @@ test "mleov: 语言检测分支" {
   }
 }
 
+///|
 test "mleov: 智能分割" {
   let img = mle_img(64, 64, fn(x, y) {
-    if x >= 20 && x < 40 && y >= 20 && y < 40 { 255 } else { 0 }
+    if x >= 20 && x < 40 && y >= 20 && y < 40 {
+      255
+    } else {
+      0
+    }
   })
   let cfg = @ocr.multilingual_ocr_enhanced_default_config()
   let regions = @ocr.smart_segment_chars(img, cfg)
@@ -121,7 +141,11 @@ test "mleov: 智能分割" {
   assert_true(r2[0].4 == "unknown")
   // 过小连通域被过滤
   let small = mle_img(16, 16, fn(x, y) {
-    if x >= 2 && x < 4 && y >= 2 && y < 4 { 255 } else { 0 }
+    if x >= 2 && x < 4 && y >= 2 && y < 4 {
+      255
+    } else {
+      0
+    }
   })
   let r3 = @ocr.smart_segment_chars(small, cfg)
   assert_true(r3.length() == 0)
@@ -161,6 +185,7 @@ test "mleov: 智能分割" {
   }
 }
 
+///|
 test "mleov: 智能空格与标点规范化" {
   // 中英混排 → 插入空格
   let sp = @ocr.smart_spacing_process("a中b", ["english", "chinese", "digit"])
@@ -192,17 +217,26 @@ test "mleov: 智能空格与标点规范化" {
   assert_true(p6 == ",")
   // 语言模型后处理：低置信度再降
   let confs : Array[Double] = [0.1, 0.5, 0.29]
-  let (t, out) = @ocr.language_model_postprocess("abc", ["english", "english", "english"], confs)
+  let (t, out) = @ocr.language_model_postprocess(
+    "abc",
+    ["english", "english", "english"],
+    confs,
+  )
   assert_true(t == "abc")
   assert_true(out[0] > 0.089 && out[0] < 0.091)
   assert_true(out[1] == 0.5)
   assert_true(out[2] > 0.26 && out[2] < 0.262)
 }
 
+///|
 test "mleov: 增强识别流水线" {
   // 单字符方块 → 至少走一次识别
   let img = mle_img(64, 64, fn(x, y) {
-    if x >= 18 && x < 46 && y >= 18 && y < 46 { 255 } else { 0 }
+    if x >= 18 && x < 46 && y >= 18 && y < 46 {
+      255
+    } else {
+      0
+    }
   })
   let r = @ocr.recognize_multilingual_enhanced(img)
   assert_true(r.confidence >= 0.0 && r.confidence <= 1.0)
@@ -232,7 +266,9 @@ test "mleov: 增强识别流水线" {
   assert_true(r3.confidence >= 0.0)
   // 校验
   try {
-    let _ = @ocr.recognize_multilingual_enhanced(mle_img(0, 8, fn(_x, _y) { 0 }))
+    let _ = @ocr.recognize_multilingual_enhanced(
+      mle_img(0, 8, fn(_x, _y) { 0 }),
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)

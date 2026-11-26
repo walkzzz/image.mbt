@@ -1,13 +1,20 @@
 // 覆盖率测试：图像取证/篡改检测（ELA / 噪声残差 / DCT / 克隆 / 光照 / 元数据 / ghost / CFA / 综合）
 
+///|
 fn td_gray(w : Int32, h : Int32, fill : Int32) -> @types.Image {
   let data : Array[Byte] = []
   for _ in 0..<(w * h) {
     data.push(fill.to_byte())
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 fn td_pattern(w : Int32, h : Int32) -> @types.Image {
   let data : Array[Byte] = []
   for y in 0..<h {
@@ -15,9 +22,15 @@ fn td_pattern(w : Int32, h : Int32) -> @types.Image {
       data.push(((x * 13 + y * 29) % 256).to_byte())
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 test "td: ELA 分析与质量参数边界" {
   let img = td_pattern(16, 16)
   let r = @forensics.analyze_ela(img, 90)
@@ -39,6 +52,7 @@ test "td: ELA 分析与质量参数边界" {
   }
 }
 
+///|
 test "td: 噪声残差分析" {
   // 平坦图：残差全 0
   let flat = @forensics.analyze_noise_residual(td_gray(8, 8, 128))
@@ -58,6 +72,7 @@ test "td: 噪声残差分析" {
   assert_true(noisy.residual_energy > 0.0)
 }
 
+///|
 test "td: DCT 系数分析" {
   let r = @forensics.analyze_dct_coefficients(td_pattern(32, 32))
   assert_true(r.double_jpeg_indicator >= 0.0)
@@ -68,6 +83,7 @@ test "td: DCT 系数分析" {
   assert_true(tiny.blockiness_artifact >= 0.0)
 }
 
+///|
 test "td: 克隆检测" {
   // 复制粘贴同一 8x8 块
   let data : Array[Byte] = []
@@ -80,7 +96,12 @@ test "td: 克隆检测" {
       data.push(if in_src || in_dst { b'\xF0' } else { b'\x10' })
     }
   }
-  let img = @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(data) }
+  let img = @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
   let r = @forensics.detect_clone_regions(img, 4, 0.9)
   assert_true(r.has_clone)
   assert_true(r.clone_region_count >= 1)
@@ -105,6 +126,7 @@ test "td: 克隆检测" {
   }
 }
 
+///|
 test "td: 光照一致性" {
   // 平坦图：无梯度、无高光无阴影
   let flat = @forensics.analyze_illumination_consistency(td_gray(16, 16, 128))
@@ -114,12 +136,17 @@ test "td: 光照一致性" {
   assert_true(!flat.has_inconsistent_lighting)
   // 左暗右亮：既有高光也有阴影
   let data : Array[Byte] = []
-  for y in 0..<16 {
+  for _ in 0..<16 {
     for x in 0..<16 {
       data.push(if x < 8 { b'\x00' } else { b'\xFF' })
     }
   }
-  let img = @types.Image::{ width: 16, height: 16, channels: 1, data: Bytes::from_array(data) }
+  let img = @types.Image::{
+    width: 16,
+    height: 16,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
   let r = @forensics.analyze_illumination_consistency(img)
   assert_true(r.highlight_distribution > 0.0)
   assert_true(r.shadow_consistency == 0.0)
@@ -129,6 +156,7 @@ test "td: 光照一致性" {
   assert_true(tiny.illumination_direction == 0.0)
 }
 
+///|
 test "td: 元数据取证" {
   // 唯一值 < 10 → Paint/Editor，且方形、低分辨率
   let few = @forensics.analyze_metadata_forensics(td_gray(8, 8, 128))
@@ -140,13 +168,18 @@ test "td: 元数据取证" {
   assert_true(few.has_metadata)
   // 唯一值 10~100 → JPEG/Compressed
   let data_mid : Array[Byte] = []
-for y in 0..<16 {
-  for x in 0..<16 {
-    data_mid.push((((x * 2 + y) % 20) * 6).to_byte())
+  for y in 0..<16 {
+    for x in 0..<16 {
+      data_mid.push(((x * 2 + y) % 20 * 6).to_byte())
+    }
   }
-}
-let mid_img = @types.Image::{ width: 16, height: 16, channels: 1, data: Bytes::from_array(data_mid) }
-let mid = @forensics.analyze_metadata_forensics(mid_img)
+  let mid_img = @types.Image::{
+    width: 16,
+    height: 16,
+    channels: 1,
+    data: Bytes::from_array(data_mid),
+  }
+  let mid = @forensics.analyze_metadata_forensics(mid_img)
   assert_true(mid.software_signature == "JPEG/Compressed")
   assert_true(mid.creation_time == "Early/Low-res")
   // 唯一值 > 100 且尺寸 > 64 → consistency 0.8，宽图为 Panorama
@@ -156,7 +189,12 @@ let mid = @forensics.analyze_metadata_forensics(mid_img)
       data.push(((x + y) % 256).to_byte())
     }
   }
-  let wide = @types.Image::{ width: 200, height: 70, channels: 1, data: Bytes::from_array(data) }
+  let wide = @types.Image::{
+    width: 200,
+    height: 70,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
   let big = @forensics.analyze_metadata_forensics(wide)
   assert_true(big.software_signature == "Camera/Raw")
   assert_true(big.creation_time == "Standard")
@@ -170,12 +208,18 @@ let mid = @forensics.analyze_metadata_forensics(mid_img)
       data2.push(((x * 3 + y) % 256).to_byte())
     }
   }
-  let tall = @types.Image::{ width: 70, height: 200, channels: 1, data: Bytes::from_array(data2) }
+  let tall = @types.Image::{
+    width: 70,
+    height: 200,
+    channels: 1,
+    data: Bytes::from_array(data2),
+  }
   let r3 = @forensics.analyze_metadata_forensics(tall)
   assert_true(r3.device_info == "Portrait/Mobile")
   assert_true(r3.creation_time == "Standard")
 }
 
+///|
 test "td: JPEG ghost 与 CFA" {
   let ghost = @forensics.analyze_jpeg_ghost(td_pattern(16, 16))
   assert_true(ghost.ghost_quality_levels.length() == 5)
@@ -196,11 +240,17 @@ test "td: JPEG ghost 与 CFA" {
       data.push(if (x + y) % 2 == 0 { b'\x00' } else { b'\xFF' })
     }
   }
-  let checker = @types.Image::{ width: 8, height: 8, channels: 1, data: Bytes::from_array(data) }
+  let checker = @types.Image::{
+    width: 8,
+    height: 8,
+    channels: 1,
+    data: Bytes::from_array(data),
+  }
   let r2 = @forensics.analyze_cfa_pattern(checker)
   assert_true(r2.bayer_pattern_score == 0.0)
 }
 
+///|
 test "td: 综合检测" {
   let img = td_pattern(32, 32)
   let r = @forensics.detect_tamper_comprehensive(img, 90)

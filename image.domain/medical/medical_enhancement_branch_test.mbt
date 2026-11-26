@@ -1,6 +1,12 @@
 // 覆盖率测试：医学增强的窗宽窗位预设、分割、病灶、配准与报告分支
 
-fn medc_img(w : Int32, h : Int32, slices : Int32, value : Double) -> @medical.MedicalImage {
+///|
+fn medc_img(
+  w : Int32,
+  h : Int32,
+  slices : Int32,
+  value : Double,
+) -> @medical.MedicalImage {
   @medical.MedicalImage::{
     width: w,
     height: h,
@@ -15,6 +21,7 @@ fn medc_img(w : Int32, h : Int32, slices : Int32, value : Double) -> @medical.Me
   }
 }
 
+///|
 fn medc_grad(w : Int32, h : Int32) -> @medical.MedicalImage {
   let data : Array[Double] = []
   for y in 0..<h {
@@ -36,8 +43,15 @@ fn medc_grad(w : Int32, h : Int32) -> @medical.MedicalImage {
   }
 }
 
-
-fn medc_lesion(w : Int32, h : Int32, x0 : Int32, y0 : Int32, side : Int32, value : Double) -> @medical.MedicalImage {
+///|
+fn medc_lesion(
+  w : Int32,
+  h : Int32,
+  x0 : Int32,
+  y0 : Int32,
+  side : Int32,
+  value : Double,
+) -> @medical.MedicalImage {
   let data : Array[Double] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -62,6 +76,7 @@ fn medc_lesion(w : Int32, h : Int32, x0 : Int32, y0 : Int32, side : Int32, value
   }
 }
 
+///|
 test "medcov: 窗宽窗位预设六分支" {
   let cases = [
     ("brain", 40.0, 80.0),
@@ -84,6 +99,7 @@ test "medcov: 窗宽窗位预设六分支" {
   assert_true(custom.width == 256.0)
 }
 
+///|
 test "medcov: apply_window_level_medical 钳制分支" {
   let img = medc_grad(8, 8)
   // 正常窗
@@ -109,6 +125,7 @@ test "medcov: apply_window_level_medical 钳制分支" {
   assert_true(out3.data[0].to_int() == 255)
 }
 
+///|
 test "medcov: 阈值分割与区域生长" {
   let img = medc_grad(6, 6)
   // 阈值区间覆盖部分像素
@@ -162,6 +179,7 @@ test "medcov: 阈值分割与区域生长" {
   assert_true(neg_true == 0)
 }
 
+///|
 test "medcov: ROI 统计与病灶检测" {
   let img = medc_grad(10, 10)
   // 掩码部分为真
@@ -196,6 +214,7 @@ test "medcov: ROI 统计与病灶检测" {
   assert_true(none.length() == 0)
 }
 
+///|
 test "medcov: 配准 / 质量 / 报告分支" {
   let a = medc_grad(8, 8)
   let b = medc_grad(8, 8)

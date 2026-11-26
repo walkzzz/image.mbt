@@ -1,5 +1,6 @@
 // 覆盖率测试：统一 info 在 TGA / ICO / CUR / ICNS / APNG / HDR / TIFF 上的分支
 
+///|
 fn uff_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn uff_img(w : Int32, h : Int32, c : Int32, fill : Int32) -> @types.Image {
   }
 }
 
+///|
 fn uff_imagef(w : Int32, h : Int32, c : Int32, v : Double) -> @types.ImageF {
   let n = w * h * c
   let out : Array[Byte] = []
@@ -18,9 +20,15 @@ fn uff_imagef(w : Int32, h : Int32, c : Int32, v : Double) -> @types.ImageF {
       out.push(b[k])
     }
   }
-  @types.ImageF::{ width: w, height: h, channels: c, data: Bytes::from_array(out) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(out),
+  }
 }
 
+///|
 fn uff_zero() -> @lib.UnifiedImageInfo {
   @lib.UnifiedImageInfo::{
     format: @types.ImageFormat::Unknown,
@@ -33,6 +41,7 @@ fn uff_zero() -> @lib.UnifiedImageInfo {
   }
 }
 
+///|
 fn uff_info(data : Bytes) -> @lib.UnifiedImageInfo {
   @lib.get_image_info(data) catch {
     _ => uff_zero()
@@ -45,9 +54,7 @@ test "uff: TGA 统一 info" {
   let info = uff_info(tga)
   assert_true(info.width == 4)
   assert_true(info.height == 4)
-  let summary = @lib.get_image_summary(tga) catch {
-    _ => ""
-  }
+  let summary = @lib.get_image_summary(tga) catch { _ => "" }
   assert_true(summary.length() > 0)
 }
 
@@ -71,10 +78,11 @@ test "uff: ICNS 统一 info" {
 
 ///|
 test "uff: APNG 统一 info" {
-  let anim = @types.PngAnimation::{ frames: [uff_img(5, 5, 3, 40)], delays: [100] }
-  let apng = @codec.encode_apng_pure(anim) catch {
-    _ => Bytes::from_array([])
+  let anim = @types.PngAnimation::{
+    frames: [uff_img(5, 5, 3, 40)],
+    delays: [100],
   }
+  let apng = @codec.encode_apng_pure(anim) catch { _ => Bytes::from_array([]) }
   let info = uff_info(apng)
   assert_true(info.width == 5 || info.format_name == "APNG")
 }

@@ -1,6 +1,12 @@
 // 覆盖率测试：图像修复（inpaint_advanced / create_rect_mask / remove_small_objects / remove_watermark）
 
-fn ip_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
+///|
+fn ip_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Int32,
+) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -9,13 +15,20 @@ fn ip_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @type
       }
     }
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn ip_gray(w : Int32, h : Int32) -> @types.Image {
   ip_img(w, h, 1, fn(x, y) { 40 + (x * 7 + y * 11) % 200 })
 }
 
+///|
 fn ip_params() -> @types.Image {
   @types.Image::{
     width: 4,
@@ -25,6 +38,7 @@ fn ip_params() -> @types.Image {
   }
 }
 
+///|
 test "ipcov: 默认配置与矩形掩码" {
   let cfg = @enhance.inpaint_default_config()
   assert_true(cfg.radius == 5)
@@ -74,6 +88,7 @@ test "ipcov: 默认配置与矩形掩码" {
   }
 }
 
+///|
 test "ipcov: inpaint_advanced 主流程" {
   // 灰度
   let g = ip_gray(8, 8)
@@ -91,7 +106,13 @@ test "ipcov: inpaint_advanced 主流程" {
   assert_true(o3.channels == 3)
   assert_true(o3.data.length() == 192)
   // 4 通道
-  let rgba = ip_img(8, 8, 4, fn(x, y) { if (x + y) % 2 == 0 { 200 } else { 50 } })
+  let rgba = ip_img(8, 8, 4, fn(x, y) {
+    if (x + y) % 2 == 0 {
+      200
+    } else {
+      50
+    }
+  })
   let o4 = @enhance.inpaint_advanced(rgba, mask, radius=1)
   assert_true(o4.channels == 4)
   // 无掩码区域 → 原样
@@ -108,7 +129,10 @@ test "ipcov: inpaint_advanced 主流程" {
     _ => assert_true(false)
   }
   try {
-    let _ = @enhance.inpaint_advanced(ip_img(4, 4, 5, fn(_x, _y) { 1 }), @enhance.create_rect_mask(4, 4, 0, 0, 1, 1))
+    let _ = @enhance.inpaint_advanced(
+      ip_img(4, 4, 5, fn(_x, _y) { 1 }),
+      @enhance.create_rect_mask(4, 4, 0, 0, 1, 1),
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -122,7 +146,10 @@ test "ipcov: inpaint_advanced 主流程" {
     _ => assert_true(false)
   }
   try {
-    let _ = @enhance.inpaint_advanced(g, @enhance.create_rect_mask(4, 4, 0, 0, 1, 1))
+    let _ = @enhance.inpaint_advanced(
+      g,
+      @enhance.create_rect_mask(4, 4, 0, 0, 1, 1),
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -137,10 +164,15 @@ test "ipcov: inpaint_advanced 主流程" {
   }
 }
 
+///|
 test "ipcov: remove_small_objects 与 remove_watermark" {
   // 含孤立亮点的图
   let speck = ip_img(8, 8, 1, fn(x, y) {
-    if x == 2 && y == 2 { 255 } else { 10 }
+    if x == 2 && y == 2 {
+      255
+    } else {
+      10
+    }
   })
   let o1 = @enhance.remove_small_objects(speck, max_size=10)
   assert_true(o1.width == 8)
@@ -178,14 +210,26 @@ test "ipcov: remove_small_objects 与 remove_watermark" {
   assert_true(w2.channels == 3)
   // 错误
   try {
-    let _ = @enhance.remove_watermark(ip_img(0, 4, 1, fn(_x, _y) { 1 }), 0, 0, 1, 1)
+    let _ = @enhance.remove_watermark(
+      ip_img(0, 4, 1, fn(_x, _y) { 1 }),
+      0,
+      0,
+      1,
+      1,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @enhance.remove_watermark(ip_img(4, 4, 5, fn(_x, _y) { 1 }), 0, 0, 1, 1)
+    let _ = @enhance.remove_watermark(
+      ip_img(4, 4, 5, fn(_x, _y) { 1 }),
+      0,
+      0,
+      1,
+      1,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)

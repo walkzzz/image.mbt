@@ -1,5 +1,6 @@
 // 覆盖率测试：OCR 性能工具 / 批处理 / 二值化 / 表格结构
 
+///|
 fn opb_gray(w : Int32, h : Int32, fill : Int32) -> @types.Image {
   @types.Image::{
     width: w,
@@ -9,6 +10,7 @@ fn opb_gray(w : Int32, h : Int32, fill : Int32) -> @types.Image {
   }
 }
 
+///|
 fn opb_table() -> @types.Image {
   // 64x64 白底，3 条横线与 3 条竖线
   let w = 64
@@ -24,9 +26,15 @@ fn opb_table() -> @types.Image {
       d[y * w + x] = 0
     }
   }
-  @types.Image::{ width: w, height: h, channels: 1, data: Bytes::from_array(d.map(fn(v) { v.to_byte() })) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: 1,
+    data: Bytes::from_array(d.map(fn(v) { v.to_byte() })),
+  }
 }
 
+///|
 test "perf: LUT 与投影" {
   let lut = @ocr.build_grayscale_lut()
   assert_true(lut.length() == 256)
@@ -117,6 +125,7 @@ test "perf: LUT 与投影" {
   }
 }
 
+///|
 test "batch: 任务生命周期与摘要" {
   let cfg = @ocr.create_default_batch_config()
   assert_true(cfg.max_concurrent >= 1)
@@ -176,6 +185,7 @@ test "batch: 任务生命周期与摘要" {
   }
 }
 
+///|
 test "bin: Niblack / Sauvola / 自适应 / Otsu" {
   let img = opb_gray(32, 32, 128)
   let n = @ocr.niblack_threshold(img)
@@ -194,7 +204,9 @@ test "bin: Niblack / Sauvola / 自适应 / Otsu" {
   assert_true(o.width == 32)
   // 错误分支
   let rgb = @types.Image::{
-    width: 8, height: 8, channels: 3,
+    width: 8,
+    height: 8,
+    channels: 3,
     data: Bytes::from_array(Array::make(8 * 8 * 3, (10).to_byte())),
   }
   try {
@@ -241,6 +253,7 @@ test "bin: Niblack / Sauvola / 自适应 / Otsu" {
   }
 }
 
+///|
 test "tab: 表格线与结构识别" {
   let t = opb_table()
   let hl = @ocr.detect_horizontal_lines(t, min_length=20, max_gap=2)

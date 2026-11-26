@@ -74,16 +74,13 @@ test "eng: 非法配置与非法输入照常抛错" {
     data: Bytes::from_array(data),
   }
   try {
-    let _ = recognize_english(
-      gray,
-      config=EnglishOcrConfig::{
-        min_char_width: 0,
-        max_char_width: 10,
-        target_size: 8,
-        case_sensitive: false,
-        distance_metric: "euclidean",
-      },
-    )
+    let _ = recognize_english(gray, config=EnglishOcrConfig::{
+      min_char_width: 0,
+      max_char_width: 10,
+      target_size: 8,
+      case_sensitive: false,
+      distance_metric: "euclidean",
+    })
     assert_true(false)
   } catch {
     _ => assert_true(true)

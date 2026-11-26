@@ -1,5 +1,6 @@
 // 覆盖率测试：OCR 训练框架（数据加载 / 学习率调度 / 增强 / 早停 / 报告 / 划分 / 混淆矩阵）
 
+///|
 fn tfc_sample(label : Int32) -> @ocr.DLTrainingSample {
   @ocr.DLTrainingSample::{
     image_data: [0.1, 0.2, 0.3, 0.4],
@@ -10,6 +11,7 @@ fn tfc_sample(label : Int32) -> @ocr.DLTrainingSample {
   }
 }
 
+///|
 fn tfc_samples(n : Int32) -> Array[@ocr.DLTrainingSample] {
   let out : Array[@ocr.DLTrainingSample] = []
   for i in 0..<n {
@@ -18,6 +20,7 @@ fn tfc_samples(n : Int32) -> Array[@ocr.DLTrainingSample] {
   out
 }
 
+///|
 fn tfc_metrics(
   epoch : Int32,
   val_acc : Double,
@@ -35,6 +38,7 @@ fn tfc_metrics(
   }
 }
 
+///|
 fn tfc_lr_cfg(
   kind : @ocr.LRSchedulerType,
   initial : Double,
@@ -52,13 +56,16 @@ fn tfc_lr_cfg(
   }
 }
 
+///|
 test "tfcov: 默认训练配置" {
   let cfg = @ocr.create_default_training_config()
   assert_true(cfg.epochs == 50)
   assert_true(cfg.batch_size == 32)
   assert_true(cfg.optimizer.optimizer_type == @ocr.OptimizerType::Adam)
   assert_true(cfg.optimizer.learning_rate == 0.001)
-  assert_true(cfg.lr_scheduler.scheduler_type == @ocr.LRSchedulerType::CosineAnnealing)
+  assert_true(
+    cfg.lr_scheduler.scheduler_type == @ocr.LRSchedulerType::CosineAnnealing,
+  )
   assert_true(cfg.augmentation.enabled)
   assert_true(cfg.augmentation.augmentation_types.length() == 4)
   assert_true(cfg.early_stopping_patience == 10)
@@ -66,6 +73,7 @@ test "tfcov: 默认训练配置" {
   assert_true(cfg.random_seed == 42)
 }
 
+///|
 test "tfcov: 数据加载器与取批" {
   let loader = @ocr.create_data_loader(tfc_samples(5), 2, true)
   assert_true(loader.batch_size == 2)
@@ -132,6 +140,7 @@ test "tfcov: 数据加载器与取批" {
   }
 }
 
+///|
 test "tfcov: 学习率调度各分支" {
   // Constant
   let c = @ocr.calculate_learning_rate(
@@ -260,6 +269,7 @@ test "tfcov: 学习率调度各分支" {
   }
 }
 
+///|
 test "tfcov: 数据增强" {
   let s = tfc_sample(1)
   // 旋转 / 平移 / 缩放为占位实现：原样返回
@@ -302,7 +312,10 @@ test "tfcov: 数据增强" {
   // 开启且含噪声 → 变化
   let on = @ocr.AugmentationConfig::{
     enabled: true,
-    augmentation_types: [@ocr.AugmentationType::RandomRotation, @ocr.AugmentationType::RandomNoise],
+    augmentation_types: [
+      @ocr.AugmentationType::RandomRotation,
+      @ocr.AugmentationType::RandomNoise,
+    ],
     rotation_range: 15.0,
     shift_range: 0.1,
     scale_range: 0.1,
@@ -332,6 +345,7 @@ test "tfcov: 数据增强" {
   assert_true(a3.image_data == s.image_data)
 }
 
+///|
 test "tfcov: 准确率 / 早停 / 状态记录" {
   // 准确率
   let acc = @ocr.calculate_accuracy([1, 2, 3], [1, 2, 4])
@@ -386,6 +400,7 @@ test "tfcov: 准确率 / 早停 / 状态记录" {
   assert_true(r2.current_epoch == 2)
 }
 
+///|
 test "tfcov: 训练报告 / 数据划分 / 混淆矩阵" {
   let cfg = @ocr.create_default_training_config()
   let st = @ocr.create_training_state()

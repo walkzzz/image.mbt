@@ -39,7 +39,7 @@ fn ela_no_list() -> @ocr.ListItemInfo {
 
 ///|
 fn ela_element(
-  t : MarkdownElementType,
+  t : @ocr.MarkdownElementType,
   content : String,
   header~ : Bool = false,
   footer~ : Bool = false,

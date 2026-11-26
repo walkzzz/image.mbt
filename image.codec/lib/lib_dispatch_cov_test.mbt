@@ -1,12 +1,18 @@
 // 覆盖率测试：lib 统一分派 API 的各格式臂
 
+///|
 fn ldc_img(w : Int32, h : Int32, ch : Int32) -> @types.Image {
   let n = w * h * ch
   let data : Array[Byte] = []
   for i in 0..<n {
-    data.push(((i * 7) % 256).to_byte())
+    data.push((i * 7 % 256).to_byte())
   }
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
 ///|
@@ -26,9 +32,7 @@ test "ldc: save_image_auto 全格式分派" {
     @types.ImageFormat::Webp,
   ]
   for f in fmts {
-    let out = @lib.save_image_auto(img, f) catch {
-      _ => Bytes::from_array([])
-    }
+    let out = @lib.save_image_auto(img, f) catch { _ => Bytes::from_array([]) }
     assert_true(out.length() > 0)
   }
 }
@@ -67,7 +71,11 @@ test "ldc: 不支持的格式拒绝保存" {
     _ => assert_true(true)
   }
   try {
-    let _ = @lib.save_image_with_quality(ldc_img(8, 8, 3), @types.ImageFormat::Psd, 80)
+    let _ = @lib.save_image_with_quality(
+      ldc_img(8, 8, 3),
+      @types.ImageFormat::Psd,
+      80,
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -78,7 +86,11 @@ test "ldc: 不支持的格式拒绝保存" {
 test "ldc: load_any 对 HDR 显式报错" {
   let fdata : Array[Byte] = []
   try {
-    let _ = @lib.load_from_bytes_auto(Bytes::from_array([0x23, 0x3F, 0x52, 0x41, 0x44, 0x49, 0x41, 0x4E, 0x43, 0x45]))
+    let _ = @lib.load_from_bytes_auto(
+      Bytes::from_array([
+        0x23, 0x3F, 0x52, 0x41, 0x44, 0x49, 0x41, 0x4E, 0x43, 0x45,
+      ]),
+    )
     assert_true(false)
   } catch {
     _ => assert_true(true)
@@ -90,13 +102,9 @@ test "ldc: load_any 对 HDR 显式报错" {
 ///|
 test "ldc: decode_webp 委托与 load_any_f 分派" {
   let img = ldc_img(16, 16, 3)
-  let webp = @lib.encode_webp_lossless(img) catch {
-    _ => Bytes::from_array([])
-  }
+  let webp = @lib.encode_webp_lossless(img) catch { _ => Bytes::from_array([]) }
   if webp.length() > 0 {
-    let back = @lib.decode_webp(webp) catch {
-      _ => ldc_img(1, 1, 3)
-    }
+    let back = @lib.decode_webp(webp) catch { _ => ldc_img(1, 1, 3) }
     assert_true(back.width == 16)
     assert_true(back.height == 16)
   }
@@ -130,10 +138,7 @@ test "ldc: APNG 解码取首帧" {
   let img = ldc_img(8, 8, 3)
   let frames : Array[@types.Image] = [img, img]
   let delays : Array[Int32] = [100, 100]
-  let apng = @codec.encode_apng_pure(@types.PngAnimation::{
-    frames,
-    delays,
-  })
+  let apng = @codec.encode_apng_pure(@types.PngAnimation::{ frames, delays, })
   try {
     let first = @lib.load_from_bytes_auto(apng)
     assert_true(first.width == 8)

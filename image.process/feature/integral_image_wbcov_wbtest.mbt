@@ -1,15 +1,27 @@
 // 白盒覆盖：积分图像的参数校验分支
 
+///|
 fn iic_img(w : Int32, h : Int32, ch : Int32, v : Int32) -> @types.Image {
   let n = w * h * ch
   let data : Array[Byte] = Array::make(n, v.to_byte())
-  @types.Image::{ width: w, height: h, channels: ch, data: Bytes::from_array(data) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: ch,
+    data: Bytes::from_array(data),
+  }
 }
 
+///|
 fn iic_zero(w : Int32, h : Int32) -> IntegralImage {
-  IntegralImage::{ width: w, height: h, data: Array::make((w + 1) * (h + 1), 0L) }
+  IntegralImage::{
+    width: w,
+    height: h,
+    data: Array::make((w + 1) * (h + 1), 0L),
+  }
 }
 
+///|
 fn iic_zero_sq(w : Int32, h : Int32) -> IntegralImageSq {
   IntegralImageSq::{
     width: w,
@@ -140,8 +152,6 @@ test "iic: 平方积分与方差校验" {
   } catch {
     _ => assert_true(true)
   }
-  let v = integral_variance(ii, sq, 0, 0, 1, 1) catch {
-    _ => -1.0F
-  }
+  let v = integral_variance(ii, sq, 0, 0, 1, 1) catch { _ => -1.0F }
   assert_true(v == 0.0F)
 }

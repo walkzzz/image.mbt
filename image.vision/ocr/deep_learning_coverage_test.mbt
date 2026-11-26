@@ -1,6 +1,12 @@
 // 覆盖率测试：OCR 深度学习集成（层 / 归一化 / 卷积 / 池化 / 全连接 / 推理 / 特征）
 
-fn dlc_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @types.Image {
+///|
+fn dlc_img(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  f : (Int32, Int32) -> Int32,
+) -> @types.Image {
   let d : Array[Byte] = []
   for y in 0..<h {
     for x in 0..<w {
@@ -10,13 +16,20 @@ fn dlc_img(w : Int32, h : Int32, c : Int32, f : (Int32, Int32) -> Int32) -> @typ
       }
     }
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 fn dlc_grad(w : Int32, h : Int32) -> @types.Image {
   dlc_img(w, h, 1, fn(x, y) { x + y })
 }
 
+///|
 test "dlcov: 默认 CNN 配置与层构造" {
   let cfg = @ocr.create_default_char_cnn_config(10)
   assert_true(cfg.model_name == "char_cnn_v1")
@@ -28,53 +41,34 @@ test "dlcov: 默认 CNN 配置与层构造" {
   assert_true(cfg.dense_layers[0].out_features == 256)
   assert_true(cfg.batch_size == 32)
   // Conv2D：形状不变
-  let l1 = @ocr.create_neural_layer(
-    @ocr.DLLayerType::Conv2D,
-    "conv1",
-    [1, 8, 8],
-  )
+  let l1 = @ocr.create_neural_layer(@ocr.DLLayerType::Conv2D, "conv1", [1, 8, 8])
   assert_true(l1.output_shape.length() == 3)
   assert_true(l1.output_shape[1] == 8)
   assert_true(l1.config == "{}")
   assert_true(l1.weights.length() == 0)
   // MaxPool2D / AvgPool2D：减半
-  let l2 = @ocr.create_neural_layer(
-    @ocr.DLLayerType::MaxPool2D,
-    "pool",
-    [2, 8, 6],
-  )
+  let l2 = @ocr.create_neural_layer(@ocr.DLLayerType::MaxPool2D, "pool", [
+    2, 8, 6,
+  ])
   assert_true(l2.output_shape[1] == 4)
   assert_true(l2.output_shape[2] == 3)
-  let l3 = @ocr.create_neural_layer(
-    @ocr.DLLayerType::AvgPool2D,
-    "apool",
-    [2, 8, 6],
-  )
+  let l3 = @ocr.create_neural_layer(@ocr.DLLayerType::AvgPool2D, "apool", [
+    2, 8, 6,
+  ])
   assert_true(l3.output_shape[1] == 4)
   // Flatten：乘积
-  let l4 = @ocr.create_neural_layer(
-    @ocr.DLLayerType::Flatten,
-    "flat",
-    [2, 4, 4],
-  )
+  let l4 = @ocr.create_neural_layer(@ocr.DLLayerType::Flatten, "flat", [2, 4, 4])
   assert_true(l4.output_shape[0] == 32)
   // Dense：单元素
-  let l5 = @ocr.create_neural_layer(
-    @ocr.DLLayerType::Dense,
-    "fc",
-    [32, 1, 1],
-  )
+  let l5 = @ocr.create_neural_layer(@ocr.DLLayerType::Dense, "fc", [32, 1, 1])
   assert_true(l5.output_shape[0] == 32)
   // ReLU 等：原样
-  let l6 = @ocr.create_neural_layer(
-    @ocr.DLLayerType::ReLU,
-    "relu",
-    [3, 3],
-  )
+  let l6 = @ocr.create_neural_layer(@ocr.DLLayerType::ReLU, "relu", [3, 3])
   assert_true(l6.output_shape.length() == 2)
   assert_true(l6.input_shape[0] == 3)
 }
 
+///|
 test "dlcov: 归一化与缩放" {
   // 归一化
   let n = @ocr.normalize_image([10.0, 20.0], 10.0, 5.0)
@@ -108,14 +102,18 @@ test "dlcov: 归一化与缩放" {
   assert_true(up.length() == 64)
   // 校验
   try {
-    let _ = @ocr.resize_image_for_cnn(dlc_img(0, 4, 1, fn(x, y) { x + 0 * y }), 2, 2)
+    let _ = @ocr.resize_image_for_cnn(
+      dlc_img(0, 4, 1, fn(x, y) { x + 0 * y }),
+      2,
+      2,
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
   try {
-    let _ = @ocr.resize_image_for_cnn(dlc_img(2, 2, 5, fn(x, y) { x }), 2, 2)
+    let _ = @ocr.resize_image_for_cnn(dlc_img(2, 2, 5, fn(x, _y) { x }), 2, 2)
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -143,6 +141,7 @@ test "dlcov: 归一化与缩放" {
   }
 }
 
+///|
 test "dlcov: 激活函数与 softmax" {
   assert_true(@ocr.relu(-1.0) == 0.0)
   assert_true(@ocr.relu(2.5) == 2.5)
@@ -165,6 +164,7 @@ test "dlcov: 激活函数与 softmax" {
   assert_true(total > 0.99 && total < 1.01)
 }
 
+///|
 test "dlcov: 卷积与池化" {
   // 3x3 输入、全 1 核、无填充、步长 1 → 单输出 = 45
   let input : Array[Double] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
@@ -299,26 +299,47 @@ test "dlcov: 卷积与池化" {
   }
 }
 
+///|
 test "dlcov: 全连接与推理" {
   // identity 权重：out = [1, 2]
   let d = @ocr.dense_forward(
-    [1.0, 2.0], [1.0, 0.0, 0.0, 1.0], [0.0, 0.0], 2, 2, "none",
+    [1.0, 2.0],
+    [1.0, 0.0, 0.0, 1.0],
+    [0.0, 0.0],
+    2,
+    2,
+    "none",
   )
   assert_true(d.length() == 2)
   assert_true(d[0] == 1.0)
   assert_true(d[1] == 2.0)
   // relu 分支
   let dr = @ocr.dense_forward(
-    [-1.0, 2.0], [1.0, 0.0, 0.0, 1.0], [0.0, 0.0], 2, 2, "relu",
+    [-1.0, 2.0],
+    [1.0, 0.0, 0.0, 1.0],
+    [0.0, 0.0],
+    2,
+    2,
+    "relu",
   )
   assert_true(dr[0] == 0.0)
   // sigmoid / tanh 分支
   let ds = @ocr.dense_forward(
-    [1.0, 2.0], [1.0, 0.0, 0.0, 1.0], [0.0, 0.0], 2, 2, "sigmoid",
+    [1.0, 2.0],
+    [1.0, 0.0, 0.0, 1.0],
+    [0.0, 0.0],
+    2,
+    2,
+    "sigmoid",
   )
   assert_true(ds[0] > 0.5)
   let dt = @ocr.dense_forward(
-    [1.0, 2.0], [1.0, 0.0, 0.0, 1.0], [0.0, 0.0], 2, 2, "tanh",
+    [1.0, 2.0],
+    [1.0, 0.0, 0.0, 1.0],
+    [0.0, 0.0],
+    2,
+    2,
+    "tanh",
   )
   assert_true(dt[0] > 0.5 && dt[1] > 0.9)
   // 推理：类别分数带 c*0.001 偏置 → 最高类为最后一个
@@ -333,6 +354,7 @@ test "dlcov: 全连接与推理" {
   assert_true(ir2.predicted_label == "unknown")
 }
 
+///|
 test "dlcov: 训练样本 / 损失 / 报告 / 模型" {
   let img = dlc_grad(8, 8)
   let sample = @ocr.create_training_sample(img, 3, "3")
@@ -341,7 +363,11 @@ test "dlcov: 训练样本 / 损失 / 报告 / 模型" {
   assert_true(sample.width == 32)
   assert_true(sample.image_data.length() == 1024)
   try {
-    let _ = @ocr.create_training_sample(dlc_img(0, 4, 1, fn(x, y) { x }), 1, "1")
+    let _ = @ocr.create_training_sample(
+      dlc_img(0, 4, 1, fn(x, _y) { x }),
+      1,
+      "1",
+    )
     assert_true(false)
   } catch {
     @types.LoadError::DecodeFailed(_) => assert_true(true)
@@ -380,6 +406,7 @@ test "dlcov: 训练样本 / 损失 / 报告 / 模型" {
   assert_true(@ocr.load_model("m.json") == None)
 }
 
+///|
 test "dlcov: 特征提取与余弦相似度" {
   let ex = @ocr.create_feature_extractor("char_cnn_v1", 20)
   assert_true(ex.feature_dim == 20)

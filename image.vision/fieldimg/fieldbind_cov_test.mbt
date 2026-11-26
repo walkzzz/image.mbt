@@ -1,5 +1,6 @@
 // 覆盖率测试：Image ↔ ScalarField / VectorField 双向绑定
 
+///|
 fn fb_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
   let d : Array[Int32] = []
   for y in 0..<h {
@@ -9,20 +10,37 @@ fn fb_img(w : Int32, h : Int32, c : Int32, seed : Int32) -> @types.Image {
       }
     }
   }
-  @types.Image::{ width: w, height: h, channels: c, data: Bytes::from_array(d.map(fn(v) { v.to_byte() })) }
+  @types.Image::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d.map(fn(v) { v.to_byte() })),
+  }
 }
 
+///|
 fn fb_img16(w : Int32, h : Int32, c : Int32) -> @types.Image16 {
   let d : Array[Int32] = []
   for i in 0..<(w * h * c) {
-    let v = (i * 137) % 65536
+    let v = i * 137 % 65536
     d.push(v & 0xFF)
     d.push((v >> 8) & 0xFF)
   }
-  @types.Image16::{ width: w, height: h, channels: c, data: Bytes::from_array(d.map(fn(v) { v.to_byte() })) }
+  @types.Image16::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d.map(fn(v) { v.to_byte() })),
+  }
 }
 
-fn fb_imgf(w : Int32, h : Int32, c : Int32, vals : Array[Float]) -> @types.ImageF {
+///|
+fn fb_imgf(
+  w : Int32,
+  h : Int32,
+  c : Int32,
+  vals : Array[Float],
+) -> @types.ImageF {
   let d : Array[Byte] = []
   for v in vals {
     let b = v.to_le_bytes()
@@ -30,9 +48,15 @@ fn fb_imgf(w : Int32, h : Int32, c : Int32, vals : Array[Float]) -> @types.Image
       d.push(b[i])
     }
   }
-  @types.ImageF::{ width: w, height: h, channels: c, data: Bytes::from_array(d) }
+  @types.ImageF::{
+    width: w,
+    height: h,
+    channels: c,
+    data: Bytes::from_array(d),
+  }
 }
 
+///|
 test "field: Image ↔ ScalarField" {
   let gray = fb_img(8, 6, 1, 5)
   let sf = @fieldimg.image_to_scalar_field(gray)
@@ -59,17 +83,25 @@ test "field: Image ↔ ScalarField" {
   }
 }
 
+///|
 test "field: ScalarField ↔ Image 钳位" {
-  let clipped = @fieldimg.scalar_field_to_image(@fieldimg.ScalarField::{ width: 2, height: 1, data: [
-    -0.5F, 1.5F,
-  ] })
+  let clipped = @fieldimg.scalar_field_to_image(@fieldimg.ScalarField::{
+    width: 2,
+    height: 1,
+    data: [-0.5F, 1.5F],
+  })
   assert_true(clipped.width == 2)
   assert_true(clipped.data[0].to_int() == 0)
   assert_true(clipped.data[1].to_int() == 255)
-  let mid = @fieldimg.scalar_field_to_image(@fieldimg.ScalarField::{ width: 1, height: 1, data: [0.5F] })
+  let mid = @fieldimg.scalar_field_to_image(@fieldimg.ScalarField::{
+    width: 1,
+    height: 1,
+    data: [0.5F],
+  })
   assert_true(mid.data[0].to_int() >= 127)
 }
 
+///|
 test "field: Image ↔ VectorField" {
   let rgb = fb_img(4, 3, 3, 7)
   let vf = @fieldimg.image_to_vector_field(rgb)
@@ -83,9 +115,12 @@ test "field: Image ↔ VectorField" {
   assert_true(vf4.dim == 4)
   assert_true(@fieldimg.vector_field_to_image(vf4).channels == 4)
   // 钳位
-  let clip = @fieldimg.vector_field_to_image(@fieldimg.VectorField::{ width: 2, height: 1, dim: 2, data: [
-    -1.0F, 2.0F, 1.5F, -0.5F,
-  ] })
+  let clip = @fieldimg.vector_field_to_image(@fieldimg.VectorField::{
+    width: 2,
+    height: 1,
+    dim: 2,
+    data: [-1.0F, 2.0F, 1.5F, -0.5F],
+  })
   assert_true(clip.data[0].to_int() == 0)
   assert_true(clip.data[1].to_int() == 255)
   // 错误分支
@@ -97,7 +132,9 @@ test "field: Image ↔ VectorField" {
   }
   try {
     let _ = @fieldimg.image_to_vector_field(@types.Image::{
-      width: 4, height: 4, channels: 0,
+      width: 4,
+      height: 4,
+      channels: 0,
       data: Bytes::from_array([]),
     })
     assert_true(false)
@@ -106,6 +143,7 @@ test "field: Image ↔ VectorField" {
   }
 }
 
+///|
 test "field: 16-bit 与 float 源" {
   let i16 = fb_img16(4, 3, 1)
   let sf = @fieldimg.image16_to_scalar_field(i16)
@@ -115,7 +153,9 @@ test "field: 16-bit 与 float 源" {
   assert_true(@fieldimg.image16_to_scalar_field(i16c).data.length() == 4)
   try {
     let _ = @fieldimg.image16_to_scalar_field(@types.Image16::{
-      width: 0, height: 2, channels: 1,
+      width: 0,
+      height: 2,
+      channels: 1,
       data: Bytes::from_array([]),
     })
     assert_true(false)
@@ -132,7 +172,9 @@ test "field: 16-bit 与 float 源" {
   assert_true(sf_mid.data[0] > 0.4F)
   try {
     let _ = @fieldimg.imagef_to_scalar_field(@types.ImageF::{
-      width: 0, height: 2, channels: 1,
+      width: 0,
+      height: 2,
+      channels: 1,
       data: Bytes::from_array([]),
     })
     assert_true(false)
