@@ -35,6 +35,9 @@ fn format_name(f : @types.ImageFormat) -> String {
     @types.ImageFormat::Qoi => "qoi"
     @types.ImageFormat::Pnm => "pnm"
     @types.ImageFormat::Tga => "tga"
+    @types.ImageFormat::Hdr => "hdr"
+    @types.ImageFormat::Psd => "psd"
+    @types.ImageFormat::Unknown => "unknown"
     @types.ImageFormat::Tiff => "tiff"
     @types.ImageFormat::Ico => "ico"
     @types.ImageFormat::Cur => "cur"
@@ -43,7 +46,7 @@ fn format_name(f : @types.ImageFormat) -> String {
     @types.ImageFormat::Avif => "avif"
     @types.ImageFormat::Heif => "heif"
     @types.ImageFormat::JpegXl => "jpeg-xl"
-    _ => "unknown"
+    @types.ImageFormat::.. => "unknown"
   }
 }
 
@@ -480,7 +483,7 @@ pub fn error_json(e : @types.ImageError) -> Out {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.19"
+pub let version : String = "0.1.20"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。

@@ -48,7 +48,9 @@ async function countPackages(root) {
     const entries = await readdir(dir, { withFileTypes: true });
     for (const e of entries) {
       if (e.isDirectory()) {
-        if (!skip.has(e.name)) await walk(path.join(dir, e.name));
+        // benchmarks/gen 是维护用可执行包（生成基准样本），不计入库面口径
+        const isTooling = e.name === 'gen' && path.basename(dir) === 'benchmarks';
+        if (!skip.has(e.name) && !isTooling) await walk(path.join(dir, e.name));
       } else if (e.name === 'moon.pkg') {
         n++;
       }

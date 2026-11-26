@@ -1,0 +1,10 @@
+import {
+  "walkzzz/image.core/types",
+  "walkzzz/image.codec/lib",
+  "walkzzz/image.codec/codec",
+  "walkzzz/image.process/transform",
+  "walkzzz/image.mbt/imgcli",
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")

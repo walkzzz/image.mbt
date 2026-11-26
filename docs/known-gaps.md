@@ -1,7 +1,7 @@
-﻿# 已知边界与缺口（真话台账）
+# 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-26）：版本 0.1.19 · 7,387 测试 × 4 目标 · 78 包 · 覆盖率 90.1% · prove 8 goals。
+> 当前口径（2026-11-26）：版本 0.1.20 · 7,387 测试 × 4 目标 · 78 包 · 覆盖率 90.1% · prove 8 goals。
 
 ## 功能边界
 
@@ -12,7 +12,7 @@
 | GAP-3 | 流式解码为「全量解码后逐行分发」，非增量 | lib 流式 API | 真增量解码规划于后续大版本 |
 | GAP-4 | PSD 无编码；TIFF Huffman 块不支持；形态学固定 3×3 核 | codec / process | 已在 README 与 docs/notes 标注 |
 | GAP-5 | `ImageF` 受 `MAX_TOTAL_PIXELS = 5e8` 约束（峰值内存约 12 GB） | core/types | 解码器入口 `check_dims` 守卫 |
-| GAP-6 | `detect_format` 仅识别 9 种 magic；TIFF/ICO/CUR/ICNS/APNG/TGA 需调用对应解码函数 | codec/lib | 文档已说明 |
+| GAP-6 | ~~`detect_format` 仅识别 9 种 magic~~ **已闭环（2026-11-26）**：TIFF/ICO/CUR/ICNS/APNG 早有分支，TGA 补入末位头部字段判定（`is_tga_format` 覆盖 1/2/3/9/10/11 类型与 8/15/16/24/32 bpp） | codec/lib | S20 基准集暴露后修复，`g11_tga24` 已可 `imgtool convert` 直通 |
 | GAP-7 | 未实现 GPU / CUDA、音视频流编解码（H.264/音频） | 范围外 | 明确不做 |
 
 ## 工程质量边界
@@ -32,6 +32,9 @@
 | GAP-31 | `max_ms` 仍无强制中断（S04 遗留） | 纯同步解码循环无法中途 kill | 需要可让出/可取消的解码循环，未排期 |
 | GAP-32 | 根 `moon.mod` 依赖钉停在 `@0.1.1`，与工作区 0.1.7 错配 → `moon publish --dry-run` 拿旧版子模块编新代码，报 56 个 API 缺失 | **钉子部分已闭环（2026-11-25）**：`bump_version.mjs` 同步改写 7 个 `moon.mod` 的 `walkzzz/image.*@x.y.z` 钉，`check_version.mjs` 新增第 14 项守门。残余只差发布顺序：registry 里没有 0.1.7 子模块 | ✅ 钉子现为 `@0.1.7`、门禁 14 项全绿；⏳ 待发六个子模块 0.1.7 后根包 dry-run 转绿（详见 `docs/release.md`） |
 | GAP-33 | wasm-gc 产物无法在 Node 直接实例化 | `use-js-builtin-string` 下每个字符串常量都被编成 `"_"` 模块的 `(ref extern)` 全局导入（本包 460 条）；JS 只能创建可空 `externref`，`WebAssembly.Global` 类型不匹配 → `LinkError` | npm 改走 **wasm MVP 字节 ABI**（导出 `memory`，`Bytes` = i32 指针，0 import，110.6 KiB gzip）；wasm-gc 导出仅保留给 MoonBit 自有 host，S17 若需要再评估 |
+| GAP-34 | ~~PNG 家族 chunk 长度整数回绕导致 panic~~ **已闭环（2026-11-26）** | 基准集 m2（chunk 声明 0x7FFFFFF0）实测打出 `0xC0000409`：`pos + chunk_len > len` 在 Int32 上回绕为负，越界检查被绕过 | ✅ `png_decode` / `png_decode_16` / `apng_codec` / `apng_extended` / `region_decode` 改为溢出安全比较 `chunk_len > len - pos`；m2 现返回 `decode/decode_failed` |
+| GAP-35 | **同型整数回绕隐患未逐格式审计** | 仍存在 `offset + box_size > len` 一类写法：`avif_decode.mbt:74`、`avif_extended.mbt:159`、`heif_decode.mbt:80`、`heif_extended.mbt:145`、`icns_codec.mbt:96`、`icns_extended.mbt:51`、`jpegxl_extended.mbt:114`、`psd_decode.mbt:82`、`psd_extended.mbt:91`、`bmp_decode.mbt:93` | 按格式逐个改成减法形式并各配一个畸形样本（复用 `benchmarks/gen` 的 `push_u32` 构造器）；未改前不要把 `BENCH_TIMEOUT` 调大掩盖超时 |
+| GAP-36 | ~~CLI 把 HDR/PSD 报成 `unknown`~~ **已闭环（2026-11-26）** | `imgcli` 自带一份 `format_name`，缺 `Hdr`/`Psd` 分支，默认臂 `_ => "unknown"` 静默兜底 | ✅ 补齐两分支，默认臂改 `@types.ImageFormat::..`（`--deny-warn` 下未匹配新变体会直接编译失败） |
 | GAP-18 | ~~QR 数据级往返未打通~~ **已闭环（2026-11-21）** | 修复 4 处解码器缺陷（垂直验证起点 / 重复计数与坐标语义 / 版本公式 / 格式信息位序） | ✅ testgen `render_qr` → `decode_qrcode_full` 往返 `hello` 成功 |
 | GAP-19 | ~~VP8 inter 帧尺寸取 header（恒 0 → 恒拒绝）~~ **已闭环（2026-11-21）** | inter 帧头无分辨率，改为回退参考帧宽高（保留偶数对齐守卫） | ✅ inter 帧解码 16×16 通过；覆盖率 +88 行 |
 | GAP-20 | ~~EAN-13 / UPC-A 无输入样本~~ **已闭环（2026-11-21）** | 解码器 `String` 索引（`data[0] == '0'`）恒为 false，UPC-A 包装层恒返回 None | ✅ 白盒生成器用同包编码表渲染条码；EAN-13 往返 `0490000123457`、UPC-A 往返 `490000123457` 均成功（改用 `[0:1].to_owned()` 比较） |

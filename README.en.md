@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # **image**
 
@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.19-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.19-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.20-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.20-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 
 [![Tests](https://img.shields.io/badge/tests-7_387×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
@@ -436,6 +436,8 @@ Full OCR pipeline · Face recognition · Pose estimation · SLAM · Video proces
 | [docs/architecture.md](docs/architecture.md) | Architecture diagram, module dependencies, design decisions |
 | [docs/api_index.md](docs/api_index.md) | **API index (auto-generated, 79 packages / 3,894 fns, incl. playground)** |
 | [docs/capabilities.md](docs/capabilities.md) | **Capability matrix (auto-generated: `ImageFormat` × codec × module API surface, gated by B10)** |
+| [docs/benchmarks.md](docs/benchmarks.md) | **Public benchmark corpus: 20 golden + 6 malformed samples, sha256-sealed (S20)** |
+| [benchmarks/COPYRIGHT.md](benchmarks/COPYRIGHT.md) | Benchmark sample copyright self-audit (no third-party assets) |
 | [docs/api_reference.md](docs/api_reference.md) | API reference snapshot (see api_index and per-package .mbti) |
 | [docs/roadmap.md](docs/roadmap.md) | Iteration roadmap |
 | [docs/changelog.md](docs/changelog.md) | Version changelog |

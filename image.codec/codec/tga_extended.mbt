@@ -46,9 +46,27 @@ pub fn is_tga_format(data : Bytes) -> Bool {
   let color_map_type = data[1].to_int()
   let image_type = data[2].to_int()
   let bpp = data[16].to_int()
-  color_map_type == 0 &&
-  (image_type == 2 || image_type == 10) &&
-  (bpp == 24 || bpp == 32)
+  let width = data[12].to_int() + data[13].to_int() * 256
+  let height = data[14].to_int() + data[15].to_int() * 256
+  if width == 0 || height == 0 {
+    return false
+  }
+  if color_map_type != 0 && color_map_type != 1 {
+    return false
+  }
+  // 图像类型：1 调色板 / 2 真彩 / 3 灰度 / 9·10·11 对应的 RLE 版本
+  let image_type_ok = match image_type {
+    1 | 2 | 3 | 9 | 10 | 11 => true
+    _ => false
+  }
+  if !image_type_ok {
+    return false
+  }
+  // 调色板索引图（类型 1 / 9）必须声明 color map，否则是畸形头
+  if color_map_type == 0 && (image_type == 1 || image_type == 9) {
+    return false
+  }
+  bpp == 8 || bpp == 15 || bpp == 16 || bpp == 24 || bpp == 32
 }
 
 ///|

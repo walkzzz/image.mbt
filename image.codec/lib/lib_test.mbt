@@ -798,17 +798,14 @@ test "detect_format: WebP RIFF" {
 }
 
 ///|
-test "load_from_bytes_auto: TGA 分派 (Unknown → error)" {
-  // TGA has no magic bytes, detect_format returns Unknown
+test "load_from_bytes_auto: TGA 头部字段判定后可自动分派" {
+  // TGA 无强魔数，`detect_format` 走 `@codec.is_tga_format` 的头部字段判定
   let img = lb_make_rgb_image(1, 1, [(255, 0, 0)])
   let tga_bytes = @codec.encode_tga_pure(img)
-  try {
-    let _ = @lib.load_from_bytes_auto(tga_bytes)
-    assert_true(false)
-  } catch {
-    @types.LoadError::DecodeFailed(_) => assert_true(true)
-    _ => assert_true(false)
-  }
+  assert_eq(@lib.detect_format(tga_bytes), @lib.ImageFormat::Tga)
+  let decoded = @lib.load_from_bytes_auto(tga_bytes)
+  assert_eq(decoded.width, 1)
+  assert_eq(decoded.height, 1)
 }
 
 ///|

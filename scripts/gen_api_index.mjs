@@ -18,7 +18,8 @@ async function collect(dir, out = []) {
   const entries = await readdir(dir, { withFileTypes: true });
   for (const e of entries) {
     if (e.isDirectory()) {
-      if (!SKIP.has(e.name)) await collect(path.join(dir, e.name), out);
+      const isTooling = e.name === 'gen' && path.basename(dir) === 'benchmarks';
+      if (!SKIP.has(e.name) && !isTooling) await collect(path.join(dir, e.name), out);
     } else if (e.name === 'pkg.generated.mbti') {
       out.push(path.join(dir, e.name));
     }

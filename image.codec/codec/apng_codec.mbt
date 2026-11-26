@@ -47,7 +47,7 @@ fn apng_parse_chunks(data : Bytes) -> Array[PngChunk] raise @types.LoadError {
     let chunk_len = read_u32_be(data, pos)
     let chunk_type = apng_chunk_type(data, pos + 4)
     pos += 8
-    if pos + chunk_len + 4 > len {
+    if chunk_len < 0 || chunk_len > len - pos - 4 {
       raise @types.LoadError::DecodeFailed("PNG chunk 数据越界")
     }
     chunks.push(PngChunk::{

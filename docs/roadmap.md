@@ -1,4 +1,4 @@
-﻿# image.mbt 远期路线图（Sprint 级）
+# image.mbt 远期路线图（Sprint 级）
 
 > 目标只有两条：**下游开发者能装上、跑通、看得懂错误；我自己在日常项目里真的会用。**
 > 制定：2026-11-25 | 版本轨道：0.1.x（一个 Sprint 一个 patch） | Sprint 编号：S01 起连续
@@ -352,6 +352,19 @@
   **验收**：`check_docs` 新增 **B10** 门禁调用 `gen_capabilities --check`；负向实测——手改 README 表格一个单元格立即
   报「AUTO:formats 区块与生成结果不一致」；标题「格式支持 · 18 种」与枚举行数对齐；模块矩阵 78 包 / 3,890 fn / 718 类型。
   **口径**：`playground` 不在库体统计内（B6 仍要求 78 包），`api_index.md` 仍为 79 包 / 3,894 fn（含 playground）。
+- ✅ **S20 公开基准集（2026-11-26 完成）**：新增 `benchmarks/gen/`（MoonBit 包，`moon run benchmarks/gen` 重生成）
+  合成了 **20 张 golden**（13 种可编码格式，1.2 MB 量级）+ **6 个畸形样本**（数据流损坏 / 长度越界 / 声明尺寸炸弹 /
+  帧数声明 / 非法枚举 / 元数据段截断），像素全部来自解析式（渐变 / 色条 / 确定性噪声 / 径向亮场 / 圆 alpha 切边 / 浮点高光斑），
+  零第三方素材；`benchmarks/COPYRIGHT.md` 出具逐项自查表与新增样本四条准入规则。
+  校验器 `scripts/check_benchmarks.mjs`（`--update` 封签 / 默认校验）判定六条契约：条数、命名+尺寸、体积上限、
+  sha256 一致、magic 嗅探与 `imgtool` 报告一致、行为（golden 必须 `ok:true`；malformed 必须 `exit≠0 + ok:false`、
+  5 秒内、无 `PanicError`）。负向实测：golden 追加 1 字节 → `sha256 漂移`；删一个恶意样本 → `count/malformed 5 ≠ 6`。
+  **基准集直接暴露并已修的三处缺陷**：① `imgtool` 自带 `format_name` 缺 `Hdr`/`Psd` 分支（HDR/PSD 一律报 `unknown`），
+  并把默认臂改为 `ImageFormat::..` 防止漏分支静默；② `@lib.detect_format` 按「TGA 无魔数」直接返回 Unknown，
+  改为末位接 `@codec.is_tga_format`（扩展覆盖 1/2/3/9/10/11 类型 + 8/15/16/24/32 bpp + 宽高非零 + 调色板头一致性），
+  TGA 由此可自动分派；③ PNG/APNG/region_decode 的 `pos + chunk_len > len` 在 Int32 回绕，
+  m2 样本直接打出 `0xC0000409` panic，改为溢出安全比较 `chunk_len > len - pos`。
+  口径：CUR 刻意不生成——`encode_cur_pure` 对小尺寸的既有缺陷未修（见 `known-gaps`），不把已知缺陷伪装成通过。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -375,7 +388,7 @@
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
 | S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.08%（见 `docs/known-gaps.md`） |
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
-| S20 | 公开基准集（golden 20 张 + 6 类恶意样本） | 版权自查清单齐全，样本可分发 |
+| S20 ✅ | 公开基准集（golden 20 张 + 6 类恶意样本） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材 |
 | S21 | 0.1.21 收口 + 迁移指南 + 弃用策略 | 从 0.1.x 早期版本迁移只需 3 处改动 |
 
 ## 7. 每个 Sprint 必过的门禁

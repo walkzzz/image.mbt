@@ -4,6 +4,30 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.20] - 2026-11-26
+
+### Added
+
+- **公开基准集（S20）**：`benchmarks/gen/`（MoonBit 包）用自有代码合成 **20 张 golden**
+  （13 种可编码格式）+ **6 个畸形样本**（数据流损坏 / chunk 长度越界 / 声明尺寸炸弹 /
+  APNG 帧数声明 / BMP 非法枚举 / JPEG 元数据段截断）；零第三方素材，总体积 1.2 MB。
+- `scripts/check_benchmarks.mjs`：六条契约校验（条数 / 命名与真实尺寸 / 体积上限 / sha256 封签 /
+  magic 嗅探与 `imgtool` 报告一致 / 行为：golden 必须 `ok:true`，malformed 必须 `exit≠0 + ok:false`、
+  5 秒内、无 `PanicError`）；`--update` 用于重新封签 `benchmarks/manifest.json`。
+- `benchmarks/COPYRIGHT.md`：版权自查清单（逐项排除照片 / 字体 / 图标 / EXIF 个人信息）+ 新增样本四条准入规则。
+- `docs/benchmarks.md`：样本清单、命令与判定链。
+- CI 新增基准集门禁步骤（`moon build --release cmd/imgtool` + `node scripts/check_benchmarks.mjs`）。
+
+### Fixed
+
+- **PNG 家族 chunk 长度整数回绕 → panic**（基准集 m2 实测 `0xC0000409`）：`png_decode` /
+  `png_decode_16` / `apng_codec` / `apng_extended` / `region_decode` 改为溢出安全比较
+  `chunk_len > len - pos`，畸形输入现在返回 `decode/decode_failed` JSON 错误。
+- **`imgtool` 把 HDR/PSD 报成 `unknown`**：`format_name` 补 `Hdr` / `Psd` 分支，默认臂改为
+  `@types.ImageFormat::..`，漏分支会在 `--deny-warn` 下直接编译失败。
+- **TGA 无法自动分派**：`@lib.detect_format` 末位接入 `@codec.is_tga_format`（扩展覆盖
+  1/2/3/9/10/11 图像类型与 8/15/16/24/32 bpp、宽高非零、调色板头一致性），`imgtool convert` 可直通 TGA。
+
 ## [0.1.19] - 2026-11-26
 
 ### Added

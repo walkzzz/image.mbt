@@ -152,7 +152,7 @@ test "codec_trait: codec_detect_format 全魔数分支" {
     (
       ctb_bytes([
         b'\x00', b'\x00', b'\x02', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
-        b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x18', b'\x00',
+        b'\x00', b'\x00', b'\x00', b'\x10', b'\x00', b'\x10', b'\x00', b'\x18', b'\x00',
       ]),
       @types.ImageFormat::Tga,
     ),

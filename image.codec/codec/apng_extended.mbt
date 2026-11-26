@@ -63,7 +63,7 @@ pub fn is_apng_format(data : Bytes) -> Bool {
     if b0 == 0x61 && b1 == 0x63 && b2 == 0x54 && b3 == 0x4C {
       return true
     }
-    if chunk_len > len {
+    if chunk_len < 0 || chunk_len > len - pos - 8 {
       break
     }
     pos += 8 + chunk_len + 4

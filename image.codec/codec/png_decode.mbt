@@ -81,7 +81,7 @@ pub fn decode_png_pure(
     }
     let chunk_key = read_u32_be(data, pos + 4)
     pos += 8
-    if pos + chunk_len > len {
+    if chunk_len > len - pos {
       raise @types.LoadError::DecodeFailed("PNG chunk 数据越界")
     }
     match chunk_key {

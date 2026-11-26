@@ -44,7 +44,8 @@ pub fn decode_png_16_pure(
     let chunk_len = read_u32_be(data, pos)
     let chunk_key = read_u32_be(data, pos + 4)
     pos += 8
-    if pos + chunk_len > len {
+    // 溢出安全：以 `len - pos` 为界，避免 pos+chunk_len 在 Int32 上回绕
+    if chunk_len < 0 || chunk_len > len - pos {
       raise @types.LoadError::DecodeFailed("PNG chunk 数据越界")
     }
     match chunk_key {

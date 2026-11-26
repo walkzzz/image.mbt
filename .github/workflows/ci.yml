@@ -42,6 +42,11 @@ jobs:
           node scripts/check_docs.mjs
           node scripts/gen_api_index.mjs --check
 
+      - name: Benchmark corpus gate (golden 20 + malformed 6)
+        run: |
+          moon build --release cmd/imgtool
+          node scripts/check_benchmarks.mjs
+
   test:
     name: Test (${{ matrix.target }})
     runs-on: ubuntu-24.04

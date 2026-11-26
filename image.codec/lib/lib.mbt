@@ -30,7 +30,7 @@ pub type ImageFormat = @types.ImageFormat
 /// - ICNS: 前4字节 "icns"
 /// - TIFF: 字节序标记 + magic 0x002A
 /// - ICO/CUR: 前4字节 00 00 01 00
-/// - TGA 无固定 magic bytes，检测为 Unknown，需显式调用 @codec.decode_tga_pure
+/// - TGA 无固定 magic bytes，按头部字段（color map / image type / bpp / 宽高）保守判定
 pub fn detect_format(data : Bytes) -> @types.ImageFormat {
   let len = data.length()
   if len < 2 {
@@ -180,12 +180,16 @@ pub fn detect_format(data : Bytes) -> @types.ImageFormat {
       return @types.ImageFormat::Heif
     }
   }
+  // TGA：无强魔数，放最后用头部字段判定（前面所有 magic 都已排除）
+  if @codec.is_tga_format(data) {
+    return @types.ImageFormat::Tga
+  }
   @types.ImageFormat::Unknown
 }
 
 ///|
 /// 自动格式分派解码（pure 侧统一入口），根据 magic bytes 检测格式并委托对应 pure 解码器
-/// - 不支持 TGA 自动分派（无固定 magic bytes），需显式调用 @codec.decode_tga_pure
+/// - TGA 无固定魔数，按头部字段保守判定（`@codec.is_tga_format`），命中则走 `decode_tga_pure`
 /// - HDR 返回 ImageF，需显式调用 @codec.decode_hdr_pure
 /// - APNG 与 PNG 共享签名，需显式调用 decode_apng_pure
 /// - 未识别格式 raise LoadError::DecodeFailed Auto-format dispatch decoding (pure side unified entry), Detects format from magic bytes and delegates to corresponding pure decoder
