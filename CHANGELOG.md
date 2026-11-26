@@ -18,6 +18,8 @@
 - **`scripts/check_links.mjs` + B13 门禁**：55 个 md / 126 条相对链接可达、`docs/*.md` 都在 README 表里、10 个子模块都有 README。`check_docs` 增到 **13 项**。
 - **`scripts/check_release_ready.mjs`（S21 收口一条命令）**：串跑 15 项门禁（版本 / B1–B13 / 三个 `--check` 生成器 / 导入 / 弃用 / 链接 / 首页数字 / npm 15 / Dart 6 / fmt / check / test 7395 / pages 49），`--skip-slow` 只跑快的 12 项，`--json` 机读；任一条失败即退出码 1 并打印尾部输出。
 - **B14 门禁 + 一处真实污染修复**：`image.vision/fieldimg/field_bind_test.mbt` 里有 5 个字面 `\x00`（控制字符直接写进源码），git 因此把该文件判成二进制——`git diff` / `blame` / 行级审查全部失灵，也是远程 `Format check` 反复红的一个盲区。已改成转义写法（`b'\x00'`），fieldimg 包 105 测试复跑全绿；并新增 `check_docs` **B14**：扫描 1,231 个 `.mbt/.md/.mjs/.yml/.json` 等文本文件，出现 NUL/控制字符即红。`check_docs` 由 13 项增到 **14 项**。
+- **CI 真实转绿（2026-11-27）**：连续 4 次远程跑定位并修掉 3 个只在 Linux runner 暴露的问题——① 各作业缺 `moon update`（registry index 缺失，10 个作业同时红）② `imgtool` 产物在 Linux 也叫 `imgtool.exe`，脚本按 `process.platform` 猜名导致基准门禁与 Dart 自测红（抽出 `scripts/imgtool_path.mjs`）③ `npm/image.wasm` 是构建产物不入库，bindings 作业补 `build_npm_wasm.mjs --no-test`。最终 run `45869479035` 10/10 success。
+- **GitHub Pages 上线**：`gh api -X POST .../pages -f build_type=workflow` 首次建站（`configure-pages` 的 `enablement` 用 GITHUB_TOKEN 建不了），`https://walkzzz.github.io/image.mbt/` 实测 200、playground.js 267,318 B；README 双语各加 CI / Pages 徽章。
 
 ### Changed
 

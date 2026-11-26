@@ -16,7 +16,11 @@
 CI 顶层 `permissions: contents: read`（最小权限）、`concurrency: ci-${{ github.ref }}` + `cancel-in-progress`（同分支新推送取消旧跑）。
 Pages 单独拿 `pages: write` / `id-token: write`，`concurrency: pages` 且不取消（部署不可打断）。
 
-## 2. `quality` 作业里的 13 条门禁
+> **实证（2026-11-27）**：run [`45869479035`](https://github.com/walkzzz/image.mbt/actions/runs/45869479035) —— 10 个作业全 success（quality / test×4 / bench / coverage / mutation / prove / bindings），Pages run `45866611065` 部署成功。覆盖率门禁在 Linux runner 上同样 ≥90%（与本地 90.07% 同口径）。
+
+> 注意 `concurrency: ci-${{ github.ref }}` + `cancel-in-progress: true`：连续推送时**前一次跑会被 cancelled**，看起来像红但不是失败，最终以最后一次运行为准（2026-11-27 实测）。
+
+## 2. `quality` 作业里的门禁（10 行命令，含 14 条 B 系列断言）
 
 | 步骤 | 命令 | 拦什么 |
 | --- | --- | --- |

@@ -8,6 +8,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-0.1.23-orange)]()
 [![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.23-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![CI](https://github.com/walkzzz/image.mbt/actions/workflows/ci.yml/badge.svg)](https://github.com/walkzzz/image.mbt/actions/workflows/ci.yml)
+[![Pages](https://github.com/walkzzz/image.mbt/actions/workflows/pages.yml/badge.svg)](https://walkzzz.github.io/image.mbt/)
 
 [![Tests](https://img.shields.io/badge/tests-7_395×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
