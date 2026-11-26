@@ -465,11 +465,9 @@ fn match_handwriting_template(
       "cosine" => cosine_hw(features, template)
       _ => euclidean_hw(features, template)
     }
-    // 提取基础标签（去掉变体后缀）
-    // 提取基础标签（去掉变体后缀 _v0, _v1, _v2）
-    // 简化：取第一个字符作为基础标签（数字0-9）
+    // 取第一个码点作为基础标签（数字 0-9），按字符还原而不是码点数字
     let base_label = if label_full.length() > 0 {
-      label_full[0].to_string()
+      hw_char_str(label_full[0])
     } else {
       label_full
     }
@@ -503,6 +501,12 @@ fn match_handwriting_template(
   }
   let confidence = best_votes / total_votes
   (best_label, confidence)
+}
+
+///|
+/// 把字符串索引（码点 UInt16）还原成单字符字符串
+fn hw_char_str(raw : UInt16) -> String {
+  raw.to_int().to_char().map(c => c.to_string()).unwrap_or("")
 }
 
 ///|
