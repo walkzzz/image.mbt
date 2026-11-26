@@ -5,10 +5,7 @@ fn vpw_arr(n : Int32, v : Int32) -> Array[Int32] {
   Array::make(n, v)
 }
 
-///|
-fn vpw_16() -> Array[Int32] {
-  vpw_arr(16, 100)
-}
+
 
 ///|
 test "vpw: IDCT 与 WHT 直流/全零" {
