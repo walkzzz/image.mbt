@@ -1,6 +1,6 @@
 # image.mbt 架构文档
 
-> 版本 0.1.15（S13 出口：16bit/float 覆盖收敛）| 3,894 公开函数 + 710 公开类型（.mbti 口径，78 包）| 6,852 测试 × 4 目标 (native/wasm-gc/js/wasm)
+> 版本 0.1.15（S13 出口：16bit/float 覆盖收敛）| 3,894 公开函数 + 710 公开类型（.mbti 口径，78 包）| 6,870 测试 × 4 目标 (native/wasm-gc/js/wasm)
 
 ## 概述
 

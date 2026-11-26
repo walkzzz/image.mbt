@@ -20,6 +20,9 @@ pub struct IcoInfoExtended {
 
 ///|
 /// 检测数据是否为 ICO 格式
+///
+/// 与 CUR 同口径：除 reserved/type 外还校验条目数 ≥ 1 且目录表装得下，
+/// 避免其他格式（如 TGA 头）撞上前 4 字节。
 pub fn is_ico_format(data : Bytes) -> Bool {
   let len = data.length()
   if len < 6 {
@@ -27,7 +30,8 @@ pub fn is_ico_format(data : Bytes) -> Bool {
   }
   let reserved = read_u16_le(data, 0)
   let icon_type = read_u16_le(data, 2)
-  reserved == 0 && icon_type == 1
+  let count = read_u16_le(data, 4)
+  reserved == 0 && icon_type == 1 && count >= 1 && len >= 6 + count * 16
 }
 
 ///|

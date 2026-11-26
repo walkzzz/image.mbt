@@ -20,6 +20,9 @@ pub struct CurInfoExtended {
 
 ///|
 /// 检测数据是否为 CUR 格式
+///
+/// 仅看前 4 字节会把 24/32-bit TGA 误判为 CUR（TGA 头前 4 字节恰好是
+/// `00 00 02 00`）。这里同时校验图像条目数 ≥ 1 且目录表装得下。
 pub fn is_cur_format(data : Bytes) -> Bool {
   let len = data.length()
   if len < 6 {
@@ -27,7 +30,8 @@ pub fn is_cur_format(data : Bytes) -> Bool {
   }
   let reserved = read_u16_le(data, 0)
   let icon_type = read_u16_le(data, 2)
-  reserved == 0 && icon_type == 2
+  let count = read_u16_le(data, 4)
+  reserved == 0 && icon_type == 2 && count >= 1 && len >= 6 + count * 16
 }
 
 ///|

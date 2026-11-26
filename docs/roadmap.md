@@ -309,7 +309,13 @@
   **结果**：11 killed / 1 survived（M12 为纯错误文案变异，预期存活），得分 91.7%（门槛 75%）。
   **过程中补的真缺口**：`apply_colormap` 的 BT.601 加权和缺边界断言（补 `(0,5,176)`、加权和 22999 的用例）；
   QOI run-length 变异与 `pixel_idx < pixel_count` 保护等价，换成 LUMA 差分基准。
-  **未完成**：覆盖率 90%（当前全库 82.3%，距目标约 3,200 行），见 `docs/mutation.md`。
+  **未完成**：覆盖率 90%（当前全库 34,692/41,871 = 82.9%，距目标约 3,000 行），见 `docs/mutation.md`。
+  **覆盖率推进（2026-11-26 第二轮）**：补 `codec_trait` 全枚举分支（format_name / can_encode / is_lossless /
+  detect_format 全魔数）、`limits` 的 `info_dims` 各格式分支与 `check_decode_budget`、`ocr_accuracy` 的
+  数据集 / 增广 / Hu 矩 / 集成投票；`codec_trait` 104→178、`limits` 19→62、`ocr_accuracy` 60→130。
+  过程中修出两个真实缺陷：① `is_cur_format` / `is_ico_format` 只看前 4 字节，24/32-bit TGA 被误判成 CUR
+  （现补「条目数 ≥1 且目录表装得下」）；② `codec_detect_format` 完全没有 TGA 分支，且 `ftyp` 的 `mif1`
+  品牌被写成 `mifs`（字节 0x73 应为 0x31），导致 `mif1` 容器识别失败。
 - ⬜ **发布链 7 环**（`core → codec → process → photography → vision → domain → 根`）仍待执行；`moon publish` 是不可逆外部动作，等用户授权后按上面的顺序分步 dry-run → 实发。
 - ⬜ 下游"30 分钟上手"验收（全新项目 `moon add` 跑 PNG/JPEG 往返）需在发布后做，本机先用手写的最小示例替代。
 
@@ -331,7 +337,7 @@
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 | 场景包收敛为 4（`doc/media/commerce/photo`），其余并入 `image.pro` | 模块数 7→11（不是 15），发布链 11 环 |
 | S17 | Dart / JS 绑定（经 wasm/导出，不另起实现） | Dart 侧跑通 decode→resize→encode |
-| S18 🟡 | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 82.3%（进行中） |
+| S18 🟡 | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 82.9%（进行中） |
 | S19 | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写能力表全部替换，CI 校验 |
 | S20 | 公开基准集（golden 20 张 + 6 类恶意样本） | 版权自查清单齐全，样本可分发 |
 | S21 | 0.1.21 收口 + 迁移指南 + 弃用策略 | 从 0.1.x 早期版本迁移只需 3 处改动 |

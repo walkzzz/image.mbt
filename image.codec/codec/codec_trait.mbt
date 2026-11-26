@@ -207,15 +207,16 @@ pub fn codec_detect_format(data : Bytes) -> @types.ImageFormat {
   if (b0 == 0x49 && b1 == 0x49) || (b0 == 0x4D && b1 == 0x4D) {
     return @types.ImageFormat::Tiff
   }
-  // ICO/CUR: 00 00 01 00 / 00 00 02 00
-  if b0 == 0x00 && b1 == 0x00 && data.length() >= 4 {
-    let b2 = data[2].to_int()
-    if b2 == 0x01 {
-      return @types.ImageFormat::Ico
-    }
-    if b2 == 0x02 {
-      return @types.ImageFormat::Cur
-    }
+  // ICO/CUR：交给各自的严格探测（仅看前 4 字节会误判 24/32-bit TGA）
+  if is_ico_format(data) {
+    return @types.ImageFormat::Ico
+  }
+  if is_cur_format(data) {
+    return @types.ImageFormat::Cur
+  }
+  // TGA：无强魔数，按头字段（cmaptype/image_type/bpp）判定
+  if is_tga_format(data) {
+    return @types.ImageFormat::Tga
   }
   // HDR: #?RADIANCE or #?RGBE
   if b0 == 0x23 && b1 == 0x3F {
@@ -246,7 +247,7 @@ pub fn codec_detect_format(data : Bytes) -> @types.ImageFormat {
       let b11 = data[11].to_int()
       // avif/mif/avis
       if (b8 == 0x61 && b9 == 0x76 && b10 == 0x69 && b11 == 0x66) ||
-        (b8 == 0x6D && b9 == 0x69 && b10 == 0x66 && b11 == 0x73) ||
+        (b8 == 0x6D && b9 == 0x69 && b10 == 0x66 && b11 == 0x31) ||
         (b8 == 0x61 && b9 == 0x76 && b10 == 0x69 && b11 == 0x73) {
         return @types.ImageFormat::Avif
       }
@@ -254,7 +255,7 @@ pub fn codec_detect_format(data : Bytes) -> @types.ImageFormat {
       if (b8 == 0x68 && b9 == 0x65 && b10 == 0x69 && b11 == 0x63) ||
         (b8 == 0x68 && b9 == 0x65 && b10 == 0x69 && b11 == 0x78) ||
         (b8 == 0x68 && b9 == 0x65 && b10 == 0x69 && b11 == 0x66) ||
-        (b8 == 0x6D && b9 == 0x69 && b10 == 0x66 && b11 == 0x73) {
+        (b8 == 0x6D && b9 == 0x69 && b10 == 0x66 && b11 == 0x31) {
         return @types.ImageFormat::Heif
       }
     }
