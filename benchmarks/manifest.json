@@ -3,12 +3,12 @@
   "generator": "moon run benchmarks/gen",
   "note": "全部样本由本仓自有代码合成，无第三方素材；sha256 与体积为分发契约。",
   "limits": {
-    "golden_count": 24,
+    "golden_count": 26,
     "malformed_count": 8,
     "file_bytes": 409600,
     "total_bytes": 1638400
   },
-  "total_bytes": 1453371,
+  "total_bytes": 1471532,
   "golden": [
     {
       "name": "g01_png_gray_grad_512x512.png",
@@ -16,7 +16,8 @@
       "width": 512,
       "height": 512,
       "bytes": 2570,
-      "sha256": "5c7dc074ee548897cd54caf48ffd5b5f74da94659ee08cf85492340e6b5e4b2f"
+      "sha256": "5c7dc074ee548897cd54caf48ffd5b5f74da94659ee08cf85492340e6b5e4b2f",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g02_png_rgb_grad_640x400.png",
@@ -24,7 +25,8 @@
       "width": 640,
       "height": 400,
       "bytes": 15335,
-      "sha256": "027d97e728b18cf8c15a5b455876369ea1396fe2ba96a22eff9cae802119ac35"
+      "sha256": "027d97e728b18cf8c15a5b455876369ea1396fe2ba96a22eff9cae802119ac35",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g03_png_rgba_alpha_512x512.png",
@@ -32,7 +34,8 @@
       "width": 512,
       "height": 512,
       "bytes": 12315,
-      "sha256": "d04409574a9ab77769273e48a85b4173d282f6ef70ea2bf3d24c4f110680b24f"
+      "sha256": "d04409574a9ab77769273e48a85b4173d282f6ef70ea2bf3d24c4f110680b24f",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g04_png_color_bars_800x450.png",
@@ -40,7 +43,8 @@
       "width": 800,
       "height": 450,
       "bytes": 8236,
-      "sha256": "9322980e42005d72cf02d95b483556e5ad607ae31cdd80dc109b6ddbda889caa"
+      "sha256": "9322980e42005d72cf02d95b483556e5ad607ae31cdd80dc109b6ddbda889caa",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g05_png_noise_256x256.png",
@@ -48,7 +52,8 @@
       "width": 256,
       "height": 256,
       "bytes": 158889,
-      "sha256": "5bf3d4f64dc21d271cdc7a05e27b00052280884f61580889761f8cd2b2ad8824"
+      "sha256": "5bf3d4f64dc21d271cdc7a05e27b00052280884f61580889761f8cd2b2ad8824",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g06_ppm_rgb_256x256.ppm",
@@ -56,7 +61,8 @@
       "width": 256,
       "height": 256,
       "bytes": 196623,
-      "sha256": "cd247a7d2541e1d3c3f40f647c2733753d8377e4214b1507812c83d29f5dd7e7"
+      "sha256": "cd247a7d2541e1d3c3f40f647c2733753d8377e4214b1507812c83d29f5dd7e7",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g07_jpeg_photo_1280x720.jpg",
@@ -64,7 +70,8 @@
       "width": 1280,
       "height": 720,
       "bytes": 56362,
-      "sha256": "f25f50131c036860c6f6bff49682de5cc211af791202dc82e279e8f861daa8e8"
+      "sha256": "f25f50131c036860c6f6bff49682de5cc211af791202dc82e279e8f861daa8e8",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g08_jpeg_gray_800x600.jpg",
@@ -72,7 +79,8 @@
       "width": 800,
       "height": 600,
       "bytes": 18038,
-      "sha256": "7dd578e4e5a9148076c20044bded0c0a5e3ff6829d9f5eaafcca58a95493e85c"
+      "sha256": "7dd578e4e5a9148076c20044bded0c0a5e3ff6829d9f5eaafcca58a95493e85c",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g09_bmp24_256x256.bmp",
@@ -80,7 +88,8 @@
       "width": 256,
       "height": 256,
       "bytes": 196662,
-      "sha256": "5a2bc140d8450323c34f7c9d88aa0a700e483ee2847b872cb16df8bd961211b7"
+      "sha256": "5a2bc140d8450323c34f7c9d88aa0a700e483ee2847b872cb16df8bd961211b7",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g10_bmp32_alpha_192x144.bmp",
@@ -88,7 +97,8 @@
       "width": 192,
       "height": 144,
       "bytes": 82998,
-      "sha256": "d7e5a61ac07a8bea61abb3218f64329eb402207e2560b35296f8e85b63fc509f"
+      "sha256": "d7e5a61ac07a8bea61abb3218f64329eb402207e2560b35296f8e85b63fc509f",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g11_tga24_256x256.tga",
@@ -96,7 +106,8 @@
       "width": 256,
       "height": 256,
       "bytes": 196626,
-      "sha256": "bbad891f9d27bc1ea7596e19ae09f764fb57f44fb40ba6d39359676817f40c92"
+      "sha256": "bbad891f9d27bc1ea7596e19ae09f764fb57f44fb40ba6d39359676817f40c92",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g12_gif_static_256x256.gif",
@@ -104,7 +115,8 @@
       "width": 256,
       "height": 256,
       "bytes": 5224,
-      "sha256": "5aa563d45123611bfc2190c3f11b98145f405cf24e5ac82a1aeea88aa11a1761"
+      "sha256": "5aa563d45123611bfc2190c3f11b98145f405cf24e5ac82a1aeea88aa11a1761",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g13_gif_anim4_128x128.gif",
@@ -112,7 +124,8 @@
       "width": 128,
       "height": 128,
       "bytes": 7933,
-      "sha256": "355c5a19bee393fbcecdf202346fc9dc063362fa41b484b85339deb428230074"
+      "sha256": "355c5a19bee393fbcecdf202346fc9dc063362fa41b484b85339deb428230074",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g14_apng_anim4_160x120.png",
@@ -120,7 +133,8 @@
       "width": 160,
       "height": 120,
       "bytes": 2722,
-      "sha256": "378aaef7305206cf678f3c79711f6588397d59dc17f8b777b867149cf6d66fbd"
+      "sha256": "378aaef7305206cf678f3c79711f6588397d59dc17f8b777b867149cf6d66fbd",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g15_webp_lossless_1024x576.webp",
@@ -128,7 +142,8 @@
       "width": 1024,
       "height": 576,
       "bytes": 20000,
-      "sha256": "738c298b2eac9c102ca23e23b2a2f83469e78516582bc0b3d5dd19f11a6f8cdf"
+      "sha256": "738c298b2eac9c102ca23e23b2a2f83469e78516582bc0b3d5dd19f11a6f8cdf",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g16_tiff8_256x192.tiff",
@@ -136,7 +151,8 @@
       "width": 256,
       "height": 192,
       "bytes": 147584,
-      "sha256": "ab15ee628e32e195dbc008a19be123402f029da24ff2139d572fcd0395f9ffb2"
+      "sha256": "ab15ee628e32e195dbc008a19be123402f029da24ff2139d572fcd0395f9ffb2",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g17_ico_multi_48x48.ico",
@@ -144,7 +160,8 @@
       "width": 48,
       "height": 48,
       "bytes": 15086,
-      "sha256": "19142aa0de88b9d6f1f97ac65d7b564337ebbb0fdf4496a0ed565128f500646b"
+      "sha256": "19142aa0de88b9d6f1f97ac65d7b564337ebbb0fdf4496a0ed565128f500646b",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g18_icns256_256x256.icns",
@@ -152,7 +169,8 @@
       "width": 256,
       "height": 256,
       "bytes": 28438,
-      "sha256": "d40240ad76de059031b9858383662f03a2ab9f85d8b6768bfa136eb388be7237"
+      "sha256": "d40240ad76de059031b9858383662f03a2ab9f85d8b6768bfa136eb388be7237",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g19_hdr_float_192x108.hdr",
@@ -160,7 +178,8 @@
       "width": 192,
       "height": 108,
       "bytes": 6892,
-      "sha256": "66c9ea507afa48bf229b7e3daf85607f85f0fc2ad1c320822ac93dc851a1fcd8"
+      "sha256": "66c9ea507afa48bf229b7e3daf85607f85f0fc2ad1c320822ac93dc851a1fcd8",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g20_qoi_160x120.qoi",
@@ -168,7 +187,8 @@
       "width": 160,
       "height": 120,
       "bytes": 30859,
-      "sha256": "abf4c78a0ae2cf7e2b12c6a374fb1efd43129695dbef793a923d709d3b05a479"
+      "sha256": "abf4c78a0ae2cf7e2b12c6a374fb1efd43129695dbef793a923d709d3b05a479",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g21_pgm_gray_192x144.pgm",
@@ -176,7 +196,8 @@
       "width": 192,
       "height": 144,
       "bytes": 27663,
-      "sha256": "9785d6706995c4fa7e147581ab04c30eac0d1d4b45336987a0f538bb378bc1f5"
+      "sha256": "9785d6706995c4fa7e147581ab04c30eac0d1d4b45336987a0f538bb378bc1f5",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g22_tga32_alpha_160x120.tga",
@@ -184,7 +205,8 @@
       "width": 160,
       "height": 120,
       "bytes": 76818,
-      "sha256": "e20bc41e6a882c33d11ccc9403458dd0869af289cb265f8ef7815e028f354ea4"
+      "sha256": "e20bc41e6a882c33d11ccc9403458dd0869af289cb265f8ef7815e028f354ea4",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g23_webp_lossy_odd_33x33.webp",
@@ -192,7 +214,8 @@
       "width": 33,
       "height": 33,
       "bytes": 756,
-      "sha256": "1d98fae1a2524a1e8309bf9d551a96757100c8b812f7f554118c2dc5a61a5b5d"
+      "sha256": "1d98fae1a2524a1e8309bf9d551a96757100c8b812f7f554118c2dc5a61a5b5d",
+      "generator": "benchmarks/gen"
     },
     {
       "name": "g24_qoi_rgba_192x144.qoi",
@@ -200,7 +223,26 @@
       "width": 192,
       "height": 144,
       "bytes": 138258,
-      "sha256": "0fc8a3321b1879de81f20bed0f3e2d5450817b01a2c650221d34bd8a7c66b70f"
+      "sha256": "0fc8a3321b1879de81f20bed0f3e2d5450817b01a2c650221d34bd8a7c66b70f",
+      "generator": "benchmarks/gen"
+    },
+    {
+      "name": "g25_jpeg_progressive_640x400.jpg",
+      "format": "jpeg",
+      "width": 640,
+      "height": 400,
+      "bytes": 8336,
+      "sha256": "8c016c55c82fb4ded62817018444bf8ff6d1f9c1cfb40e6262e5a366a4497426",
+      "generator": "scripts/gen_progressive_samples.py"
+    },
+    {
+      "name": "g26_jpeg_progressive_restart_480x320.jpg",
+      "format": "jpeg",
+      "width": 480,
+      "height": 320,
+      "bytes": 9825,
+      "sha256": "48f31c2a0ff6de87a12d532acdced7058406e57577fb859141e2fbd91b922290",
+      "generator": "scripts/gen_progressive_samples.py"
     }
   ],
   "malformed": [

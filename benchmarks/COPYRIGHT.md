@@ -1,17 +1,23 @@
 # 基准样本版权自查清单
 
-> 适用目录：`benchmarks/golden/`（24 张 golden）与 `benchmarks/malformed/`（8 个畸形样本）。
+> 适用目录：`benchmarks/golden/`（26 张 golden）与 `benchmarks/malformed/`（8 个畸形样本）。
 > 结论：**全部样本由本仓自有代码在运行时合成，不含任何第三方素材，可随 MIT 许可自由分发。**
 
 ## 一、来源声明
 
 | 项目 | 事实 |
 |---|---|
-| 生成器 | `benchmarks/gen/`（MoonBit 包 `walkzzz/image.mbt/benchmarks/gen`），重生成命令 `moon run benchmarks/gen` |
+| 生成器 | `benchmarks/gen/`（MoonBit 包 `walkzzz/image.mbt/benchmarks/gen`），重生成命令 `moon run benchmarks/gen`；`g25`/`g26` 两张 progressive JPEG 例外，由 `scripts/gen_progressive_samples.py`（Pillow 12.x，参数写死）生成，见下表 |
 | 像素来源 | 代码内的解析式（渐变 / 色条 / 确定性伪噪声 / 径向亮场 / 圆形 alpha 切边 / 浮点高光斑），无外部图片输入 |
 | 编码来源 | 本仓 `walkzzz/image.codec`（PNG / JPEG / BMP / TGA / GIF / APNG / WebP / TIFF / ICO / ICNS / HDR / QOI / PNM 编码器） |
 | 确定性 | 无随机源、无时钟、无环境依赖；同版本重生成字节一致（`manifest.json` 的 sha256 即证据） |
 | 许可证 | 与仓库一致：[MIT](../LICENSE) |
+
+> **`g25`/`g26` 例外说明**：MoonBit 编码器当前只输出 baseline JPEG（`docs/roadmap.md` F-01），无法产出 SOF2 多扫描样本。
+> 这两张由 `scripts/gen_progressive_samples.py` 用 Pillow 生成，像素为与 `rgb_grad` 同构的解析式渐变，
+> JPEG 参数（quality / `progressive=True` / `restart_marker_blocks`）写死在脚本内，无随机源、无时钟，可复现；
+> 用途仅是**解码回归**（`g26` 带 DRI + 212 个 RST 标记，验证 `jpeg_skip_to_restart` 在多扫描下有效），不参与编码基准。
+> sha256 见 `manifest.json`；`check_benchmarks.mjs --regen` 按 `generator` 字段跳过这两张并单独计数。
 
 ## 二、逐项排除（自查表）
 
@@ -36,7 +42,7 @@ Select-String -Path benchmarks\golden\*.jpg,benchmarks\golden\*.png -Pattern 'Ex
 
 ## 三、新增样本的四条准入规则
 
-1. **自有代码合成**：只能由 `benchmarks/gen/` 生成，不得引入外部图片、字体、图标或数据集；
+1. **自有代码合成**：优先由 `benchmarks/gen/` 生成；本仓编码器尚不具备的能力（如 progressive JPEG，roadmap F-01）可用仓库内 Python 脚本生成，但必须①参数写死在脚本里、②在 `manifest.json` 的 `generator` 字段登记、③在本文档列出。不得引入外部图片、字体、图标或数据集；
 2. **确定性**：不得引入随机数、当前时间、本机路径等信息，重生成必须字节一致；
 3. **体积受控**：单文件 ≤ 400 KiB、总体积 ≤ 1600 KiB（`scripts/check_benchmarks.mjs` 内 `LIMITS` 强制）；
 4. **命名即契约**：golden 用 `gNN_<内容>_<W>x<H>.<ext>`，malformed 用 `mN_<类别>.<ext>`；新增后必须 `--update` 重新封签 manifest。

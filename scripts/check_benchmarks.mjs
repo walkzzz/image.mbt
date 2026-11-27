@@ -5,9 +5,10 @@
 // 用法：
 //   node scripts/check_benchmarks.mjs            # 校验（CI / 发布前）
 //   node scripts/check_benchmarks.mjs --update   # 依据当前样本重建 manifest（需先构建 imgtool）
+//   node scripts/check_benchmarks.mjs --regen    # 重跑 benchmarks/gen，比对「磁盘 ↔ 当前生成器产出」（GAP-53）
 //
 // 契约（manifest 即契约，校验方不手写期望值）：
-//   1. golden 24 张，文件名 `gNN_<内容>_<W>x<H>.<ext>`，尺寸必须与文件名一致；
+//   1. golden 26 张，文件名 `gNN_<内容>_<W>x<H>.<ext>`，尺寸必须与文件名一致；
 //   2. malformed 8 个，文件名 `mN_<类别>.<ext>`，必须在预算时间内被拒绝（exit≠0 + ok:false），
 //      且不得出现 panic；
 //   3. 每张样本 sha256 / 字节数必须与 manifest 完全一致（漂移即红灯）；
@@ -21,7 +22,14 @@
 // ============================================================================
 
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, writeFileSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+  statSync,
+} from 'node:fs';
 import { resolveImgtool } from './imgtool_path.mjs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -34,11 +42,20 @@ const IMGTOOL = resolveImgtool(ROOT);
 const TIMEOUT_MS = Number(process.env.BENCH_TIMEOUT || 5000);
 
 const LIMITS = {
-  golden_count: 24,
+  golden_count: 26,
   malformed_count: 8,
   file_bytes: 400 * 1024,
   total_bytes: 1600 * 1024,
 };
+
+// 不由 `benchmarks/gen` 产出的 golden：MoonBit 编码器只出 baseline JPEG（roadmap F-01），
+// progressive / progressive+RST 样本改由 Python 脚本生成，`--regen` 比对时跳过并与 manifest 的
+// `generator` 字段互校（漏标即红灯）。
+const EXTERNAL_GENERATORS = {
+  'g25_jpeg_progressive_640x400.jpg': 'scripts/gen_progressive_samples.py',
+  'g26_jpeg_progressive_restart_480x320.jpg': 'scripts/gen_progressive_samples.py',
+};
+const DEFAULT_GENERATOR = 'benchmarks/gen';
 
 const fails = [];
 const fail = (what, detail) => fails.push({ what, detail });
@@ -236,6 +253,12 @@ function checkManifest(rows) {
       }
       if (e.sha256 !== g.sha256) fail(`manifest/${kind}`, `${e.name} sha256 漂移`);
       if (e.bytes !== g.bytes) fail(`manifest/${kind}`, `${e.name} 字节数漂移`);
+      if (kind === 'golden') {
+        const want = EXTERNAL_GENERATORS[e.name] || DEFAULT_GENERATOR;
+        if (e.generator !== want) {
+          fail('manifest/generator', `${e.name} generator=${e.generator} ≠ ${want}（漏标会让 --regen 静默跳过）`);
+        }
+      }
     }
   };
   cmp('golden', m.golden || []);
@@ -257,6 +280,7 @@ function writeManifest(rows, total) {
       height: r.height,
       bytes: r.bytes,
       sha256: r.sha256,
+      generator: EXTERNAL_GENERATORS[r.name] || DEFAULT_GENERATOR,
     })),
     malformed: rows.malformed.map((r) => ({
       name: r.name,
@@ -271,8 +295,70 @@ function writeManifest(rows, total) {
   return manifest;
 }
 
+// GAP-53：manifest 只封「文件 ↔ 封签」，不封「文件 ↔ 当前生成器产出」。
+// --regen 重跑生成器到 _build/benchmarks_regen，逐文件比 sha256：
+// 生成器是确定性的（同代码同输入 → 同字节），任何落后于编码器修复的样本都会在此暴露。
+function regenCompare(rows) {
+  const tmp = join(ROOT, '_build', 'benchmarks_regen');
+  const genGolden = join(tmp, 'golden');
+  const genMalformed = join(tmp, 'malformed');
+  mkdirSync(genGolden, { recursive: true });
+  mkdirSync(genMalformed, { recursive: true });
+  const started = Date.now();
+  const r = spawnSync(
+    'moon',
+    ['run', 'benchmarks/gen', '--target', 'native', '--', genGolden, genMalformed],
+    { encoding: 'utf8', cwd: ROOT, timeout: 900000, shell: true, windowsHide: true },
+  );
+  const ms = Date.now() - started;
+  if (r.status !== 0) {
+    fail('regen/run', `benchmarks/gen 退出码 ${r.status}：${`${r.stdout || ''}${r.stderr || ''}`.trim().slice(-240)}`);
+    return { mode: 'regen', ok: false, ms };
+  }
+  const hashOf = (dir, name) => sha256(readFileSync(join(dir, name)));
+  let verified = 0;
+  const skipped = [];
+  for (const row of rows.golden) {
+    if (EXTERNAL_GENERATORS[row.name]) {
+      skipped.push(row.name);
+      continue;
+    }
+    const path = join(genGolden, row.name);
+    if (!existsSync(path)) {
+      fail('regen/missing', `${row.name} 不在生成器产出中——磁盘有、生成器没有`);
+      continue;
+    }
+    const h = hashOf(genGolden, row.name);
+    if (h !== row.sha256) fail('regen/sha256', `${row.name} 与当前生成器产出不一致（样本已落后于代码）`);
+    else verified += 1;
+  }
+  for (const name of listDir(genGolden)) {
+    if (!rows.golden.some((g) => g.name === name) && !EXTERNAL_GENERATORS[name]) {
+      fail('regen/extra', `${name} 只存在于生成器产出中——生成器有、磁盘没有`);
+    }
+  }
+  for (const row of rows.malformed) {
+    const path = join(genMalformed, row.name);
+    if (!existsSync(path)) {
+      fail('regen/missing', `${row.name} 不在生成器产出中`);
+      continue;
+    }
+    if (hashOf(genMalformed, row.name) !== row.sha256) {
+      fail('regen/sha256', `${row.name} 与当前生成器产出不一致`);
+    } else verified += 1;
+  }
+  return {
+    mode: 'regen',
+    ms,
+    verified,
+    skipped: skipped.length,
+    skipped_by: [...new Set(Object.values(EXTERNAL_GENERATORS))],
+  };
+}
+
 function main() {
   const update = process.argv.includes('--update');
+  const regen = process.argv.includes('--regen');
   if (!existsSync(GOLDEN_DIR) || !existsSync(MALFORMED_DIR)) {
     console.log(JSON.stringify({ ok: false, fail: 'benchmarks 目录缺失' }));
     return 1;
@@ -305,7 +391,8 @@ function main() {
     return fails.length === 0 ? 0 : 1;
   }
 
-  checkManifest(rows);
+  const manifest = checkManifest(rows);
+  const regenReport = regen ? regenCompare(rows) : null;
   const formats = [...new Set(rows.golden.map((r) => r.format))].sort();
   console.log(
     JSON.stringify(
@@ -315,6 +402,8 @@ function main() {
         malformed: rows.malformed.length,
         formats,
         total_bytes: total,
+        manifest: manifest ? manifest.schema : null,
+        regen: regenReport,
         failed: fails.length,
         fails,
       },

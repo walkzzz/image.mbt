@@ -390,7 +390,7 @@
 | S17 ✅ | Dart / JS 绑定（经 wasm/导出，不另起实现） | **两条通道、同一份实现**：JS 走 `--target wasm` 线性内存（`npm/index.mjs`，自测 15/15）；Dart 因「native 不产出静态/动态库」+「Dart VM 无 wasm 运行时（`package:wasm` 已废弃）」改以 `imgtool` 进程为 ABI（`bindings/dart/`，自测 10/10：含两条错误路径与 `convertMeta` / `resizeMeta` 回执）；JS 侧 `info().channels` 由假值 `0` 改为 `null`（header-only 拿不到通道数），CLI `resize` 回执补 `channels`；Dart 侧 `decode→resize→encode` 跑通，见 `docs/bindings.md`；**版本收口**：`npm/package.json` 与 `bindings/dart/pubspec.yaml` 已并入版本门禁（第 20、21 项，GAP-49） |
 | S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.05%（见 `docs/known-gaps.md`） |
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
-| S20 ✅ | 公开基准集（golden 24 张 + 8 类恶意样本，2026-11-27 扩容） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材；扩容补 P5 灰度 / TGA 32-bit / WebP lossy 奇数 / QOI 四通道与原容器畸形回归 |
+| S20 ✅ | 公开基准集（golden 26 张 + 8 类恶意样本，2026-11-27 扩容） | `check_benchmarks` 七条契约全绿（含 `--regen` 生成器比对）；样本 sha256 封签、零第三方素材；扩容补 P5 灰度 / TGA 32-bit / WebP lossy 奇数 / QOI 四通道、progressive 与 progressive+DRI 解码样本，以及原容器畸形回归 |
 | S21 ✅ | 0.1.23 收口 + 迁移指南 + 弃用策略 | `docs/migration.md` 给出**3 处改动**（模块名/import 路径/7 条弃用替换），迁移前后 15 行对照可逐条核对；`docs/deprecation.md` 定义标注规则 + 保留窗口 + 7 条清单，**B12**（`check_deprecations`）做代码 ⇄ 表双向比对；收口核对清单见 `docs/release.md` §九（11 环顺序 + 15 项门禁，一条 `check_release_ready.mjs` 跑完）；同轮补齐 CI/CD 与 Pages 治理：`docs/ci-cd.md`、`pages.yml`、`sync_pages` + `docs/coverage.json` 单一真值、`check_links`（B13） |
 | S22 ✅ | 缺陷清零（0.1.24）：只在真实数据/非 Windows 下暴露的静默错 → 修复 + 回归 | 5 类缺陷逐条闭环（台账 GAP-42…46）：**TGA** 描述符 bit4/bit5 混用（标准 top-down 文件被上下翻转、本库产物水平镜像）+ 4 通道丢 alpha；**TIFF** 像素长度不足直接越界崩溃（`0xC0000409`）；**超像素** `num = 0` 除零、`num > total` 步长 0 死循环、`labels` 留 -1 空洞；**Code128 Stop** 用 6 段伪模式冒充（生成物标准扫码器不可读）；**GLCM 熵** 占位公式恒负。新增 9 条回归（`s22_*` 6 条 + 超像素边界 1 条 + 码表形状/模块数 2 条），native 7,404 全绿（+9） |
 
@@ -484,14 +484,16 @@ dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
 
 冻结日 2026-11-27：版本 0.1.26，测试 7,415 × 4 目标，覆盖率 90.00%（38,352/42,611），prove 8 goals。以下为冻结时明确未做、整体转入远期的条目；每条都写明现状事实与立项前置，不做则不改代码。
 
+> **进展（2026-11-27，0.1.27 开发线）**：F-03 / F-05 / F-06 已落地，见各行现状事实列的说明；其余仍为远期。
+
 | 编号 | 遗留项 | 现状事实 | 立项前置 |
 |---|---|---|---|
-| F-01 | progressive JPEG 编码 | 解码闭环（GAP-1），编码面无入口，`encode_jpeg` 只出 baseline | 需先让基准集带 progressive 样本（F-05），否则编码改动无回归面 |
+| F-01 | progressive JPEG 编码 | 解码闭环（GAP-1），编码面无入口，`encode_jpeg` 只出 baseline | 解码回归面已就位（F-05 ✅：`g25`/`g26`）；编码侧仍缺「逐字节/逐扫描结构」对比基准，需先定 progressive 扫描脚本约定 |
 | F-02 | progressive 的 4 分量（CMYK/YCCK）与 arithmetic coding（SOF9–12） | 解码器分量数只接受 1 / 3；算术编码分支不存在 | 需授权可分发样本来源（印刷类素材），否则只能写死不覆盖 |
-| F-03 | progressive + DRI（restart interval） | 代码留有 `jpeg_skip_to_restart`，无 SOF2 带 RST 样本验证 | 需 libjpeg `-restart` 生成的多扫描样本 |
+| F-03 ✅ | progressive + DRI（restart interval） | **已落地**：`g26_jpeg_progressive_restart_480x320.jpg` 为 SOF2 + DRI 样本（restart interval 8 块、212 个 RST 标记），`jpeg_skip_to_restart` 在多扫描下正确清空 DC 预测与 EOBRUN；解码对 Pillow 参考 max diff 4（mean 0.57） | 若后续需要「不同 interval 的成组回归」，再按 8/4/2 块各补一张（当前上限余量 166,868 B 够用） |
 | F-04 | 4:2:0 色度最近邻上采样与 libjpeg 双线性不一致 | 彩色解码对 Pillow 差异 max 103 / 117（mean 7.66 / 1.85），属 baseline 既有行为 | 改采样会同时改 baseline 输出与基准集期望值，需一次成组改 |
-| F-05 | 基准集纳入 progressive 样本 | 当前 24 golden + 8 malformed 全为 baseline；`check_benchmarks.mjs` LIMITS 与 manifest 未含 progressive | 需同步 manifest、LIMITS、`docs/benchmarks.md` 与总字节上限（现值 1,453,371 / 1,638,400 B） |
-| F-06 | `check_benchmarks` 重生成比对模式（GAP-53 机器拦） | 只校验「磁盘 ↔ manifest」，不校验「磁盘 ↔ 当前生成器产出」 | CI 预算 +30s，先测本机耗时才可开 |
+| F-05 ✅ | 基准集纳入 progressive 样本 | **已落地**：golden 24 → 26（`g25` SOF2 10 条扫描 / `g26` SOF2+DRI），总字节 1,453,371 → 1,471,532 B（上限 1,638,400 不变）；两样本由 `scripts/gen_progressive_samples.py` 生成并在 manifest 的 `generator` 字段登记，其余 24 张仍由 `benchmarks/gen` 产出 | 编码面仍缺（F-01 前置已满足一半：解码回归面已就位，编码改动仍无逐字节对比基准） |
+| F-06 ✅ | `check_benchmarks` 重生成比对模式（GAP-53 机器拦） | **已落地**：`--regen` 把 `benchmarks/gen` 产出写到 `_build/benchmarks_regen` 后逐文件比 sha256；本机增量 7.2 s（32 verified / 2 skipped），冷启动含构建估 <60 s | 暂不进 CI（主门禁 +30 s 不划算），由发布前手动跑；外部脚本样本按 `generator` 字段跳过并单独计数 |
 | F-07 | wasm ABI 输入指针保活表（GAP-51） | 依赖「JS 写完立刻同步调用」的时序，未加 pin | 出现异步或多次往返调用时立项 |
 | F-08 | 覆盖率贴门槛运行 | 0.1.26 为 90.00%，门槛 90%，余量仅 165 行 | 新增代码前先补同量测试，或下调门槛需改 `check_coverage.mjs` 的 `min` |
 | F-09 | `moon coverage analyze` / `moon prove` 的 Windows 路径问题（GAP-10/GAP-15） | 上游 `\\?\` canonicalize 缺陷，本地无法绕 | 上游修复后重测 |

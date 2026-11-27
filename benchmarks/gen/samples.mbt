@@ -2,6 +2,11 @@
 /// 样本构建器：**纯函数**，只返回 `(文件名, 字节)` 列表，不碰文件系统。
 /// 构建逻辑因此可被白盒测试完整执行（`samples_wbtest.mbt`），写盘留给 `main.mbt`，
 /// 避免「维护脚本永远 0 覆盖」——覆盖率口径不做任何排除。
+///
+/// 例外：`g25`/`g26`（progressive JPEG）**不由本文件产出**——MoonBit 编码器只输出
+/// baseline JPEG（roadmap F-01），两张样本改由 `scripts/gen_progressive_samples.py`
+/// 生成并在 `manifest.json` 的 `generator` 字段登记；`check_benchmarks --regen`
+/// 按该字段跳过它们。新增 progressive 类样本前先确认这一点，别在此处加「空壳」条目。
 
 ///|
 /// 把一张样本加入列表（空结果记入 errs，不中断其余样本）。

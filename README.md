@@ -577,7 +577,7 @@ OCR 全链路 · 人脸识别 · 姿态估计 · SLAM · 视频处理 · 场景�
 | [docs/architecture.md](docs/architecture.md) | 架构图、模块依赖、设计决策 |
 | [docs/api_index.md](docs/api_index.md) | **API 索引（自动生成，83 包 / 5,851 fn，含 playground）** |
 | [docs/capabilities.md](docs/capabilities.md) | **能力矩阵（自动生成：`ImageFormat` × 编解码 × 模块 API 面，B10 门禁）** |
-| [docs/benchmarks.md](docs/benchmarks.md) | **公开基准集：24 张 golden + 8 个畸形样本，sha256 封签（S20）** |
+| [docs/benchmarks.md](docs/benchmarks.md) | **公开基准集：26 张 golden + 8 个畸形样本，sha256 封签（S20）** |
 | [docs/scenes.md](docs/scenes.md) | **场景入口：4 个入口（doc/media/commerce/pro）+ 模块 7→11 + 发布链 11 环（S16）** |
 | [docs/bindings.md](docs/bindings.md) | **语言绑定：JS 走 wasm、Dart 走 imgtool 进程，同一份实现两种宿主（S17）** |
 | [docs/migration.md](docs/migration.md) | **迁移指南：从 0.1.x 早期版本只需 3 处改动（模块名 / import / 弃用替换）（S21）** |
