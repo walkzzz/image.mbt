@@ -276,10 +276,15 @@ moon add walkzzz/image.mbt
 node scripts/publish.mjs                      # 全 11 环 dry-run（默认，不写 registry）
 node scripts/publish.mjs --exec               # 正式发布（每环 moon publish + moon update）
 node scripts/publish.mjs --from=image.codec   # 从该环续发（中断后用）
-node scripts/publish.mjs --only=image.core,image.codec
-node scripts/publish.mjs --skip-gates         # 跳过前置门禁（不建议）
-bash scripts/publish.sh --exec                # 同一实现的兼容入口
+
+.\scripts\publish.ps1                        # 同上，PowerShell 原生（不需要 Node）
+.\scripts\publish.ps1 -Exec                  # 正式发布
+.\scripts\publish.ps1 -From image.codec      # 续发
+.\scripts\publish.ps1 -Only image.core       # 只发指定环
+bash scripts/publish.sh --exec                # 兼容入口（转调 publish.mjs）
 ```
+
+`publish.ps1` 与 `publish.mjs` 是同一套顺序与判据的两份实现：Windows 上直接用 `.ps1`（PS 5.1 可用，文件为纯 ASCII 以免无 BOM 时中文乱码），CI / Linux 用 `.mjs`。成功判定都以输出文本为准（`Server status: 200 OK` / `202 Accepted`），因为 moon 在 Windows 上成功时也可能返回非零退出码。
 
 | 行为 | 说明 |
 | --- | --- |
