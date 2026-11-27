@@ -1,13 +1,13 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-27）：版本 0.1.25 · 7,412 测试 × 4 目标 · 82 包 · 覆盖率 90.04% · prove 8 goals。
+> 当前口径（2026-11-27）：版本 0.1.26 · 7,415 测试 × 4 目标 · 82 包 · 覆盖率 90.00% · prove 8 goals。
 
 ## 功能边界
 
 | 编号 | 描述 | 影响面 | 状态 / 规避 |
 |------|------|--------|-------------|
-| GAP-1 | JPEG progressive 解码未实现 | 格式矩阵 | 仅支持 baseline；progressive 列入下一版本 |
+| GAP-1 | ~~JPEG progressive 解码未实现~~ **已闭环（2026-11-27）**：SOF2 多扫描累积（DC 首扫/DC 细化/AC 首扫/AC 细化、跨扫描 DHT 重定义快照、交错与非交错块网格、EOB run）全通；4 份 Pillow 样本（48×32/32×24/96×72/160×120）逐块系数与同图案 baseline 解码一致，灰度像素差 ≤1 LSB，彩色输出与 baseline 解码逐字节相同 | 格式矩阵 | 剩余边界：4 分量（CMYK）与 arithmetic coding 不支持；progressive 下的 DRI 无样本验证 |
 | GAP-2 | AVIF / HEIF / JPEG-XL 仅基础解码，无编码 | 格式矩阵 | 编码面明确不做（JPEG-XL 全特性不做） |
 | GAP-3 | 流式解码为「全量解码后逐行分发」，非增量 | lib 流式 API | 真增量解码规划于后续大版本 |
 | GAP-4 | PSD 无编码；TIFF Huffman 块不支持；形态学固定 3×3 核 | codec / process | 已在 README 与 docs/notes 标注 |
@@ -67,7 +67,8 @@
 | GAP-48 | **QR 生成只覆盖 version 1-L（≤17 字节）** | 生成器固定 21×21 矩阵、单块 RS；超出 17 字节即无法无损编码（修复前静默截断，后改 qr_fits_v1 守卫） | ✅ 生成器扩到 v1–v5-L（单块 RS 19/7、34/10、55/15、80/20、108/26），按载荷长度自动选最小版本，上限 **106 字节**；解码器补 alignment 5×5 功能模块判定，并修正「行/列 8 中间段（9..size-9）属数据区」——旧实现把整行/整列 8 当格式信息跳过，导致 >15 字符的消息位流错位。jsQR 1.4.0 交叉验证 5/5（v1–v5 文本与版本一致）；v6+ 与 M/Q/H 纠错级仍不做 |
 | GAP-54 | **QR 解码器把整行/整列 8 当格式信息** | `is_function_module` 对 `row == 8 || col == 8` 一律返回 true；格式信息实际只占行 8 左段 8 位、列 8 上段 7 位与第二副本（行 8 右段 / 列 8 下段），中间 9..size-9 属数据区，被误跳后位流错位 | ✅ 收窄为「行 8 仅 col ≤ 8 或 col ≥ size-8；列 8 仅 row ≤ 8 或 row ≥ size-7」；v1 短文本（≤15 字符）错位落在填充段故未暴露，v2 起 30 字节用例直接失败，修复后 v1–v5 往返全绿 |
 | GAP-55 | **QR 区域定位用三 finder 外接框** | v2 起数据区图案会被检测器误报为第三个 finder（v2 实测右上图案应在 x=88，被检出 x=62、s=30），外接框宽度少 6 模块，采样列中心整体压缩，格式位读成 mask 3 | ✅ 改为授 `x+y` 最小 finder 为原点、`origin.size/7` 取整为模块尺寸、ROI 边长 = `qr_size × module_size`；v2 采样矩阵与生成矩阵逐模块比对 0 差异，v1–v5 往返全绿 |
-| GAP-49 | **S16 的 4 个场景模块与 S17 的 2 条绑定通道脱离版本列车** | `image.doc/media/commerce/pro` 停在 `0.1.20`、依赖钉同停 `0.1.20`；`npm/package.json` 与 `bindings/dart/pubspec.yaml` 停在 `0.1.23`。`check_version.mjs` 的 `MODULES` 只有 7 项、`bump_version.mjs` 同名单，注释却写「共 11 个」——文档与实现不符，四个 patch 的漂移无人拦 | ✅ 两脚本扩到 11 个 `moon.mod` + 37 处钉 + npm + Dart（门禁 16 → 22 项）；六个文件版本与钉一次性对齐 `0.1.24`；4 个场景包 `moon test` 4/4 通过 |
+
+| GAP-49 | **S16 的 4 个场景模块与 S17 的 2 条绑定通道脱离版本列车** | `image.doc/media/commerce/pro` 停在 `0.1.20`、依赖钉同停 `0.1.20`；`npm/package.json` 与 `bindings/dart/pubspec.yaml` 停在 `0.1.23`。`check_version.mjs` 的 `MODULES` 只有 7 项、`bump_version.mjs` 同名单，注释却写「共 11 个」——文档与实现不符，四个 patch 的漂移无人拦 | ✅ 两脚本扩到 11 个 `moon.mod` + 37 处钉 + npm + Dart（门禁 16 → 22 项）；六个文件版本与钉一次性对齐 `0.1.24`；4 个场景包 `moon test` 4/4 通过 |
 | GAP-50 | **Dart 绑定的两条错误路径被自己吃掉（S17）** | ① `_call` 里 `(res.stderr as String).trim().split('\n').first` 在 stderr 整段为空时会抛 `StateError`，真实 `code` 被掩盖成无意义异常；② `_ext` 表列了 tiff/hdr/avif/heif/ico/icns/psd 七个只读格式，`convert(format: 'tiff')` 会先 spawn 一次进程再吃 `encode/unsupported_format` | ✅ `_ext` 收窄到 CLI `is_writable` 的 8 个（png/jpeg/bmp/gif/webp/qoi/ppm/tga），只读格式在 Dart 侧直接抛 `process/invalid_argument`；stderr 为空时改用「退出码 N，无 stderr」文案；自测 6 → 8 项（补「不可写格式本地拒绝」「imgtool 缺失抛 `process/spawn_failed`」） |
 | GAP-51 | **wasm ABI 的输入指针没有保活（S17 边界）** | `abi_alloc` 用 `Bytes::make(n, 0)` 分配，返回 i32 指针让 JS 直接写；此时 MoonBit 侧已无引用，安全依赖「JS 写完立刻调用」这段同步时序——`abi_convert` / `abi_resize` 内部第一次分配发生在输入已复制之后，所以当前写法安全。若将来把调用改成异步、或一次 staging 多次调用，指针可能在 GC 后被复用 | 已如实记录，未加 pin 机制；真要做多步往返时需补一张保活表（把指针与输入长度登记到 wasm 侧全局，`abi_*` 结束时清空） |
 | GAP-52 | **两条绑定通道的元信息面不对称（S17）** | ① JS `info().channels` 恒为 `0`：`abi_info` 只读头部、不解码，wasm 侧把 channels 写死 0，调用方会把 0 当「单通道灰度图」；② Dart 的 `resize` / `convert` 直接吞掉 CLI 回执里的 `width`/`height`/`format`，拿不到输出元信息；③ CLI `resize` 回执本身不回 `channels`（`convert` 有）；④ `docs/bindings.md` 的 JS 示例签名写成 `convertMeta(bytes, 'png')` / `resize(bytes, 64, 64, 'cover')`，与实现的 options 对象不符 | ✅ JS `info` 的 `channels` 改 `null`（显式未知）并加测试；CLI `resize` 回执补 `channels`；Dart 新增 `ImageMeta` + `convertMeta` / `resizeMeta`（复用同一次进程的 JSON，不多起进程），`convert` / `resize` 委托给它们；示例修正为 options 写法；Dart 自测 8 → 10 项、JS 自测 15 → 16 项 |
@@ -75,7 +76,8 @@
 
 ## 测试口径
 
-- **7,412 为 native 实测**（2026-11-27，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言）；四目标由 CI `test` job 矩阵实测。
+- **7,415 为 native 实测**（2026-11-27，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言、GAP-1 收口新增 3 条 progressive 测试）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
+- 本轮冻结时的未做项（progressive 编码、4 分量与 arithmetic、DRI 样本、色度上采样、基准集 progressive 样本等）已统一转入 [roadmap.md §11 冻结基线遗留](roadmap.md)，不在本表重复。
 

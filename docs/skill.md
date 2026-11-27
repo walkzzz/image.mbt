@@ -233,6 +233,6 @@ try {
 
 ## 限制
 
-- JPEG progressive 编码未实现：纯 MoonBit 实现成本过高
+- JPEG progressive 编码未实现：纯 MoonBit 实现成本过高（progressive **解码**已于 0.1.26 支持，见 GAP-1）
 - WebP lossy 编码为基础实现：仅 DC 系数，无 AC 系数和完整 VP8 bitstream
 - 零拷贝未实现：当前所有加载路径通过 Bytes 拷贝传递像素数据

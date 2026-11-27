@@ -1,11 +1,11 @@
 {
   "schema": "coverage@1",
-  "covered": 38219,
-  "total": 42447,
-  "percent": 90.04,
+  "covered": 38352,
+  "total": 42611,
+  "percent": 90.0,
   "threshold": 90,
   "scope": "native（四目标同源，行覆盖以 native 实测为准）",
   "source": "moon test --enable-coverage --target native → moon coverage report -f summary",
   "measured_at": "2026-11-27",
-  "note": "口径不排除任何文件：pub using 声明行为 0/0、benchmarks/gen/main.mbt 0/21 均计入分母。GAP-48/54/55（QR v1–v5-L 生成与解码修正）后本地全量复测（7,412 测试）。"
+  "note": "口径不排除任何文件：pub using 声明行为 0/0、benchmarks/gen/main.mbt 0/21 均计入分母。GAP-1（JPEG progressive 解码）落地后本地全量复测（7,415 测试）。"
 }

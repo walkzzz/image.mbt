@@ -425,7 +425,7 @@ dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
 - **统一像素抽象重构**（三套算法 × 3 深度重写，≈90 人日，用户零感知）；
 - **8 个场景包同时拆分**（与地基改造同期 = 同时改地基和上层）；
 - **三/四个出口并行**（MCP 先行，其余串行）；
-- 渐进式 JPEG、DICOM、GeoTIFF；
+- progressive JPEG **编码**（解码已于 0.1.26 闭环，见 §11 F-01）、DICOM、GeoTIFF；
 - SIMD / 多线程 / C FFI（与仓库红线冲突；要做先改红线再立项，不在本路线图内）；
 - **AVIF / JXL 编码**（编码器工程量超过现有全部算法之和，保持"解码支持、编码不做"）；
 - **GPU / H.264**；
@@ -479,3 +479,20 @@ dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
 | 第八节"只推进 doc 一条线" | **否决** | 实测：PDF 容器无、版面解析/表格→CSV/字段抽取全无、去阴影无、印章检测无；OCR 有但为模板法无准确率证据。doc 是全路线里**最重**的一条，不是最轻的；入口瓶颈在速度与出口，不在场景数量 |
 
 一句话：**吸收的是约束与判据，砍掉的是排期与拆分。** 三条硬理由：统一像素抽象 ≈90 人日；SIMD 违反仓库红线；8 包拆分与地基改造同期 = 同时改地基和上层。
+
+## 11. 0.1.26 冻结基线遗留（远期，不排期）
+
+冻结日 2026-11-27：版本 0.1.26，测试 7,415 × 4 目标，覆盖率 90.00%（38,352/42,611），prove 8 goals。以下为冻结时明确未做、整体转入远期的条目；每条都写明现状事实与立项前置，不做则不改代码。
+
+| 编号 | 遗留项 | 现状事实 | 立项前置 |
+|---|---|---|---|
+| F-01 | progressive JPEG 编码 | 解码闭环（GAP-1），编码面无入口，`encode_jpeg` 只出 baseline | 需先让基准集带 progressive 样本（F-05），否则编码改动无回归面 |
+| F-02 | progressive 的 4 分量（CMYK/YCCK）与 arithmetic coding（SOF9–12） | 解码器分量数只接受 1 / 3；算术编码分支不存在 | 需授权可分发样本来源（印刷类素材），否则只能写死不覆盖 |
+| F-03 | progressive + DRI（restart interval） | 代码留有 `jpeg_skip_to_restart`，无 SOF2 带 RST 样本验证 | 需 libjpeg `-restart` 生成的多扫描样本 |
+| F-04 | 4:2:0 色度最近邻上采样与 libjpeg 双线性不一致 | 彩色解码对 Pillow 差异 max 103 / 117（mean 7.66 / 1.85），属 baseline 既有行为 | 改采样会同时改 baseline 输出与基准集期望值，需一次成组改 |
+| F-05 | 基准集纳入 progressive 样本 | 当前 24 golden + 8 malformed 全为 baseline；`check_benchmarks.mjs` LIMITS 与 manifest 未含 progressive | 需同步 manifest、LIMITS、`docs/benchmarks.md` 与总字节上限（现值 1,453,371 / 1,638,400 B） |
+| F-06 | `check_benchmarks` 重生成比对模式（GAP-53 机器拦） | 只校验「磁盘 ↔ manifest」，不校验「磁盘 ↔ 当前生成器产出」 | CI 预算 +30s，先测本机耗时才可开 |
+| F-07 | wasm ABI 输入指针保活表（GAP-51） | 依赖「JS 写完立刻同步调用」的时序，未加 pin | 出现异步或多次往返调用时立项 |
+| F-08 | 覆盖率贴门槛运行 | 0.1.26 为 90.00%，门槛 90%，余量仅 165 行 | 新增代码前先补同量测试，或下调门槛需改 `check_coverage.mjs` 的 `min` |
+| F-09 | `moon coverage analyze` / `moon prove` 的 Windows 路径问题（GAP-10/GAP-15） | 上游 `\\?\` canonicalize 缺陷，本地无法绕 | 上游修复后重测 |
+| F-10 | 流式解码真增量（GAP-3）、AVIF/JXL 编码（GAP-2）、VP8 lossy 修好（GAP-25/27） | 见 [known-gaps.md](known-gaps.md) | 均需重新决策 |

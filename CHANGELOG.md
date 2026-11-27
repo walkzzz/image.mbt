@@ -4,6 +4,32 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.26] - 2026-11-27
+
+### Added
+
+- **JPEG progressive（SOF2）解码（GAP-1，闭环）**：新增 `image.codec/codec/jpeg_progressive.mbt`，把原来只走 baseline 单扫描的解码路径扩成「多扫描系数累积」。解析层 `JpegHeader` 增 `progressive : Bool` 与 `scans : Array[JpegScanSpec]`；`JpegScanSpec` 承载 ns / 分量索引 / 该扫描时刻的 DC、AC 表快照 / `ss`、`se`、`ah`、`al` / 熵区间，并新增 `jpeg_skip_entropy_to_marker`（跳过 0xFF00 与 RSTn，取下一个真 marker）；`0xC2` 与 `0xE0` 同布局解析，SOS 在 progressive 时压入扫描并顺序继续，不再 `break`。扫描类型覆盖 DC 首扫、DC 细化、AC 首扫、AC 细化四类，含跨块 EOB run。
+- 公开面不变：`decode_jpeg` / `decode_jpeg_pure` 按 `header.progressive` 自动分流，调用方无需改代码。
+
+### Fixed
+
+- **跨扫描 Huffman 表被「最后一次定义」覆盖**：编码器在每条扫描前重定义同号表（该样本 13 个 DHT 段、同一 ac0 反复改写），只保留最终版本会让早期扫描用错表——位消耗形状正确但解出的 RD 值全错。改为 SOS 解析时按分量快照 `huff_dc[td]` / `huff_ac[ta]` 存入 `JpegScanSpec.dc_tabs` / `ac_tabs`，解码统一走扫描内表。
+- **分量块网格不能由 MCU 网格乘采样因子**：原 `bw = mcus_x * h_i` 让 32×24 的 Y 得 4×4=16 块（实际 3 块行）。改为 `ceil(w·h_i/(8·max_h))`、`ceil(h·v_i/(8·max_v))`；系数缓冲仍按 MCU 网格容量 `stride_x = mcus_x·h_i` 分配，因为交错扫描把越界的 padding 整块也编入码流，交错分支不裁剪、非交错分支才按分量块光栅序推进。
+- **AC 细化把「先读码」写成「先修正」**：libjpeg 的 `decode_mcu_AC_refine` 每块先解一个 Huffman 码，已非零系数的修正位只在「跳过零位」途中读取；旧实现一进块就对 `k=ss` 处的非零系数读修正位，整条扫描位流从第一块起偏移一位，表现为「部分块系数错位 7~13、EOB run 计数 +1」。改为严格按 libjpeg 结构：码 → run 推进 → 途中修正 → 写新系数。
+- **细化扫描 ZRL 少跳一个零位**：libjpeg 的 ZRL 由内层跳 15 个零加外层 `for` 自增合计 16，旧实现内层跳完 15 个零后不前进，累计只跳 15 位，后续新系数普遍前移 1 位（实测 4 块出现 49↔56、7↔14 的成对错位）。改为内层结束后统一 `k += 1`。
+- **EOB run 块首与细化位累加**：块首 `eobrun > 0` 时整块只做修正、不读任何 run/size；修正位累加要求 `(v & p1) == 0`（同 libjpeg 口径，避免同一位面重复加）。
+
+### Verified
+
+- **逐块系数与同图案 baseline 解码对照**（Pillow quality=75 同图案双份样本，量化表完全相同，故两条路径的系数应逐字节一致）：
+  - 48×32 灰度（548 B / 520 B，6 条扫描）：24/24 块 64 系数全等
+  - 96×72 灰度（907 B / 828 B）：全等
+  - 32×24 彩色（887 B / 809 B，10 条扫描）：Y 12 块 + Cb 4 块 + Cr 4 块共 20/20 全等（baseline 侧另有 4 个 padding 块不进输出）
+  - 160×120 彩色（2030 B / 1800 B）：全等
+- **像素级对照**：灰度 max |Δ| = 1（48×32 mean 0.008、96×72 mean 0.019），与 baseline 自身对 Pillow 的精度同级；彩色 progressive 输出与 baseline 解码**逐字节相同**（max 0），两者与 Pillow 的差异来自 4:2:0 色度最近邻上采样，属 baseline 既有行为、非 progressive 缺陷。
+- 新增 `jpeg_progressive_test.mbt` 3 条：6 扫描 48×32 灰度样本的尺寸/通道、8 个采样点像素（±1 LSB）、截断熵数据抛 `DecodeFailed` 而非 panic。
+- `moon test --target native image.codec/codec` 684/684 全绿；全量 native **7,415/7,415** 全绿（含本次新增 3 条）；覆盖率复测 38,352/42,611 = 90.00%（门槛 90%，`check_coverage.mjs` ok）。
+
 ## [0.1.25] - 2026-11-27
 
 ### Added

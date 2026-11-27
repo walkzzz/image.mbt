@@ -34,7 +34,7 @@
 | GIF (单帧) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ |
 | GIF (动画) | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ |
 | JPEG baseline | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| JPEG progressive | ❌ | ❌ | ✅ (decode) | ? | ❌ | ❌ |
+| JPEG progressive | ✅ (decode) | ❌ | ✅ (decode) | ? | ❌ | ❌ |
 | TGA | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ (RLE) |
 | PSD | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | HDR (HDR/EXR) | ✅ (float) | ❌ | ❌ | ❌ | ❌ | ❌ |

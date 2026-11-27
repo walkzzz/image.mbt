@@ -256,6 +256,23 @@ fn ycbcr_to_rgb(y : Int32, cb : Int32, cr : Int32) -> (Int32, Int32, Int32) {
 }
 
 ///|
+/// 一个扫描（SOS 段 + 熵数据区间）的参数。baseline 只用第 0 个；progressive 逐段累积。
+priv struct JpegScanSpec {
+  ns : Int32
+  comp_idx : Array[Int32]
+  // 扫描开始时的 Huffman 表快照：progressive 文件会在扫描之间重定义同号表，
+  // 必须按扫描时刻取表，不能用文件末尾的最终版本。
+  dc_tabs : Array[JpegHuffmanTable]
+  ac_tabs : Array[JpegHuffmanTable]
+  ss : Int32
+  se : Int32
+  ah : Int32
+  al : Int32
+  entropy_start : Int32
+  entropy_end : Int32
+}
+
+///|
 /// JPEG 解码头部信息
 priv struct JpegHeader {
   width : Int32
@@ -273,6 +290,28 @@ priv struct JpegHeader {
   scan_ac_table : Array[Int32]
   scan_ns : Int32
   entropy_start : Int32
+  progressive : Bool
+  scans : Array[JpegScanSpec]
+}
+
+///|
+/// 从熵数据起点前推，定位下一个真实标记（跳过 0xFF00 填充字节与 RSTn 重启标记）。
+/// 返回该标记的 0xFF 位置；到文件末尾则返回 len。
+fn jpeg_skip_entropy_to_marker(data : Bytes, from : Int32) -> Int32 {
+  let len = data.length()
+  let mut p = from
+  while p < len - 1 {
+    if data[p].to_int() == 0xFF {
+      let m = data[p + 1].to_int()
+      if m != 0x00 && !(m >= 0xD0 && m <= 0xD7) {
+        return p
+      }
+      p += 2
+      continue
+    }
+    p += 1
+  }
+  len
 }
 
 ///|
@@ -308,6 +347,8 @@ fn jpeg_parse_header(data : Bytes) -> JpegHeader raise @types.LoadError {
   let scan_ac_table : Array[Int32] = Array::make(4, 0)
   let mut scan_ns = 0
   let mut entropy_start = 0
+  let mut progressive = false
+  let scans : Array[JpegScanSpec] = []
   let zz = zigzag()
   while pos < len {
     if data[pos].to_int() != 0xFF {
@@ -330,6 +371,32 @@ fn jpeg_parse_header(data : Bytes) -> JpegHeader raise @types.LoadError {
         for i in 0..<num_components {
           if pos + 3 > len {
             raise @types.LoadError::DecodeFailed("JPEG SOF0 component 过短")
+          }
+          component_ids[i] = data[pos].to_int()
+          let hv = data[pos + 1].to_int()
+          component_h[i] = (hv >> 4) & 0x0F
+          component_v[i] = hv & 0x0F
+          component_qt[i] = data[pos + 2].to_int()
+          pos += 3
+        }
+      }
+      0xC2 => {
+        // SOF2：与 SOF0 字段布局一致，只多一个「这张是 progressive」的标记
+        if pos + 9 > len {
+          raise @types.LoadError::DecodeFailed("JPEG SOF2 过短")
+        }
+        let _precision2 = data[pos + 2].to_int()
+        height = data[pos + 3].to_int() * 256 + data[pos + 4].to_int()
+        width = data[pos + 5].to_int() * 256 + data[pos + 6].to_int()
+        num_components = data[pos + 7].to_int()
+        if num_components < 1 || num_components > 4 {
+          raise @types.LoadError::DecodeFailed("JPEG SOF2 分量数越界")
+        }
+        pos += 8
+        progressive = true
+        for i in 0..<num_components {
+          if pos + 3 > len {
+            raise @types.LoadError::DecodeFailed("JPEG SOF2 component 过短")
           }
           component_ids[i] = data[pos].to_int()
           let hv = data[pos + 1].to_int()
@@ -412,6 +479,15 @@ fn jpeg_parse_header(data : Bytes) -> JpegHeader raise @types.LoadError {
         // SOS
         let seg_len = data[pos].to_int() * 256 + data[pos + 1].to_int()
         scan_ns = data[pos + 2].to_int()
+        let scomp : Array[Int32] = Array::make(4, 0)
+        let sdc : Array[Int32] = Array::make(4, 0)
+        let sac : Array[Int32] = Array::make(4, 0)
+        let sdc_tab : Array[JpegHuffmanTable] = []
+        let sac_tab : Array[JpegHuffmanTable] = []
+        for _ in 0..<4 {
+          sdc_tab.push(empty_huffman_table())
+          sac_tab.push(empty_huffman_table())
+        }
         let mut p = pos + 3
         for i in 0..<scan_ns {
           let cs = data[p].to_int()
@@ -426,10 +502,50 @@ fn jpeg_parse_header(data : Bytes) -> JpegHeader raise @types.LoadError {
           scan_comp_idx[i] = cidx
           scan_dc_table[i] = (td_ta >> 4) & 0x0F
           scan_ac_table[i] = td_ta & 0x0F
+          scomp[i] = cidx
+          sdc[i] = (td_ta >> 4) & 0x0F
+          sac[i] = td_ta & 0x0F
+          if progressive {
+            let td = sdc[i]
+            let ta = sac[i]
+            sdc_tab[i] = huff_dc[td]
+            sac_tab[i] = huff_ac[ta]
+          }
           p += 2
         }
         pos += seg_len
         entropy_start = pos
+        if progressive {
+          // SOS 尾部 3 字节：Ss / Se / AhAl
+          let tail = pos - 3
+          let ss = if tail >= 0 && tail < len { data[tail].to_int() } else { 0 }
+          let se = if tail + 1 >= 0 && tail + 1 < len {
+            data[tail + 1].to_int()
+          } else {
+            0
+          }
+          let ahal = if tail + 2 >= 0 && tail + 2 < len {
+            data[tail + 2].to_int()
+          } else {
+            0
+          }
+          let e_end = jpeg_skip_entropy_to_marker(data, entropy_start)
+          scans.push(JpegScanSpec::{
+            ns: scan_ns,
+            comp_idx: scomp,
+            dc_tabs: sdc_tab,
+            ac_tabs: sac_tab,
+            ss,
+            se,
+            ah: (ahal >> 4) & 0x0F,
+            al: ahal & 0x0F,
+            entropy_start,
+            entropy_end: e_end,
+          })
+          // 继续解析后续扫描；下一轮从标记处开始
+          pos = e_end
+          continue
+        }
         break
       }
       0xD9 => break
@@ -456,6 +572,8 @@ fn jpeg_parse_header(data : Bytes) -> JpegHeader raise @types.LoadError {
     scan_ac_table,
     scan_ns,
     entropy_start,
+    progressive,
+    scans,
   }
 }
 
@@ -664,5 +782,9 @@ pub fn decode_jpeg_pure(data : Bytes) -> @types.Image raise @types.LoadError {
     raise @types.LoadError::DecodeFailed("JPEG 尺寸无效")
   }
   @types.check_dims(header.width, header.height, header.num_components)
-  jpeg_decode_scan(header, data)
+  if header.progressive {
+    jpeg_decode_progressive(header, data)
+  } else {
+    jpeg_decode_scan(header, data)
+  }
 }
