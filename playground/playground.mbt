@@ -45,11 +45,11 @@ fn hex_to_bytes(hex : String) -> Bytes {
 ///|
 #export_name("img_version")
 pub fn img_version() -> String {
-  "0.1.24"
+  "0.1.25"
 }
 
 ///|
-/// 文本 → QR PNG（hex）。返回空串表示无法生成（空文本 / 超出 v1 容量）。
+/// 文本 → QR PNG（hex）。返回空串表示无法生成（空文本 / 超出 v5-L 容量）。
 /// 注意：QR 静区按 ISO 18004 用 4 模块，调用方传参会被夹到 ≥4。
 #export_name("img_qr_png_hex")
 pub fn img_qr_png_hex(
@@ -58,7 +58,7 @@ pub fn img_qr_png_hex(
   quiet_zone : Int32,
 ) -> String {
   let payload = @encoding/utf8.encode(text)
-  if payload.length() == 0 || !@testgen.qr_fits_v1(payload) {
+  if payload.length() == 0 || !@testgen.qr_fits(payload) {
     return ""
   }
   let qz = if quiet_zone < 4 { 4 } else { quiet_zone }
@@ -67,10 +67,10 @@ pub fn img_qr_png_hex(
 }
 
 ///|
-/// 版本 1-L 的容量（字节），供 UI 提示"最多 N 字节 / UTF-8 中文 6 字"。
+/// 版本 1..5-L 的上限（字节），供 UI 提示「最多 N 字节 / UTF-8 中文约 3 字/字节」。
 #export_name("img_qr_max_bytes")
 pub fn img_qr_max_bytes() -> Int32 {
-  @testgen.qr_v1_max_bytes()
+  @testgen.qr_max_bytes()
 }
 
 ///|
@@ -83,7 +83,7 @@ pub fn img_qr_filter_png_hex(
 ) -> String {
   try {
     let payload = @encoding/utf8.encode(text)
-    if payload.length() == 0 || !@testgen.qr_fits_v1(payload) {
+    if payload.length() == 0 || !@testgen.qr_fits(payload) {
       ""
     } else {
       let image = @testgen.render_qr(payload, module_px=6, quiet_zone=4)

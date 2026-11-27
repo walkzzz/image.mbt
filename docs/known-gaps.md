@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-27）：版本 0.1.24 · 7,407 测试 × 4 目标 · 82 包 · 覆盖率 90.05% · prove 8 goals。
+> 当前口径（2026-11-27）：版本 0.1.25 · 7,412 测试 × 4 目标 · 82 包 · 覆盖率 90.04% · prove 8 goals。
 
 ## 功能边界
 
@@ -64,7 +64,9 @@
 | GAP-45 | ~~Code128 Stop 符不符规范（静默错输出）~~ **已闭环（2026-11-27）** | 码表 108 行里 105–107 位置混装：`code128_patterns[105]` 实为 Start A、`[106]` 为 Start B、`[107]` 才是 Start C；真实 Stop（码字 106）是 7 段 13 模块 `[2,3,3,1,1,1,2]`，6 段表装不下，旧实现用伪模式 `[2,1,1,2,2,3]` 冒充并再补 2 个模块 → 生成物在标准扫码器不可读（自解码因同源而「通过」） | 表截为 0–105 共 106 行（103/104/105 = Start A/B/C），新增 `code128_stop_pattern` / 106 常量；解码器改为**先**匹配 7 段 Stop 再匹配码字；生成器直接渲染真 Stop（去掉补丁模块）；新增码表形状断言（每条 6 段 11 模块、Stop 7 段 13 模块）与总模块数 `11×n+13` 断言 |
 | GAP-46 | ~~GLCM `entropy` 是占位公式~~ **已闭环（2026-11-27）** | `style_transfer_enhancement.mbt` 里写成 `entropy -= p * p * 0.1`，结果恒 ≤ 0，与「熵」语义相反，且无法与任何文献值对照 | 改为真香农熵 `-Σ p·log2(p)`（`@math.log2`，`moon.pkg` 增 `moonbitlang/core/math`）；断言收紧为 `0 ≤ entropy ≤ 8`（8×8 GLCM 上界 6 bit，留余量） |
 | GAP-47 | **CUR 3×2 往返已复测通过（2026-11-27）** | 历史台账曾把 CUR 编解码列为缺陷；本轮用 `encode_cur_pure` + `decode_cur_pure` 实测 3×2 / 4 通道逐字节一致 | 不再挂缺陷；未改动代码 |
-| GAP-48 | **QR 生成只覆盖 version 1-L（≤17 字节）** | `render_qr` 固定 21×21 矩阵、单块 RS；超出 17 字节（UTF-8）时无法无损编码。修复前是静默截断，现改为 `qr_fits_v1` 守卫 + 页面显式报错（`img_qr_max_bytes()` 导出 17） | 已明确能力边界：UI 提示"最多 17 字节，中文约 5 字"；多版本（v2+ 对齐图案与分块 RS）未排期，需求出现再评估 |
+| GAP-48 | **QR 生成只覆盖 version 1-L（≤17 字节）** | 生成器固定 21×21 矩阵、单块 RS；超出 17 字节即无法无损编码（修复前静默截断，后改 qr_fits_v1 守卫） | ✅ 生成器扩到 v1–v5-L（单块 RS 19/7、34/10、55/15、80/20、108/26），按载荷长度自动选最小版本，上限 **106 字节**；解码器补 alignment 5×5 功能模块判定，并修正「行/列 8 中间段（9..size-9）属数据区」——旧实现把整行/整列 8 当格式信息跳过，导致 >15 字符的消息位流错位。v6+ 与 M/Q/H 纠错级仍不做 |
+| GAP-54 | **QR 解码器把整行/整列 8 当格式信息** | `is_function_module` 对 `row == 8 || col == 8` 一律返回 true；格式信息实际只占行 8 左段 8 位、列 8 上段 7 位与第二副本（行 8 右段 / 列 8 下段），中间 9..size-9 属数据区，被误跳后位流错位 | ✅ 收窄为「行 8 仅 col ≤ 8 或 col ≥ size-8；列 8 仅 row ≤ 8 或 row ≥ size-7」；v1 短文本（≤15 字符）错位落在填充段故未暴露，v2 起 30 字节用例直接失败，修复后 v1–v5 往返全绿 |
+| GAP-55 | **QR 区域定位用三 finder 外接框** | v2 起数据区图案会被检测器误报为第三个 finder（v2 实测右上图案应在 x=88，被检出 x=62、s=30），外接框宽度少 6 模块，采样列中心整体压缩，格式位读成 mask 3 | ✅ 改为授 `x+y` 最小 finder 为原点、`origin.size/7` 取整为模块尺寸、ROI 边长 = `qr_size × module_size`；v2 采样矩阵与生成矩阵逐模块比对 0 差异，v1–v5 往返全绿 |
 | GAP-49 | **S16 的 4 个场景模块与 S17 的 2 条绑定通道脱离版本列车** | `image.doc/media/commerce/pro` 停在 `0.1.20`、依赖钉同停 `0.1.20`；`npm/package.json` 与 `bindings/dart/pubspec.yaml` 停在 `0.1.23`。`check_version.mjs` 的 `MODULES` 只有 7 项、`bump_version.mjs` 同名单，注释却写「共 11 个」——文档与实现不符，四个 patch 的漂移无人拦 | ✅ 两脚本扩到 11 个 `moon.mod` + 37 处钉 + npm + Dart（门禁 16 → 22 项）；六个文件版本与钉一次性对齐 `0.1.24`；4 个场景包 `moon test` 4/4 通过 |
 | GAP-50 | **Dart 绑定的两条错误路径被自己吃掉（S17）** | ① `_call` 里 `(res.stderr as String).trim().split('\n').first` 在 stderr 整段为空时会抛 `StateError`，真实 `code` 被掩盖成无意义异常；② `_ext` 表列了 tiff/hdr/avif/heif/ico/icns/psd 七个只读格式，`convert(format: 'tiff')` 会先 spawn 一次进程再吃 `encode/unsupported_format` | ✅ `_ext` 收窄到 CLI `is_writable` 的 8 个（png/jpeg/bmp/gif/webp/qoi/ppm/tga），只读格式在 Dart 侧直接抛 `process/invalid_argument`；stderr 为空时改用「退出码 N，无 stderr」文案；自测 6 → 8 项（补「不可写格式本地拒绝」「imgtool 缺失抛 `process/spawn_failed`」） |
 | GAP-51 | **wasm ABI 的输入指针没有保活（S17 边界）** | `abi_alloc` 用 `Bytes::make(n, 0)` 分配，返回 i32 指针让 JS 直接写；此时 MoonBit 侧已无引用，安全依赖「JS 写完立刻调用」这段同步时序——`abi_convert` / `abi_resize` 内部第一次分配发生在输入已复制之后，所以当前写法安全。若将来把调用改成异步、或一次 staging 多次调用，指针可能在 GC 后被复用 | 已如实记录，未加 pin 机制；真要做多步往返时需补一张保活表（把指针与输入长度登记到 wasm 侧全局，`abi_*` 结束时清空） |
@@ -73,7 +75,7 @@
 
 ## 测试口径
 
-- **7,407 为 native 实测**（2026-11-27，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言）；四目标由 CI `test` job 矩阵实测。
+- **7,412 为 native 实测**（2026-11-27，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 

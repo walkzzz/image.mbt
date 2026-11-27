@@ -4,6 +4,22 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.25] - 2026-11-27
+
+### Added
+
+- **QR 生成器扩到多版本（GAP-48，闭环）**：`render_qr` 此前固定 21×21 矩阵、单块 RS，超过 17 字节（UTF-8）只能报错。生成侧重写为参数化：版本表按 ISO/IEC 18004 表 9 的 L 级单块行取 v1–v5（数据/纠错码字 19/7、34/10、55/15、80/20、108/26，字节上限 17/32/53/78/106），`qr_fits` 按载荷长度选最小版本；矩阵构造参数化到 size/finder/timing/dark/alignment（v2 起右下 `(size-7, size-7)` 5×5 环），格式信息两副本按 `size` 定位。公开面新增 `qr_modules` / `qr_matrix_size` / `qr_version_for` / `qr_max_bytes` / `qr_fits`，`qr_v1_max_bytes` 与 `qr_fits_v1` 保留历史语义。playground 的 `img_qr_png_hex` / `img_qr_filter_png_hex` / `img_qr_max_bytes` 切到新守卫，页面提示改为「自动选最小版本（1–5-L）：上限 106 字节」。
+
+### Fixed
+
+- **QR 解码器把整行/整列 8 当格式信息（GAP-54）**：`is_function_module` 原写 `row == 8 || col == 8` 一律返回 true，而格式信息实际只占行 8 的左段 8 位、列 8 的上段 7 位与第二副本（行 8 右段 / 列 8 下段）；中间的 9..size-9 属数据区。v1 文本短（≤15 字符）时错位落在填充段未暴露，v2 的 30 字节用例直接解出乱码。改为「行 8 仅 col ≤ 8 或 col ≥ size-8、列 8 仅 row ≤ 8 或 row ≥ size-7」，并补 `qr_alignment_centers` 的 5×5 判定（v2–v10 中心表），否则对齐图案会被当数据位。
+- **QR 区域定位改用「左上角 finder + 版本边长 × 模块尺寸」（GAP-55）**：旧逻辑取三 finder 的外接框当 ROI；v2 起数据区图案会被检测器误报为第三个 finder（实测应位于 x=88 的右上图案被检出在 x=62、s=30），外接框宽度少 6 模块，采样列中心整体压缩，格式位读成 mask 3。改为取 `x+y` 最小者为原点、`origin.size / 7` 取整为模块尺寸、ROI 边长 = `qr_size × module_size`；v2 采样矩阵与生成矩阵逐模块比对 0 差异。
+
+### Verified
+
+- `image.core/testgen` 新增 4 条（版本边界 17/18/32/33/53/54/78/79/106、v2 alignment 5×5、dark module 随版本右移、timing 隔一取黑）；`image.codec/barcode` 新增 v1–v5 往返（10/30/50/70/100 字节），同步改写 `qr_wbtest` 的 `is_function_module` 断言（行/列 8 中间段改为 false，补 v2 alignment 用例）
+- native 7,412 / 7,412 全绿
+
 ## [0.1.24] - 2026-11-27
 
 ### Fixed

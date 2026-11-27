@@ -107,26 +107,37 @@ pub fn decode_qrcode_full(
   let p1 = patterns[0]
   let p2 = patterns[1]
   let p3 = patterns[2]
-  // 计算模块大小
-  let module_size = (p1.size / 7.0).min(p2.size / 7.0).min(p3.size / 7.0)
+  // 左上角 finder = x+y 最小者；v2 起数据区可能被误报为第三个图案，故不用三图案外接框定 ROI
+  let mut origin = p1
+  if p2.x + p2.y < origin.x + origin.y {
+    origin = p2
+  }
+  if p3.x + p3.y < origin.x + origin.y {
+    origin = p3
+  }
+  // 计算模块大小：以左上角 finder 的边长 / 7 为准，取整降低亚像素误差累积
+  let raw_module = origin.size / 7.0
+  let module_size = if raw_module < 1.0 {
+    raw_module
+  } else {
+    raw_module.round()
+  }
   if module_size < 1.0 {
     return None
   }
-  // 3. 估算版本（基于定位图案之间的距离）
+  // 3. 估算版本（基于定位图案之间的距离；模块数 = 边长）
   let dist12 = ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)).sqrt()
   let dist13 = ((p1.x - p3.x) * (p1.x - p3.x) + (p1.y - p3.y) * (p1.y - p3.y)).sqrt()
   let modules_between = dist12.max(dist13) / module_size
   // finder 中心间距 = 14 + 4(V-1) 模块 → V = (d - 10) / 4
   let version = ((modules_between - 10.0) / 4.0).to_int().max(1).min(10)
   let qr_size = 17 + version * 4 // 版本 N 的模块数 = 17 + 4N
-  // 4. 计算 QR Code 区域边界
-  let min_x = p1.x.min(p2.x).min(p3.x).to_int()
-  let min_y = p1.y.min(p2.y).min(p3.y).to_int()
-  let max_x = (p1.x + p1.size).max(p2.x + p2.size).max(p3.x + p3.size).to_int()
-  let max_y = (p1.y + p1.size).max(p2.y + p2.size).max(p3.y + p3.size).to_int()
-  let qr_w = max_x - min_x
-  let qr_h = max_y - min_y
-  if qr_w < 21 || qr_h < 21 {
+  // 4. QR 区域 = 左上角 finder 左上角 + 版本边长 × 模块尺寸
+  let min_x = origin.x.to_int()
+  let min_y = origin.y.to_int()
+  let qr_w = (qr_size.to_double() * module_size).to_int()
+  let qr_h = qr_w
+  if qr_w < 21 {
     return None
   }
   // 5. 采样模块（将图像转换为模块矩阵）
@@ -318,6 +329,24 @@ fn apply_qr_mask(
 }
 
 ///|
+/// v2..v10 的 alignment pattern 中心坐标（ISO/IEC 18004 附录 E）。
+/// v1 没有对齐图案；v2..v5 的四个组合里有三个与 finder 重叠，实际只剩右下角一个。
+fn qr_alignment_centers(version : Int32) -> Array[Int32] {
+  match version {
+    2 => [6, 18]
+    3 => [6, 22]
+    4 => [6, 26]
+    5 => [6, 30]
+    6 => [6, 34]
+    7 => [6, 22, 38]
+    8 => [6, 24, 42]
+    9 => [6, 26, 46]
+    10 => [6, 28, 50]
+    _ => []
+  }
+}
+
+///|
 /// 判断是否是功能模块
 fn is_function_module(row : Int32, col : Int32, qr_size : Int32) -> Bool {
   // 左上角定位图案（8x8）
@@ -336,9 +365,24 @@ fn is_function_module(row : Int32, col : Int32, qr_size : Int32) -> Bool {
   if row == 6 || col == 6 {
     return true
   }
-  // 格式信息区域
-  if row == 8 || col == 8 {
+  // 格式信息区域：行 8 的左右两段 + 列 8 的上下两段；中间段（9..size-9）属数据区
+  if (row == 8 && (col <= 8 || col >= qr_size - 8)) ||
+    (col == 8 && (row <= 8 || row >= qr_size - 7)) {
     return true
+  }
+  // alignment pattern（v2 起）：中心 (cr, cc) 的 5×5 区域；与 finder 重叠的组合跳过
+  let version = (qr_size - 17) / 4
+  if version >= 2 {
+    let centers = qr_alignment_centers(version)
+    for cr in centers {
+      for cc in centers {
+        let overlap_finder = (cr == 6 && (cc == 6 || cc == qr_size - 7)) ||
+          (cc == 6 && cr == qr_size - 7)
+        if !overlap_finder && (row - cr).abs() <= 2 && (col - cc).abs() <= 2 {
+          return true
+        }
+      }
+    }
   }
   false
 }

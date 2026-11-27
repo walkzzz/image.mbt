@@ -71,17 +71,59 @@ fn qr_format_bits(ec_level : Int32, mask : Int32) -> Int32 {
 }
 
 ///|
-/// 构造 QR 模块矩阵（21×21，版本 1），1 = 黑。
-fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
-  let size = 21
+/// L 级纠错下 v1..v5 的单块参数：(数据码字数, EC 码字数)。
+/// 依据 ISO/IEC 18004 表 9——v1..v5 的 L 级都是单纠错块，因此不需要块交织。
+fn qr_l_block(version : Int32) -> (Int32, Int32) {
+  match version {
+    1 => (19, 7)
+    2 => (34, 10)
+    3 => (55, 15)
+    4 => (80, 20)
+    5 => (108, 26)
+    _ => (19, 7)
+  }
+}
+
+///|
+/// 字节模式在指定版本下的最大载荷字节数：data_codes×8 − 4（模式指示）− 8（字符计数）。
+fn qr_byte_capacity(version : Int32) -> Int32 {
+  let (data_codes, _) = qr_l_block(version)
+  (data_codes * 8 - 12) / 8
+}
+
+///|
+/// 按载荷长度选能装下的最小版本（v1..v5）；超出 v5 时返回 5，由调用方用 qr_fits 拦截。
+fn qr_pick_version(payload_len : Int32) -> Int32 {
+  let mut v = 1
+  while v < 5 && payload_len > qr_byte_capacity(v) {
+    v = v + 1
+  }
+  v
+}
+
+///|
+/// 版本 N 的矩阵边长：17 + 4N（v1 = 21，v5 = 37）。
+fn qr_size_of(version : Int32) -> Int32 {
+  17 + 4 * version
+}
+
+///|
+/// 构造 QR 模块矩阵，返回 (边长, 模块数组)。1 = 黑。
+fn qr_build_matrix_v(payload : Bytes, version : Int32) -> (Int32, Array[Int32]) {
+  let size = qr_size_of(version)
+  let (data_codes_len, ecc_len) = qr_l_block(version)
   let modules : Array[Int32] = Array::make(size * size, 0)
   let is_func : Array[Bool] = Array::make(size * size, false)
   let set = fn(idx : Int32, v : Int32) {
     modules[idx] = v
     is_func[idx] = true
   }
-  // finder + separator（三个角）
-  let finder_pos : Array[(Int32, Int32)] = [(0, 0), (0, 14), (14, 0)]
+  // finder + separator（三个角，尺寸随版本变化）
+  let finder_pos : Array[(Int32, Int32)] = [
+    (0, 0),
+    (0, size - 7),
+    (size - 7, 0),
+  ]
   for (fr, fc) in finder_pos {
     for r in -1..<8 {
       for c in -1..<8 {
@@ -100,13 +142,27 @@ fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
       }
     }
   }
-  // timing pattern
-  for i in 8..<13 {
+  // timing pattern：行 6 与列 6，从 8 到 size-9
+  for i in 8..<(size - 8) {
     set(6 * size + i, if i % 2 == 0 { 1 } else { 0 })
     set(i * size + 6, if i % 2 == 0 { 1 } else { 0 })
   }
-  // dark module
-  set(13 * size + 8, 1)
+  // alignment pattern：v1 没有；v2..v5 只有右下 (size-7, size-7) 一个（其余组合与 finder 重叠）
+  if version >= 2 {
+    let cr = size - 7
+    let cc = size - 7
+    for dr in -2..<3 {
+      for dc in -2..<3 {
+        let rr = cr + dr
+        let c2 = cc + dc
+        let ring = dr == -2 || dr == 2 || dc == -2 || dc == 2
+        let center = dr == 0 && dc == 0
+        set(rr * size + c2, if ring || center { 1 } else { 0 })
+      }
+    }
+  }
+  // dark module（(size-8, 8)，v1 即 (13, 8)）
+  set((size - 8) * size + 8, 1)
   // 格式信息占位（先写 0，稍后覆盖；标记为 function）
   let fmt_pos_a : Array[(Int32, Int32)] = [
     (8, 0),
@@ -134,7 +190,7 @@ fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
   for i in 0..<8 {
     set(8 * size + (size - 8 + i), 0)
   }
-  // 数据位流：mode 0100 + 长度(8) + payload
+  // 数据位流：mode 0100（字节）+ 8 位字符计数 + payload
   let bits : Array[Int32] = []
   bits.push(0)
   bits.push(1)
@@ -149,10 +205,9 @@ fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
       bits.push((b >> (7 - k)) & 1)
     }
   }
-  // 数据容量：版本1-L = 19 数据码字 = 152 位
-  let data_capacity = 19 * 8
+  // 数据容量随版本变化；超容量时截断（调用方应先用 qr_fits 拦住）
+  let data_capacity = data_codes_len * 8
   if bits.length() > data_capacity {
-    // 超容量：截断（生成器定位为小载荷）
     while bits.length() > data_capacity {
       let _ = bits.pop()
     }
@@ -175,16 +230,16 @@ fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
     }
     pad_toggle = !pad_toggle
   }
-  // 数据码字
-  let data_codes : Array[Int32] = Array::make(19, 0)
-  for i in 0..<19 {
+  // 数据码字 → RS 纠错码字
+  let data_codes : Array[Int32] = Array::make(data_codes_len, 0)
+  for i in 0..<data_codes_len {
     let mut v = 0
     for k in 0..<8 {
       v = (v << 1) | bits[i * 8 + k]
     }
     data_codes[i] = v
   }
-  let ecc = qr_rs_encode(data_codes, 7)
+  let ecc = qr_rs_encode(data_codes, ecc_len)
   let all_codes : Array[Int32] = []
   for c in data_codes {
     all_codes.push(c)
@@ -230,20 +285,14 @@ fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
       }
     }
   }
-  // 写入格式信息（L 级 = 01，mask 0）
-  // 规范要求 15 位按 MSB-first 铺到位置上（bit14 在 (8,0)，bit0 在 (0,8)）。
-  // 旧实现用 (fmt >> i) 从 LSB 开始铺，等价于把整串反序写入：读码器按标准读出的
-  // ECC/掩码与实际掩码不符 → 数据区被错误去掩码 → Reed–Solomon 校验失败（S23 F1）。
+  // 格式信息（L 级 = 01，mask 0），15 位 MSB-first 铺放
   let fmt = qr_format_bits(1, 0)
   for i in 0..<15 {
     let bit = (fmt >> (14 - i)) & 1
     let (r, c) = fmt_pos_a[i]
     modules[r * size + c] = bit
   }
-  // 格式信息副本 2（ISO 18004 标准布局）：
-  //   bit0..bit7  → 行 8、列 20..13（bit0 在最右列 size-1）
-  //   bit8..bit14 → 列 8、行 14..20（bit8 在 row size-15+8 = 14）
-  // dark module 固定在 (size-8, 8) = (13, 8)，不参与这两段。
+  // 副本 2：bit0..bit7 走行 8 的右段，bit8..bit14 走列 8 的下段
   for i in 0..<8 {
     let bit = (fmt >> i) & 1
     modules[8 * size + (size - 1 - i)] = bit
@@ -252,20 +301,30 @@ fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
     let bit = (fmt >> i) & 1
     modules[(size - 15 + i) * size + 8] = bit
   }
+  (size, modules)
+}
+
+///|
+fn qr_build_matrix(payload : Bytes) -> Array[Int32] {
+  let (_, modules) = qr_build_matrix_v(
+    payload,
+    qr_pick_version(payload.length()),
+  )
   modules
 }
 
 ///|
 /// 把 QR 矩阵渲染为灰度图（白底 255 / 黑模块 0），默认 4 模块 quiet zone。
+/// 版本按载荷长度自动选择（v1..v5，L 级）；超容量时固化为 v5 并截断，调用方须先用 qr_fits 拦截。
 pub fn render_qr(
   payload : Bytes,
   module_px~ : Int32 = 8,
   quiet_zone~ : Int32 = 4,
 ) -> @types.Image {
-  let size = 21
+  let version = qr_pick_version(payload.length())
+  let (size, modules) = qr_build_matrix_v(payload, version)
   let mp = if module_px < 1 { 1 } else { module_px }
   let qz = if quiet_zone < 0 { 0 } else { quiet_zone }
-  let modules = qr_build_matrix(payload)
   let px = (size + 2 * qz) * mp
   let data : Array[Byte] = Array::make(px * px, b'\xFF')
   for r in 0..<size {
@@ -290,21 +349,43 @@ pub fn render_qr(
 }
 
 ///|
-/// 返回 21×21 的 QR 模块矩阵（1 = 黑），供精确断言使用。
+/// 返回 QR 模块矩阵（1 = 黑），版本按载荷长度自动选择。
 pub fn qr_modules(payload : Bytes) -> Array[Int32] {
   qr_build_matrix(payload)
 }
 
 ///|
-/// 版本 1-L 字节模式的最大载荷（字节）：19 数据码字 × 8 = 152 位，
-/// 减去 4 位模式指示 + 8 位字符计数 + 4 位终止符 → 136 位 = 17 字节。
-pub fn qr_v1_max_bytes() -> Int32 {
-  17
+/// 载荷对应的矩阵边长（用于精确断言，避免调用方按 21 硬编码）。
+pub fn qr_matrix_size(payload : Bytes) -> Int32 {
+  qr_size_of(qr_pick_version(payload.length()))
 }
 
 ///|
-/// 载荷能否由本生成器（版本 1-L）无损编码。超出时调用方必须报错，
-/// 不能静默截断——截断后生成的图与用户输入不符（S23 F2）。
+/// 载荷对应的版本号（1..5）。
+pub fn qr_version_for(payload : Bytes) -> Int32 {
+  qr_pick_version(payload.length())
+}
+
+///|
+/// 本生成器的上限：版本 5-L 的字节模式容量 = 108 数据码字 × 8 − 12 = 852 位 → 106 字节。
+pub fn qr_max_bytes() -> Int32 {
+  qr_byte_capacity(5)
+}
+
+///|
+/// 载荷能否由本生成器无损编码（v1..v5，L 级）。超出时调用方必须报错，不能静默截断。
+pub fn qr_fits(payload : Bytes) -> Bool {
+  payload.length() <= qr_max_bytes()
+}
+
+///|
+/// 历史 API：版本 1-L 的容量（17 字节）。保留给「固定 v1」的调用方，新代码用 qr_max_bytes / qr_fits。
+pub fn qr_v1_max_bytes() -> Int32 {
+  qr_byte_capacity(1)
+}
+
+///|
+/// 历史 API：载荷能否由版本 1-L 编码（≤17 字节）。
 pub fn qr_fits_v1(payload : Bytes) -> Bool {
   payload.length() <= qr_v1_max_bytes()
 }

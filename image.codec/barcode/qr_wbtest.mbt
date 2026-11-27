@@ -41,10 +41,20 @@ test "qwb: hamming_distance 与 is_function_module 各区域" {
   assert_true(is_function_module(size - 8, 0, size))
   assert_true(is_function_module(6, 12, size))
   assert_true(is_function_module(12, 6, size))
-  assert_true(is_function_module(8, 12, size))
-  assert_true(is_function_module(12, 8, size))
+  // 行 8 / 列 8 的中间段属数据区（v1 为列 9..12 / 行 9..12）
+  assert_true(!is_function_module(8, 12, size))
+  assert_true(!is_function_module(12, 8, size))
+  // 行 8 的右侧格式副本（col >= size-8）
+  assert_true(is_function_module(8, 13, size))
   assert_true(!is_function_module(10, 10, size))
   assert_true(!is_function_module(12, 12, size))
+  // v2（25×25）：alignment 中心 (18,18)，5×5 覆盖 16..20
+  let v2 = 25
+  assert_true(is_function_module(18, 18, v2))
+  assert_true(is_function_module(16, 16, v2))
+  assert_true(is_function_module(20, 20, v2))
+  assert_true(!is_function_module(15, 15, v2))
+  assert_true(!is_function_module(8, 12, v2))
 }
 
 ///|
