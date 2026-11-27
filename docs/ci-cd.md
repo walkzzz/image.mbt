@@ -57,7 +57,7 @@ Pages 单独拿 `pages: write` / `id-token: write`，`concurrency: pages` 且不
 2. README 徽章 `coverage-90.07%25`（B3/B6 一并校验）；
 3. Pages 首页的"覆盖率口径"行（`sync_pages.mjs` 写入）。
 
-当前：**38,102 / 42,301 = 90.07%**，分母不排除任何文件（`pub using` 声明行即 0/0，`benchmarks/gen/main.mbt` 0/21 照算）。
+当前：**38,124 / 42,329 = 90.07%**，分母不排除任何文件（`pub using` 声明行即 0/0，`benchmarks/gen/main.mbt` 0/21 照算）。
 
 ## 4. GitHub Pages
 
@@ -84,5 +84,5 @@ node scripts/check_release_ready.mjs               # 全量（含 moon check / t
 - `imgtool` 产物命名跨平台不一致：Linux runner 上 `moon build --release cmd/imgtool` 输出的是 **`imgtool.exe`**（不是 `imgtool`）。脚本统一走 `scripts/imgtool_path.mjs` 解析，新增脚本不要自己拼路径。
 - `prove` 作业依赖 `why3` + `z3` 的 apt 版本，与本地 WSL 里 8 goals 的版本不完全一致，可能多出/少掉个别 goal。
 - `mutation` 作业只跑 7 包 12 个变异点，不是全库变异。
-- 最近两次远程 CI 跑（`45528065485` / `45154611067`）失败点都是 `quality` 的 **Format check**，且都发生在 2026-11-23/25 的历史提交上；本地当前 `moon fmt --check` 全绿，推送后重跑即可验证是否只剩这一条。
+- 历史失败点留档（勿重查）：`45864604245`/`45865004140` 首因 `Failed to resolve registry dependency moonbitlang/x`（缺 `moon update`）；`45866611184` 首因 Linux 上产物也叫 `imgtool.exe`；`45868353134` 因缺 `npm/image.wasm`（构建产物不入库）被 concurrency 取消。**S22 推送 run `45921825558` 10/10 success，Pages run `45921825542` success**（0.1.24 / 7404 / 90.07% 已上线）。
 - CI 不做 `moon publish`：发布是手工不可逆动作，见 `docs/release.md`。
