@@ -26,12 +26,15 @@ moon build --release cmd/imgtool
 通用：`--format`（省略时按输出扩展名推断，再无则 PNG）、`--quality 1-100`、`--mem-budget`、`--max-pixels`。
 
 `--jpeg-progressive`（仅 `convert`，且输出格式必须是 JPEG）：产出 progressive（SOF2）文件。
-形态是 **DC 首扫 + 每分量一条 AC 首扫**（`Ss=0/Se=0` 与 `Ss=1/Se=63`，`Ah=Al=0`，共 4 条扫描），
-AC 首扫带 **EOBRUN 合并**（连续整块全零压成一个 `(0,nbits)` 符号，上限 1023 块），
-并按实际符号频次自建 AC 霍夫曼表（libjpeg `optimize_coding` 同法）。
-因此体积**小于** baseline：实测 1280×720 Q55 为 79,638 B → 73,206 B（−8.1%），
-128×128 渐变 Q80 为 3,120 B → 2,368 B（−24%）；像素与 baseline 解码逐字节一致（同量化表、4:4:4）。
-仍不带 successive approximation（`Ah>0` 细化）、不做 spectral selection 分段。
+形态是 **8 条扫描**（完整 successive approximation）：DC 首扫（`Ss=0 Se=0`、`Al=1`，交错 3 分量）
+→ 每分量一条 AC 首扫（`Ss=1 Se=63`、`Ah=0 Al=1`）→ DC 细化（`Ss=0 Se=0`、`Ah=1 Al=0`）
+→ 每分量一条 AC 细化（`Ss=1 Se=63`、`Ah=1 Al=0`）。
+AC 首扫带 **EOBRUN 合并**（连续整块全零压成一个 `(0,nbits)` 符号，上限 1023 块）；
+AC 首扫与 AC 细化各自按实际符号频次自建霍夫曼表（libjpeg `optimize_coding` 同法，DHT 共 6 张）。
+体积**小于** baseline：实测 1280×720 Q55 为 79,638 B → 75,268 B（−5.5%），
+128×128 渐变 Q80 为 3,120 B → 2,440 B（−21.8%）；两级补齐后量化系数与 baseline 完全相同，
+解码逐像素一致（max |Δ|=0，同量化表、4:4:4）。
+仍不做 spectral selection 分段与 4:2:0 子采样。
 像素数上限 2,000,000（量化系数缓存约 24 MB）；与 `--best` 互斥（`--best` 自己选格式）。
 
 ## 输出约定

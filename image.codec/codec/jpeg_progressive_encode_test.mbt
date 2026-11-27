@@ -58,10 +58,40 @@ test "encode_jpeg_progressive: SOF2 frame header, no SOF0" {
 }
 
 ///|
-test "encode_jpeg_progressive: four scans (1 DC + 3 AC)" {
+test "encode_jpeg_progressive: eight scans (2 DC + 6 AC, successive approximation)" {
+  // 脚本：DC 首扫(Al=1) → 3×AC 首扫(Al=1) → DC 细化 → 3×AC 细化，共 8 条扫描。
   let img = jpe_grad_image(32, 32)
   let bytes = @codec.encode_jpeg_progressive(img, 80)
-  assert_eq(jpe_marker_count(bytes, 0xDA), 4)
+  assert_eq(jpe_marker_count(bytes, 0xDA), 8)
+  // 逐条核对 (Ss, Se, Ah, Al)：锁住扫描参数顺序，参数错会解码出乱图。
+  let expect : Array[(Int32, Int32, Int32, Int32)] = [
+    (0, 0, 0, 1),
+    (1, 63, 0, 1),
+    (1, 63, 0, 1),
+    (1, 63, 0, 1),
+    (0, 0, 1, 0),
+    (1, 63, 1, 0),
+    (1, 63, 1, 0),
+    (1, 63, 1, 0),
+  ]
+  let mut i = 0
+  let mut idx = 0
+  let n = bytes.length()
+  while i < n - 1 {
+    if bytes[i].to_int() == 0xFF && bytes[i + 1].to_int() == 0xDA {
+      let seg_len = bytes[i + 2].to_int() * 256 + bytes[i + 3].to_int()
+      let ns = bytes[i + 4].to_int()
+      let p = i + 5 + ns * 2
+      assert_eq(bytes[p].to_int(), expect[idx].0)
+      assert_eq(bytes[p + 1].to_int(), expect[idx].1)
+      assert_eq(bytes[p + 2].to_int(), (expect[idx].2 << 4) | expect[idx].3)
+      idx += 1
+      i = i + 2 + seg_len
+    } else {
+      i += 1
+    }
+  }
+  assert_eq(idx, 8)
 }
 
 ///|
@@ -167,8 +197,8 @@ test "encode_jpeg_progressive: big flat image uses long EOBRUN and roundtrips" {
   assert_eq(restored.height, 512)
   let mean = jpe_mean_abs_diff(img.data, restored.data)
   assert_true(mean <= 2)
-  // 纯色几乎没有 AC 数据，四条扫描合计只该占几百字节
-  assert_true(bytes.length() < 4096)
+  // 纯色几乎没有 AC 数据：8 条扫描的 EOBRUN 合起来仍只占几 KB（含 6 张 DHT）
+  assert_true(bytes.length() < 8192)
 }
 
 ///|
@@ -204,5 +234,59 @@ test "encode_jpeg_progressive: DHT tables are self-consistent (kraft + counts)" 
       i += 1
     }
   }
-  assert_eq(tables, 4)
+  // 6 张表：DC 标准 2 张 + AC 首扫优化 2 张 + AC 细化优化 2 张
+  assert_eq(tables, 6)
+}
+
+///|
+fn jpe_checker_image(width : Int32, height : Int32) -> @types.Image {
+  let data : Array[Byte] = []
+  for y in 0..<height {
+    for x in 0..<width {
+      let v : Int32 = if (x / 4 + y / 4) % 2 == 0 { 240 } else { 16 }
+      data.push(v.to_byte())
+      data.push(v.to_byte())
+      data.push(v.to_byte())
+    }
+  }
+  @types.Image::{ width, height, channels: 3, data: Bytes::from_array(data), }
+}
+
+///|
+fn jpe_max_abs_diff(a : Bytes, b : Bytes) -> Int32 {
+  let n = if a.length() < b.length() { a.length() } else { b.length() }
+  let mut max = 0
+  for i in 0..<n {
+    let d = a[i].to_int() - b[i].to_int()
+    let ad = if d < 0 { -d } else { d }
+    if ad > max {
+      max = ad
+    }
+  }
+  max
+}
+
+///|
+test "encode_jpeg_progressive: successive approximation ends exact, pixel-identical to baseline" {
+  // Al=1 首扫 + Ah=1 细化把系数两级补齐，最终量化系数应与 baseline 完全相同 —— 
+  // 这条锁住细化路径不丢位、不复位错位（差一点都不算过）。
+  let img = jpe_grad_image(64, 64)
+  let prog = @codec.encode_jpeg_progressive(img, 90)
+  let base = @codec.encode_jpeg_with_quality(img, 90)
+  let rp = @codec.decode_jpeg_pure(prog)
+  let rb = @codec.decode_jpeg_pure(base)
+  assert_eq(jpe_max_abs_diff(rp.data, rb.data), 0)
+}
+
+///|
+test "encode_jpeg_progressive: AC refine handles dense high-frequency content" {
+  // 纯色块 + 单像素跳变：AC 能量集中在少数系数上，块内新非零稀疏、EOBRUN 频繁，
+  // 是最容易把「本块缓冲 / 跨块缓冲」顺序写错的内容。
+  let img = jpe_checker_image(128, 128)
+  let bytes = @codec.encode_jpeg_progressive(img, 75)
+  let restored = @codec.decode_jpeg_pure(bytes)
+  assert_eq(restored.width, 128)
+  assert_eq(restored.height, 128)
+  // 4px 棋盘是高方差硬边，Q75 下最大误差仍可能到十几；这里只要不崩、不花屏
+  assert_true(jpe_max_abs_diff(img.data, restored.data) <= 16)
 }

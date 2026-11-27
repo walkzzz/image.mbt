@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-27）：版本 0.1.28 · 7,425 测试 × 4 目标 · 82 包 · 覆盖率 90.06% · prove 8 goals。
+> 当前口径（2026-11-27）：版本 0.1.29 · 7,427 测试 × 4 目标 · 82 包 · 覆盖率 90.06% · prove 8 goals。
 
 ## 功能边界
 
@@ -73,11 +73,11 @@
 | GAP-51 | **wasm ABI 的输入指针没有保活（S17 边界）** | `abi_alloc` 用 `Bytes::make(n, 0)` 分配，返回 i32 指针让 JS 直接写；此时 MoonBit 侧已无引用，安全依赖「JS 写完立刻调用」这段同步时序——`abi_convert` / `abi_resize` 内部第一次分配发生在输入已复制之后，所以当前写法安全。若将来把调用改成异步、或一次 staging 多次调用，指针可能在 GC 后被复用 | 已如实记录，未加 pin 机制；真要做多步往返时需补一张保活表（把指针与输入长度登记到 wasm 侧全局，`abi_*` 结束时清空） |
 | GAP-52 | **两条绑定通道的元信息面不对称（S17）** | ① JS `info().channels` 恒为 `0`：`abi_info` 只读头部、不解码，wasm 侧把 channels 写死 0，调用方会把 0 当「单通道灰度图」；② Dart 的 `resize` / `convert` 直接吞掉 CLI 回执里的 `width`/`height`/`format`，拿不到输出元信息；③ CLI `resize` 回执本身不回 `channels`（`convert` 有）；④ `docs/bindings.md` 的 JS 示例签名写成 `convertMeta(bytes, 'png')` / `resize(bytes, 64, 64, 'cover')`，与实现的 options 对象不符 | ✅ JS `info` 的 `channels` 改 `null`（显式未知）并加测试；CLI `resize` 回执补 `channels`；Dart 新增 `ImageMeta` + `convertMeta` / `resizeMeta`（复用同一次进程的 JSON，不多起进程），`convert` / `resize` 委托给它们；示例修正为 options 写法；Dart 自测 8 → 10 项、JS 自测 15 → 16 项 |
 | GAP-53 | **基准集封签只对磁盘敏感，不对生成器敏感** | `check_benchmarks.mjs` 校验的是「磁盘文件 ↔ manifest」的 sha256 一致，不校验「磁盘文件 ↔ 当前生成器的产出」。后果实测：GAP-42 修好 TGA 描述符（`0x30` → `0x20`）后没有重生成 `g11`，样本仍是旧字节、manifest 照旧封签——六条契约全绿，但样本已不代表当前编码器输出；本轮扩容重生成时才暴露出这 1 字节差 | ✅ 已加机器拦：`check_benchmarks.mjs --regen` 把 `benchmarks/gen` 重跑产物写到 `_build/benchmarks_regen` 后逐文件比 sha256（外部脚本生成的样本按 manifest `generator` 字段跳过），本机增量 7.2 s / 32 verified / 2 skipped；口径同时写进 `docs/benchmarks.md` §4/§6。**未进 CI 主门禁**（+30 s 预算不划算），由发布前手动跑。另注一条实测陷阱：`imgtool_path.mjs` 默认取 `_build/native/release`，该目录里的二进制若早于当前源码（如 progressive 解码实现），会把能解的样本判成解码失败——校验前先 `moon build --release cmd/imgtool` |
-| GAP-56 | ~~progressive 编码只到"能看"的最简形态~~ **已闭环（2026-11-27，0.1.28）** | `encode_jpeg_progressive` 现在 = 4 条扫描 + **EOBRUN 合并**（整块全零累计，上限 1023 块）+ **按频次自建 AC 霍夫曼表**（libjpeg `jpeg_gen_optimal_table` 移植）。体积实测：1280×720 Q55 79,638 → 73,206 B（−8.1%）、128×128 渐变 Q80 3,120 → 2,368 B（−24%）；像素与 baseline **逐字节一致**，自身解码/Pillow 均通过，DHT 四张表 Kraft ≤ 1（新增黑盒测试）。仍**未做**：successive approximation（`Ah>0`）、spectral selection 分段、4:2:0 子采样、扫描脚本可配置；≤ 200 万像素上限不变 | 遗留项转入 roadmap F-01 的 ①②③，不再作为缺陷跟踪 |
+| GAP-56 | ~~progressive 编码只到"能看"的最简形态~~ **已闭环（2026-11-27，0.1.28）** | `encode_jpeg_progressive` 现在 = **8 条扫描**（DC 首扫 `Al=1` → 3×AC 首扫 `Al=1` → DC 细化 → 3×AC 细化，完整 successive approximation）+ **EOBRUN 合并**（整块全零累计，上限 1023 块）+ **按频次自建霍夫曼表**（libjpeg `jpeg_gen_optimal_table` 移植，首扫/细化各两张，DHT 共 6 张）。体积实测：1280×720 Q55 79,638 → 75,268 B（−5.5%）、128×128 渐变 Q80 3,120 → 2,440 B（−21.8%）；两级补齐后量化系数与 baseline 完全相同（逐像素 max |Δ|=0），自身解码/Pillow 均通过，DHT 六张表 Kraft ≤ 1（黑盒测试）。仍**未做**：spectral selection 分段、4:2:0 子采样、扫描脚本可配置；≤ 200 万像素上限不变 | 遗留项转入 roadmap F-01 的 ①②③，不再作为缺陷跟踪 |
 
 ## 测试口径
 
-- **7,425 为 native 实测**（2026-11-27，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言、GAP-1 收口新增 3 条 progressive 测试、GAP-56 的 progressive 编码新增 8 条、0.1.28 EOBRUN/优化表新增 3 条）；四目标由 CI `test` job 矩阵实测。
+- **7,427 为 native 实测**（2026-11-27，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言、GAP-1 收口新增 3 条 progressive 测试、GAP-56 的 progressive 编码新增 8 条、0.1.28 EOBRUN/优化表新增 3 条、0.1.29 细化新增 2 条）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 - 本轮冻结时的未做项（progressive 编码、4 分量与 arithmetic、DRI 样本、色度上采样、基准集 progressive 样本等）已统一转入 [roadmap.md §11 冻结基线遗留](roadmap.md)，不在本表重复。

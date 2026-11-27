@@ -113,6 +113,7 @@ fn jpeg_progressive_ac_freq(
   coefs : Array[Int32],
   blocks_x : Int32,
   blocks_y : Int32,
+  al : Int32,
 ) -> Array[Int32] {
   let freq = Array::make(257, 0)
   for ci in cis {
@@ -122,7 +123,7 @@ fn jpeg_progressive_ac_freq(
         let base = (by * blocks_x + bx) * 3 * 64 + ci * 64
         let mut has_nz = false
         for k in 1..<64 {
-          if coefs[base + k] != 0 {
+          if jpeg_prog_shift(coefs[base + k], al) != 0 {
             has_nz = true
             break
           }
@@ -145,7 +146,7 @@ fn jpeg_progressive_ac_freq(
         }
         let mut run = 0
         for k in 1..<64 {
-          let c = coefs[base + k]
+          let c = jpeg_prog_shift(coefs[base + k], al)
           if c == 0 {
             run += 1
             continue
@@ -433,45 +434,48 @@ pub fn encode_jpeg_progressive(
       )
     }
   }
-  // ---- 统计两条 AC 扫描的符号频次，生成优化 Huffman 表
-  // EOBRUN 的符号是 `rrrr=nbits, ssss=0`（0x10..0x90），标准 K.3 / K.5 表里没有这些符号，
-  // 且其 Kraft 余量只剩约 1 个 16 位槽位，无法简单追加；按频次自建表（同 libjpeg optimize）。
-  let freq_lum = jpeg_progressive_ac_freq([0], coefs, blocks_x, blocks_y)
-  let freq_chr = jpeg_progressive_ac_freq([1, 2], coefs, blocks_x, blocks_y)
-  let (ac_lum_bits, ac_lum_vals) = jpeg_gen_optimal_table(freq_lum)
-  let (ac_chr_bits, ac_chr_vals) = jpeg_gen_optimal_table(freq_chr)
-  let ac_lum_enc = build_huffman_encoder(ac_lum_bits, ac_lum_vals)
-  let ac_chr_enc = build_huffman_encoder(ac_chr_bits, ac_chr_vals)
-  // ---- DHT：DC 标准表 + 上面生成的两张 AC 表
+  // ---- 频次：AC 首扫（Ah=0 Al=1）与 AC 细化（Ah=1 Al=0）各一套，按亮度 / 色度分开
+  // 两套符号集不同（首扫是 (run<<4)|size，细化是 (run<<4)|1 加修正位），必须各建一张表。
+  let freq_f_y = jpeg_progressive_ac_freq([0], coefs, blocks_x, blocks_y, 1)
+  let freq_f_c = jpeg_progressive_ac_freq([1, 2], coefs, blocks_x, blocks_y, 1)
+  let (af_y_bits, af_y_vals) = jpeg_gen_optimal_table(freq_f_y)
+  let (af_c_bits, af_c_vals) = jpeg_gen_optimal_table(freq_f_c)
+  let af_y_enc = build_huffman_encoder(af_y_bits, af_y_vals)
+  let af_c_enc = build_huffman_encoder(af_c_bits, af_c_vals)
+  // 细化扫描：先用"只统计不写位"模式空跑一遍（freq 非空即计频）
+  let scratch = JpegBitWriter::{ out, bit_buf: 0, bit_cnt: 0, }
+  let freq_r_y = Array::make(257, 0)
+  let freq_r_c = Array::make(257, 0)
+  jpeg_progressive_ac_refine_scan(
+    scratch, af_y_enc, freq_r_y, coefs, blocks_x, blocks_y, 0,
+  )
+  jpeg_progressive_ac_refine_scan(
+    scratch, af_y_enc, freq_r_c, coefs, blocks_x, blocks_y, 1,
+  )
+  jpeg_progressive_ac_refine_scan(
+    scratch, af_y_enc, freq_r_c, coefs, blocks_x, blocks_y, 2,
+  )
+  let (ar_y_bits, ar_y_vals) = jpeg_gen_optimal_table(freq_r_y)
+  let (ar_c_bits, ar_c_vals) = jpeg_gen_optimal_table(freq_r_c)
+  let ar_y_enc = build_huffman_encoder(ar_y_bits, ar_y_vals)
+  let ar_c_enc = build_huffman_encoder(ar_c_bits, ar_c_vals)
+  // ---- DHT：DC 标准两张 + AC 首扫两张 + AC 细化两张（表号 0/1 与 2/3）
   let dht_data : Array[Byte] = []
-  dht_data.push(b'\x00')
-  for b in std_dc_lum_bits() {
-    dht_data.push(b.to_byte())
+  let push_table = fn(tc_th : Int32, bits : Array[Int32], vals : Array[Int32]) {
+    dht_data.push(tc_th.to_byte())
+    for b in bits {
+      dht_data.push(b.to_byte())
+    }
+    for v in vals {
+      dht_data.push(v.to_byte())
+    }
   }
-  for v in std_dc_lum_vals() {
-    dht_data.push(v.to_byte())
-  }
-  dht_data.push(b'\x01')
-  for b in std_dc_chr_bits() {
-    dht_data.push(b.to_byte())
-  }
-  for v in std_dc_chr_vals() {
-    dht_data.push(v.to_byte())
-  }
-  dht_data.push(b'\x10')
-  for b in ac_lum_bits {
-    dht_data.push(b.to_byte())
-  }
-  for v in ac_lum_vals {
-    dht_data.push(v.to_byte())
-  }
-  dht_data.push(b'\x11')
-  for b in ac_chr_bits {
-    dht_data.push(b.to_byte())
-  }
-  for v in ac_chr_vals {
-    dht_data.push(v.to_byte())
-  }
+  push_table(0x00, std_dc_lum_bits(), std_dc_lum_vals())
+  push_table(0x01, std_dc_chr_bits(), std_dc_chr_vals())
+  push_table(0x10, af_y_bits, af_y_vals)
+  push_table(0x11, af_c_bits, af_c_vals)
+  push_table(0x12, ar_y_bits, ar_y_vals)
+  push_table(0x13, ar_c_bits, ar_c_vals)
   let dht_len = 2 + dht_data.length()
   out.push(b'\xFF')
   out.push(b'\xC4')
@@ -480,7 +484,7 @@ pub fn encode_jpeg_progressive(
   for b in dht_data {
     out.push(b)
   }
-  // ---- 扫描 1：DC 首扫（交错 3 分量）
+  // ---- 扫描 1：DC 首扫（交错 3 分量，Ah=0 Al=1）——先给整幅图的低频轮廓
   jpeg_push_sos(
     out,
     3,
@@ -488,7 +492,7 @@ pub fn encode_jpeg_progressive(
     [b'\x00', b'\x11', b'\x11'],
     0,
     0,
-    0x00,
+    0x01,
   )
   let w1 = JpegBitWriter::{ out, bit_buf: 0, bit_cnt: 0, }
   let prev : Array[Ref[Int32]] = [Ref(0), Ref(0), Ref(0)]
@@ -496,7 +500,8 @@ pub fn encode_jpeg_progressive(
     for bx in 0..<blocks_x {
       let base = (by * blocks_x + bx) * 3 * 64
       for ci in 0..<3 {
-        let dc = coefs[base + ci * 64]
+        // Al=1：DC 按算术右移取高位（与解码端 LEFT_SHIFT 配套）
+        let dc = coefs[base + ci * 64] >> 1
         let diff = dc - prev[ci].val
         prev[ci].val = dc
         let cat = jpeg_category(diff)
@@ -509,31 +514,29 @@ pub fn encode_jpeg_progressive(
     }
   }
   jpeg_flush_bits(w1)
-  // ---- 扫描 2–4：AC 首扫（单分量，Ss=1 Se=63）
+  // ---- 扫描 2–4：AC 首扫（单分量，Ss=1 Se=63，Ah=0 Al=1）
   for ci in 0..<3 {
-    let enc = if ci == 0 { ac_lum_enc } else { ac_chr_enc }
+    let enc = if ci == 0 { af_y_enc } else { af_c_enc }
     let mut eobrun = 0
     let slots : Array[Byte] = [if ci == 0 { b'\x00' } else { b'\x11' }]
     let ids : Array[Byte] = [
       (if ci == 0 { 1 } else if ci == 1 { 2 } else { 3 }).to_byte(),
     ]
-    jpeg_push_sos(out, 1, ids, slots, 1, 63, 0x00)
+    jpeg_push_sos(out, 1, ids, slots, 1, 63, 0x01)
     let w = JpegBitWriter::{ out, bit_buf: 0, bit_cnt: 0, }
     let zrl = enc.codes[0xF0]
     let zrl_len = enc.lengths[0xF0]
     for by in 0..<blocks_y {
       for bx in 0..<blocks_x {
         let base = (by * blocks_x + bx) * 3 * 64 + ci * 64
-        // 块内是否还有非零系数（k=1..63）
         let mut has_nz = false
         for k in 1..<64 {
-          if coefs[base + k] != 0 {
+          if jpeg_prog_shift(coefs[base + k], 1) != 0 {
             has_nz = true
             break
           }
         }
         if !has_nz {
-          // 整块没有 AC 系数：并入 EOBRUN，攒满上限或遇到非全零块再写出
           eobrun += 1
           if eobrun == PROGRESSIVE_MAX_EOBRUN {
             jpeg_emit_eobrun(w, enc, eobrun)
@@ -541,14 +544,13 @@ pub fn encode_jpeg_progressive(
           }
           continue
         }
-        // 非全零块：先把挂起的 EOBRUN 写掉（它覆盖的是前面那些整块全零的块）
         if eobrun > 0 {
           jpeg_emit_eobrun(w, enc, eobrun)
           eobrun = 0
         }
         let mut run = 0
         for k in 1..<64 {
-          let c = coefs[base + k]
+          let c = jpeg_prog_shift(coefs[base + k], 1)
           if c == 0 {
             run += 1
             continue
@@ -564,7 +566,6 @@ pub fn encode_jpeg_progressive(
           run = 0
         }
         if run > 0 {
-          // 块尾剩余全零：本块立即以 EOB 收尾（不进 EOBRUN，避免与后续块错位）
           jpeg_emit_eobrun(w, enc, 1)
         }
       }
@@ -572,6 +573,38 @@ pub fn encode_jpeg_progressive(
     if eobrun > 0 {
       jpeg_emit_eobrun(w, enc, eobrun)
     }
+    jpeg_flush_bits(w)
+  }
+  // ---- 扫描 5：DC 细化（交错 3 分量，Ah=1 Al=0）——每个块补 DC 的最低位
+  jpeg_push_sos(
+    out,
+    3,
+    [b'\x01', b'\x02', b'\x03'],
+    [b'\x00', b'\x11', b'\x11'],
+    0,
+    0,
+    0x10,
+  )
+  let w5 = JpegBitWriter::{ out, bit_buf: 0, bit_cnt: 0, }
+  for by in 0..<blocks_y {
+    for bx in 0..<blocks_x {
+      let base = (by * blocks_x + bx) * 3 * 64
+      for ci in 0..<3 {
+        jpeg_write_bits(w5, (coefs[base + ci * 64] >> 0) & 1, 1)
+      }
+    }
+  }
+  jpeg_flush_bits(w5)
+  // ---- 扫描 6–8：AC 细化（单分量，Ss=1 Se=63，Ah=1 Al=0）
+  for ci in 0..<3 {
+    let enc = if ci == 0 { ar_y_enc } else { ar_c_enc }
+    let slots : Array[Byte] = [if ci == 0 { b'\x02' } else { b'\x13' }]
+    let ids : Array[Byte] = [
+      (if ci == 0 { 1 } else if ci == 1 { 2 } else { 3 }).to_byte(),
+    ]
+    jpeg_push_sos(out, 1, ids, slots, 1, 63, 0x10)
+    let w = JpegBitWriter::{ out, bit_buf: 0, bit_cnt: 0, }
+    jpeg_progressive_ac_refine_scan(w, enc, [], coefs, blocks_x, blocks_y, ci)
     jpeg_flush_bits(w)
   }
   // ---- EOI

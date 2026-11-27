@@ -4,6 +4,24 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.29] - 2026-11-27
+
+### Added
+
+- **progressive successive approximation（F-01 第三步，`Ah>0`）**：`encode_jpeg_progressive` 从 4 条扫描扩到 **8 条**——DC 首扫（`Al=1`，交错 3 分量）→ 3 条 AC 首扫（`Ah=0 Al=1`，单分量）→ DC 细化（`Ah=1 Al=0`，交错）→ 3 条 AC 细化（`Ah=1 Al=0`）。新增 `codec/jpeg_progressive_refine.mbt`：`jpeg_prog_shift`（AC 按绝对值右移、向零取整，同 libjpeg）、`jpeg_progressive_ac_refine_scan`（对齐 libjpeg `encode_mcu_AC_refine` 的修正位发射），以及 `jpeg_prog_emit_sym`/`emit_bit`/`emit_value`（靠 `freq.length() > 0` 切换"计频"/"写位"，保证统计与位流严格同构）。
+- **细化用的两张优化 AC 表**：`0x12`（亮度）/`0x13`（色度），按 AC 细化符号频次自建，DHT 由 4 张增到 6 张。
+
+### Fixed
+
+- **修正位缓冲必须两个**：libjpeg 用 `BE`（跨块累积，随 EOBRUN 一起发出）与 `BR`（本块新增，跟随 ZRL 或 `(r<<4)|1` 符号之后发出）两个缓冲；上一版合并成一个数组，ZRL 分支把修正位提前/错位写出，320×180 与 128×128 Q90 自解码报 `JPEG 数据意外结束`。拆成双缓冲后全部样本通过。
+
+### Verified
+
+- 1280×720 照片 Q55：baseline 79,638 B → progressive **75,268 B（−5.49%）**；128×128 渐变 Q80：3,120 → 2,440 B（−21.79%）；512×512 纯色 < 8 KB。
+- 与 baseline 解码**逐像素相同**（两级补齐后量化系数与单遍完全一致，max |Δ|=0）；Pillow 识别 `progressive=1`。
+- 自解码回环：320×180 / 1280×720 / 512×512 纯色、渐变 Q90/70/40 全部 `"ok":true`。
+- 测试：codec 696 条（新增 2 条：8 条扫描的 `(Ss,Se,Ah,Al)` 逐条核对、与 baseline 逐像素一致；硬边内容细化往返），全量 native **7,427/7,427**；`moon check --deny-warn --target all` 0 警告。
+- **体积权衡**：比 0.1.28 的 4 扫描版大（−5.49% 对 −8.08%），代价是多 4 条扫描头 + 每条非零系数多 1 位修正位，换来真正的两级渐进显示（先粗后细）；仍小于 baseline。
 ## [0.1.28] - 2026-11-27
 
 ### Added
