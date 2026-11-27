@@ -59,7 +59,7 @@ jobs:
       - name: Pages gate (build playground js + semantic checks)
         run: node scripts/check_pages.mjs
 
-      - name: Benchmark corpus gate (golden 20 + malformed 6)
+      - name: Benchmark corpus gate (golden 26 + malformed 8)
         run: |
           moon build --release cmd/imgtool
           node scripts/check_benchmarks.mjs
