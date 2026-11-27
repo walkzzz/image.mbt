@@ -268,41 +268,18 @@ moon add walkzzz/image.mbt
 然后按 README「快速开始」跑 `import "walkzzz/image.mbt/all"` 的三行示例；验收点：零报错、零
 `[0029]` 刷屏、PNG→JPEG 出图。0.1.7 那次实测记录见 §六。
 
-## 十、发布流水线脚本（`scripts/publish.mjs`）
+## 十、发布脚本（`scripts/publish.ps1`）
 
-发布动作本身不可逆、且必须按依赖顺序逐环进行，所以把顺序、版本读取、dry-run 预检、中断续发与失败诊断固化成脚本；**`moon publish` 的最终确认仍由维护者亲自执行**。
+一条命令按依赖序把 11 环发完，每发一环回根目录 `moon update`，失败即停：
 
 ```powershell
-node scripts/publish.mjs                      # 全 11 环 dry-run（默认，不写 registry）
-node scripts/publish.mjs --exec               # 正式发布（每环 moon publish + moon update）
-node scripts/publish.mjs --from=image.codec   # 从该环续发（中断后用）
-
-.\scripts\publish.ps1                        # 同上，PowerShell 原生（不需要 Node）
-.\scripts\publish.ps1 -Exec                  # 正式发布
-.\scripts\publish.ps1 -From image.codec      # 续发
-.\scripts\publish.ps1 -Only image.core       # 只发指定环
-bash scripts/publish.sh --exec                # 兼容入口（转调 publish.mjs）
+.\scripts\publish.ps1            # 正式发布
+.\scripts\publish.ps1 -DryRun    # 同一顺序只跑 --dry-run（不写 registry）
 ```
 
-`publish.ps1` 与 `publish.mjs` 是同一套顺序与判据的两份实现：Windows 上直接用 `.ps1`（PS 5.1 可用，文件为纯 ASCII 以免无 BOM 时中文乱码），CI / Linux 用 `.mjs`。成功判定都以输出文本为准（`Server status: 200 OK` / `202 Accepted`），因为 moon 在 Windows 上成功时也可能返回非零退出码。
+脚本内容就是 11 个目录名 + 一个循环，没有额外机制：`image.core → codec → process → photography → vision → domain → doc → media → commerce → pro → 根`。根包在正式发布前多跑一次 `moon publish --dry-run`（打包最贵，发错了撤不回）。
 
-| 行为 | 说明 |
-| --- | --- |
-| 版本前置 | 读 11 个 `moon.mod` 的 `version`，不同号直接退出（先跑 `bump_version.mjs`） |
-| 前置门禁 | 默认跑 `check_release_ready.mjs --skip-slow`（12 项快跑）；`--exec` 改跑全量档（含 `moon test` 与 pages 构建） |
-| 逐环执行 | `moon publish --dry-run`（默认）或 `moon publish`（`--exec`）；工作目录为该环模块目录 |
-| 发后刷新 | `--exec` 每环成功后跑一次根目录 `moon update`，下一环 dry-run 才看得到新版本 |
-| 失败即停 | 打印失败分类与该环手动命令，并给出 `--from=<该环>` 续发指令 |
-| 退出码 | 0 全绿；2 某环失败 / 参数错；3 前置门禁未过 |
+两条实测事实，决定它只能"先发后验"：
 
-失败分类口径（从 `moon publish` 输出判定）：
-
-| 输出特征 | 含义 | 处置 |
-| --- | --- | --- |
-| `409` / `already exists` | 该版本已被占用 | 升 patch 号后重发（同号不可删） |
-| `error` / `failed` / 校验不过 | 解包后在空目录按 registry 依赖重编失败 | 多半是依赖钉落后一版，查 `check_version.mjs` |
-| `401/403` / token | 未登录或 token 失效 | `moon login` 后重跑 `--from=<当前环>` |
-
-`Server status: 202 Accepted` 是 dry-run 正常的受理回执（2026-11-25 实测，根包正式发布时为 `200 OK`），不是失败标志。
-
-脚本只做编排与校验，不读取也不打印任何 token 内容。
+- **`moon publish --dry-run` 不是在本地验，而是在空目录按 registry 依赖重编**。新版本第一环还没上 registry 时，第二环必报 `registry dependency walkzzz/image.core: version 0.1.26 was not found in the registry`。所以完整链路只有真发一环、`moon update` 之后下一环才能验。
+- **`moon publish` 不可撤销**：版本号一旦占用不能删，只能升 patch。中途停下的，已发环保留，改完从停止的那一环继续。
