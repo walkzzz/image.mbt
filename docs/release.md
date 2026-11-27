@@ -252,10 +252,10 @@ node scripts/check_release_ready.mjs --skip-slow  # 12 项快跑（约 10 秒）
 | 文档真值 | `check_docs`（**B1–B14**）、`gen_api_index` / `gen_capabilities` / `gen_scenes --check` |
 | 契约 | `check_pkg_imports`、`check_deprecations`、`check_links`、`sync_pages --check`、`check_benchmarks` |
 | 绑定 | `npm/test.mjs`（15 项）、`check_dart_binding.mjs --no-build`（6 项） |
-| 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,404） |
+| 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,415） |
 | 展示页 | `check_pages`（49 项，含 playground.js 现编） |
 
-覆盖率门槛由 `docs/coverage.json` 定：当前 38,178/42,396 = **90.05%**，CI 与本地均按 `--min 90` 拦。
+覆盖率门槛由 `docs/coverage.json` 定：当前 38,352/42,611 = **90.00%**，CI 与本地均按 `--min 90` 拦。
 
 ### 9.4 下游 30 分钟上手（发布后第一件事；未发布则跳过）
 
@@ -267,3 +267,37 @@ moon add walkzzz/image.mbt
 
 然后按 README「快速开始」跑 `import "walkzzz/image.mbt/all"` 的三行示例；验收点：零报错、零
 `[0029]` 刷屏、PNG→JPEG 出图。0.1.7 那次实测记录见 §六。
+
+## 十、发布流水线脚本（`scripts/publish.mjs`）
+
+发布动作本身不可逆、且必须按依赖顺序逐环进行，所以把顺序、版本读取、dry-run 预检、中断续发与失败诊断固化成脚本；**`moon publish` 的最终确认仍由维护者亲自执行**。
+
+```powershell
+node scripts/publish.mjs                      # 全 11 环 dry-run（默认，不写 registry）
+node scripts/publish.mjs --exec               # 正式发布（每环 moon publish + moon update）
+node scripts/publish.mjs --from=image.codec   # 从该环续发（中断后用）
+node scripts/publish.mjs --only=image.core,image.codec
+node scripts/publish.mjs --skip-gates         # 跳过前置门禁（不建议）
+bash scripts/publish.sh --exec                # 同一实现的兼容入口
+```
+
+| 行为 | 说明 |
+| --- | --- |
+| 版本前置 | 读 11 个 `moon.mod` 的 `version`，不同号直接退出（先跑 `bump_version.mjs`） |
+| 前置门禁 | 默认跑 `check_release_ready.mjs --skip-slow`（12 项快跑）；`--exec` 改跑全量档（含 `moon test` 与 pages 构建） |
+| 逐环执行 | `moon publish --dry-run`（默认）或 `moon publish`（`--exec`）；工作目录为该环模块目录 |
+| 发后刷新 | `--exec` 每环成功后跑一次根目录 `moon update`，下一环 dry-run 才看得到新版本 |
+| 失败即停 | 打印失败分类与该环手动命令，并给出 `--from=<该环>` 续发指令 |
+| 退出码 | 0 全绿；2 某环失败 / 参数错；3 前置门禁未过 |
+
+失败分类口径（从 `moon publish` 输出判定）：
+
+| 输出特征 | 含义 | 处置 |
+| --- | --- | --- |
+| `409` / `already exists` | 该版本已被占用 | 升 patch 号后重发（同号不可删） |
+| `error` / `failed` / 校验不过 | 解包后在空目录按 registry 依赖重编失败 | 多半是依赖钉落后一版，查 `check_version.mjs` |
+| `401/403` / token | 未登录或 token 失效 | `moon login` 后重跑 `--from=<当前环>` |
+
+`Server status: 202 Accepted` 是 dry-run 正常的受理回执（2026-11-25 实测，根包正式发布时为 `200 OK`），不是失败标志。
+
+脚本只做编排与校验，不读取也不打印任何 token 内容。
