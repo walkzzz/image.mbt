@@ -73,8 +73,10 @@ pub fn decode_tga_pure(data : Bytes) -> @types.Image raise @types.LoadError {
   let bytes_per_pixel = bpp / 8
   let out_channels = bytes_per_pixel
   @types.check_dims(width, height, out_channels)
-  // 行序：descriptor bit4=0 bottom-up, bit4=1 top-down
-  let bottom_up = (descriptor & 0x10) == 0
+  // 行序：描述符 bit5（0x20）= top-down，bit4（0x10）= right-to-left（水平镜像）
+  // 注意：旧实现误把 bit4 当成 top-down，与规范相反——真实 top-down 文件会被上下翻转。
+  let top_down = (descriptor & 0x20) != 0
+  let right_to_left = (descriptor & 0x10) != 0
   // 像素数据起始位置
   let pixel_data_start = 18 + id_length
   // 解码像素（BGR(A) → RGB(A)）到 raw_pixels（按文件行序）
@@ -165,12 +167,13 @@ pub fn decode_tga_pure(data : Bytes) -> @types.Image raise @types.LoadError {
       }
     }
   }
-  // 行序处理：按输出行序写入 pixels
+  // 行序处理：按输出行序写入 pixels（bottom-up 文件整体上下翻转；bit4 置位时每行再水平镜像）
   let pixels : Array[Byte] = Array::make(pixel_count * out_channels, b'\x00')
   for file_row in 0..<height {
-    let out_row = if bottom_up { height - 1 - file_row } else { file_row }
+    let out_row = if top_down { file_row } else { height - 1 - file_row }
     for x in 0..<width {
-      let src_idx = (file_row * width + x) * out_channels
+      let src_x = if right_to_left { width - 1 - x } else { x }
+      let src_idx = (file_row * width + src_x) * out_channels
       let dst_idx = (out_row * width + x) * out_channels
       for c in 0..<out_channels {
         pixels[dst_idx + c] = raw_pixels[src_idx + c]

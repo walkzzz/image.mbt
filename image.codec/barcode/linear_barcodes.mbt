@@ -128,12 +128,16 @@ let code128_patterns : Array[Array[Int32]] = [
   [1, 1, 4, 1, 3, 1], // 100
   [3, 1, 1, 1, 4, 1], // 101
   [4, 1, 1, 1, 3, 1], // 102
-  [2, 1, 1, 4, 1, 2], // 103
-  [2, 1, 1, 2, 1, 4], // 104
-  [2, 1, 1, 2, 3, 2], // 105 (Start A)
-  [2, 1, 1, 2, 2, 3], // 106 (Start B)
-  [2, 1, 3, 2, 1, 1], // 107 (Start C)
+  [2, 1, 1, 4, 1, 2], // 103 (Start A)
+  [2, 1, 1, 2, 1, 4], // 104 (Start B)
+  [2, 1, 1, 2, 3, 2], // 105 (Start C)
 ]
+
+///|
+/// Code128 Stop 符（码字 106）——7 段 13 模块，与数据符的 6 段 11 模块不同形，
+/// 因此不能塞进上面的 6 段表。旧实现曾用 [2,1,1,2,2,3]（11 模块）冒充 Stop，
+/// 生成的条码对标准扫码器不可读（S22 修复）。
+let code128_stop_pattern : Array[Int32] = [2, 3, 3, 1, 1, 1, 2]
 
 ///|
 /// Code128 字符集 A 的字符映射（0-95）
@@ -193,9 +197,9 @@ pub fn decode_code128(
   }
   // 寻找起始符（Code A/B/C）
   let start_patterns = [
-    (103, [2, 1, 1, 4, 1, 2]), // Start A
-    (104, [2, 1, 1, 2, 1, 4]), // Start B
-    (105, [2, 1, 1, 2, 3, 2]), // Start C (实际是 2,1,3,2,1,1)
+    (103, code128_patterns[103]), // Start A
+    (104, code128_patterns[104]), // Start B
+    (105, code128_patterns[105]), // Start C
   ]
   let mut start_idx = -1
   let mut start_code = 0
@@ -228,12 +232,14 @@ pub fn decode_code128(
   let mut checksum = start_code
   let mut code_count = 0
   while pos < w - 13 {
-    // 匹配一个码字（6个条空，11个模块）
-    let (matched_code, matched_width) = match_code128_symbol(scan_line, pos)
-    if matched_code < 0 {
+    // Stop 是 7 段 13 模块，比数据符长，必须先匹配，否则会被当成数据符或直接漏掉
+    if match_bar_pattern(scan_line, pos, code128_stop_pattern) {
+      pos += 13
       break
     }
-    if matched_code == 106 { // Stop 符
+    // 匹配一个码字（6 个条空，11 个模块）
+    let (matched_code, matched_width) = match_code128_symbol(scan_line, pos)
+    if matched_code < 0 {
       break
     }
     codes.push(matched_code)
@@ -319,8 +325,8 @@ fn match_code128_symbol(
   scan_line : Array[Int32],
   start : Int32,
 ) -> (Int32, Int32) {
-  // 尝试匹配所有 108 个码字
-  for code in 0..<108 {
+  // 尝试匹配 106 个数据/起始/切换码字（0–105）；Stop 不在此表，见 code128_stop_pattern
+  for code in 0..<106 {
     let pattern = code128_patterns[code]
     let mut total_width = 0
     for w in pattern {

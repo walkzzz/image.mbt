@@ -88,7 +88,9 @@ test "stcov: 颜色统计与纹理特征" {
   // 纹理特征
   let t1 = @style_transfer.calculate_texture_features(gray)
   assert_true(t1.contrast >= 0.0)
-  assert_true(t1.entropy > -1000.0)
+  // S22：熵必须是真香农熵（非负）。旧占位公式 -Σp²·0.1 恒 ≤ 0
+  assert_true(t1.entropy >= -1.0e-9)
+  assert_true(t1.entropy <= 8.0)
   let t2 = @style_transfer.calculate_texture_features(rgb)
   assert_true(t2.homogeneity > -1000.0)
   let t3 = @style_transfer.calculate_texture_features(rgba)

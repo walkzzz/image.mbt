@@ -18,7 +18,13 @@ fn c1c_runs(widths : Array[Int32]) -> Array[Int32] {
 fn c1c_px(codes : Array[Int32], pad : Int32) -> Array[Int32] {
   let px : Array[Int32] = []
   for c in codes {
-    let sym = c1c_runs(code128_patterns[c])
+    // 106 是 Stop 哨兵：7 段 13 模块，取自 code128_stop_pattern
+    let widths = if c == 106 {
+      code128_stop_pattern
+    } else {
+      code128_patterns[c]
+    }
+    let sym = c1c_runs(widths)
     for v in sym {
       px.push(v)
     }

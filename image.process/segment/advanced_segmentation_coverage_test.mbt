@@ -210,6 +210,29 @@ test "ascov: 超像素变体" {
 }
 
 ///|
+test "ascov: 超像素参数边界（0 抛错 / 超量截断 / 无 -1 空洞）" {
+  let img = asc_gray(8, 8, fn(x, y) { (x + y) * 8 })
+  // num_superpixels = 0 必须抛结构化错误，而不是除零
+  let mut raised = false
+  try {
+    let _ = @segment.superpixel_segmentation(img, 0)
+  } catch {
+    _ => raised = true
+  }
+  assert_true(raised)
+  // 超量（> 像素数）截断到像素数：旧实现 step 取整成 0 → 除零 panic / 死循环
+  let r = @segment.superpixel_segmentation(img, 100)
+  assert_eq(r.labels.length(), 64)
+  let mut neg = 0
+  for v in r.labels {
+    if v < 0 {
+      neg += 1
+    }
+  }
+  assert_eq(neg, 0)
+}
+
+///|
 test "ascov: 分水岭配置变体" {
   let img = asc_gray(10, 10, fn(x, y) {
     if (x - 5) * (x - 5) + (y - 5) * (y - 5) < 9 {

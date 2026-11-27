@@ -401,7 +401,8 @@ pub fn calculate_texture_features(
       energy += p * p
       correlation += (i.to_double() - mean_i) * (j.to_double() - mean_j) * p
       if p > 0.0 {
-        entropy -= p * p * 0.1
+        // 真香农熵（bit）：-Σ p·log2(p)。旧的 -Σ p²·0.1 结果恒为负、与"熵"语义相反（S22 修复）
+        entropy -= p * @math.log2(p)
       }
     }
   }

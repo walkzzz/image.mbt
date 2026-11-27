@@ -405,11 +405,21 @@ pub fn superpixel_segmentation(
       "superpixel_segmentation: 数据大小不匹配",
     )
   }
+  if num_superpixels <= 0 {
+    raise @types.LoadError::DecodeFailed(
+      "superpixel_segmentation: num_superpixels 必须 >= 1",
+    )
+  }
   let w = img.width
   let h = img.height
   let total = w * h
-  let step = (total.to_double() / num_superpixels.to_double()).sqrt().to_int()
-  let _ = w / step * (h / step)
+  // 超像素数超过像素数时按像素数截断；否则 sqrt(total/num) 会取整成 0 →
+  // 旧实现随后 `w / step` 直接除零 panic、`cx += 0` 死循环（S22 修复）
+  let n_super = if num_superpixels > total { total } else { num_superpixels }
+  let mut step = (total.to_double() / n_super.to_double()).sqrt().to_int()
+  if step < 1 {
+    step = 1
+  }
 
   let labels : Array[Int32] = []
   for _ in 0..<total {
@@ -421,15 +431,21 @@ pub fn superpixel_segmentation(
   let centers_y : Array[Double] = []
   let centers_color : Array[Double] = []
   let mut sp_id = 0
+  let mut cols = 1
   let mut cy = step / 2
   while cy < h {
     let mut cx = step / 2
+    let mut row_cols = 0
     while cx < w {
       centers_x.push(cx.to_double())
       centers_y.push(cy.to_double())
       centers_color.push(img.data[cy * w + cx].to_double())
       sp_id += 1
+      row_cols += 1
       cx += step
+    }
+    if row_cols > cols {
+      cols = row_cols
     }
     cy += step
   }
@@ -460,6 +476,18 @@ pub fn superpixel_segmentation(
             labels[idx] = sp
           }
         }
+      }
+    }
+  }
+
+  // 兜底：简化 SLIC 的距离阈值会剪掉部分像素，未标注的按「网格归属」补上，
+  // 保证 labels 全部 >= 0（下游按 label 统计时不会出现 -1 空洞）
+  for y in 0..<h {
+    for x in 0..<w {
+      let idx = y * w + x
+      if labels[idx] < 0 {
+        let gid = y / step * cols + x / step
+        labels[idx] = if gid < sp_id { gid } else { sp_id - 1 }
       }
     }
   }

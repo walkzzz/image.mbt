@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-26）：版本 0.1.23 · 7,395 测试 × 4 目标 · 82 包 · 覆盖率 90.07% · prove 8 goals。
+> 当前口径（2026-11-27）：版本 0.1.24 · 7,404 测试 × 4 目标 · 82 包 · 覆盖率 90.07% · prove 8 goals。
 
 ## 功能边界
 
@@ -20,7 +20,7 @@
 | 编号 | 描述 | 现状 | 计划 |
 |------|------|------|------|
 | GAP-8 | ~~白盒测试仅 1 个~~ **已补强（2026-11-20）** | 392 黑盒 + 6 白盒（mp4 / png_decode / zlib / fft / webp_vp8_decode / ean13_gen） | 后续可为 resize / 滤波 / 分割核心算法继续补白盒 |
-| GAP-9 | ~~覆盖率 82.3%~~ **已闭环（2026-11-27）** | **38,102/42,301 = 90.07%**（S18 专项后实测，分母不排除任何文件） | 真值在 `docs/coverage.json`（`coverage@1`），CI 与本地统一 `--min 90`；页面、README、known-gaps 三处由 B3/B6 + `sync_pages --check` 联动 |
+| GAP-9 | ~~覆盖率 82.3%~~ **已闭环（2026-11-27）** | **38,124/42,329 = 90.07%**（S18 专项后实测，分母不排除任何文件） | 真值在 `docs/coverage.json`（`coverage@1`），CI 与本地统一 `--min 90`；页面、README、known-gaps 三处由 B3/B6 + `sync_pages --check` 联动 |
 | GAP-10 | Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug | `Unix.EINVAL` | 统一走 WSL / CI `prove` job |
 | GAP-11 | ~~无 OS 矩阵~~ **受上游限制（2026-11-20 实测）** | 官方安装脚本仅支持 Linux x86_64/aarch64 与 macOS arm64；Windows 二进制 URL 实测返回 403 | 暂不纳入 CI；如官方提供 Windows/macOS 包再补 job |
 | GAP-12 | ~~API 参考过时~~ **已闭环（2026-11-20）** | `docs/api_reference.md` 仍为历史快照（1,339 fn / 50 包） | ✅ 新增 `docs/api_index.md`（`scripts/gen_api_index.mjs` 从 73 包 `.mbti` 自动生成：3,748 fn / 710 类型；CI `--check` 防漂移）；旧参考页已标注"历史快照，以 api_index 与 `.mbti` 为准" |
@@ -40,7 +40,7 @@
 | GAP-20 | ~~EAN-13 / UPC-A 无输入样本~~ **已闭环（2026-11-21）** | 解码器 `String` 索引（`data[0] == '0'`）恒为 false，UPC-A 包装层恒返回 None | ✅ 白盒生成器用同包编码表渲染条码；EAN-13 往返 `0490000123457`、UPC-A 往返 `490000123457` 均成功（改用 `[0:1].to_owned()` 比较） |
 | GAP-21 | ~~扩展 EXIF 多标签无输入样本~~ **已闭环（2026-11-21）** | 解析器用非法 tag `0x88222/0x88242`（5 位十六进制），ExposureMode/WhiteBalance 永不解析 | ✅ 修正为 `0xA402/0xA403`；testgen `build_exif_jpeg` 构造含 ISO/曝光/光圈/焦距/模式/白平衡/闪光/GPS 的 JPEG APP1，解析 71→142/167 |
 | GAP-22 | ~~字母/英文 OCR 无输入样本~~ **部分闭环（2026-11-21）** | testgen 新增 5×7 大写字母点阵 `render_letters`（0=A…25=Z） | ✅ 驱动 `recognize_english` / 阈值 / 字符分割链路；`english_ocr` 模板匹配主路径未提升（289/348 持平），需训练模板或更真实字形后再攻 |
-| GAP-23 | ~~Code128 无输入样本~~ **已闭环（2026-11-21）** | 白盒生成器复用同包 `code128_patterns`（Start B + 校验位 + Stop） | ✅ 往返 `HELLO` / `123` 成功；`linear_barcodes.mbt` 77 → 106/150 |
+| GAP-23 | ~~Code128 无输入样本~~ **已闭环（2026-11-21）** | 白盒生成器复用同包 `code128_patterns`（Start B + 校验位 + Stop） | ✅ 往返 `HELLO` / `123` 成功；`linear_barcodes.mbt` 77 → 106/150。**注**：当时「Stop」用的仍是伪模式，缺陷见 GAP-45（2026-11-27 修复） |
 | GAP-24 | OCR 评估/训练纯函数覆盖不足 | `calculate_char_accuracy` / `edit_distance` / `accuracy_stats` / `check_accuracy_threshold` / `calculate_accuracy` / `check_early_stopping` / 训练进度报告 | ✅ 已补测；这些函数多已被现有测试覆盖，覆盖率持平（真实缺口在模板匹配生成路径） |
 | GAP-25 | VP8 解码非关键帧/精确残差分支缺输入（文件剩 220 行） | 解码器用非标准 16 位 bool 窗口，标准 libvpx 编码器不匹配 | 字节级构造驱动 intra 预测/残差/滤波分支（2/4/8/16 字节 1 位、32×32/64×64、4 种字节模式 0xAA/0x55/0xF0/0x0F），`webp_vp8_decode` 324 → **400/620**；再往上需按 16 位窗口逆向实现精确 bool 编码（非零 AC 系数/inter 预测），模式化探索已饱和（每变体 +2 行） |
 | GAP-27 | **WebP lossy 编码产物非法（2026-11-25 实测）** | `encode_webp_lossy_pure` 只写 frame tag + start code + 宽高，再追加 bool 编码的 DC 值；缺 first partition 的分段/滤波/量化/概率更新、缺 token partition 尺寸表，`first_part_size` 被写成整个 token 流长度 | 证据：ffmpeg 对 64² 与 1024² 产物均报 `Invalid partitions` → `Decoding error: Invalid data found`，流尺寸解析为 unspecified。已修正 README / notes / 源码注释的能力宣称。同病的还有 `encode_webp_lossy_full`（64² 1198 B、128² 2654 B，ffmpeg 同样报 `Invalid partitions`），两者都把整条 bool 流当 first partition，属结构性错误、无法补丁修复。修复路径改为新写 **VP8L 编码器**（设计与日志见 `docs/webp-encoder.md`，排期见 roadmap S02）：M1（literal-only，normal 码表）已在 MoonBit 落地，产物经 ffmpeg 解码并与源图逐字节一致；M2（LZ77 + 频次驱动 Huffman）也已落地，64² 梯度图内环回环与 ffmpeg 外环均为 0 字节差异，纯色/棋盘类内容体积与 libwebp 同档，噪声类内容仍差 4.3 倍（等 M3 变换补齐）。**M4 收口完成（2026-11-25）**：README 已恢复 WebP 编码宣称（能力表只保留 `encode_webp_lossless` 一个入口），`encode_webp_lossy_pure` / `_full` 标 `#deprecated`；bench 里 WebP 项改用 lossless 入口（1024² = 244.83 ms / 4.28 MP/s）。 |
@@ -58,10 +58,16 @@
 | GAP-39 | **展示页口径曾长期漂移** | `docs/index.html` 停留在 0.1.1 / 6664 / 83.4% / 73 包 | 新增 `scripts/sync_pages.mjs`（真值 = moon.mod + README 徽章 + `docs/coverage.json`），`bump_version` 末尾自动调用，`sync_pages --check` 进 CI |
 | GAP-40 | **CI 各作业缺 `moon update`** | 2026-11-27 首次推送后 10 个作业全红在 `Failed to resolve registry dependency moonbitlang/x` | 每个作业装完 CLI 后补 `moon update`；已在 ci.yml / pages.yml 落地并复跑验证 |
 | GAP-41 | **`imgtool` 产物后缀跨平台不一致** | Linux runner 输出 `imgtool.exe`，脚本按 `process.platform` 猜 `imgtool` 会误报「未找到」，连带基准门禁与 Dart 自测整条红 | 抽出 `scripts/imgtool_path.mjs`（环境变量 → 固定路径 → `_build` 兜底扫描），benchmarks / dart / release-ready 三处已切换 |
+| GAP-42 | ~~TGA 描述符位错（bit4/bit5 混用）+ 4 通道丢 alpha~~ **已闭环（2026-11-27）** | 编码器写 `0x30`（bit4=right-to-left 与 bit5=top-down 同时置位，自相矛盾），解码器把 `& 0x10` 当 top-down。后果：① 本库产出的 TGA 在标准阅读器里水平镜像 ② 标准 top-down 文件（0x20）被当成 bottom-up → 上下翻转 ③ 4 通道输入只写 3 字节/像素（bpp=24，alpha 丢失） | 编码器按通道数定 bpp（4 → 32-bit BGRA，其余 24-bit），24-bit 描述符 `0x20`、32-bit `0x28`；解码器改为 bit5 = top-down、bit4 = right-to-left 逐行镜像；旧测试里 3 处把 `0x10` 注释成「top-down」的构造同步纠正；新增 6 条 `s22_*` 回归（含 4 通道逐字节往返、0x20 不翻转、0x00 翻转、0x30 水平镜像） |
+| GAP-43 | ~~`encode_tiff_pure` 缺像素长度守卫~~ **已闭环（2026-11-27）** | `tiff_codec.mbt` 只校验 channels ∈ {1,3,4}，随后按 `width*height*channels` 直接索引 `data[idx]`；数据短于声明尺寸时越界，native 下打出 `0xC0000409`（用户数据即可触发的崩溃） | channels 校验后新增宽高 > 0 与 `data.length() == width*height*channels` 断言，不符抛 `EncodeFailed`；回归测试构造 2×1 RGB 但只给 3 字节，断言抛错而非崩溃 |
+| GAP-44 | ~~`superpixel_segmentation` 未校验 `num_superpixels`~~ **已闭环（2026-11-27）** | `step = sqrt(total/num).to_int()`：`num = 0` 除零；`num > total` → `step = 0` → `w / step` panic、`cx += 0` 死循环；另有 `let _ = w / step * (h / step)` 死代码同病。此外距离阈值剪枝会留下 `labels = -1` 空洞 | `num <= 0` 抛 `DecodeFailed`；超量夹到像素总数；`step` 下限 1；删死代码；按网格 `(y/step)*cols + x/step` 兜底 -1；回归测试用 8×8 图 + `num = 0 / 100` 双路径断言 |
+| GAP-45 | ~~Code128 Stop 符不符规范（静默错输出）~~ **已闭环（2026-11-27）** | 码表 108 行里 105–107 位置混装：`code128_patterns[105]` 实为 Start A、`[106]` 为 Start B、`[107]` 才是 Start C；真实 Stop（码字 106）是 7 段 13 模块 `[2,3,3,1,1,1,2]`，6 段表装不下，旧实现用伪模式 `[2,1,1,2,2,3]` 冒充并再补 2 个模块 → 生成物在标准扫码器不可读（自解码因同源而「通过」） | 表截为 0–105 共 106 行（103/104/105 = Start A/B/C），新增 `code128_stop_pattern` / 106 常量；解码器改为**先**匹配 7 段 Stop 再匹配码字；生成器直接渲染真 Stop（去掉补丁模块）；新增码表形状断言（每条 6 段 11 模块、Stop 7 段 13 模块）与总模块数 `11×n+13` 断言 |
+| GAP-46 | ~~GLCM `entropy` 是占位公式~~ **已闭环（2026-11-27）** | `style_transfer_enhancement.mbt` 里写成 `entropy -= p * p * 0.1`，结果恒 ≤ 0，与「熵」语义相反，且无法与任何文献值对照 | 改为真香农熵 `-Σ p·log2(p)`（`@math.log2`，`moon.pkg` 增 `moonbitlang/core/math`）；断言收紧为 `0 ≤ entropy ≤ 8`（8×8 GLCM 上界 6 bit，留余量） |
+| GAP-47 | **CUR 3×2 往返已复测通过（2026-11-27）** | 历史台账曾把 CUR 编解码列为缺陷；本轮用 `encode_cur_pure` + `decode_cur_pure` 实测 3×2 / 4 通道逐字节一致 | 不再挂缺陷；未改动代码 |
 
 ## 测试口径
 
-- **7,395 为 native 实测**（2026-11-26）；四目标由 CI `test` job 矩阵实测。
+- **7,404 为 native 实测**（2026-11-27，含 S22 新增 9 条回归）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 

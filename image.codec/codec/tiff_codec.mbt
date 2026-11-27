@@ -656,6 +656,17 @@ pub fn encode_tiff_pure(img : @types.Image) -> Bytes raise @types.LoadError {
       "TIFF 编码需要 channels 为 1 (灰度)、3 (RGB) 或 4 (RGBA)",
     )
   }
+  if width <= 0 || height <= 0 {
+    raise @types.LoadError::EncodeFailed("TIFF 编码需要宽高大于 0")
+  }
+  // 像素缓冲区必须正好覆盖 width*height*channels：少一个字节时下面的索引会越界 panic
+  // （历史上这里直接 trap 0xC0000409，属"用户数据即可触发"的崩溃，S22 改为结构化错误）
+  let expected_size = width * height * channels
+  if data.length() != expected_size {
+    raise @types.LoadError::EncodeFailed(
+      "TIFF 编码像素数据长度不匹配：期望 \{expected_size}，实际 \{data.length()}",
+    )
+  }
   let out : Array[Byte] = []
   // TIFF Header (8 bytes)
   out.push(b'\x49') // 'I' little-endian

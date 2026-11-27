@@ -14,7 +14,6 @@ fn wb_render_code128(codes : Array[Int32], module_px : Int32) -> @types.Image {
     idx += 1
   }
   symbols.push(sum % 103)
-  symbols.push(106) // Stop
   let mp = if module_px < 1 { 1 } else { module_px }
   let modules : Array[Int32] = []
   for s in symbols {
@@ -26,9 +25,13 @@ fn wb_render_code128(codes : Array[Int32], module_px : Int32) -> @types.Image {
       }
     }
   }
-  // Stop 后补终止条
-  modules.push(1)
-  modules.push(1)
+  // Stop 符：7 段 13 模块（标准 2-3-3-1-1-1-2），渲染时最后一段是终止条（bar）
+  for ei in 0..<code128_stop_pattern.length() {
+    let is_bar = ei % 2 == 0
+    for _ in 0..<code128_stop_pattern[ei] {
+      modules.push(if is_bar { 1 } else { 0 })
+    }
+  }
   let h = 40
   let w = modules.length() * mp
   let data : Array[Byte] = Array::make(w * h, b'\xFF')
@@ -75,4 +78,33 @@ test "wbtest: Code128 数字串往返" {
   } catch {
     _ => assert_true(false)
   }
+}
+
+///|
+test "wbtest: Code128 码表与 Stop 符符合规范" {
+  // 数据/起始/切换码字 0–105 共 106 条；Stop（106）是 7 段 13 模块，单独常量
+  assert_eq(code128_patterns.length(), 106)
+  assert_eq(code128_stop_pattern.length(), 7)
+  let mut sum = 0
+  for w in code128_stop_pattern {
+    sum += w
+  }
+  assert_eq(sum, 13)
+  // 每条数据符必须是 6 段 11 模块（旧表里的伪 106/107 也是 6 段，正是它掩盖了缺陷）
+  for i in 0..<code128_patterns.length() {
+    let row = code128_patterns[i]
+    assert_eq(row.length(), 6)
+    let mut s = 0
+    for w in row {
+      s += w
+    }
+    assert_eq(s, 11)
+  }
+}
+
+///|
+test "wbtest: Code128 渲染总模块数 = 11×(符号数)+13" {
+  // Start(1) + 3 数据 + 校验位(1) = 5 个 11 模块符号，末尾 Stop 13 模块
+  let img = wb_render_code128([17, 18, 19], 1)
+  assert_eq(img.width, 5 * 11 + 13)
 }

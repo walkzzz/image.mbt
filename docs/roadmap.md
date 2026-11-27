@@ -28,9 +28,9 @@
 ## 2. 版本与编号规则
 
 - 唯一版本轨道是 **0.1.x**：三段 SemVer，`major.minor` 钉死在 `0.1`，只递增 patch。功能版本 v5.x 停止累加，只作历史。
-- **一个 Sprint = 一个 patch 号**：S01 = `0.1.1`、S02 = `0.1.2` … 计划值见 Sprint 表；因 S19/S20/S16 的落地顺序晚于原表，实际号已顺延（S20 = `0.1.20`、S16 = `0.1.21`，S17 = `0.1.22`、S21 = `0.1.23`）。Sprint 收尾时 7 个 `moon.mod` 同步升 patch（S16 起为 11 个），`check_version.mjs` 必须 ok。
+- **一个 Sprint = 一个 patch 号**：S01 = `0.1.1`、S02 = `0.1.2` … 计划值见 Sprint 表；因 S19/S20/S16 的落地顺序晚于原表，实际号已顺延（S20 = `0.1.20`、S16 = `0.1.21`，S17 = `0.1.22`、S21 = `0.1.23`、S22 = `0.1.24`）。Sprint 收尾时 7 个 `moon.mod` 同步升 patch（S16 起为 11 个），`check_version.mjs` 必须 ok。
 - **四段号（0.1.x.y）不采用**：实测 `version = "0.1.2.3"` 被 mooncakes 拒绝（`version bad format / unexpected character '.' after patch version number`）；`0.1.2+s06` 虽可解析但会破坏 `check_version.mjs` 的徽章比对，故不用。
-- **发布（`moon publish`）只在阶段收口做**：已发布 0.1.7 / 0.1.8 / 0.1.10；未发布 0.1.9、0.1.11–0.1.22，下一次收口在 S21（`0.1.23`）一次性发 11 环。中间 Sprint 只升版本号不发布，避免 20 次不可逆外部动作。
+- **发布（`moon publish`）只在阶段收口做**：已发布 0.1.7 / 0.1.8 / 0.1.10；未发布 0.1.9、0.1.11–0.1.24，下一个收口窗口需明确授权后一次性发 11 环（顺序见 `docs/release.md` §九）。中间 Sprint 只升版本号不发布，避免不可逆外部动作。
 - Sprint 编号 S01… 跨版本连续，不断号、不回填。
 - 每个 Sprint 收尾必须回写本文件：状态 / commit hash / bench 数字。
 - **每轮改动结束自动提交**（用户 2026-11-25 要求）：一次提交 = 一次可回滚的交付，提交信息带类型前缀与数字。
@@ -390,6 +390,7 @@
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
 | S20 ✅ | 公开基准集（golden 20 张 + 6 类恶意样本） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材 |
 | S21 ✅ | 0.1.23 收口 + 迁移指南 + 弃用策略 | `docs/migration.md` 给出**3 处改动**（模块名/import 路径/7 条弃用替换），迁移前后 15 行对照可逐条核对；`docs/deprecation.md` 定义标注规则 + 保留窗口 + 7 条清单，**B12**（`check_deprecations`）做代码 ⇄ 表双向比对；收口核对清单见 `docs/release.md` §九（11 环顺序 + 15 项门禁，一条 `check_release_ready.mjs` 跑完）；同轮补齐 CI/CD 与 Pages 治理：`docs/ci-cd.md`、`pages.yml`、`sync_pages` + `docs/coverage.json` 单一真值、`check_links`（B13） |
+| S22 ✅ | 缺陷清零（0.1.24）：只在真实数据/非 Windows 下暴露的静默错 → 修复 + 回归 | 5 类缺陷逐条闭环（台账 GAP-42…46）：**TGA** 描述符 bit4/bit5 混用（标准 top-down 文件被上下翻转、本库产物水平镜像）+ 4 通道丢 alpha；**TIFF** 像素长度不足直接越界崩溃（`0xC0000409`）；**超像素** `num = 0` 除零、`num > total` 步长 0 死循环、`labels` 留 -1 空洞；**Code128 Stop** 用 6 段伪模式冒充（生成物标准扫码器不可读）；**GLCM 熵** 占位公式恒负。新增 9 条回归（`s22_*` 6 条 + 超像素边界 1 条 + 码表形状/模块数 2 条），native 7,404 全绿（+9） |
 
 > 打勾口径：S10–S12 本轮补核（`best_format` 实现、CLI 8 分支、npm 15/15）；S08/S09 的能力（区域视图、`--mem-budget` 预算）已随后续 Sprint 落地，但当时承诺的量化验收（20000² 内存峰值）未复测，故不打勾。
 

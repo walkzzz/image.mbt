@@ -40,7 +40,7 @@ Pages 单独拿 `pages: write` / `id-token: write`，`concurrency: pages` 且不
 | 编号 | 内容 |
 | --- | --- |
 | B1–B2 | README / 导航结构 |
-| B3 | 测试数（`7_395` 徽章、`7395 (native)`、架构首行）三处一致 |
+| B3 | 测试数（`7_404` 徽章、`7404 (native)`、架构首行）三处一致 |
 | B6 | 包数四值一致（README 徽章 / api_index / capabilities / 架构首行） |
 | B9 | `docs/known-gaps.md` 顶行固定格式 |
 | B10 | 能力矩阵 = 枚举 + Codec trait（`gen_capabilities`） |

@@ -4,6 +4,30 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
 
+## [0.1.24] - 2026-11-27
+
+### Fixed
+
+- **TGA 描述符位错（GAP-42）**：规范是 bit5(0x20)=top-down、bit4(0x10)=right-to-left；旧编码器写 `0x30`（两位置位、自相矛盾），旧解码器把 `& 0x10` 当 top-down。后果是双向错：本库产出的 TGA 在标准阅读器里水平镜像，标准 top-down 文件被当成 bottom-up 上下翻转。编码器改按通道数定位深（1/2/3 → 24-bit、4 → 32-bit BGRA，描述符 `0x20` / `0x28`）并写出 alpha（此前 4 通道只写 3 字节/像素）；解码器改按 bit5 判 top-down、bit4 置位时逐行镜像；`tga_decode_test.mbt` 里 3 处把 `0x10` 注释成「top-down」的构造同步纠正。
+- **TIFF 编码越界崩溃（GAP-43）**：`encode_tiff_pure` 只校验 channels，之后按 `width*height*channels` 直接索引像素；数据短于声明尺寸时越界 trap（native `0xC0000409`，用户数据即可触发）。改为先校验宽高 > 0 与 `data.length() == width*height*channels`，不符抛 `EncodeFailed`。
+- **超像素分割除零 / 死循环（GAP-44）**：`num_superpixels = 0` 除零；`num > total` 时 `step` 取整为 0 → `w / step` panic 且 `cx += 0` 死循环；另一条死代码同样除零。改为 `num <= 0` 抛 `DecodeFailed`、超量夹到像素总数、`step` 下限 1、删死代码；并按网格兜底 `labels` 的 -1 空洞。
+- **Code128 Stop 符不符规范（GAP-45）**：码表 108 行里 105–107 位置混装（`[105]` 实为 Start A、`[106]` 为 Start B、`[107]` 才是 Start C），真实 Stop（码字 106）是 7 段 13 模块 `[2,3,3,1,1,1,2]`，6 段表装不下，旧实现用伪模式 `[2,1,1,2,2,3]` 冒充再补 2 个模块——生成物在标准扫码器不可读，自解码因同源反而「通过」。表截为 0–105（106 行），新增 `code128_stop_pattern`；解码器先匹配 7 段 Stop 再匹配码字；生成器直接渲染真 Stop。
+- **GLCM 熵是占位公式（GAP-46）**：原 `entropy -= p * p * 0.1` 结果恒 ≤ 0，与「熵」语义相反。改为真香农熵 `-Σ p·log2(p)`（`@math.log2`，`style_transfer` 包 `moon.pkg` 增 `moonbitlang/core/math`）。
+
+### Added
+
+- **9 条回归测试**：`image.codec/codec/s22_probe_test.mbt` 转为正式回归（TGA 4 通道逐字节往返、24-bit 描述符 `0x20`、0x20 不翻转、0x00 翻转、0x30 水平镜像、TIFF 短数据抛错）；超像素 8×8 + `num = 0 / 100` 双路径；Code128 码表形状（每条 6 段 11 模块、Stop 7 段 13 模块）与渲染总模块数 `11×n+13`。native 由 7,395 → **7,404 全绿**。
+
+### Changed
+
+- 覆盖率真值随代码行数更新：**38,124/42,329 = 90.07%**（门槛仍 90，分母不排除任何文件）；`docs/coverage.json`、`AGENTS.md`、`docs/known-gaps.md`、`docs/release.md` 与首页经 `sync_pages` 同步。
+- 台账新增 GAP-42…46（五类缺陷闭环）与 GAP-47（CUR 3×2 往返复测通过，不再挂缺陷）；GAP-23 补注「当时的 Stop 是伪模式，见 GAP-45」。
+
+### Notes
+
+- 本版全部为缺陷修复 + 回归，无新增公开 API、无签名变更；`moon publish` 仍未执行。
+- 明确不做（沿用既有口径）：VP8 lossy 编码结构性问题（改走 VP8L，见 `docs/webp-encoder.md`）、`moon prove` 形式化扩展、`imgtool sanitize` 复用 `quality_of` 等 S23 候选。
+
 ## [0.1.23] - 2026-11-27
 
 ### Added

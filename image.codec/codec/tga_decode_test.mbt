@@ -1,7 +1,7 @@
 // 纯 MoonBit TGA 解码器测试
 // 纯逻辑断言测试（全目标可用：native/wasm/js），不依赖 @core
 // 手构造 TGA 字节流验证解码正确性，覆盖 type 2/type 10/24-bit/32-bit/行序/错误路径
-// 规范: https://en.wikipedia.org/wiki/Truevision_TGA
+// 规范: Truevision TGA spec（bit5=top-down，bit4=right-to-left）
 
 ///|
 fn make_tga_header(
@@ -85,7 +85,7 @@ test "decode_tga_pure: 1x1 32-bit type 2 (uncompressed RGBA)" {
 
 ///|
 test "decode_tga_pure: 2x2 24-bit type 10 (RLE RGB)" {
-  let out = make_tga_header(2, 2, 24, 10, 0x10) // top-down
+  let out = make_tga_header(2, 2, 24, 10, 0x20) // top-down
   // RLE packet: header=0x81 (run=2), 1 像素红色 BGR
   out.push(b'\x81')
   push_bgr(out, 255, 0, 0)
@@ -106,7 +106,7 @@ test "decode_tga_pure: 2x2 24-bit type 10 (RLE RGB)" {
 
 ///|
 test "decode_tga_pure: 2x2 32-bit type 10 (RLE RGBA)" {
-  let out = make_tga_header(2, 2, 32, 10, 0x10) // top-down
+  let out = make_tga_header(2, 2, 32, 10, 0x20) // top-down
   // RLE packet: header=0x81 (run=2), 1 像素红色 BGRA
   out.push(b'\x81')
   push_bgra(out, 255, 0, 0, 255)
@@ -129,7 +129,7 @@ test "decode_tga_pure: 2x2 32-bit type 10 (RLE RGBA)" {
 
 ///|
 test "decode_tga_pure: bottom-up row order" {
-  let out = make_tga_header(2, 2, 24, 2, 0) // bottom-up
+  let out = make_tga_header(2, 2, 24, 2, 0) // 规范默认 bottom-up
   // 文件行序：row0=黑黑, row1=红红
   push_bgr(out, 0, 0, 0)
   push_bgr(out, 0, 0, 0)
@@ -148,7 +148,7 @@ test "decode_tga_pure: bottom-up row order" {
 
 ///|
 test "decode_tga_pure: top-down row order" {
-  let out = make_tga_header(2, 2, 24, 2, 0x10) // top-down
+  let out = make_tga_header(2, 2, 24, 2, 0x20) // 规范 top-down（bit5）
   // 文件行序：row0=红红, row1=黑黑
   push_bgr(out, 255, 0, 0)
   push_bgr(out, 255, 0, 0)
