@@ -337,6 +337,15 @@ test "clicov: 端到端 info / analyze / convert" {
     "convert", path, "x.png", "--format", "png", "--jpeg-progressive",
   ])
   assert_true(!cli_ok(e7))
+  // --jpeg-progressive-420：正路（色度 4:2:0，体积应小于 4:4:4）
+  let pg420 = cli_dispatch([
+    "convert", path, "x420.jpg", "--format", "jpeg", "--quality", "60", "--jpeg-progressive",
+    "--jpeg-progressive-420", "--dry-run",
+  ])
+  assert_true(cli_ok(pg420))
+  // 单独给 --jpeg-progressive-420 必须报错（它只选色度采样方式）
+  let e8 = cli_dispatch(["convert", path, "x.jpg", "--jpeg-progressive-420"])
+  assert_true(!cli_ok(e8))
 }
 
 ///|

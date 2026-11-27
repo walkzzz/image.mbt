@@ -4,6 +4,21 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.30] - 2026-11-27
+
+### Added
+
+- **progressive 的 4:2:0 色度下采样（F-01 第四步）**：新增 `encode_jpeg_progressive_420(img, quality)`（`image.codec/codec/jpeg_progressive_encode_420.mbt`，门面 `walkzzz/image.codec/lib` 同步导出）。SOF2 分量表 Y `h=2 v=2`、Cb/Cr `h=1 v=1`，MCU 16×16、每 MCU 6 块；色度先做 2×2 盒式平均降到半分辨再 8×8 DCT 量化。扫描脚本与 4:4:4 版完全相同（8 条：DC 首扫 Al=1 → 3×AC 首扫 Al=1 → DC 细化 → 3×AC 细化），单分量 AC 扫描按各分量有效块网格推进、padding 块只出现在交错 DC 扫描，与解码器 `bw/bh` 口径逐条对齐。
+- CLI：`imgtool convert --jpeg-progressive-420`（必须配合 `--jpeg-progressive`，单独给会报错）；`help_text` 与 `docs/cli.md` 同步。
+
+### Verified
+
+- 1280×720 照片 Q55：baseline 79,638 B → 4:4:4 **75,268 B（−5.5%）**、4:2:0 **51,837 B（−34.9%）**（比 4:4:4 再降 31.1%）。
+- 128×128 渐变 Q80：baseline 3,120 B → 4:4:4 2,440 B、4:2:0 **1,540 B（−50.6%）**；Q90 为 1,952 / 2,952 B。
+- 质量：4:2:0 Q55 PSNR **29.54 dB**（源图）；与 Pillow(libjpeg) 自己写的 4:2:0 progressive 解码逐像素 **mean 差 0.68、max 32**（差异来自上采样滤波：我们最近邻、libjpeg 三角）。
+- 自解码回环：320×180 / 1280×720 / 512×512 纯色、137×93 与 17×9 非 16 倍数尺寸全部 `"ok":true`。
+- 新增 6 条测试（SOF2 采样因子逐字节、8 条扫描参数、4:2:0 体积 < 4:4:4 且往返、137×93、奇偶小尺寸、CLI 正路与互斥），全量 native **7,432/7,432**；`moon check --deny-warn --target all` 0 警告。
+- 边界：解码侧 4:2:0 上采样仍是最近邻（未做 libjpeg 三角滤波）；spectral selection 分段与扫描脚本可配置仍未做，见 `docs/roadmap.md` F-01。
 ## [0.1.29] - 2026-11-27
 
 ### Added

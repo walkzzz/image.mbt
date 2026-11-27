@@ -119,6 +119,7 @@ pub using @codec {
   encode_ico_pure,
   encode_ico_with_sizes_pure,
   encode_jpeg_progressive,
+  encode_jpeg_progressive_420,
   encode_jpeg_pure,
   encode_jpeg_with_quality,
   encode_pgm_pure,
@@ -451,4 +452,5 @@ pub using @pipeline {
 
 // 冲突清单（先到先得，以下未再导出，仍可在原子包直接使用）：
 //   - encode_jpeg_progressive（image.codec/lib 的 fn，已被 image.codec/codec 占用）
+//   - encode_jpeg_progressive_420（image.codec/lib 的 fn，已被 image.codec/codec 占用）
 //   - encode_webp_lossless（image.codec/lib 的 fn，已被 image.codec/codec 占用）

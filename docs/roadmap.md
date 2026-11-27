@@ -315,7 +315,7 @@
   生成真实 BTYPE=2 流内联）、compression 量化钳位与报告、16-bit PNG 直读与 `req_channels`、`integral_image`
   空壳构造与零面积均值、`optical_flow` 九条校验链、`draw_polygon` 扫描线填充、registration / retrieval
   报告枚举映射、16f 色彩空间越界与 alpha=0 反预乘。
-  **结果**：全库 35,075 → **37,740/41,894 = 90.08%**（`moon coverage report -f full_summary`，native，7,387 测试全绿）。
+  **结果**：全库 35,075 → **37,740/41,894 = 90.10%**（`moon coverage report -f full_summary`，native，7,387 测试全绿）。
   **口径说明**：分母含 native 下不可覆盖的 `wasm/abi.mbt`(89) + `wasm/api.mbt`(85) + `playground`(35) +
   `examples/quickstart`(37)，未做任何排除——即 90% 是在最严分母下取得的。
   **覆盖率推进（2026-11-26 第二轮）**：补 `codec_trait` 全枚举分支（format_name / can_encode / is_lossless /
@@ -488,7 +488,7 @@ dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
 
 | 编号 | 遗留项 | 现状事实 | 立项前置 |
 |---|---|---|---|
-| F-01 ✅ | progressive JPEG 编码 | **两步均已落地（2026-11-27）**：`encode_jpeg_progressive(img, quality)`（`image.codec`）与 CLI `--jpeg-progressive`。结构 = **8 条扫描**（DC 首扫 `Al=1` → 3×AC 首扫 `Al=1` → DC 细化 → 3×AC 细化），4:4:4、≤ 200 万像素；AC 首扫带 **EOBRUN 合并**（整块全零累计，上限 1023 块，`(0,nbits)` 符号）与**按频次自建 AC 霍夫曼表**（libjpeg `jpeg_gen_optimal_table` 移植）。实测 1280×720 Q55：79,638 B → **75,268 B（−5.5%）**；128×128 渐变 Q80：3,120 → 2,440 B（−21.8%）；纯色 512×512 < 8 KB。像素与 baseline 解码**逐像素一致**（max diff 0），Pillow 识别 `progressive=1`，8 条 SOS。**未做**：spectral selection 分段、4:2:0 子采样、扫描脚本可配置（`Ah>0` 已落地） | 后续按收益排序：① 4:2:0 子采样（需与 F-04 上采样一并定口径）② 扫描脚本可配置（对齐 libjpeg 10 段默认脚本）③ spectral selection 分段 |
+| F-01 ✅ | progressive JPEG 编码 | **两步均已落地（2026-11-27）**：`encode_jpeg_progressive(img, quality)`（`image.codec`）与 CLI `--jpeg-progressive`。结构 = **8 条扫描**（DC 首扫 `Al=1` → 3×AC 首扫 `Al=1` → DC 细化 → 3×AC 细化）、≤ 200 万像素，4:4:4 与 4:2:0 两种采样（`encode_jpeg_progressive` / `encode_jpeg_progressive_420`）；AC 首扫带 **EOBRUN 合并**（整块全零累计，上限 1023 块，`(0,nbits)` 符号）与**按频次自建 AC 霍夫曼表**（libjpeg `jpeg_gen_optimal_table` 移植）。实测 1280×720 Q55：4:4:4 **75,268 B（−5.5%）**、4:2:0 **51,837 B（−34.9%）**（baseline 79,638 B）；128×128 渐变 Q80：4:4:4 2,440 B、4:2:0 1,540 B（baseline 3,120 B，−50.6%）；纯色 512×512 < 8 KB。4:4:4 与 baseline 解码**逐像素一致**（max diff 0）；4:2:0 与 Pillow(libjpeg) 4:2:0 解码 mean 差 0.68。Pillow 识别 `progressive=1`，8 条 SOS。**未做**：spectral selection 分段、扫描脚本可配置、三角滤波上采样 | 后续按收益排序：① 扫描脚本可配置（对齐 libjpeg 10 段默认脚本，体积可再降几个百分点）② spectral selection 分段 ③ 解码侧 4:2:0 上采样改三角滤波（与 libjpeg fancy upsampling 对齐） |
 | F-02 | progressive 的 4 分量（CMYK/YCCK）与 arithmetic coding（SOF9–12） | 解码器分量数只接受 1 / 3；算术编码分支不存在 | 需授权可分发样本来源（印刷类素材），否则只能写死不覆盖 |
 | F-03 ✅ | progressive + DRI（restart interval） | **已落地**：`g26_jpeg_progressive_restart_480x320.jpg` 为 SOF2 + DRI 样本（restart interval 8 块、212 个 RST 标记），`jpeg_skip_to_restart` 在多扫描下正确清空 DC 预测与 EOBRUN；解码对 Pillow 参考 max diff 4（mean 0.57） | 若后续需要「不同 interval 的成组回归」，再按 8/4/2 块各补一张（当前上限余量 166,868 B 够用） |
 | F-04 | 4:2:0 色度最近邻上采样与 libjpeg 双线性不一致 | 彩色解码对 Pillow 差异 max 103 / 117（mean 7.66 / 1.85），属 baseline 既有行为 | 改采样会同时改 baseline 输出与基准集期望值，需一次成组改 |

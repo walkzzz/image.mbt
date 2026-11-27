@@ -344,6 +344,23 @@ pub fn encode_jpeg_progressive(
 }
 
 ///|
+/// 渐进式 JPEG 编码委托（SOF2，4:2:0 色度下采样）。
+/// Progressive JPEG encoding with 4:2:0 chroma subsampling.
+///
+/// 参数 Parameters:
+/// - `img` - 输入图像；1 通道按灰度处理
+/// - `quality` - 1–100，50 等价标准量化表
+///
+/// 错误 Errors:
+/// - `LoadError::EncodeFailed` - 尺寸无效、或像素数超过 2,000,000（系数缓存上限）
+pub fn encode_jpeg_progressive_420(
+  img : @types.Image,
+  quality : Int32,
+) -> Bytes raise @types.LoadError {
+  @codec.encode_jpeg_progressive_420(img, quality)
+}
+
+///|
 /// HDR 编码委托
 /// HDR 编码委托 HDR encoding delegation
 ///

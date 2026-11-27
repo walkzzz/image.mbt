@@ -15,7 +15,7 @@ moon build --release cmd/imgtool
 | 子命令 | 作用 | 关键参数 |
 |---|---|---|
 | `info` | 读头部（不整图解码） | `<in>` |
-| `convert` | 任意可写格式互转（`decode`/`encode` 为别名） | `--format` `--quality` `--best` `--max-bytes` `--jpeg-progressive` |
+| `convert` | 任意可写格式互转（`decode`/`encode` 为别名） | `--format` `--quality` `--best` `--max-bytes` `--jpeg-progressive` `--jpeg-progressive-420` |
 | `resize` | 等比覆盖 / 包含缩放 | `--width` `--height` `--mode cover\|contain` |
 | `crop` | 裁剪，越界直接拒绝 | `--x` `--y` `--width` `--height` |
 | `filter` | 六种滤波/锐化/去噪 | `--op` `--radius` `--sigma` `--amount` `--ksize` `--sigma-color` `--patch` `--search` `--h` |
@@ -34,8 +34,15 @@ AC 首扫与 AC 细化各自按实际符号频次自建霍夫曼表（libjpeg `o
 体积**小于** baseline：实测 1280×720 Q55 为 79,638 B → 75,268 B（−5.5%），
 128×128 渐变 Q80 为 3,120 B → 2,440 B（−21.8%）；两级补齐后量化系数与 baseline 完全相同，
 解码逐像素一致（max |Δ|=0，同量化表、4:4:4）。
-仍不做 spectral selection 分段与 4:2:0 子采样。
+仍不做 spectral selection 分段。
 像素数上限 2,000,000（量化系数缓存约 24 MB）；与 `--best` 互斥（`--best` 自己选格式）。
+
+`--jpeg-progressive-420`（配合 `--jpeg-progressive` 使用）：把色度降到 4:2:0（Y `2×2`、Cb/Cr `1×1`，
+MCU 16×16、每 MCU 6 块），色度先做 2×2 盒式平均再 DCT。扫描脚本与 4:4:4 版完全相同（仍是 8 条）。
+体积明显更小：实测 1280×720 Q55 79,638 B → **51,837 B（−34.9%）**（4:4:4 progressive 为 75,268 B），
+128×128 渐变 Q80 3,120 → **1,540 B（−50.6%）**（4:4:4 为 2,440 B）；代价是色度细节轻微损失
+（PSNR 29.5 dB @ Q55，与 libjpeg 4:2:0 解码逐像素 mean 差 0.68）。上采样为最近邻（libjpeg 默认三角滤波）。
+单独给 `--jpeg-progressive-420` 会报错——它只选采样方式，不开关 progressive。
 
 ## 输出约定
 

@@ -44,6 +44,8 @@ pub fn encode_jpeg(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn encode_jpeg_progressive(@types.Image, Int32) -> Bytes raise @types.LoadError
 
+pub fn encode_jpeg_progressive_420(@types.Image, Int32) -> Bytes raise @types.LoadError
+
 pub fn encode_pgm_auto(@types.Image) -> Bytes
 
 pub fn encode_png(@types.Image) -> Bytes

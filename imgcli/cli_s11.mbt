@@ -124,7 +124,14 @@ fn cmd_convert(flags : Flags) -> Out raise @types.ImageError {
     )
   }
   let progressive = flags.has("jpeg-progressive")
-  if progressive && best {
+  let subsample420 = flags.has("jpeg-progressive-420")
+  if subsample420 && !progressive {
+    raise @types.ImageError::Process(
+      @types.ErrorCode::InvalidArgument,
+      "--jpeg-progressive-420 需要配合 --jpeg-progressive 使用（它只选色度采样方式）",
+    )
+  }
+  if (progressive || subsample420) && best {
     raise @types.ImageError::Process(
       @types.ErrorCode::InvalidArgument,
       "--jpeg-progressive 与 --best 不能同时给：--best 自己选格式，progressive 只作用于 JPEG 输出",
@@ -146,8 +153,14 @@ fn cmd_convert(flags : Flags) -> Out raise @types.ImageError {
       )
     }
     let bytes = if progressive {
-      @lib.encode_jpeg_progressive(img, quality) catch {
-        e => raise @types.image_error_from_load(e)
+      if subsample420 {
+        @lib.encode_jpeg_progressive_420(img, quality) catch {
+          e => raise @types.image_error_from_load(e)
+        }
+      } else {
+        @lib.encode_jpeg_progressive(img, quality) catch {
+          e => raise @types.image_error_from_load(e)
+        }
       }
     } else {
       encode_image(img, fmt, quality)

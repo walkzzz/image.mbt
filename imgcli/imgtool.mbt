@@ -484,7 +484,7 @@ pub fn error_json(e : @types.ImageError) -> Out {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.29"
+pub let version : String = "0.1.30"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。
@@ -493,7 +493,7 @@ pub fn help_text() -> String {
   "用法:\n" +
   "  imgtool info     <in>\n" +
   "  imgtool convert  <in> <out> [--format auto|png|jpeg|webp|bmp|qoi|pnm|tga|gif] [--quality 1-100]\n" +
-  "                             [--best] [--max-bytes N] [--jpeg-progressive] [--dry-run]\n" +
+  "                             [--best] [--max-bytes N] [--jpeg-progressive] [--jpeg-progressive-420] [--dry-run]\n" +
   "  imgtool resize   <in> <out> --width N --height N [--mode cover|contain] [--format ...] [--dry-run]\n" +
   "  imgtool crop     <in> <out> --x N --y N --width N --height N [--format ...] [--dry-run]\n" +
   "  imgtool filter   <in> <out> --op box|gaussian|sharpen|median|bilateral|nlm\n" +
