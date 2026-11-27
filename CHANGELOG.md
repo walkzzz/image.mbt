@@ -19,6 +19,7 @@
 
 - `image.core/testgen` 新增 4 条（版本边界 17/18/32/33/53/54/78/79/106、v2 alignment 5×5、dark module 随版本右移、timing 隔一取黑）；`image.codec/barcode` 新增 v1–v5 往返（10/30/50/70/100 字节），同步改写 `qr_wbtest` 的 `is_function_module` 断言（行/列 8 中间段改为 false，补 v2 alignment 用例）
 - native 7,412 / 7,412 全绿
+- **第三方解码器交叉验证**：v1–v5 矩阵按 8 px/模块 + 4 模块静区渲染为 PNG，交 jsQR 1.4.0 解码，5/5 文本与 `version` 全部一致（10/30/50/70/100 字节）；自解码与第三方实现在版本判定上互证
 
 ## [0.1.24] - 2026-11-27
 
