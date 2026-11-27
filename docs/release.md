@@ -47,7 +47,7 @@ image.pro         ← core, codec, process, photography, vision, domain
 修法：依赖钉跟着版本走。现在由工具链守护，不靠人记：
 
 - `node scripts/bump_version.mjs --to 0.1.8` 会同时改 7 个 `moon.mod` 的 `version` **和**每个 `moon.mod` 里 `"walkzzz/image.*@x.y.z"` 的钉；
-- `node scripts/check_version.mjs` 第 14 项（`moon.mod dep pins`）一旦发现钉与版本不一致就红，并打印 `image.codec/moon.mod: walkzzz/image.core@0.1.1 != 0.1.7` 这种定位信息。
+- `node scripts/check_version.mjs` 第 12 项（`moon.mod dep pins`，11 个 `moon.mod` 的 37 处钉）一旦发现钉与版本不一致就红，并打印 `image.codec/moon.mod: walkzzz/image.core@0.1.1 != 0.1.7` 这种定位信息。
 
 ### 现在的残余阻塞与正确节奏
 
@@ -70,7 +70,7 @@ cd .          （根） moon publish
 ## 三、发布前门禁（全绿才发）
 
 ```bash
-node scripts/check_version.mjs            # 14 项（含依赖钉）
+node scripts/check_version.mjs            # 22 项（11 个 moon.mod + 依赖钉 + npm + Dart 绑定 + 门面/CLI/playground/首页/徽章）
 node scripts/check_docs.mjs               # 0 failed
 node scripts/gen_api_index.mjs --check    # api_index 与源码一致
 moon check --deny-warn --target all
@@ -248,7 +248,7 @@ node scripts/check_release_ready.mjs --skip-slow  # 12 项快跑（约 10 秒）
 
 | 组 | 内容 |
 | --- | --- |
-| 版本 | `check_version`（16 处：11 个 `moon.mod` + 依赖钉 + 门面 + CLI + playground + 首页 + 双 README 徽章） |
+| 版本 | `check_version`（22 处：11 个 `moon.mod` + 37 处依赖钉 + 门面 + CLI + playground + 首页 + 双 README 徽章 + `npm/package.json` + `bindings/dart/pubspec.yaml`） |
 | 文档真值 | `check_docs`（**B1–B14**）、`gen_api_index` / `gen_capabilities` / `gen_scenes --check` |
 | 契约 | `check_pkg_imports`、`check_deprecations`、`check_links`、`sync_pages --check`、`check_benchmarks` |
 | 绑定 | `npm/test.mjs`（15 项）、`check_dart_binding.mjs --no-build`（6 项） |

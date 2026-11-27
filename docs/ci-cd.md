@@ -29,7 +29,7 @@ Pages 单独拿 `pages: write` / `id-token: write`，`concurrency: pages` 且不
 | API 契约 | `moon info` + `git diff --exit-code -- '*.mbti'` | `.mbti` 漂移 |
 | 文档真值 | `check_docs --self-test` + `check_docs` | **B1–B14**（见下） |
 | API 索引 | `gen_api_index --check` | api_index 漂移 |
-| 版本 | `check_version` | 11 个 `moon.mod` / 门面 / CLI / playground / 首页 / 徽章 |
+| 版本 | `check_version` | 11 个 `moon.mod` / 依赖钉 / npm 包 / Dart 绑定 / 门面 / CLI / playground / 首页 / 徽章（22 项） |
 | 导入 | `check_pkg_imports` | `moon.pkg` 冗余导入 |
 | 首页数字 | `sync_pages --check` | 首页数字与 README / `docs/coverage.json` 不一致 |
 | 展示页 | `check_pages` | 构建 playground.js + 49 项结构/语义/口径检查 |

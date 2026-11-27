@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// check_version.mjs — 七模块版本一致性门禁
+// check_version.mjs — 十一个 moon.mod + 两条绑定通道的版本一致性门禁
 //
 // 校验：根模块 + 6 原子子模块 + 4 场景模块（共 11 个 moon.mod）的 version 一致；
 //       每个 moon.mod 里 `"walkzzz/image.*@x.y.z"` 的依赖钉都等于该版本（否则 publish --dry-run 会拿旧 API 编新代码）；
-//       等于 image.mbt 门面 pub let version、README zh/en 的 version badge 与 mooncakes badge。
+//       等于 image.mbt 门面 pub let version、README zh/en 的 version badge 与 mooncakes badge；
+//       S17 的两条绑定通道同版本：npm/package.json、bindings/dart/pubspec.yaml。
 // 用法：node scripts/check_version.mjs
 // 退出码：一致 0；任一不一致 1。
 
@@ -19,6 +20,11 @@ const MODULES = [
   'image.photography/moon.mod',
   'image.vision/moon.mod',
   'image.domain/moon.mod',
+  // S16 场景包：四个入口模块同属发布列车，版本与依赖钉必须跟着走
+  'image.doc/moon.mod',
+  'image.media/moon.mod',
+  'image.commerce/moon.mod',
+  'image.pro/moon.mod',
 ];
 
 const readText = rel => readFile(path.join(ROOT, rel), 'utf8');
@@ -35,7 +41,7 @@ let pinCount = 0;
 for (const rel of MODULES) {
   const text = await readText(rel);
   versions[rel] = cap(/^version = "([^"]+)"/m, text, rel, 'version');
-  for (const m of text.matchAll(/"(walkzzz\/image\.(?:core|codec|process|photography|vision|domain))@([\d.]+)"/g)) {
+  for (const m of text.matchAll(/"(walkzzz\/image\.(?:core|codec|process|photography|vision|domain|doc|media|commerce|pro))@([\d.]+)"/g)) {
     pinCount += 1;
     if (m[2] !== versions[rel]) pinProblems.push(`${rel}: ${m[1]}@${m[2]} != ${versions[rel]}`);
   }
@@ -59,6 +65,18 @@ versions['docs/index.html 品牌版本'] = cap(
   await readText('docs/index.html'),
   'docs/index.html',
   'pages brand version',
+);
+versions['npm/package.json'] = cap(
+  /"version":\s*"([\d.]+)"/,
+  await readText('npm/package.json'),
+  'npm/package.json',
+  'npm package version',
+);
+versions['bindings/dart/pubspec.yaml'] = cap(
+  /^version:\s*([\d.]+)$/m,
+  await readText('bindings/dart/pubspec.yaml'),
+  'bindings/dart/pubspec.yaml',
+  'dart binding version',
 );
 const zh = await readText('README.md');
 const en = await readText('README.en.md');

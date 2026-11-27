@@ -2,10 +2,11 @@
 // bump_version.mjs — 一 Sprint 一 patch 的版本号升级（0.1.x 三段号，四段号被 mooncakes 拒绝）
 //
 // 改到的地方（全部由 `node scripts/check_version.mjs` 守护，漏一处就红）：
-//   moon.mod × 7（根 + 6 子模块）的 version、这 7 个 moon.mod 里 `walkzzz/image.*@x.y.z` 的依赖钉、
+//   moon.mod × 11（根 + 6 子模块 + 4 场景模块）的 version、这 11 个 moon.mod 里 `walkzzz/image.*@x.y.z` 的依赖钉、
 //   image.mbt 门面 `pub let version`、imgcli/imgtool.mbt 的 CLI `pub let version`、
 //   playground/playground.mbt 的 `img_version`、docs/index.html 的品牌/hero 版本（再调 sync_pages 对齐指标数字）、
-//   README.md / README.en.md 的 version 与 mooncakes 徽章、docs/known-gaps.md 的「当前口径」行。
+//   README.md / README.en.md 的 version 与 mooncakes 徽章、docs/known-gaps.md 的「当前口径」行、
+//   S17 两条绑定通道：npm/package.json、bindings/dart/pubspec.yaml。
 //
 // 依赖钉必须同步：`moon publish --dry-run` 校验根包时，子模块是从 registry 缓存取的（不是工作区），
 // 钉在旧版就会拿旧 API 编新代码（2026-11-25 实测 56 个 error：ImageError / DecodeLimits /
@@ -29,6 +30,10 @@ const MODULES = [
   'image.photography/moon.mod',
   'image.vision/moon.mod',
   'image.domain/moon.mod',
+  'image.doc/moon.mod',
+  'image.media/moon.mod',
+  'image.commerce/moon.mod',
+  'image.pro/moon.mod',
 ];
 
 const args = process.argv.slice(2);
@@ -58,7 +63,6 @@ const bump = (rel, re, make) => {
 
 for (const rel of MODULES) bump(rel, /^version = "([^"]+)"/m, () => `version = "${to}"`);
 bump('image.mbt', /pub let version : String = "([^"]+)"/, () => `pub let version : String = "${to}"`);
-
 bump('imgcli/imgtool.mbt', /pub let version : String = "([^"]+)"/, () => `pub let version : String = "${to}"`);
 bump('playground/playground.mbt', /pub fn img_version\(\) -> String \{\n  "([\d.]+)"/, () => `pub fn img_version() -> String {\n  "${to}"`);
 bump('docs/index.html', /class="brand-ver">v([\d.]+)</, () => `class="brand-ver">v${to}<`);
@@ -68,6 +72,9 @@ bump('README.en.md', /badge\/version-([\d.]+)-orange/, () => `badge/version-${to
 bump('README.md', /badge\/mooncakes-([\d.]+)-orange/, () => `badge/mooncakes-${to}-orange`);
 bump('README.en.md', /badge\/mooncakes-([\d.]+)-orange/, () => `badge/mooncakes-${to}-orange`);
 bump('docs/known-gaps.md', /版本 ([\d.]+) · /, () => `版本 ${to} · `);
+// S17 两条绑定通道：npm 包与 Dart 绑定，版本与库同号，避免 npm 侧出现「库 0.1.24 / 包 0.1.23」
+bump('npm/package.json', /"version":\s*"([\d.]+)"/, () => `"version": "${to}"`);
+bump('bindings/dart/pubspec.yaml', /^version:\s*([\d.]+)$/m, () => `version: ${to}`);
 
 let changed = 0;
 for (const { rel, re, make } of edits) {
@@ -85,7 +92,7 @@ for (const { rel, re, make } of edits) {
 }
 
 // 依赖钉：`"walkzzz/image.*@x.y.z"` → @to（保留模块名，只换版本）
-const PIN = /("walkzzz\/image\.(?:core|codec|process|photography|vision|domain))@[\d.]+"/g;
+const PIN = /("walkzzz\/image\.(?:core|codec|process|photography|vision|domain|doc|media|commerce|pro))@[\d.]+"/g;
 for (const rel of MODULES) {
   const text = await read(rel);
   const next = text.replace(PIN, (_, head) => `${head}@${to}"`);

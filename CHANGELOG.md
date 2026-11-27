@@ -2,7 +2,7 @@
 
 > 本文件为变更**摘要**（面向评审与使用者的第一入口）。完整功能迭代历史（v0.1 → v237.0.0，3300+ 行）见 [docs/changelog.md](docs/changelog.md)。
 
-**版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 六子模块（image.core/image.codec/image.process/image.photography/image.vision/image.domain）版本随主包同步。
+**版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
 ## [0.1.24] - 2026-11-27
 
@@ -13,6 +13,7 @@
 - **超像素分割除零 / 死循环（GAP-44）**：`num_superpixels = 0` 除零；`num > total` 时 `step` 取整为 0 → `w / step` panic 且 `cx += 0` 死循环；另一条死代码同样除零。改为 `num <= 0` 抛 `DecodeFailed`、超量夹到像素总数、`step` 下限 1、删死代码；并按网格兜底 `labels` 的 -1 空洞。
 - **Code128 Stop 符不符规范（GAP-45）**：码表 108 行里 105–107 位置混装（`[105]` 实为 Start A、`[106]` 为 Start B、`[107]` 才是 Start C），真实 Stop（码字 106）是 7 段 13 模块 `[2,3,3,1,1,1,2]`，6 段表装不下，旧实现用伪模式 `[2,1,1,2,2,3]` 冒充再补 2 个模块——生成物在标准扫码器不可读，自解码因同源反而「通过」。表截为 0–105（106 行），新增 `code128_stop_pattern`；解码器先匹配 7 段 Stop 再匹配码字；生成器直接渲染真 Stop。
 - **GLCM 熵是占位公式（GAP-46）**：原 `entropy -= p * p * 0.1` 结果恒 ≤ 0，与「熵」语义相反。改为真香农熵 `-Σ p·log2(p)`（`@math.log2`，`style_transfer` 包 `moon.pkg` 增 `moonbitlang/core/math`）。
+- **S16/S17 遗留：6 个包脱离版本列车（GAP-49）**：`image.doc/media/commerce/pro` 停在 `0.1.20`、依赖钉同停；`npm/package.json` 与 `bindings/dart/pubspec.yaml` 停在 `0.1.23`。`check_version.mjs` / `bump_version.mjs` 的模块名单都只有 7 项，注释却写「共 11 个」，四个 patch 的漂移无人拦。两脚本扩到 11 个 `moon.mod` + 37 处钉 + npm + Dart，门禁由 16 项升至 22 项；六个文件一次性对齐 `0.1.24`。
 
 ### Added
 

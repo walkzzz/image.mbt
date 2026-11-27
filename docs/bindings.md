@@ -65,5 +65,5 @@ PNG → WebP（RIFF/WEBP 魔数 + 尺寸）、PNG → JPEG（`quality=80`，SOI�
 
 ## 4. 与发布的关系
 
-`npm` 版本随库版本走（当前 `0.1.22`），但**尚未发布到 npm**：绑定跟库一起在 S21 收口时发。
+`npm` 版本随库版本走（当前 `0.1.24`，`bindings/dart/pubspec.yaml` 同号；两者均由 `check_version.mjs` 第 20、21 项守门），但**尚未发布到 npm**：绑定跟库一起在 S21 收口时发。
 Dart 包 `publish_to: none`，只作为仓内绑定示例与自测载体，不发 pub.dev。

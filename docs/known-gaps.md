@@ -65,6 +65,7 @@
 | GAP-46 | ~~GLCM `entropy` 是占位公式~~ **已闭环（2026-11-27）** | `style_transfer_enhancement.mbt` 里写成 `entropy -= p * p * 0.1`，结果恒 ≤ 0，与「熵」语义相反，且无法与任何文献值对照 | 改为真香农熵 `-Σ p·log2(p)`（`@math.log2`，`moon.pkg` 增 `moonbitlang/core/math`）；断言收紧为 `0 ≤ entropy ≤ 8`（8×8 GLCM 上界 6 bit，留余量） |
 | GAP-47 | **CUR 3×2 往返已复测通过（2026-11-27）** | 历史台账曾把 CUR 编解码列为缺陷；本轮用 `encode_cur_pure` + `decode_cur_pure` 实测 3×2 / 4 通道逐字节一致 | 不再挂缺陷；未改动代码 |
 | GAP-48 | **QR 生成只覆盖 version 1-L（≤17 字节）** | `render_qr` 固定 21×21 矩阵、单块 RS；超出 17 字节（UTF-8）时无法无损编码。修复前是静默截断，现改为 `qr_fits_v1` 守卫 + 页面显式报错（`img_qr_max_bytes()` 导出 17） | 已明确能力边界：UI 提示"最多 17 字节，中文约 5 字"；多版本（v2+ 对齐图案与分块 RS）未排期，需求出现再评估 |
+| GAP-49 | **S16 的 4 个场景模块与 S17 的 2 条绑定通道脱离版本列车** | `image.doc/media/commerce/pro` 停在 `0.1.20`、依赖钉同停 `0.1.20`；`npm/package.json` 与 `bindings/dart/pubspec.yaml` 停在 `0.1.23`。`check_version.mjs` 的 `MODULES` 只有 7 项、`bump_version.mjs` 同名单，注释却写「共 11 个」——文档与实现不符，四个 patch 的漂移无人拦 | ✅ 两脚本扩到 11 个 `moon.mod` + 37 处钉 + npm + Dart（门禁 16 → 22 项）；六个文件版本与钉一次性对齐 `0.1.24`；4 个场景包 `moon test` 4/4 通过 |
 
 ## 测试口径
 

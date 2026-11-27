@@ -37,7 +37,7 @@
 ```
 
 前 7 环是原有链；场景模块只依赖原子模块与根，彼此不互相依赖，故可并行发布（8–11 无所谓顺序）。
-每个 `moon.mod` 的 `import` 钉都写 `@0.1.21`，`node scripts/check_version.mjs` 一次校验 11 个文件。
+每个 `moon.mod` 的 `import` 钉都写 `@0.1.24`，`node scripts/check_version.mjs` 一次校验 11 个文件。
 
 ## 4. 生成规则与两个例外
 
