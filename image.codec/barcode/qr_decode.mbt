@@ -240,8 +240,8 @@ fn read_qr_format_info(modules : Array[Int32], qr_size : Int32) -> Int32 {
     let (row, col) = positions[i]
     if row < qr_size && col < qr_size {
       if modules[row * qr_size + col] == 1 {
-        // 标准（ISO 18004 / qrcodegen）：positions[i] 对应格式信息第 i 位（LSB first）
-        format_bits = format_bits | (1 << i)
+        // 标准（ISO 18004）：positions[0] = (8,0) 是 bit14（MSB），bit i 落在 positions[14 - i]
+        format_bits = format_bits | (1 << (14 - i))
       }
     }
   }

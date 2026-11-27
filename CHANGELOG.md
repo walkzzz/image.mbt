@@ -30,6 +30,9 @@
 
 ## [0.1.23] - 2026-11-27
 
+- **二维码格式信息位序（S23）**：`qr_format_bits` 的 BCH(15,5) 长除法漏检 bit10，L/mask0 得 `0x7412`（应 `0x77C4`）；副本 1 按 LSB-first 铺位置、副本 2 两段各自反向。三处叠加使 jsQR / zxing 一致拒扫（ChecksumException）。编码器改 MSB-first + 标准副本 2 布局 + 正确长除法；解码器 `read_qr_format_info` 同步改为 `1 << (14 - i)`，自解码往返恢复。
+- **二维码容量与静区（S23）**：v1-L 上限 17 字节，旧实现超长静默截断、空串仍出图。`qr_fits_v1` 守卫 + `img_qr_max_bytes` 导出，页面按「请输入文本」/「超出 N 字节」分别报错并清空旧图；静区由 2 夹到 4（ISO 18004）。
+
 ### Added
 
 - **`docs/migration.md`（S21）**：迁到 0.1.23 只需 3 处改动——①模块名与安装命令（6 → 11 个模块）②import 的包路径与别名 ③7 条弃用 API 换成 `_enhanced` / lossless。附 15 行迁移前后对照与「不用改的部分」（公开签名 / 错误模型 / CLI JSON / npm 导出面）。
@@ -45,6 +48,8 @@
 - **CI 真实转绿（2026-11-27）**：连续 4 次远程跑定位并修掉 3 个只在 Linux runner 暴露的问题——① 各作业缺 `moon update`（registry index 缺失，10 个作业同时红）② `imgtool` 产物在 Linux 也叫 `imgtool.exe`，脚本按 `process.platform` 猜名导致基准门禁与 Dart 自测红（抽出 `scripts/imgtool_path.mjs`）③ `npm/image.wasm` 是构建产物不入库，bindings 作业补 `build_npm_wasm.mjs --no-test`。最终 run `45869479035` 10/10 success。
 - **GitHub Pages 上线**：`gh api -X POST .../pages -f build_type=workflow` 首次建站（`configure-pages` 的 `enablement` 用 GITHUB_TOKEN 建不了），`https://walkzzz.github.io/image.mbt/` 实测 200、playground.js 267,318 B；README 双语各加 CI / Pages 徽章。
 
+- **2 条 QR 回归**：两份格式信息副本逐位等于 `111011111000100`；17 字节可编码 / 18 字节拒绝。native 7,404 → **7,406 全绿**。
+
 ### Changed
 
 - README / README.en 文档表新增 `migration` 与 `deprecation` 两行；roadmap S21 标 ✅ 并写入验收证据。
@@ -52,6 +57,7 @@
 - **CI 门禁补全 + Pages 门禁**：`quality` 作业新增 `check_version` / `check_pkg_imports` / `sync_pages --check` / `check_pages`；`coverage` 门槛随实测从 80.5 提到 **90**；顶层最小权限 `contents: read` + 分支并发取消。
 - **版本治理扩面**：`check_version` 由 14 处增到 **16 处**（新增 `playground/playground.mbt` 的 `img_version` 与 `docs/index.html` 品牌版本）；`bump_version` 同步改写这两处并尾调 `sync_pages`。
 
+- 覆盖率随 `qr_format_bits` 重写更新为 **38,127/42,342 = 90.08%**；展示页经 `sync_pages` 同步为 0.1.24 / 7,406 / 90.08% / 82 包，并补齐汉堡导航 + `aria-live` + `og:image`/canonical + 触摸目标 ≥24px。
 ### Notes
 
 - 本版是 0.1.x 收口版：只做文档与门禁收口，不改任何运行时行为，`moon test --target native` 仍 7,395 全绿。
