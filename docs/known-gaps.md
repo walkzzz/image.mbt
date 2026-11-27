@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-27）：版本 0.1.29 · 7,427 测试 × 4 目标 · 82 包 · 覆盖率 90.06% · prove 8 goals。
+> 当前口径（2026-11-27）：版本 0.1.29 · 7,427 测试 × 4 目标 · 82 包 · 覆盖率 90.08% · prove 8 goals。
 
 ## 功能边界
 
@@ -20,7 +20,7 @@
 | 编号 | 描述 | 现状 | 计划 |
 |------|------|------|------|
 | GAP-8 | ~~白盒测试仅 1 个~~ **已补强（2026-11-20）** | 392 黑盒 + 6 白盒（mp4 / png_decode / zlib / fft / webp_vp8_decode / ean13_gen） | 后续可为 resize / 滤波 / 分割核心算法继续补白盒 |
-| GAP-9 | ~~覆盖率 82.3%~~ **已闭环（2026-11-27）** | **38,178/42,396 = 90.05%**（S18 专项后实测，S20/GAP-17 轮复测，分母不排除任何文件） | 真值在 `docs/coverage.json`（`coverage@1`），CI 与本地统一 `--min 90`；页面、README、known-gaps 三处由 B3/B6 + `sync_pages --check` 联动 |
+| GAP-9 | ~~覆盖率 82.3%~~ **已闭环（2026-11-27）** | **38,689/42,950 = 90.08%**（S18 专项后实测，0.1.29 细化落地后复测，分母不排除任何文件） | 真值在 `docs/coverage.json`（`coverage@1`），CI 与本地统一 `--min 90`；页面、README、known-gaps 三处由 B3/B6 + `sync_pages --check` 联动 |
 | GAP-10 | Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug | `Unix.EINVAL` | 统一走 WSL / CI `prove` job |
 | GAP-11 | ~~无 OS 矩阵~~ **受上游限制（2026-11-20 实测）** | 官方安装脚本仅支持 Linux x86_64/aarch64 与 macOS arm64；Windows 二进制 URL 实测返回 403 | 暂不纳入 CI；如官方提供 Windows/macOS 包再补 job |
 | GAP-12 | ~~API 参考过时~~ **已闭环（2026-11-20）** | `docs/api_reference.md` 仍为历史快照（1,339 fn / 50 包） | ✅ 新增 `docs/api_index.md`（`scripts/gen_api_index.mjs` 从 73 包 `.mbti` 自动生成：3,748 fn / 710 类型；CI `--check` 防漂移）；旧参考页已标注"历史快照，以 api_index 与 `.mbti` 为准" |

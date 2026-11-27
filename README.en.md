@@ -13,7 +13,7 @@
 
 [![Tests](https://img.shields.io/badge/tests-7_427×4-4CAF50?style=flat-square)]()
 [![Proved](https://img.shields.io/badge/formal__proof-8%20goals-6E40C9?style=flat-square)]()
-[![Coverage](https://img.shields.io/badge/coverage-90.06%25-4CAF50?style=flat-square)]()
+[![Coverage](https://img.shields.io/badge/coverage-90.08%25-4CAF50?style=flat-square)]()
 [![Targets](https://img.shields.io/badge/targets-native%20%7C%20wasm--gc%20%7C%20js%20%7C%20wasm-2196F3?style=flat-square)]()
 [![Formats](https://img.shields.io/badge/formats-18-FF9800?style=flat-square)]()
 [![Packages](https://img.shields.io/badge/packages-82-9C27B0?style=flat-square)]()
