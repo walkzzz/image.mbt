@@ -49,19 +49,28 @@ pub fn img_version() -> String {
 }
 
 ///|
-/// 文本 → QR PNG（hex）。
+/// 文本 → QR PNG（hex）。返回空串表示无法生成（空文本 / 超出 v1 容量）。
+/// 注意：QR 静区按 ISO 18004 用 4 模块，调用方传参会被夹到 ≥4。
 #export_name("img_qr_png_hex")
 pub fn img_qr_png_hex(
   text : String,
   module_px : Int32,
   quiet_zone : Int32,
 ) -> String {
-  let image = @testgen.render_qr(
-    @encoding/utf8.encode(text),
-    module_px~,
-    quiet_zone~,
-  )
+  let payload = @encoding/utf8.encode(text)
+  if payload.length() == 0 || !@testgen.qr_fits_v1(payload) {
+    return ""
+  }
+  let qz = if quiet_zone < 4 { 4 } else { quiet_zone }
+  let image = @testgen.render_qr(payload, module_px~, quiet_zone=qz)
   bytes_to_hex(@lib.encode_png(image))
+}
+
+///|
+/// 版本 1-L 的容量（字节），供 UI 提示"最多 N 字节 / UTF-8 中文 6 字"。
+#export_name("img_qr_max_bytes")
+pub fn img_qr_max_bytes() -> Int32 {
+  @testgen.qr_v1_max_bytes()
 }
 
 ///|
@@ -73,14 +82,15 @@ pub fn img_qr_filter_png_hex(
   blur_radius : Int32,
 ) -> String {
   try {
-    let image = @testgen.render_qr(
-      @encoding/utf8.encode(text),
-      module_px=6,
-      quiet_zone=2,
-    )
-    let bright = @color.adjust_brightness(image, brightness)
-    let filtered = @filter.box_blur(bright, blur_radius)
-    bytes_to_hex(@lib.encode_png(filtered))
+    let payload = @encoding/utf8.encode(text)
+    if payload.length() == 0 || !@testgen.qr_fits_v1(payload) {
+      ""
+    } else {
+      let image = @testgen.render_qr(payload, module_px=6, quiet_zone=4)
+      let bright = @color.adjust_brightness(image, brightness)
+      let filtered = @filter.box_blur(bright, blur_radius)
+      bytes_to_hex(@lib.encode_png(filtered))
+    }
   } catch {
     _ => ""
   }

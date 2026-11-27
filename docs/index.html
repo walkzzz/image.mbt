@@ -6,9 +6,13 @@
   <title>image.mbt — 纯 MoonBit 图像编解码与处理 · 浏览器内演示</title>
   <meta name="description" content="walkzzz/image.mbt：18 种编解码、滤镜、几何变换、特征与视觉算法，零 C FFI，四后端一致。QR 生成与滤镜演示在你的浏览器内实时计算。" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="image.mbt — 纯 MoonBit 图像库" />
+  <meta property="og:title" content="image.mbt — 纯 MoonBit 图像编解码与处理 · 浏览器内演示" />
   <meta property="og:description" content="18 种格式编解码、滤镜与视觉算法，零 C FFI；7404×4 测试全绿；浏览器内 QR 生成与滤镜演示。" />
   <meta property="og:url" content="https://walkzzz.github.io/image.mbt/" />
+  <meta property="og:image" content="https://walkzzz.github.io/image.mbt/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <link rel="canonical" href="https://walkzzz.github.io/image.mbt/" />
   <meta name="twitter:card" content="summary" />
   <meta name="theme-color" content="#0b1020" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230b1020'/><rect x='12' y='12' width='18' height='18' fill='%235eead4'/><rect x='34' y='12' width='18' height='18' fill='%23a78bfa'/><rect x='12' y='34' width='18' height='18' fill='%23f59e0b'/><rect x='34' y='34' width='18' height='18' fill='%235eead4'/></svg>" />
@@ -32,7 +36,10 @@
         <span class="brand-name">image.mbt</span>
         <span class="brand-ver">v0.1.24</span>
       </a>
-      <nav class="nav" aria-label="主导航">
+      <button id="nav-toggle" class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="展开导航">
+        <span aria-hidden="true">☰</span>
+      </button>
+      <nav class="nav" id="primary-nav" aria-label="主导航">
         <a href="#features">能力</a>
         <a href="#demo">在线演示</a>
         <a href="#start">快速开始</a>
@@ -91,7 +98,7 @@
       <div class="section-head">
         <p class="kicker">Capabilities</p>
         <h2>从解码到视觉算法的一条链</h2>
-        <p class="lede">6 个模块、73 个包；core 是纯类型层，codec / process / photography / vision / domain 逐层复用。</p>
+        <p class="lede">6 个核心子模块、82 个子包；core 是纯类型层，codec / process / photography / vision / domain 逐层复用。</p>
       </div>
       <div class="feature-grid">
         <a class="feature" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/README.md" target="_blank" rel="noreferrer">
@@ -182,7 +189,7 @@
             <h3>QR 生成</h3>
             <a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/barcode/README.md" target="_blank" rel="noreferrer"><code>render_qr</code></a>
           </header>
-          <p class="hint">输入文本 → 模块级 QR 图像 → PNG 编码；模块大小与静区可调。</p>
+          <p class="hint">输入文本 → 模块级 QR 图像 → PNG 编码。模块像素可调；静区固定 4 模块（ISO 18004）。版本 1-L 最多 17 字节 —— UTF-8 中文约 5 字，超出会显式报错而不是截断。</p>
           <div class="row">
             <label class="grow">文本 <input id="qr-text" value="image.mbt" /></label>
             <label>模块像素
@@ -195,7 +202,7 @@
             <button type="button" data-run="qr">生成</button>
           </div>
           <img id="qr-img" class="demo-img" alt="生成的二维码" />
-          <output id="qr-out">点击「生成」…</output>
+          <output id="qr-out" aria-live="polite">点击「生成」…</output>
         </article>
 
         <article class="card">
@@ -211,7 +218,7 @@
             <button type="button" data-run="filter">处理</button>
           </div>
           <img id="filter-img" class="demo-img" alt="经过亮度与模糊处理的二维码" />
-          <output id="filter-out">点击「处理」…</output>
+          <output id="filter-out" aria-live="polite">点击「处理」…</output>
         </article>
 
         <article class="card wide">
@@ -224,7 +231,7 @@
             <button type="button" data-run="summary">解读当前 PNG</button>
             <button type="button" class="chip-btn" data-run="qr">重新生成 QR</button>
           </div>
-          <output id="summary-out" class="out-wide">点击「解读当前 PNG」…</output>
+          <output id="summary-out" class="out-wide" aria-live="polite">点击「解读当前 PNG」…</output>
         </article>
       </div>
     </section>
@@ -336,10 +343,10 @@ let small = @transform.resize_f(@transform.resize(img, 320, 240), 320, 240)</cod
         <p class="lede">架构、能力、对比、性能与已知缺口都写在仓库里。</p>
       </div>
       <div class="doc-grid">
-        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/architecture.md"><h3>架构设计</h3><p>6 模块、73 包依赖拓扑与设计决策。</p></a>
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/architecture.md"><h3>架构设计</h3><p>6 个核心子模块、82 个子包依赖拓扑与设计决策。</p></a>
         <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/features.md"><h3>能力清单</h3><p>18 格式与各模块能力全景。</p></a>
         <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/comparison.md"><h3>生态对比</h3><p>与 mooncakes 图像库的差异。</p></a>
-        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/performance_report.md"><h3>性能报告</h3><p>编解码与算法的基准数据。</p></a>
+        <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/performance.md"><h3>性能报告</h3><p>编解码与算法的基准数据。</p></a>
         <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/api_reference.md"><h3>API 参考</h3><p>核心函数快照与入口索引。</p></a>
         <a class="doc-card" href="https://github.com/walkzzz/image.mbt/blob/main/docs/known-gaps.md"><h3>已知缺口</h3><p>未实现能力与边界。</p></a>
       </div>

@@ -1,6 +1,7 @@
 import {
   img_version,
   img_qr_png_hex,
+  img_qr_max_bytes,
   img_qr_filter_png_hex,
   img_png_summary,
 } from "./playground.js";
@@ -66,40 +67,88 @@ function showPng(image, hex) {
   return bytes.length;
 }
 
+/** 生成失败时清掉旧图，避免「报错但画面仍是上一次的二维码」。 */
+function hidePng(image) {
+  if (!image) return;
+  if (image.dataset.url) {
+    URL.revokeObjectURL(image.dataset.url);
+    delete image.dataset.url;
+  }
+  image.removeAttribute("src");
+  image.style.display = "none";
+}
+
 /* ---------- 演示动作 ---------- */
+
+// ISO 18004 要求二维码四周静区 ≥ 4 模块；后端也会把更小的值夹到 4。
+const QR_QUIET_ZONE = 4;
+
+let qrMaxBytes = 17;
+try {
+  qrMaxBytes = img_qr_max_bytes();
+} catch {
+  /* 旧构建产物兜底：v1-L 固定 17 字节 */
+}
 
 let lastHex = "";
 let lastKind = "";
 
+/** 输入变化后，之前的 PNG 摘要不再代表当前参数，必须显式失效。 */
+function invalidateSummary() {
+  lastHex = "";
+  lastKind = "";
+  setText("#summary-out", "参数已变更，请重新生成后再取摘要");
+}
+
+function utf8Length(text) {
+  return new TextEncoder().encode(text).length;
+}
+
+function qrFailureText(text) {
+  const bytes = utf8Length(text.trim());
+  if (bytes === 0) return "生成失败：请输入文本";
+  return `生成失败：${bytes} 字节超出 ${qrMaxBytes} 字节上限（UTF-8，中文 1 字 = 3 字节）`;
+}
+
 function runQr() {
   const text = $("#qr-text").value;
   const modulePx = Number($("#qr-module").value);
+  const image = $("#qr-img");
   const started = performance.now();
-  const hex = img_qr_png_hex(text, modulePx, 2);
+  const hex = img_qr_png_hex(text, modulePx, QR_QUIET_ZONE);
   if (!hex) {
-    setText("#qr-out", "生成失败：请输入文本");
+    hidePng(image);
+    lastHex = "";
+    lastKind = "";
+    setText("#qr-out", qrFailureText(text));
+    setText("#hero-size", "—");
     return;
   }
-  const bytes = showPng($("#qr-img"), hex);
+  const bytes = showPng(image, hex);
   lastHex = hex;
   lastKind = "QR";
   const ms = (performance.now() - started).toFixed(1);
-  setText("#qr-out", `PNG ${bytes} 字节 · 模块 ${modulePx}px · ${ms} ms`);
+  setText("#qr-out", `PNG ${bytes} 字节 · 模块 ${modulePx}px · 静区 ${QR_QUIET_ZONE} · ${ms} ms`);
   setText("#hero-size", `${bytes} B`);
-  $("#qr-img").alt = `二维码：${text}`;
+  image.alt = `二维码：${text}`;
 }
 
 function runFilter() {
   const text = $("#filter-text").value;
   const brightness = Number($("#filter-brightness").value);
   const blur = Number($("#filter-blur").value);
+  const image = $("#filter-img");
   const started = performance.now();
   const hex = img_qr_filter_png_hex(text, brightness, blur);
   if (!hex) {
-    setText("#filter-out", "处理失败：请输入文本");
+    hidePng(image);
+    lastHex = "";
+    lastKind = "";
+    setText("#filter-out", qrFailureText(text).replace("生成失败", "处理失败"));
+    setText("#hero-size", "—");
     return;
   }
-  const bytes = showPng($("#filter-img"), hex);
+  const bytes = showPng(image, hex);
   lastHex = hex;
   lastKind = "滤镜";
   const ms = (performance.now() - started).toFixed(1);
@@ -108,6 +157,7 @@ function runFilter() {
     `亮度 ${brightness} · 方框模糊 ${blur}px · PNG ${bytes} 字节 · ${ms} ms`,
   );
   setText("#hero-size", `${bytes} B`);
+  image.alt = `滤镜二维码：${text}（亮度 ${brightness}，模糊 ${blur}px）`;
 }
 
 function runSummary() {
@@ -145,6 +195,14 @@ ENTER_ACTIONS.forEach(([selector, action]) => {
     event.preventDefault();
     const button = $(`button[data-run="${action}"]`);
     if (button) button.click();
+  });
+});
+
+["#qr-text", "#filter-text", "#qr-module"].forEach((selector) => {
+  const field = $(selector);
+  if (!field) return;
+  field.addEventListener("input", () => {
+    if (lastHex) invalidateSummary();
   });
 });
 
@@ -208,13 +266,35 @@ if ("IntersectionObserver" in window && sections.length > 0) {
   sections.forEach((section) => observer.observe(section));
 }
 
+/* ---------- 移动端导航（< 960px 折叠为抽屉） ---------- */
+
+const nav = $(".nav");
+const navToggle = $("#nav-toggle");
+
+if (nav && navToggle) {
+  const setOpen = (open) => {
+    nav.dataset.open = open ? "true" : "false";
+    navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+  setOpen(false);
+  navToggle.addEventListener("click", () => {
+    setOpen(nav.dataset.open !== "true");
+  });
+  $$(".nav a").forEach((link) => {
+    link.addEventListener("click", () => setOpen(false));
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+}
+
 /* ---------- 初始化 ---------- */
 
 setText("#hero-version", img_version());
-setText("#hero-exports", "4");
+setText("#hero-exports", "5");
 
 try {
-  const heroHex = img_qr_png_hex("image.mbt", 4, 2);
+  const heroHex = img_qr_png_hex("image.mbt", 4, QR_QUIET_ZONE);
   const heroBytes = showPng($("#hero-qr"), heroHex);
   if (heroBytes > 0) {
     setText("#hero-size", `${heroBytes} B`);

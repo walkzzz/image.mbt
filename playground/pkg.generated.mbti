@@ -6,6 +6,8 @@ pub fn img_png_summary(String) -> String
 
 pub fn img_qr_filter_png_hex(String, Int32, Int32) -> String
 
+pub fn img_qr_max_bytes() -> Int32
+
 pub fn img_qr_png_hex(String, Int32, Int32) -> String
 
 pub fn img_version() -> String
