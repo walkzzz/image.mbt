@@ -233,6 +233,8 @@ pub fn encode_jpeg(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn encode_jpeg_progressive(@types.Image, Int32) -> Bytes raise @types.LoadError
 
+pub fn encode_jpeg_progressive_420(@types.Image, Int32) -> Bytes raise @types.LoadError
+
 pub fn encode_jpeg_pure(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn encode_jpeg_with_quality(@types.Image, Int32) -> Bytes raise @types.LoadError
