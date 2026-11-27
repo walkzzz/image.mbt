@@ -4,6 +4,26 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.28] - 2026-11-27
+
+### Added
+
+- **progressive 编码的体积收口（F-01 第二步）**：`encode_jpeg_progressive` 的 AC 首扫加 **EOBRUN 合并**——连续整块全零的块累计成一个 `(rrrr=nbits, ssss=0)` 符号 + nbits 位计数，上限 1023 块（`PROGRESSIVE_MAX_EOBRUN`），块尾残余零仍按单块 EOB 立即收尾（避免解码端把合并量错记到下一块）。
+- **按频次自建 AC 霍夫曼表**：新增 `jpeg_progressive_ac_freq`（与写码分支逐一对齐地统计 257 项符号频次）与 `jpeg_gen_optimal_table`（移植 libjpeg `jpeg_gen_optimal_table`：哨兵、双最小合并、K.2 超 16 位折半重分配）。标准 K.3/K.5 AC 表既没有 0x10–0x90 的 EOBn 符号，Kraft 余量也只剩约一个 16 位槽位，只能自建；DHT 段随之改为「DC 标准表 + 两张优化 AC 表」。
+
+### Fixed
+
+- **EOBRUN 查表下标写错**：`jpeg_emit_eobrun` 曾用 `enc.codes[nbits]`（符号值 nbits，落在普通 AC 符号区）取码字，`lengths=0` 导致一个位都没写、位流缺数据；改为 `nbits << 4`。这是本轮"自身解码报 `JPEG 数据意外结束` 而 Pillow 能解"的根因。
+- **块尾 EOB 不应进入合并累计**：把块尾残余零也计入 EOBRUN 时，emit 落在下一个非全零块里，解码端会按「块首 eobrun>0 即整块跳过」把这一个块吃掉，整条扫描从此错位。现在只有整块全零参与合并，块尾独立写 EOB。
+
+### Verified
+
+- 1280×720 照片 Q55：baseline 79,638 B → progressive **73,206 B（−8.08%）**；与 baseline 解码**逐像素相同**（max |Δ|=0、mean 0.000）。
+- 128×128 渐变 Q80：3,120 → 2,368 B（−24%）；512×512 纯色 < 4 KB，四张 DHT 表 Kraft ≤ 1。
+- 自身解码回环通过（512×512/1280×720/320×180 缩放照片/256·512 纯色），Pillow 识别 `progressive=1`、4 条 SOS。
+- 新增 3 条测试（EOBRUN 大值纯色往返、体积 < baseline、DHT 表自洽黑盒校验），全量 native **7,425/7,425** 全绿。
+- 边界见 `docs/known-gaps.md` GAP-56（已闭环，剩余 `Ah>0` 细化 / spectral 分段 / 4:2:0 转入 roadmap F-01 后续），`docs/roadmap.md` F-01 标 `✅`。
+
 ## [0.1.27] - 2026-11-27
 
 ### Added

@@ -26,10 +26,13 @@ moon build --release cmd/imgtool
 通用：`--format`（省略时按输出扩展名推断，再无则 PNG）、`--quality 1-100`、`--mem-budget`、`--max-pixels`。
 
 `--jpeg-progressive`（仅 `convert`，且输出格式必须是 JPEG）：产出 progressive（SOF2）文件。
-最简合法形态是 **DC 首扫 + 每分量一条 AC 首扫**（`Ss=0/Se=0` 与 `Ss=1/Se=63`，`Ah=Al=0`，共 4 条扫描），
-不带 successive approximation、不带 EOBRUN 合并，因此体积与 baseline 基本持平（实测 1280×720 Q55：58,115 B vs 58,084 B）。
-用途是渐进式加载（先粗后细），不是压缩率优化。像素数上限 2,000,000（量化系数缓存约 24 MB）；
-与 `--best` 互斥（`--best` 自己选格式）。
+形态是 **DC 首扫 + 每分量一条 AC 首扫**（`Ss=0/Se=0` 与 `Ss=1/Se=63`，`Ah=Al=0`，共 4 条扫描），
+AC 首扫带 **EOBRUN 合并**（连续整块全零压成一个 `(0,nbits)` 符号，上限 1023 块），
+并按实际符号频次自建 AC 霍夫曼表（libjpeg `optimize_coding` 同法）。
+因此体积**小于** baseline：实测 1280×720 Q55 为 79,638 B → 73,206 B（−8.1%），
+128×128 渐变 Q80 为 3,120 B → 2,368 B（−24%）；像素与 baseline 解码逐字节一致（同量化表、4:4:4）。
+仍不带 successive approximation（`Ah>0` 细化）、不做 spectral selection 分段。
+像素数上限 2,000,000（量化系数缓存约 24 MB）；与 `--best` 互斥（`--best` 自己选格式）。
 
 ## 输出约定
 

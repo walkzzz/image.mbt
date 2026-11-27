@@ -6826,7 +6826,7 @@ function _M0FP37walkzzz11image_2embt10playground14hex__to__bytes(hex) {
   return _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(data.buf, 0, data.len));
 }
 function _M0FP37walkzzz11image_2embt10playground12img__version() {
-  return "0.1.27";
+  return "0.1.28";
 }
 function _M0FP37walkzzz11image_2embt10playground17img__qr__png__hex(text, module_px, quiet_zone) {
   const payload = _M0FPC28encoding4utf814encode_2einner(new _M0TPC16string10StringView(text, 0, text.length), false);

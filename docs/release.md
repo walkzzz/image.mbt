@@ -252,10 +252,10 @@ node scripts/check_release_ready.mjs --skip-slow  # 12 项快跑（约 10 秒）
 | 文档真值 | `check_docs`（**B1–B14**）、`gen_api_index` / `gen_capabilities` / `gen_scenes --check` |
 | 契约 | `check_pkg_imports`、`check_deprecations`、`check_links`、`sync_pages --check`、`check_benchmarks` |
 | 绑定 | `npm/test.mjs`（15 项）、`check_dart_binding.mjs --no-build`（6 项） |
-| 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,423） |
+| 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,425） |
 | 展示页 | `check_pages`（49 项，含 playground.js 现编） |
 
-覆盖率门槛由 `docs/coverage.json` 定：当前 38,562/42,814 = **90.07%**，CI 与本地均按 `--min 90` 拦。
+覆盖率门槛由 `docs/coverage.json` 定：当前 38,562/42,814 = **90.06%**，CI 与本地均按 `--min 90` 拦。
 
 ### 9.4 下游 30 分钟上手（发布后第一件事；未发布则跳过）
 
