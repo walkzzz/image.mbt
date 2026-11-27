@@ -6,7 +6,7 @@
 | 通道 | 宿主 | 载体 | 入口 | 自测 |
 | --- | --- | --- | --- | --- |
 | JS / Node | Node ≥18 | wasm（`--target wasm`，线性内存 + `abi_*` 导出） | `npm/index.mjs` | `node npm/test.mjs`（15 项） |
-| Dart | Dart SDK ≥3.6 | `imgtool` 进程（单行 JSON 协议） | `bindings/dart/lib/image_mbt.dart` | `dart run tool/selftest.dart`（6 项） |
+| Dart | Dart SDK ≥3.6 | `imgtool` 进程（单行 JSON 协议） | `bindings/dart/lib/image_mbt.dart` | `dart run tool/selftest.dart`（8 项） |
 
 ## 1. JS 通道（`npm/`）
 
@@ -59,9 +59,9 @@ node npm/test.mjs                            # JS 通道 15 项
 `check_dart_binding.mjs` 支持 `--no-build`（复用已构建的 imgtool），`IMGTOOL` 可覆盖路径；
 `dart` 不在 PATH 时以退出码 2 跳过，不误报失败。
 
-Dart 自测 6 项：PPM 4×3 识别、`decode → resize → encode`（PPM → PNG 2×2）、
+Dart 自测 8 项：PPM 4×3 识别、`decode → resize → encode`（PPM → PNG 2×2）、
 PNG → WebP（RIFF/WEBP 魔数 + 尺寸）、PNG → JPEG（`quality=80`，SOI）、
-空输入抛带 `code` 的异常、非法宽高本地拒绝。
+空输入抛带 `code` 的异常、非法宽高本地拒绝、只读格式（tiff/hdr/avif…）本地拒绝（与 CLI `is_writable` 的 8 个一致，不 spawn 进程）、`imgtool` 缺失抛 `process/spawn_failed`（stderr 为空时不再被 `StateError` 掩盖）。
 
 ## 4. 与发布的关系
 

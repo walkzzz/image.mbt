@@ -37,6 +37,6 @@ dart run tool/selftest.dart
 
 或一步到位：`node scripts/check_dart_binding.mjs`（自动构建 + 注入 `IMGTOOL` + 跑自测）。
 
-自测覆盖（6 项）：decode 尺寸/格式、decode→resize→encode（PPM 4×3 → PNG 2×2）、
+自测覆盖（8 项）：decode 尺寸/格式、decode→resize→encode（PPM 4×3 → PNG 2×2）、
 PNG→WebP 魔数与尺寸、PNG→JPEG（`quality=80`）SOI、空输入抛带 `code` 的异常、
-非法宽高在 Dart 侧即被拒绝（不打到进程）。
+非法宽高在 Dart 侧即被拒绝（不打到进程）、只读格式本地拒绝（与 CLI `is_writable` 的 8 个一致）、`imgtool` 缺失抛 `process/spawn_failed`。

@@ -14,6 +14,7 @@
 - **Code128 Stop 符不符规范（GAP-45）**：码表 108 行里 105–107 位置混装（`[105]` 实为 Start A、`[106]` 为 Start B、`[107]` 才是 Start C），真实 Stop（码字 106）是 7 段 13 模块 `[2,3,3,1,1,1,2]`，6 段表装不下，旧实现用伪模式 `[2,1,1,2,2,3]` 冒充再补 2 个模块——生成物在标准扫码器不可读，自解码因同源反而「通过」。表截为 0–105（106 行），新增 `code128_stop_pattern`；解码器先匹配 7 段 Stop 再匹配码字；生成器直接渲染真 Stop。
 - **GLCM 熵是占位公式（GAP-46）**：原 `entropy -= p * p * 0.1` 结果恒 ≤ 0，与「熵」语义相反。改为真香农熵 `-Σ p·log2(p)`（`@math.log2`，`style_transfer` 包 `moon.pkg` 增 `moonbitlang/core/math`）。
 - **S16/S17 遗留：6 个包脱离版本列车（GAP-49）**：`image.doc/media/commerce/pro` 停在 `0.1.20`、依赖钉同停；`npm/package.json` 与 `bindings/dart/pubspec.yaml` 停在 `0.1.23`。`check_version.mjs` / `bump_version.mjs` 的模块名单都只有 7 项，注释却写「共 11 个」，四个 patch 的漂移无人拦。两脚本扩到 11 个 `moon.mod` + 37 处钉 + npm + Dart，门禁由 16 项升至 22 项；六个文件一次性对齐 `0.1.24`。
+- **Dart 绑定两条错误路径被自己吃掉（GAP-50）**：`_call` 的 `stderr.trim().split('\n').first` 在 stderr 为空时抛 `StateError`，把真实错误码换成无意义异常；`_ext` 表多列 7 个只读格式，导致 `convert(format: 'tiff')` 先 spawn 一次进程再失败。改为 `_ext` 只留 CLI `is_writable` 的 8 个、空 stderr 走「退出码 N」文案；自测 6 → 8 项。
 
 ### Added
 

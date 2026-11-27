@@ -385,7 +385,7 @@
 | S14 ✅ | 区域解码（PNG/BMP/QOI） | 输出只分配 tile，与整图裁切逐字节一致 |
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 ✅ | 场景包收敛为 4（`doc/media/commerce` + `pro`，photo 由既有 `image.photography` 承担） | 新增 4 个场景模块，**模块数 7→11（不是 15）**，发布链 11 环；`docs/scenes.json` + `gen_scenes.mjs` 生成 4 个入口包（doc 504 / media 313 / commerce 257 / pro 1,462 符号），B11 门禁防漂移；**版本列车补齐**：4 个场景 `moon.mod` 的 version 与依赖钉已并入 `check_version` / `bump_version`（GAP-49） |
-| S17 ✅ | Dart / JS 绑定（经 wasm/导出，不另起实现） | **两条通道、同一份实现**：JS 走 `--target wasm` 线性内存（`npm/index.mjs`，自测 15/15）；Dart 因「native 不产出静态/动态库」+「Dart VM 无 wasm 运行时（`package:wasm` 已废弃）」改以 `imgtool` 进程为 ABI（`bindings/dart/`，自测 6/6）；Dart 侧 `decode→resize→encode` 跑通，见 `docs/bindings.md`；**版本收口**：`npm/package.json` 与 `bindings/dart/pubspec.yaml` 已并入版本门禁（第 20、21 项，GAP-49） |
+| S17 ✅ | Dart / JS 绑定（经 wasm/导出，不另起实现） | **两条通道、同一份实现**：JS 走 `--target wasm` 线性内存（`npm/index.mjs`，自测 15/15）；Dart 因「native 不产出静态/动态库」+「Dart VM 无 wasm 运行时（`package:wasm` 已废弃）」改以 `imgtool` 进程为 ABI（`bindings/dart/`，自测 8/8：含不可写格式本地拒绝与可执行文件缺失两条错误路径）；Dart 侧 `decode→resize→encode` 跑通，见 `docs/bindings.md`；**版本收口**：`npm/package.json` 与 `bindings/dart/pubspec.yaml` 已并入版本门禁（第 20、21 项，GAP-49） |
 | S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.08%（见 `docs/known-gaps.md`） |
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
 | S20 ✅ | 公开基准集（golden 20 张 + 6 类恶意样本） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材 |

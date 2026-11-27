@@ -72,6 +72,9 @@ class ImageMbt {
     'tga',
   ];
 
+  /// 与 CLI 的 `is_writable` 一一对应（`imgcli/imgtool.mbt` 只对这 8 个格式返回 true）。
+  /// 表里不列 tiff / hdr / avif / heif / ico / icns / psd：这些在本库只读，
+  /// 写之前拦住而不是 spawn 一次进程再吃 `encode/unsupported_format`。
   static const Map<String, String> _ext = <String, String>{
     'png': 'png',
     'jpeg': 'jpg',
@@ -83,13 +86,6 @@ class ImageMbt {
     'ppm': 'ppm',
     'pnm': 'ppm',
     'tga': 'tga',
-    'tiff': 'tiff',
-    'hdr': 'hdr',
-    'avif': 'avif',
-    'heif': 'heic',
-    'ico': 'ico',
-    'icns': 'icns',
-    'psd': 'psd',
   };
 
   /// 只读探测：格式 / 尺寸 / 字节数。对应 `imgtool info`。
@@ -210,10 +206,17 @@ class ImageMbt {
           ? <String, dynamic>{}
           : jsonDecode(stdout.split('\n').last) as Map<String, dynamic>;
       if (res.exitCode != 0 || json['ok'] != true) {
+        // stderr 可能整段为空（进程直接失败、或只写 JSON 到 stdout），
+        // 空的时候 `.split('\n').first` 会抛 StateError 并把真实 code 掩盖掉。
+        final String stderrText = (res.stderr as String).trim();
+        final String firstErrLine =
+            stderrText.isEmpty ? '' : stderrText.split('\n').first;
         throw ImageMbtException(
           (json['code'] as String?) ?? 'process/failed',
           (json['message'] as String?) ??
-              (res.stderr as String).trim().split('\n').first,
+              (firstErrLine.isNotEmpty
+                  ? firstErrLine
+                  : 'imgtool 退出码 ${res.exitCode}，无 stderr'),
           hint: (json['hint'] as String?) ?? '',
         );
       }

@@ -121,6 +121,29 @@ Future<void> main() async {
     }
   });
 
+  // 7) 只读格式（tiff / hdr / avif …）在 Dart 侧拒绝，不 spawn 进程再吃 unsupported_format
+  await checkAsync('不可写格式本地拒绝（与 CLI is_writable 的 8 个一致）', () async {
+    try {
+      await img.convert(src, format: 'tiff');
+      throw StateError('tiff 本应失败');
+    } on ImageMbtException catch (e) {
+      assertEq(e.code, 'process/invalid_argument', 'code');
+    }
+  });
+
+  // 8) 可执行文件缺失：必须是 ImageMbtException('process/spawn_failed')，
+  //    不能被 stderr 为空的 StateError 掩盖
+  await checkAsync('imgtool 缺失抛 process/spawn_failed', () async {
+    final ImageMbt ghost =
+        ImageMbt(executablePath: 'definitely-not-imgtool-xyz');
+    try {
+      await ghost.info(src);
+      throw StateError('缺失可执行文件本应失败');
+    } on ImageMbtException catch (e) {
+      assertEq(e.code, 'process/spawn_failed', 'code');
+    }
+  });
+
   stdout.writeln('$passed/$passed+$failed passed');
   if (failed > 0) {
     exit(1);
