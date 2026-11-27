@@ -356,9 +356,11 @@
   合成了 **20 张 golden**（13 种可编码格式，1.2 MB 量级）+ **6 个畸形样本**（数据流损坏 / 长度越界 / 声明尺寸炸弹 /
   帧数声明 / 非法枚举 / 元数据段截断），像素全部来自解析式（渐变 / 色条 / 确定性噪声 / 径向亮场 / 圆 alpha 切边 / 浮点高光斑），
   零第三方素材；`benchmarks/COPYRIGHT.md` 出具逐项自查表与新增样本四条准入规则。
+  **扩容（2026-11-27）**：golden 20 → **24**（g21 灰度 P5 / g22 TGA 32-bit / g23 WebP lossy 奇数 33×33 / g24 QOI 四通道）、
+  malformed 6 → **8**（m7 WebP RIFF 声明越界 / m8 TIFF IFD 越界），体积 1.21 MB → **1.45 MB**（上限 1.56 MB，余量 11.3%）。
   校验器 `scripts/check_benchmarks.mjs`（`--update` 封签 / 默认校验）判定六条契约：条数、命名+尺寸、体积上限、
   sha256 一致、magic 嗅探与 `imgtool` 报告一致、行为（golden 必须 `ok:true`；malformed 必须 `exit≠0 + ok:false`、
-  5 秒内、无 `PanicError`）。负向实测：golden 追加 1 字节 → `sha256 漂移`；删一个恶意样本 → `count/malformed 5 ≠ 6`。
+  5 秒内、无 `PanicError`）。负向实测：golden 追加 1 字节 → `sha256 漂移`；删一个恶意样本 → `count/malformed 7 ≠ 8`。
   **基准集直接暴露并已修的三处缺陷**：① `imgtool` 自带 `format_name` 缺 `Hdr`/`Psd` 分支（HDR/PSD 一律报 `unknown`），
   并把默认臂改为 `ImageFormat::..` 防止漏分支静默；② `@lib.detect_format` 按「TGA 无魔数」直接返回 Unknown，
   改为末位接 `@codec.is_tga_format`（扩展覆盖 1/2/3/9/10/11 类型 + 8/15/16/24/32 bpp + 宽高非零 + 调色板头一致性），
@@ -386,9 +388,9 @@
 | S15 ✅ | 动画闭环（GIF/APNG 解码；APNG 编码） | 统一入口，帧数与延迟可往返 |
 | S16 ✅ | 场景包收敛为 4（`doc/media/commerce` + `pro`，photo 由既有 `image.photography` 承担） | 新增 4 个场景模块，**模块数 7→11（不是 15）**，发布链 11 环；`docs/scenes.json` + `gen_scenes.mjs` 生成 4 个入口包（doc 504 / media 313 / commerce 257 / pro 1,462 符号），B11 门禁防漂移；**版本列车补齐**：4 个场景 `moon.mod` 的 version 与依赖钉已并入 `check_version` / `bump_version`（GAP-49） |
 | S17 ✅ | Dart / JS 绑定（经 wasm/导出，不另起实现） | **两条通道、同一份实现**：JS 走 `--target wasm` 线性内存（`npm/index.mjs`，自测 15/15）；Dart 因「native 不产出静态/动态库」+「Dart VM 无 wasm 运行时（`package:wasm` 已废弃）」改以 `imgtool` 进程为 ABI（`bindings/dart/`，自测 10/10：含两条错误路径与 `convertMeta` / `resizeMeta` 回执）；JS 侧 `info().channels` 由假值 `0` 改为 `null`（header-only 拿不到通道数），CLI `resize` 回执补 `channels`；Dart 侧 `decode→resize→encode` 跑通，见 `docs/bindings.md`；**版本收口**：`npm/package.json` 与 `bindings/dart/pubspec.yaml` 已并入版本门禁（第 20、21 项，GAP-49） |
-| S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.08%（见 `docs/known-gaps.md`） |
+| S18 ✅ | 覆盖率 90% + 变异测试 12 点 | 变异得分 91.7%（≥70%，见 `docs/mutation.md`）；覆盖率 90.05%（见 `docs/known-gaps.md`） |
 | S19 ✅ | 文档真值脚本化（能力表由 `.mbti` + 枚举生成） | 手写格式表已由 `docs/capabilities.md` + README AUTO 区块取代，B10 门禁拦截漂移 |
-| S20 ✅ | 公开基准集（golden 20 张 + 6 类恶意样本） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材 |
+| S20 ✅ | 公开基准集（golden 24 张 + 8 类恶意样本，2026-11-27 扩容） | `check_benchmarks` 六条契约全绿；样本 sha256 封签、零第三方素材；扩容补 P5 灰度 / TGA 32-bit / WebP lossy 奇数 / QOI 四通道与原容器畸形回归 |
 | S21 ✅ | 0.1.23 收口 + 迁移指南 + 弃用策略 | `docs/migration.md` 给出**3 处改动**（模块名/import 路径/7 条弃用替换），迁移前后 15 行对照可逐条核对；`docs/deprecation.md` 定义标注规则 + 保留窗口 + 7 条清单，**B12**（`check_deprecations`）做代码 ⇄ 表双向比对；收口核对清单见 `docs/release.md` §九（11 环顺序 + 15 项门禁，一条 `check_release_ready.mjs` 跑完）；同轮补齐 CI/CD 与 Pages 治理：`docs/ci-cd.md`、`pages.yml`、`sync_pages` + `docs/coverage.json` 单一真值、`check_links`（B13） |
 | S22 ✅ | 缺陷清零（0.1.24）：只在真实数据/非 Windows 下暴露的静默错 → 修复 + 回归 | 5 类缺陷逐条闭环（台账 GAP-42…46）：**TGA** 描述符 bit4/bit5 混用（标准 top-down 文件被上下翻转、本库产物水平镜像）+ 4 通道丢 alpha；**TIFF** 像素长度不足直接越界崩溃（`0xC0000409`）；**超像素** `num = 0` 除零、`num > total` 步长 0 死循环、`labels` 留 -1 空洞；**Code128 Stop** 用 6 段伪模式冒充（生成物标准扫码器不可读）；**GLCM 熵** 占位公式恒负。新增 9 条回归（`s22_*` 6 条 + 超像素边界 1 条 + 码表形状/模块数 2 条），native 7,404 全绿（+9） |
 

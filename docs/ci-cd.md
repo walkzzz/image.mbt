@@ -54,10 +54,10 @@ Pages 单独拿 `pages: write` / `id-token: write`，`concurrency: pages` 且不
 `docs/coverage.json`（`coverage@1`）存 `covered / total / percent / threshold`，三处读它：
 
 1. CI `coverage` 作业的门槛（当前 `--min 90`）；
-2. README 徽章 `coverage-90.07%25`（B3/B6 一并校验）；
+2. README 徽章 `coverage-90.05%25`（B3/B6 一并校验）；
 3. Pages 首页的"覆盖率口径"行（`sync_pages.mjs` 写入）。
 
-当前：**38,124 / 42,329 = 90.07%**，分母不排除任何文件（`pub using` 声明行即 0/0，`benchmarks/gen/main.mbt` 0/21 照算）。
+当前：**38,178 / 42,396 = 90.05%**，分母不排除任何文件（`pub using` 声明行即 0/0，`benchmarks/gen/main.mbt` 0/21 照算）。
 
 ## 4. GitHub Pages
 

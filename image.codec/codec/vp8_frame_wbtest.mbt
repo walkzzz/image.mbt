@@ -227,15 +227,13 @@ test "vp8b: 帧解码错误路径与最小关键帧" {
     @types.DecodeFailed(_) => assert_true(true)
     _ => assert_true(false)
   }
-  // 奇数宽 → 明确错误而非 panic
-  let odd = vp8b_bytes([0, 0, 0, 0x9D, 0x01, 0x2A, 15, 0, 16, 0])
-  try {
-    let _ = decode_vp8_frame(odd, 0)
-    assert_true(false)
-  } catch {
-    @types.DecodeFailed(_) => assert_true(true)
-    _ => assert_true(false)
-  }
+  // 奇数宽高：色度平面按 ceil(w/2)×ceil(h/2)，应解出而不是报错（GAP-17）
+  let odd = vp8b_bytes([0, 0, 0, 0x9D, 0x01, 0x2A, 15, 0, 13, 0])
+  let odd_img = decode_vp8_frame(odd, 0)
+  assert_eq(odd_img.width, 15)
+  assert_eq(odd_img.height, 13)
+  assert_eq(odd_img.channels, 3)
+  assert_true(odd_img.data.length() == 15 * 13 * 3)
   // 16x16 全零位流：能解出图像（量化 0 → 基准灰）
   let tiny = vp8b_bytes([0, 0, 0, 0x9D, 0x01, 0x2A, 16, 0, 16, 0])
   let img = decode_vp8_frame(tiny, 0)

@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-27）：版本 0.1.24 · 7,406 测试 × 4 目标 · 82 包 · 覆盖率 90.08% · prove 8 goals。
+> 当前口径（2026-11-27）：版本 0.1.24 · 7,407 测试 × 4 目标 · 82 包 · 覆盖率 90.05% · prove 8 goals。
 
 ## 功能边界
 
@@ -20,13 +20,13 @@
 | 编号 | 描述 | 现状 | 计划 |
 |------|------|------|------|
 | GAP-8 | ~~白盒测试仅 1 个~~ **已补强（2026-11-20）** | 392 黑盒 + 6 白盒（mp4 / png_decode / zlib / fft / webp_vp8_decode / ean13_gen） | 后续可为 resize / 滤波 / 分割核心算法继续补白盒 |
-| GAP-9 | ~~覆盖率 82.3%~~ **已闭环（2026-11-27）** | **38,124/42,329 = 90.07%**（S18 专项后实测，分母不排除任何文件） | 真值在 `docs/coverage.json`（`coverage@1`），CI 与本地统一 `--min 90`；页面、README、known-gaps 三处由 B3/B6 + `sync_pages --check` 联动 |
+| GAP-9 | ~~覆盖率 82.3%~~ **已闭环（2026-11-27）** | **38,178/42,396 = 90.05%**（S18 专项后实测，S20/GAP-17 轮复测，分母不排除任何文件） | 真值在 `docs/coverage.json`（`coverage@1`），CI 与本地统一 `--min 90`；页面、README、known-gaps 三处由 B3/B6 + `sync_pages --check` 联动 |
 | GAP-10 | Windows 本地 `moon prove` 触发工具链 `\\?\` mkdir bug | `Unix.EINVAL` | 统一走 WSL / CI `prove` job |
 | GAP-11 | ~~无 OS 矩阵~~ **受上游限制（2026-11-20 实测）** | 官方安装脚本仅支持 Linux x86_64/aarch64 与 macOS arm64；Windows 二进制 URL 实测返回 403 | 暂不纳入 CI；如官方提供 Windows/macOS 包再补 job |
 | GAP-12 | ~~API 参考过时~~ **已闭环（2026-11-20）** | `docs/api_reference.md` 仍为历史快照（1,339 fn / 50 包） | ✅ 新增 `docs/api_index.md`（`scripts/gen_api_index.mjs` 从 73 包 `.mbti` 自动生成：3,748 fn / 710 类型；CI `--check` 防漂移）；旧参考页已标注"历史快照，以 api_index 与 `.mbti` 为准" |
 | GAP-13 | ~~示例集缺失~~ **已闭环（2026-11-20）** | `examples/` 7 个可运行示例 | ✅ `raw_to_png` / `resize_demo` / `threshold_otsu` / `format_detect` / `lossless_roundtrip` / `canny_edges` / `gaussian_blur`，内嵌合成数据、零外部依赖 |
 | GAP-14 | ~~无 tag / Release~~ **已闭环（2026-11-20）** | tag `v0.1.1` + GitHub Release 已创建；`scripts/publish.sh` 按依赖序发布（上传由维护者执行） | ✅ 版本门禁 `scripts/check_version.mjs`（12 项一致）；mooncakes 0.1.1 上传仍待维护者执行 |
-| GAP-17 | VP8 解码要求偶数宽高（YUV420 色度平面对齐）；奇数尺寸返回明确 `DecodeFailed` | 编码器已支持奇数（UV ceil）；解码器正确 ceil 平面支持列入后续 | 已消除 panic；文档注明限制 |
+| GAP-17 | ~~VP8 解码要求偶数宽高（YUV420 色度平面对齐）~~ **已闭环（2026-11-27）** | 旧实现色度平面按 `w/2 × h/2` 向下取整，奇数尺寸必越界，故加偶数守卫抛 `DecodeFailed`——比编码器（UV 已 ceil）窄一档 | ✅ 关键帧与 inter 两条路径 UV 平面改 `ceil(w/2) × ceil(h/2)`（平面分配、YUV→RGB、帧内/inter UV 预测、参考帧 `uv_size` 与拷贝、环路滤波边界共 13 处），两处守卫删除；`vp8_frame_wbtest` 15×13 奇数用例断言解出 |
 | GAP-29 | `imgtool` CLI / MCP 依赖 native 文件系统（`moonbitlang/x/fs`），`-` 管道另依赖 `imgcli/stdio_stub.c` | 库包四目标仍可编译，wasm/js 下同签名返回 `decode/unsupported_format` | 浏览器侧出口列 S12；`docs/mcp.md` 与 CLI `help` 已写明 |
 | GAP-30 | MCP 层无路径沙箱，读哪由进程用户权限决定 | 接不可信输入存在越权读文件可能 | 用容器/受限账号运行，并同时给 `--mem-budget` |
 | GAP-31 | `max_ms` 仍无强制中断（S04 遗留） | 纯同步解码循环无法中途 kill | 需要可让出/可取消的解码循环，未排期 |
@@ -69,10 +69,11 @@
 | GAP-50 | **Dart 绑定的两条错误路径被自己吃掉（S17）** | ① `_call` 里 `(res.stderr as String).trim().split('\n').first` 在 stderr 整段为空时会抛 `StateError`，真实 `code` 被掩盖成无意义异常；② `_ext` 表列了 tiff/hdr/avif/heif/ico/icns/psd 七个只读格式，`convert(format: 'tiff')` 会先 spawn 一次进程再吃 `encode/unsupported_format` | ✅ `_ext` 收窄到 CLI `is_writable` 的 8 个（png/jpeg/bmp/gif/webp/qoi/ppm/tga），只读格式在 Dart 侧直接抛 `process/invalid_argument`；stderr 为空时改用「退出码 N，无 stderr」文案；自测 6 → 8 项（补「不可写格式本地拒绝」「imgtool 缺失抛 `process/spawn_failed`」） |
 | GAP-51 | **wasm ABI 的输入指针没有保活（S17 边界）** | `abi_alloc` 用 `Bytes::make(n, 0)` 分配，返回 i32 指针让 JS 直接写；此时 MoonBit 侧已无引用，安全依赖「JS 写完立刻调用」这段同步时序——`abi_convert` / `abi_resize` 内部第一次分配发生在输入已复制之后，所以当前写法安全。若将来把调用改成异步、或一次 staging 多次调用，指针可能在 GC 后被复用 | 已如实记录，未加 pin 机制；真要做多步往返时需补一张保活表（把指针与输入长度登记到 wasm 侧全局，`abi_*` 结束时清空） |
 | GAP-52 | **两条绑定通道的元信息面不对称（S17）** | ① JS `info().channels` 恒为 `0`：`abi_info` 只读头部、不解码，wasm 侧把 channels 写死 0，调用方会把 0 当「单通道灰度图」；② Dart 的 `resize` / `convert` 直接吞掉 CLI 回执里的 `width`/`height`/`format`，拿不到输出元信息；③ CLI `resize` 回执本身不回 `channels`（`convert` 有）；④ `docs/bindings.md` 的 JS 示例签名写成 `convertMeta(bytes, 'png')` / `resize(bytes, 64, 64, 'cover')`，与实现的 options 对象不符 | ✅ JS `info` 的 `channels` 改 `null`（显式未知）并加测试；CLI `resize` 回执补 `channels`；Dart 新增 `ImageMeta` + `convertMeta` / `resizeMeta`（复用同一次进程的 JSON，不多起进程），`convert` / `resize` 委托给它们；示例修正为 options 写法；Dart 自测 8 → 10 项、JS 自测 15 → 16 项 |
+| GAP-53 | **基准集封签只对磁盘敏感，不对生成器敏感** | `check_benchmarks.mjs` 校验的是「磁盘文件 ↔ manifest」的 sha256 一致，不校验「磁盘文件 ↔ 当前生成器的产出」。后果实测：GAP-42 修好 TGA 描述符（`0x30` → `0x20`）后没有重生成 `g11`，样本仍是旧字节、manifest 照旧封签——六条契约全绿，但样本已不代表当前编码器输出；本轮扩容重生成时才暴露出这 1 字节差 | ✅ 本轮重生成 `g11` 并重封签；口径写进 `docs/benchmarks.md` §6：**改任何 `encode_*` 的提交必须附带 `moon run benchmarks/gen` + `check_benchmarks --update`**。机器拦需给校验器加「重生成比对」模式（生成到临时目录逐字节比，CI +30s），暂不排期 |
 
 ## 测试口径
 
-- **7,406 为 native 实测**（2026-11-27，含 S22 新增 9 条与 S23 新增 2 条 QR 回归）；四目标由 CI `test` job 矩阵实测。
+- **7,407 为 native 实测**（2026-11-27，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 

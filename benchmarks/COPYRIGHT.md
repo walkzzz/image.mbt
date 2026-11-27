@@ -1,6 +1,6 @@
 # 基准样本版权自查清单
 
-> 适用目录：`benchmarks/golden/`（20 张 golden）与 `benchmarks/malformed/`（6 个畸形样本）。
+> 适用目录：`benchmarks/golden/`（24 张 golden）与 `benchmarks/malformed/`（8 个畸形样本）。
 > 结论：**全部样本由本仓自有代码在运行时合成，不含任何第三方素材，可随 MIT 许可自由分发。**
 
 ## 一、来源声明

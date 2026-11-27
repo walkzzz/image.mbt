@@ -12,7 +12,7 @@ You can browse and install extra skills here:
 | 属性 | 值 |
 |------|-----|
 | 版本 | 0.1.1（包重命名重构版：walkzzz/image → walkzzz/image.mbt，六子模块统一 image.* 前缀） |
-| 测试 | 7406 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
+| 测试 | 7407 (native) × 4 目标，`moon check --deny-warn --target all` 零警告 |
 | 架构 | 6 子模块工作空间 (image.core/image.codec/image.process/image.photography/image.vision/image.domain)，子模块独立发布（各 0.1.0，按依赖顺序 core → codec → process → photography/vision → domain） |
 | 格式 | 18 种编解码 (PNG/JPEG/BMP/GIF/QOI/TGA/PSD/HDR/PNM/TIFF/ICO/CUR/ICNS/APNG/WebP/AVIF/HEIF/JPEG-XL) |
 | 形式化验证 | core/safe_math `moon prove` **8 goals proved**（safe_mul_ok/clamp_pixel_ok/dims_valid_pred/int_max_ok/int_min_ok/valid_index/valid_2d_index/rotate90_identity）；另有 8 条谓词预留（SMT 超时与前端限制，见 safe_math.mbtp 注释） |
@@ -79,7 +79,7 @@ src/  (已迁移为根目录 6 子模块工作空间；0.1.0 起子模块目录�
 - 两个工作流：`.github/workflows/ci.yml`（8 个作业：`quality` / `test×4` / `bench` / `coverage` / `mutation` / `prove` / `bindings`）与 `pages.yml`（`build` → `deploy`）。口径与门禁清单的唯一说明在 **`docs/ci-cd.md`**，改工作流必须同步改它。
 - 最小权限 + 并发：CI 顶层 `permissions: contents: read`、`concurrency: ci-${ref}` 且 `cancel-in-progress`；Pages 单独要 `pages: write` / `id-token: write`，`concurrency: pages` 不取消。
 - `quality` 里除 `moon fmt/check/info` 外还跑：`check_docs`（B1–B14）、`gen_api_index|gen_capabilities|gen_scenes --check`、`check_version`、`check_pkg_imports`、`sync_pages --check`、`check_pages`、`check_benchmarks`。新增门禁 = 加脚本 + 进 `check_docs` 或 `check_release_ready` + 进 CI，三步缺一步等于没有门禁。
-- 覆盖率门槛**只认 `docs/coverage.json`**（`coverage@1`：38,124 / 42,329 = 90.07%，threshold 90）。改数字先改这个文件，再 `node scripts/sync_pages.mjs`，不要直接编辑 `docs/index.html`。
+- 覆盖率门槛**只认 `docs/coverage.json`**（`coverage@1`：38,178 / 42,396 = 90.05%，threshold 90）。改数字先改这个文件，再 `node scripts/sync_pages.mjs`，不要直接编辑 `docs/index.html`。
 - Pages 发布 = `docs/` 整个目录（artifact 部署，URL `https://walkzzz.github.io/image.mbt/`）；`playground.js` 由 `check_pages` 现编拷贝，**不手改**。`configure-pages@v5` 带 `enablement: true`，首次运行自动开启 Pages。
 - 发布前本地等价一条命令：`node scripts/check_release_ready.mjs`（`--skip-slow` 跳过 `moon check/test/pages`）。它失败即不许 `moon publish`。
 - 仓库卫生：根目录产物（`o.png` / `_build_cli_*` / `bisect.coverage`）不入库，`.gitignore` 与 `.moonignore` 双写——前者防误提交，后者防进发布包。

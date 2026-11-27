@@ -188,6 +188,39 @@ fn golden_samples(errs : Array[String]) -> Array[(String, Bytes)] {
     }
   }
   add(out, gname("g20", "qoi", 160, 120, "qoi"), qoi, errs)
+  // 21-24 扩容量（S20）：补 8-bit 之外的三条解码路径
+  // 21 PNM 灰度 P5（现有 g06 只覆盖 P6 彩色）
+  add(
+    out,
+    gname("g21", "pgm_gray", 192, 144, "pgm"),
+    @lib.encode_pgm_auto(gray_grad(192, 144)),
+    errs,
+  )
+  // 22 TGA 32-bit BGRA + 描述符 0x28（现有 g11 只覆盖 24-bit）
+  add(
+    out,
+    gname("g22", "tga32_alpha", 160, 120, "tga"),
+    @lib.encode_tga(rgba_alpha(160, 120)),
+    errs,
+  )
+  // 23 WebP lossy 奇数宽高（33×33）——解码侧 UV ceil 的端到端样本（GAP-17）
+  // 位流由本仓 encode_webp_lossy_full(rgb_grad(33, 33), quality=75) 于 2026-11-27 产出后固化：
+  // 该 API 已标 #deprecated（VP8 lossy 结构性问题见 GAP-27），跨包调用过不了 --deny-warn，
+  // 故以 hex 常量保留样本；sha256 / 字节数仍由 benchmarks/manifest.json 封签。
+  add(
+    out,
+    gname("g23", "webp_lossy_odd", 33, 33, "webp"),
+    webp_lossy_odd_bytes(),
+    errs,
+  )
+  // 24 QOI 四通道（现有 g20 只覆盖 RGB 三通道）
+  let qoi_rgba : Bytes = @lib.encode_qoi(rgba_alpha(192, 144)) catch {
+    _ => {
+      errs.push("g24 qoi rgba 编码失败")
+      Bytes::from_array([])
+    }
+  }
+  add(out, gname("g24", "qoi_rgba", 192, 144, "qoi"), qoi_rgba, errs)
   out
 }
 
@@ -213,6 +246,8 @@ fn malformed_samples(errs : Array[String]) -> Array[(String, Bytes)] {
   add(out, "m4_apng_frame_bomb.png", apng_frame_bomb(base_png), errs)
   add(out, "m5_bmp_bad_enum.bmp", bmp_bad_enum(), errs)
   add(out, "m6_jpeg_app_bloat.jpg", jpeg_app_bloat(), errs)
+  add(out, "m7_webp_riff_truncated.webp", webp_riff_truncated(), errs)
+  add(out, "m8_tiff_ifd_oob.tiff", tiff_ifd_oob(), errs)
   out
 }
 
@@ -350,4 +385,79 @@ fn jpeg_app_bloat() -> Bytes {
     out.push((65 + i % 26).to_byte())
   }
   Bytes::from_array(out)
+}
+
+///|
+/// RIFF 头声明 0x7FFFFFF0 字节 + VP8L chunk 声明 0x7FFFFF 长度，实际只跟 4 字节
+/// —— 容器层声明与实体严重不符，期望解码器按越界拒绝。
+fn webp_riff_truncated() -> Bytes {
+  let out : Array[Byte] = [b'R', b'I', b'F', b'F']
+  push_u32(out, 0x7FFFFFF0)
+  push_ascii(out, "WEBP")
+  push_ascii(out, "VP8L")
+  push_u32(out, 0x7FFFFF)
+  for _i in 0..<4 {
+    out.push(0)
+  }
+  Bytes::from_array(out)
+}
+
+///|
+/// TIFF 头（II + 42）后把首个 IFD 偏移写成 0x7FFFFFF0，其后只有 8 字节残留
+/// —— IFD 落在文件之外，期望解码器按越界拒绝而不是读穿数组。
+fn tiff_ifd_oob() -> Bytes {
+  let out : Array[Byte] = [b'I', b'I', b'\x2A', b'\x00']
+  push_u32(out, 0x7FFFFFF0)
+  for _i in 0..<8 {
+    out.push(0)
+  }
+  Bytes::from_array(out)
+}
+
+///|
+/// g23 的 VP8 lossy 位流（756 B，33×33 渐变），源自本仓编码器 2026-11-27 的产出。
+fn webp_lossy_odd_bytes() -> Bytes {
+  let hex = "52494646ec0200005745425056503820df020000b05a009d012a21002100000000000101000101000101000001000100" +
+    "000001000100010101000000010100000001000101000001000001000101000101000101010001000100000001010100" +
+    "000001010100010000010100000000000100000001010000000001000000000000010001000000000100000000010000" +
+    "000100010000010000000001000100010001000100010000010001000100000000010101010101010001010000010101" +
+    "000000000001010100010100010100000100010001010101010001010100010001010101010001010100000000010100" +
+    "010100000001010101010000010101000001000101010001010000000101000101010101010000000001010101010100" +
+    "000101010001000101010001010000010101000100000001000101010001010001000100000001000000010101000001" +
+    "010101000001010100000000010101000101010000000100010101010101000000000101010101010101010001010100" +
+    "010001000101010100000101000000000100000101000100010101010000010001010101000101000101000101010101" +
+    "010100010000000101010000000000000000000001000001010001000100010100000001000101010001000001000101" +
+    "010100010001000100010000010101000001010001000101000000000100010001010101000000010000000000000000" +
+    "010001000101000001010101010100010001000101000100010101010100000000010100000000000000010101010000" +
+    "010101000100010100000100000100010001010101000100010000000100010000010101010101000000000101010101" +
+    "010000010001000101010000000001000000010001000000010001000100000101000000000100000000000100010100" +
+    "010100000001000101010100010101010000010001000000010100000001010001000101000000010100010100000101" +
+    "010101010101010001010101010101010101000101010101010101010100000000000000"
+  hex_to_bytes(hex)
+}
+
+///|
+/// 十六进制字符串 → 字节数组（按 2 字符一个字节）。
+fn hex_to_bytes(hex : String) -> Bytes {
+  let chars = hex.to_array()
+  let count = chars.length() / 2
+  let data : Array[Byte] = Array::make(count, b'\x00')
+  for i in 0..<count {
+    let hi = hex_value(chars[i * 2])
+    let lo = hex_value(chars[i * 2 + 1])
+    data[i] = ((hi << 4) | lo).to_byte()
+  }
+  Bytes::from_array(data)
+}
+
+///|
+/// 单个十六进制字符 → 数值（非法字符按 0 处理，样本内不会出现）。
+fn hex_value(c : Char) -> Int32 {
+  if c >= '0' && c <= '9' {
+    c.to_int() - '0'.to_int()
+  } else if c >= 'a' && c <= 'f' {
+    c.to_int() - 'a'.to_int() + 10
+  } else {
+    0
+  }
 }

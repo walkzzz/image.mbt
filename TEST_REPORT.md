@@ -32,7 +32,7 @@
 |------|------|------|---------|
 | WebP VP8 编码奇数宽高 UV 平面越界（1x1/3x3 `PanicError`） | `image.codec/codec/webp_vp8_encode.mbt` | UV 平面按 `ceil(w/2)×ceil(h/2)` 分配，索引步长一致 | `webp_vp8_encode_test.mbt`（1x1 / 3x3 / 1 通道拒绝） |
 | WebP VP8 解码帧头解析错误（合法关键帧被判为非关键帧，编解码不互操作） | `image.codec/codec/webp_vp8_decode.mbt` | 按 RFC 6386 读 3 字节小端 tag（bit0=关键帧、bit5-23=first_part_size），分辨率按 2 字节小端解析 | `webp_vp8_decode_roundtrip_test.mbt`（16x16 / 8x8 / 32x32 / RGBA 自编码往返） |
-| WebP VP8 解码奇数宽高崩溃（色度平面按 floor 分配） | `image.codec/codec/webp_vp8_decode.mbt` | 解码器对奇数宽高返回明确 `DecodeFailed`（正确 ceil 平面支持列入后续） | 同上（1x1 / 3x3 期望明确错误） |
+| WebP VP8 解码奇数宽高崩溃（色度平面按 floor 分配） | `image.codec/codec/webp_vp8_decode.mbt` | 先后改为返回明确 `DecodeFailed`；2026-11-27 升为完整 ceil 支持（关键帧 + inter 两路径、13 处尺寸/索引、参考帧 `uv_size`、环路滤波 UV 边界），偶数守卫删除 | `vp8_frame_wbtest.mbt`（15×13 奇数断言解出宽高与字节数） |
 | QR finder 垂直验证从中心行开始扫描（检测恒为 0） | `image.codec/barcode/barcode_decode.mbt` | 从图案顶部（中心行 − 3×模块）开始扫描 5 段 | `testgen_driven_test.mbt`（QR 往返 hello） |
 | QR finder 重复计数、x/y 语义不一致 | `image.codec/barcode/barcode_decode.mbt` | 统一返回图案左上角坐标，并按 x/y 邻域去重 | 同上 |
 | QR 版本估算公式偏移（V 恒偏大 1） | `image.codec/barcode/qr_decode.mbt` | 改为 `V = (中心距 − 10) / 4`（finder 中心距 14+4(V−1)） | 同上 |

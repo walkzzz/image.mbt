@@ -1494,8 +1494,8 @@ fn vp8_loop_filter_mb(
   }
 
   // === 色度平面滤波（U 和 V，8x8 块） ===
-  let uv_width = width / 2
-  let uv_height = height / 2
+  let uv_width = (width + 1) / 2
+  let uv_height = (height + 1) / 2
   let uv_mb_px = mb_x * 8
   let uv_mb_py = mb_y * 8
 
@@ -1605,7 +1605,7 @@ pub struct Vp8ReferenceFrames {
 ///|
 fn Vp8ReferenceFrames::new(width : Int32, height : Int32) -> Vp8ReferenceFrames {
   let y_size = width * height
-  let uv_size = width / 2 * (height / 2)
+  let uv_size = (width + 1) / 2 * ((height + 1) / 2)
   Vp8ReferenceFrames::{
     last_y: Array::make(y_size, 128),
     last_u: Array::make(uv_size, 128),
@@ -1630,7 +1630,7 @@ fn Vp8ReferenceFrames::update(
   v_plane : Array[Int32],
 ) -> Unit {
   let y_size = self.width * self.height
-  let uv_size = self.width / 2 * (self.height / 2)
+  let uv_size = (self.width + 1) / 2 * ((self.height + 1) / 2)
   for i in 0..<y_size {
     self.last_y[i] = y_plane[i]
   }
@@ -1674,8 +1674,8 @@ fn _vp8_motion_compensate_16x16(
   }
 
   // U/V 平面运动补偿（8x8，运动向量减半）
-  let uv_width = width / 2
-  let uv_height = height / 2
+  let uv_width = (width + 1) / 2
+  let uv_height = (height + 1) / 2
   let uv_ref_x = (ref_x + 1) / 2
   let uv_ref_y = (ref_y_pos + 1) / 2
   for y in 0..<8 {
@@ -1881,8 +1881,8 @@ fn vp8_motion_compensate_16x4_subpixel(
   }
 
   // U/V 平面：8x8，运动向量减半（1/4 像素 → 1/2 像素）
-  let uv_width = width / 2
-  let uv_height = height / 2
+  let uv_width = (width + 1) / 2
+  let uv_height = (height + 1) / 2
   let uv_mv_x_q4 = mv_x_q4 / 2
   let uv_mv_y_q4 = mv_y_q4 / 2
   for y in 0..<8 {
@@ -2085,13 +2085,8 @@ pub fn decode_vp8_frame(
   let w = header.width
   let h = header.height
 
-  // 当前实现按 w/2×(h/2) 分配色度平面，奇数宽高会越界 panic（native trap）。
-  // 在正确支持 ceil 色度平面之前，先返回明确错误而不是崩溃。
-  if w % 2 != 0 || h % 2 != 0 {
-    raise @types.LoadError::DecodeFailed(
-      "VP8 解码当前要求偶数宽高（YUV420 色度平面对齐）: \{w}x\{h}",
-    )
-  }
+  // YUV420 色度平面按 ceil(w/2) × ceil(h/2) 分配：奇数宽高时最后一列/行只由边缘像素使用，
+  // 与编码器的 UV ceil 写法对齐（`webp_vp8_encode.mbt`）。
 
   // 解析量化参数
   let quant = parse_quantization(br)
@@ -2106,8 +2101,10 @@ pub fn decode_vp8_frame(
   let base_u = 128 - quant.uv_ac / 4
   let base_v = 128 - quant.uv_dc / 4
   let y_plane : Array[Int32] = Array::make(w * h, base_y)
-  let u_plane : Array[Int32] = Array::make(w / 2 * (h / 2), base_u)
-  let v_plane : Array[Int32] = Array::make(w / 2 * (h / 2), base_v)
+  let uv_w = (w + 1) / 2
+  let uv_h = (h + 1) / 2
+  let u_plane : Array[Int32] = Array::make(uv_w * uv_h, base_u)
+  let v_plane : Array[Int32] = Array::make(uv_w * uv_h, base_v)
 
   // 帧内预测 + 残差系数解析 + IDCT 反变换
   // 创建布尔解码器用于残差系数解析和预测模式解析
@@ -2205,8 +2202,8 @@ pub fn decode_vp8_frame(
   for y in 0..<h {
     for x in 0..<w {
       let y_val = y_plane[y * w + x]
-      let u_val = u_plane[y / 2 * (w / 2) + x / 2]
-      let v_val = v_plane[y / 2 * (w / 2) + x / 2]
+      let u_val = u_plane[y / 2 * uv_w + x / 2]
+      let v_val = v_plane[y / 2 * uv_w + x / 2]
 
       // YUV 转 RGB（简化）
       let c = y_val - 16
@@ -2270,7 +2267,7 @@ pub fn decode_vp8_inter_frame(
     let w = img.width
     let h = img.height
     let y_size = w * h
-    let uv_size = w / 2 * (h / 2)
+    let uv_size = (w + 1) / 2 * ((h + 1) / 2)
     let new_refs = Vp8ReferenceFrames::new(w, h)
     // 从 RGB 转换回 YUV（简化：使用亮度作为 Y，UV 固定为 128）
     for i in 0..<y_size {
@@ -2304,18 +2301,16 @@ pub fn decode_vp8_inter_frame(
   if w == 0 || h == 0 {
     raise @types.LoadError::DecodeFailed("VP8 帧尺寸无效")
   }
-  if w % 2 != 0 || h % 2 != 0 {
-    raise @types.LoadError::DecodeFailed(
-      "VP8 inter 解码当前要求偶数宽高（YUV420 色度平面对齐）: \{w}x\{h}",
-    )
-  }
+  // 色度平面同样按 ceil(w/2) × ceil(h/2)，与关键帧路径同一口径（GAP-17）
 
   // 解析量化参数
   let quant = parse_quantization(br)
 
   let y_plane : Array[Int32] = Array::make(w * h, 128)
-  let u_plane : Array[Int32] = Array::make(w / 2 * (h / 2), 128)
-  let v_plane : Array[Int32] = Array::make(w / 2 * (h / 2), 128)
+  let uv_w = (w + 1) / 2
+  let uv_h = (h + 1) / 2
+  let u_plane : Array[Int32] = Array::make(uv_w * uv_h, 128)
+  let v_plane : Array[Int32] = Array::make(uv_w * uv_h, 128)
 
   // 创建布尔解码器
   let bd = Vp8BoolDecoder::new(data, offset + 10)
@@ -2461,9 +2456,9 @@ pub fn decode_vp8_inter_frame(
           for x in 0..<8 {
             let px = mb_x * 8 + x
             let py = mb_y * 8 + y
-            if px < w / 2 && py < h / 2 {
-              u_plane[py * (w / 2) + px] = pred_u[y * 8 + x]
-              v_plane[py * (w / 2) + px] = pred_v[y * 8 + x]
+            if px < uv_w && py < uv_h {
+              u_plane[py * uv_w + px] = pred_u[y * 8 + x]
+              v_plane[py * uv_w + px] = pred_v[y * 8 + x]
             }
           }
         }
@@ -2492,8 +2487,8 @@ pub fn decode_vp8_inter_frame(
   for y in 0..<h {
     for x in 0..<w {
       let y_val = y_plane[y * w + x]
-      let u_val = u_plane[y / 2 * (w / 2) + x / 2]
-      let v_val = v_plane[y / 2 * (w / 2) + x / 2]
+      let u_val = u_plane[y / 2 * uv_w + x / 2]
+      let v_val = v_plane[y / 2 * uv_w + x / 2]
 
       let c = y_val - 16
       let d = u_val - 128

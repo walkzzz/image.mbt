@@ -1,6 +1,6 @@
 # 公开基准集（S20）
 
-> 目录：`benchmarks/golden/`（20 张）+ `benchmarks/malformed/`（6 个）+ `benchmarks/manifest.json`（封签）。
+> 目录：`benchmarks/golden/`（24 张）+ `benchmarks/malformed/`（8 个）+ `benchmarks/manifest.json`（封签）。
 > 版本口径：0.1.20 起生效。样本全部由本仓代码合成，见 [`benchmarks/COPYRIGHT.md`](../benchmarks/COPYRIGHT.md)。
 
 ## 1. 为什么要有这一套
@@ -8,10 +8,10 @@
 库有能力表（S19 的真值表）还不够——**「能不能读」需要可复现的证据**。这套基准集解决三件事：
 
 1. **格式覆盖有实物**：13 种可编码格式各至少一张样本，第三方拿到仓库即可复跑，不依赖任何外部下载；
-2. **畸形输入有回归**：6 类结构性无效字节，任何一次解码器改动都必须保持「返回 JSON 错误、不 panic、不超时」；
-3. **样本可分发**：零第三方素材、体积 1.2 MB 量级、sha256 封签，可随包发布而不引入版权风险。
+2. **畸形输入有回归**：8 类结构性无效字节，任何一次解码器改动都必须保持「返回 JSON 错误、不 panic、不超时」；
+3. **样本可分发**：零第三方素材、体积 1.4 MB 量级、sha256 封签，可随包发布而不引入版权风险。
 
-## 2. 样本清单（golden，20 张）
+## 2. 样本清单（golden，24 张）
 
 | 编号 | 文件 | 格式 | 尺寸 | 覆盖点 |
 |---|---|---|---|---|
@@ -20,12 +20,12 @@
 | g03 | `g03_png_rgba_alpha_512x512.png` | PNG | 512×512 | RGBA + alpha 斜坡 |
 | g04 | `g04_png_color_bars_800x450.png` | PNG | 800×450 | 8 色锐边 + 亮度阶梯 |
 | g05 | `g05_png_noise_256x256.png` | PNG | 256×256 | 确定性噪声，最坏压缩率 |
-| g06 | `g06_ppm_rgb_192x144.ppm` | PNM | 192×144 | ASCII 头 + 二进制体 |
+| g06 | `g06_ppm_rgb_256x256.ppm` | PNM | 256×256 | ASCII 头 + 二进制体（P6） |
 | g07 | `g07_jpeg_photo_1280x720.jpg` | JPEG | 1280×720 | 照片近似（径向亮场 + 区块纹理） |
 | g08 | `g08_jpeg_gray_800x600.jpg` | JPEG | 800×600 | 灰度 JPEG |
-| g09 | `g09_bmp24_192x144.bmp` | BMP | 192×144 | 24-bit 真彩 |
+| g09 | `g09_bmp24_256x256.bmp` | BMP | 256×256 | 24-bit 真彩 |
 | g10 | `g10_bmp32_alpha_192x144.bmp` | BMP | 192×144 | 32-bit 带 alpha |
-| g11 | `g11_tga24_192x144.tga` | TGA | 192×144 | 24-bit 真彩头 |
+| g11 | `g11_tga24_256x256.tga` | TGA | 256×256 | 24-bit 真彩头 |
 | g12 | `g12_gif_static_256x256.gif` | GIF | 256×256 | 静态 GIF + 调色板量化 |
 | g13 | `g13_gif_anim4_128x128.gif` | GIF | 128×128 | 4 帧动画（帧间差异明确） |
 | g14 | `g14_apng_anim4_160x120.png` | APNG | 160×120 | 4 帧 APNG |
@@ -34,11 +34,15 @@
 | g17 | `g17_ico_multi_48x48.ico` | ICO | 48×48 | 多尺寸（48/32/16） |
 | g18 | `g18_icns256_256x256.icns` | ICNS | 256×256 | macOS 图标容器 |
 | g19 | `g19_hdr_float_192x108.hdr` | HDR | 192×108 | IEEE 754 浮点 + 超白高光斑 |
-| g20 | `g20_qoi_160x120.qoi` | QOI | 160×120 | Quite OK Image |
+| g20 | `g20_qoi_160x120.qoi` | QOI | 160×120 | Quite OK Image（RGB 三通道） |
+| g21 | `g21_pgm_gray_192x144.pgm` | PNM | 192×144 | 灰度 P5（与 g06 的 P6 分属两种解析路径） |
+| g22 | `g22_tga32_alpha_160x120.tga` | TGA | 160×120 | 32-bit BGRA + 描述符 `0x28`（GAP-42 修复分支） |
+| g23 | `g23_webp_lossy_odd_33x33.webp` | WebP | 33×33 | VP8 lossy **奇数宽高**（GAP-17 端到端样本） |
+| g24 | `g24_qoi_rgba_192x144.qoi` | QOI | 192×144 | QOI 四通道（覆盖 RGBA 差分操作） |
 
 **未覆盖的可编码格式**：CUR。原因见 `docs/known-gaps.md`（`encode_cur_pure` 对小尺寸输入的既有缺陷），此处**刻意不生成**，避免把已知缺陷伪装成「基准通过」。
 
-## 3. 样本清单（malformed，6 个）
+## 3. 样本清单（malformed，8 个）
 
 | 编号 | 文件 | 类别 | 构造方式 | 期望行为 |
 |---|---|---|---|---|
@@ -48,6 +52,8 @@
 | m4 | `m4_apng_frame_bomb.png` | 帧数声明 | acTL 声明 1,000,000 帧，0 帧实体 | 拒绝（`PNG chunk 数据越界`） |
 | m5 | `m5_bmp_bad_enum.bmp` | 非法枚举 | bpp=37 + compression=99 | 拒绝（`decode/truncated`） |
 | m6 | `m6_jpeg_app_bloat.jpg` | 元数据段截断 | APP1 声明 65535 B，实际 20 B | 拒绝（`decode/decode_failed`） |
+| m7 | `m7_webp_riff_truncated.webp` | 容器声明越界 | RIFF 声明 `0x7FFFFFF0` B、VP8L chunk 声明 `0x7FFFFF` B，实体仅 4 B | 拒绝（`decode/decode_failed`） |
+| m8 | `m8_tiff_ifd_oob.tiff` | 索引越界 | TIFF 首 IFD 偏移 `0x7FFFFFF0`，文件仅 16 B | 拒绝（`decode/decode_failed`） |
 
 统一要求：**退出码非 0 + 单行 JSON `ok:false` + 5 秒内返回 + 输出中不得出现 `PanicError` / `moonbit_panic`**。
 
@@ -69,7 +75,7 @@ node scripts/check_benchmarks.mjs
 
 `check_benchmarks.mjs` 的判定链（全部失败即红灯，输出单条 JSON）：
 
-1. 条数契约：golden 20 / malformed 6；
+1. 条数契约：golden 24 / malformed 8；
 2. 命名契约：`gNN_<内容>_<W>x<H>.<ext>` / `mN_<类别>.<ext>`，且 `W×H` 必须与真实解码尺寸一致；
 3. 体积契约：单文件 ≤ 400 KiB、总量 ≤ 1600 KiB；
 4. 字节契约：sha256 与 `manifest.json` 完全一致（漂移即红灯）；
@@ -84,4 +90,17 @@ node scripts/check_benchmarks.mjs
 | TGA 文件 `info` 报 `unknown`，`convert` 无法自动分派 | `@lib.detect_format` 按「TGA 无魔数」设计直接返回 Unknown | `@codec.is_tga_format` 扩展为覆盖 1/2/3/9/10/11 + 8/15/16/24/32 bpp + 宽高非零 + 调色板头一致性，并接进 `detect_format` 末位 |
 | 畸形 chunk（m2）触发 **panic**（exit `0xC0000409`） | `pos + chunk_len > len` 在 Int32 上回绕为负数，越界检查被绕过 | PNG（8/16-bit）、APNG（两处）、region_decode 改为溢出安全比较 `chunk_len > len - pos` |
 
+| 样本滞后于编码器修复（`g11` 的 TGA 描述符仍是 `0x30`） | 生成器改 `0x20` 后未重生成样本，manifest 只封「文件 ↔ 封签」，不封「文件 ↔ 当前生成器」 | 本轮重生成 `g11`（描述符 `0x30` → `0x20`，全文件仅此 1 字节差）并重封签；口径见 `known-gaps` GAP-53 |
+
 留档：其余 chunked 容器（AVIF / HEIF / ICNS / PSD / BMP / JPEG-XL）的同类比较式见 `docs/known-gaps.md` 的 GAP-35，待逐格式审计。
+
+## 6. 扩容记录
+
+| 日期 | 变更 | 理由 |
+|---|---|---|
+| 2026-11-26 | 建集：golden 20 / malformed 6 | S20 初版，13 种可编码格式各至少一张 |
+| 2026-11-27 | golden +4（P5 灰度 / TGA 32-bit / WebP lossy 奇数 33×33 / QOI 四通道），malformed +2（WebP RIFF 声明越界 / TIFF IFD 越界） | 8-bit 之外的三条解码路径此前无实物；畸形侧只有 PNG/BMP/JPEG，WebP 与 TIFF 容器缺越界回归 |
+
+同一轮重生成暴露出 `g11` 的滞后：TGA 描述符仍是 GAP-42 修复前的 `0x30`（应为 `0x20`），全文件仅此 1 字节差——这是「封签只对磁盘敏感」的直接后果（GAP-53）。
+
+体积 1,209,836 B → 1,453,371 B（上限 1,638,400 B，余量 11.3%）。再扩容前应先调 `scripts/check_benchmarks.mjs` 的 `LIMITS.total_bytes`，或改用更小的图案（当前单文件最大 `g24` 138,258 B，接近上限的 1/3）。

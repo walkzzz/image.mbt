@@ -255,7 +255,7 @@ node scripts/check_release_ready.mjs --skip-slow  # 12 项快跑（约 10 秒）
 | 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,404） |
 | 展示页 | `check_pages`（49 项，含 playground.js 现编） |
 
-覆盖率门槛由 `docs/coverage.json` 定：当前 38,124/42,329 = **90.07%**，CI 与本地均按 `--min 90` 拦。
+覆盖率门槛由 `docs/coverage.json` 定：当前 38,178/42,396 = **90.05%**，CI 与本地均按 `--min 90` 拦。
 
 ### 9.4 下游 30 分钟上手（发布后第一件事；未发布则跳过）
 

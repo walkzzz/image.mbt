@@ -7,8 +7,8 @@
 //   node scripts/check_benchmarks.mjs --update   # 依据当前样本重建 manifest（需先构建 imgtool）
 //
 // 契约（manifest 即契约，校验方不手写期望值）：
-//   1. golden 20 张，文件名 `gNN_<内容>_<W>x<H>.<ext>`，尺寸必须与文件名一致；
-//   2. malformed 6 个，文件名 `mN_<类别>.<ext>`，必须在预算时间内被拒绝（exit≠0 + ok:false），
+//   1. golden 24 张，文件名 `gNN_<内容>_<W>x<H>.<ext>`，尺寸必须与文件名一致；
+//   2. malformed 8 个，文件名 `mN_<类别>.<ext>`，必须在预算时间内被拒绝（exit≠0 + ok:false），
 //      且不得出现 panic；
 //   3. 每张样本 sha256 / 字节数必须与 manifest 完全一致（漂移即红灯）；
 //   4. 总体积与单文件体积有上限，防止样本集悄悄膨胀；
@@ -34,8 +34,8 @@ const IMGTOOL = resolveImgtool(ROOT);
 const TIMEOUT_MS = Number(process.env.BENCH_TIMEOUT || 5000);
 
 const LIMITS = {
-  golden_count: 20,
-  malformed_count: 6,
+  golden_count: 24,
+  malformed_count: 8,
   file_bytes: 400 * 1024,
   total_bytes: 1600 * 1024,
 };

@@ -17,13 +17,16 @@
 - **两条绑定通道的元信息面不对称（GAP-52）**：JS `info().channels` 恒为 `0`（`abi_info` 只读头部，wasm 侧写死 0），会被当成单通道灰度图——改为 `null` 并加断言；Dart 的 `resize`/`convert` 吞掉 CLI 回执的宽高与格式，新增 `ImageMeta` + `convertMeta` / `resizeMeta`（复用同一次进程的 JSON）；CLI `resize` 回执补 `channels`；`docs/bindings.md` 的 JS 示例从位置参数改回 options 写法。自测 JS 15 → 16、Dart 8 → 10。
 - **Dart 绑定两条错误路径被自己吃掉（GAP-50）**：`_call` 的 `stderr.trim().split('\n').first` 在 stderr 为空时抛 `StateError`，把真实错误码换成无意义异常；`_ext` 表多列 7 个只读格式，导致 `convert(format: 'tiff')` 先 spawn 一次进程再失败。改为 `_ext` 只留 CLI `is_writable` 的 8 个、空 stderr 走「退出码 N」文案；自测 6 → 8 项。
 
+- **VP8 解码拒绝奇数宽高（GAP-17，闭环）**：色度平面按 `w / 2 × (h / 2)` 向下取整分配，奇数宽高必然越界，旧实现因此加偶数守卫直接抛 `DecodeFailed`——比编码器（UV 已 ceil）窄一档，自编码 1x1 / 3x3 能出不能进。解码器关键帧（`decode_vp8_frame`）与 inter（`decode_vp8_inter_frame`）两条路径的 UV 平面全部改 `ceil(w/2) × ceil(h/2)`：平面分配、YUV→RGB 采样、帧内 UV 预测写回、inter UV 预测、参考帧 `uv_size` 与 `refs.update` 拷贝、环路滤波 UV 边界共 13 处尺寸/索引，两处偶数守卫删除；`vp8_frame_wbtest` 的奇数用例由「15×16 期望 `DecodeFailed`」改为 15×13 断言解出（宽 15 / 高 13 / 3 通道 / `15*13*3` 字节）。
+
 ### Added
 
+- **S20 基准集扩容（golden 20 → 24、malformed 6 → 8）**：补的是 8-bit 之外没有实物的解码路径——`g21` PNM 灰度 P5（与 `g06` 的 P6 分属两种解析）、`g22` TGA 32-bit BGRA + 描述符 `0x28`（GAP-42 修后的分支）、`g23` WebP lossy **奇数 33×33**（VP8 解码 UV ceil 的端到端样本，反向验证 GAP-17）、`g24` QOI 四通道（此前只覆盖 RGB）；畸形侧此前只有 PNG/BMP/JPEG，`m7` WebP RIFF 声明 `0x7FFFFFF0` 与 `m8` TIFF IFD 偏移越界补上两个容器的越界回归。总量 1,209,836 B → **1,453,371 B**（上限 1,638,400 B，余量 11.3%）；`check_benchmarks.mjs` 条数契约 20/6 → 24/8，`manifest.json` 重封签；实测 `--update` 与默认校验均 `ok:true, failed:0`；`samples_wbtest` 追加 g23 固化为 756 B 且头为 `RIFF`/`VP8 ` 的断言，native 由 7,406 → **7,407 全绿**。重生成同时暴露 `g11` 滞后：TGA 描述符仍是 GAP-42 修复前的 `0x30`（应为 `0x20`，全文件 1 字节差）——封签只校验「磁盘 ↔ manifest」，不校验「磁盘 ↔ 当前生成器」（记 GAP-53），已重生成并重封签。
 - **9 条回归测试**：`image.codec/codec/s22_probe_test.mbt` 转为正式回归（TGA 4 通道逐字节往返、24-bit 描述符 `0x20`、0x20 不翻转、0x00 翻转、0x30 水平镜像、TIFF 短数据抛错）；超像素 8×8 + `num = 0 / 100` 双路径；Code128 码表形状（每条 6 段 11 模块、Stop 7 段 13 模块）与渲染总模块数 `11×n+13`。native 由 7,395 → **7,404 全绿**。
 
 ### Changed
 
-- 覆盖率真值随代码行数更新：**38,124/42,329 = 90.07%**（门槛仍 90，分母不排除任何文件）；`docs/coverage.json`、`AGENTS.md`、`docs/known-gaps.md`、`docs/release.md` 与首页经 `sync_pages` 同步。
+- 覆盖率真值随代码行数更新：**38,178/42,396 = 90.05%**（门槛仍 90，分母不排除任何文件）；`docs/coverage.json`、`AGENTS.md`、`docs/known-gaps.md`、`docs/release.md` 与首页经 `sync_pages` 同步。
 - 台账新增 GAP-42…46（五类缺陷闭环）与 GAP-47（CUR 3×2 往返复测通过，不再挂缺陷）；GAP-23 补注「当时的 Stop 是伪模式，见 GAP-45」。
 
 ### Notes

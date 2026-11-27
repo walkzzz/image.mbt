@@ -3,12 +3,12 @@
   "generator": "moon run benchmarks/gen",
   "note": "全部样本由本仓自有代码合成，无第三方素材；sha256 与体积为分发契约。",
   "limits": {
-    "golden_count": 20,
-    "malformed_count": 6,
+    "golden_count": 24,
+    "malformed_count": 8,
     "file_bytes": 409600,
     "total_bytes": 1638400
   },
-  "total_bytes": 1209836,
+  "total_bytes": 1453371,
   "golden": [
     {
       "name": "g01_png_gray_grad_512x512.png",
@@ -96,7 +96,7 @@
       "width": 256,
       "height": 256,
       "bytes": 196626,
-      "sha256": "194eea00aecf5860cd95048d3124791e2dc7911d095c6b8cd8f8276206ec6861"
+      "sha256": "bbad891f9d27bc1ea7596e19ae09f764fb57f44fb40ba6d39359676817f40c92"
     },
     {
       "name": "g12_gif_static_256x256.gif",
@@ -169,6 +169,38 @@
       "height": 120,
       "bytes": 30859,
       "sha256": "abf4c78a0ae2cf7e2b12c6a374fb1efd43129695dbef793a923d709d3b05a479"
+    },
+    {
+      "name": "g21_pgm_gray_192x144.pgm",
+      "format": "pnm",
+      "width": 192,
+      "height": 144,
+      "bytes": 27663,
+      "sha256": "9785d6706995c4fa7e147581ab04c30eac0d1d4b45336987a0f538bb378bc1f5"
+    },
+    {
+      "name": "g22_tga32_alpha_160x120.tga",
+      "format": "tga",
+      "width": 160,
+      "height": 120,
+      "bytes": 76818,
+      "sha256": "e20bc41e6a882c33d11ccc9403458dd0869af289cb265f8ef7815e028f354ea4"
+    },
+    {
+      "name": "g23_webp_lossy_odd_33x33.webp",
+      "format": "webp",
+      "width": 33,
+      "height": 33,
+      "bytes": 756,
+      "sha256": "1d98fae1a2524a1e8309bf9d551a96757100c8b812f7f554118c2dc5a61a5b5d"
+    },
+    {
+      "name": "g24_qoi_rgba_192x144.qoi",
+      "format": "qoi",
+      "width": 192,
+      "height": 144,
+      "bytes": 138258,
+      "sha256": "0fc8a3321b1879de81f20bed0f3e2d5450817b01a2c650221d34bd8a7c66b70f"
     }
   ],
   "malformed": [
@@ -218,6 +250,22 @@
       "expect": "reject",
       "bytes": 26,
       "sha256": "9dc138a60a51ef0ea89a0734b2b9bc365a1fc0e824cd1a7d0cedcf5ba0a0b6a0",
+      "rejects_with": "decode/decode_failed"
+    },
+    {
+      "name": "m7_webp_riff_truncated.webp",
+      "class": "webp_riff_truncated",
+      "expect": "reject",
+      "bytes": 24,
+      "sha256": "dd727a90ec2967bb24e2c730103cf8e87f40467af1c3cc4e40c328c21a31d993",
+      "rejects_with": "decode/decode_failed"
+    },
+    {
+      "name": "m8_tiff_ifd_oob.tiff",
+      "class": "tiff_ifd_oob",
+      "expect": "reject",
+      "bytes": 16,
+      "sha256": "1d42f9658ea31ec2f9b9eda3b9ecd0489f476544e80e1cd04030717cfcf98a97",
       "rejects_with": "decode/decode_failed"
     }
   ]
