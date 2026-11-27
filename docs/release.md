@@ -273,8 +273,9 @@ moon add walkzzz/image.mbt
 一条命令按依赖序把 11 环发完，每发一环回根目录 `moon update`，失败即停：
 
 ```powershell
-.\scripts\publish.ps1            # 正式发布
-.\scripts\publish.ps1 -DryRun    # 同一顺序只跑 --dry-run（不写 registry）
+.\scripts\publish.ps1                        # 正式发布（启动先 moon update）
+.\scripts\publish.ps1 -From image.codec         # 从中断的环续发
+.\scripts\publish.ps1 -DryRun                   # 同一顺序只跑 --dry-run（不写 registry）
 ```
 
 脚本内容就是 11 个目录名 + 一个循环，没有额外机制：`image.core → codec → process → photography → vision → domain → doc → media → commerce → pro → 根`。根包在正式发布前多跑一次 `moon publish --dry-run`（打包最贵，发错了撤不回）。
@@ -282,4 +283,6 @@ moon add walkzzz/image.mbt
 两条实测事实，决定它只能"先发后验"：
 
 - **`moon publish --dry-run` 不是在本地验，而是在空目录按 registry 依赖重编**。新版本第一环还没上 registry 时，第二环必报 `registry dependency walkzzz/image.core: version 0.1.26 was not found in the registry`。所以完整链路只有真发一环、`moon update` 之后下一环才能验。
-- **`moon publish` 不可撤销**：版本号一旦占用不能删，只能升 patch。中途停下的，已发环保留，改完从停止的那一环继续。
+- **`moon publish` 不可撤销**：版本号一旦占用不能删，只能升 patch。中途停下的，已发环保留，用 `-From <环>` 从停止的那一环继续。
+- **每发一环必须 `moon update`**（2026-11-27 实测）：不上传新索引时，下一环的空目录重编会报 `version 0.1.26 was not found in the registry`，即使上一环其实已发成功。脚本启动第一步与每环成功后各跑一次 update。
+- **不要用退出码判成败**：本机实测 `moon publish` 在失败时也返回 0（十环全部停在旧版 registry 却全部"通过"）。脚本改为读输出文本：有 `Server status: 200 OK`（正式）/ `202 Accepted`（dry-run）且无 `Error:` 行即成功。
