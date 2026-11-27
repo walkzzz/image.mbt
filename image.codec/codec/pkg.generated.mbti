@@ -92,6 +92,8 @@ pub fn encode_ico_pure(@types.Image) -> Bytes
 
 pub fn encode_ico_with_sizes_pure(Array[@types.Image]) -> Bytes
 
+pub fn encode_jpeg_progressive(@types.Image, Int32) -> Bytes raise @types.LoadError
+
 pub fn encode_jpeg_pure(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn encode_jpeg_with_quality(@types.Image, Int32) -> Bytes raise @types.LoadError

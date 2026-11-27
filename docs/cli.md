@@ -15,7 +15,7 @@ moon build --release cmd/imgtool
 | 子命令 | 作用 | 关键参数 |
 |---|---|---|
 | `info` | 读头部（不整图解码） | `<in>` |
-| `convert` | 任意可写格式互转（`decode`/`encode` 为别名） | `--format` `--quality` `--best` `--max-bytes` |
+| `convert` | 任意可写格式互转（`decode`/`encode` 为别名） | `--format` `--quality` `--best` `--max-bytes` `--jpeg-progressive` |
 | `resize` | 等比覆盖 / 包含缩放 | `--width` `--height` `--mode cover\|contain` |
 | `crop` | 裁剪，越界直接拒绝 | `--x` `--y` `--width` `--height` |
 | `filter` | 六种滤波/锐化/去噪 | `--op` `--radius` `--sigma` `--amount` `--ksize` `--sigma-color` `--patch` `--search` `--h` |
@@ -24,6 +24,12 @@ moon build --release cmd/imgtool
 | `bench` | decode / encode / resize 的每轮均值（微秒） | `--iters` `--formats` `--width` `--height` |
 
 通用：`--format`（省略时按输出扩展名推断，再无则 PNG）、`--quality 1-100`、`--mem-budget`、`--max-pixels`。
+
+`--jpeg-progressive`（仅 `convert`，且输出格式必须是 JPEG）：产出 progressive（SOF2）文件。
+最简合法形态是 **DC 首扫 + 每分量一条 AC 首扫**（`Ss=0/Se=0` 与 `Ss=1/Se=63`，`Ah=Al=0`，共 4 条扫描），
+不带 successive approximation、不带 EOBRUN 合并，因此体积与 baseline 基本持平（实测 1280×720 Q55：58,115 B vs 58,084 B）。
+用途是渐进式加载（先粗后细），不是压缩率优化。像素数上限 2,000,000（量化系数缓存约 24 MB）；
+与 `--best` 互斥（`--best` 自己选格式）。
 
 ## 输出约定
 

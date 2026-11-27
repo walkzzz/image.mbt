@@ -327,6 +327,23 @@ pub fn encode_jpeg(img : @types.Image) -> Bytes raise @types.LoadError {
 }
 
 ///|
+/// 渐进式 JPEG 编码委托（SOF2）。
+/// Progressive JPEG encoding delegation (SOF2).
+///
+/// 参数 Parameters:
+/// - `img` - 输入图像；1 通道按灰度复制到三通道
+/// - `quality` - 1–100，50 等价标准量化表
+///
+/// 错误 Errors:
+/// - `LoadError::EncodeFailed` - 尺寸无效、或像素数超过 2,000,000（系数缓存上限）
+pub fn encode_jpeg_progressive(
+  img : @types.Image,
+  quality : Int32,
+) -> Bytes raise @types.LoadError {
+  @codec.encode_jpeg_progressive(img, quality)
+}
+
+///|
 /// HDR 编码委托
 /// HDR 编码委托 HDR encoding delegation
 ///

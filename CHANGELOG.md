@@ -4,6 +4,20 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.27] - 2026-11-27
+
+### Added
+
+- **progressive JPEG 编码（F-01 第一步）**：新增 `image.codec/codec/jpeg_progressive_encode.mbt` 的 `encode_jpeg_progressive(img, quality)`，门面 `walkzzz/image.codec/lib` 同步导出。输出最简合法 progressive 位流：DQT(2) + SOF2 + DHT(4) + 4 条 SOS——扫描 1 为 DC 首扫（交错 Y/Cb/Cr，Ss=0 Se=0），扫描 2–4 为各分量单分量 AC 首扫（Ss=1 Se=63）。4:4:4 采样，无 successive 细化、无 EOBRUN 合并（逐块写 EOB/ZRL）。先整幅量化系数缓存（之字形序，便于 AC 扫描顺 k 直读），像素上限 200 万，超限抛 `EncodeFailed`。
+- CLI：`imgtool convert --jpeg-progressive`（与 `--best` 互斥；仅 JPEG 输出可用）。`help_text` 与 `docs/cli.md` 同步。
+
+### Verified
+
+- 1280×720 照片 Q55：progressive 58,115 B vs baseline 58,084 B（+31 B，4 条扫描头与逐块 EOB 的开销）。
+- Pillow 识别 `progressive=1`、3 层扫描；自身解码与 Pillow 逐像素 max |Δ|=1 / mean 0.48。
+- 新增 `jpeg_progressive_encode_test.mbt` 8 条（SOF2 且无 SOF0、SOS 计数、64×64 / 17×13 非 8 倍数 / 灰度 / 1×1 往返、超限抛错、体积 ≤ baseline×1.5）；全量 native **7,423/7,423** 全绿；覆盖率复测 38,562/42,814 = 90.07%。
+- 边界见 `docs/known-gaps.md` GAP-56（不做 EOBRUN / Ah>0 / 4:2:0），`docs/roadmap.md` F-01 标 `⚠️` 第一步已落地。
+
 ## [0.1.26] - 2026-11-27
 
 ### Added

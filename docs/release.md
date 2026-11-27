@@ -1,7 +1,7 @@
 # 发布与分发
 
 > 本页只讲**怎么把 `walkzzz/image.*` 发到 mooncakes 让下游 `moon add` 能用**，以及 `moon publish --dry-run` 到底在校验什么。
-> 当前状态：**已发布 0.1.7**（2026-11-25，七个模块齐发，根包 `Server status: 200 OK`）。dry-run 结构性阻塞（依赖钉）已闭环，下游验收见文末。
+> 当前状态：最近成功发布 **0.1.26**（十一个模块齐发，根包 `Server status: 200 OK`）；当前待发布 **0.1.27**。dry-run 结构性阻塞（依赖钉）已闭环，下游验收见文末。
 
 ## 一、十一个模块与发布顺序
 
@@ -252,10 +252,10 @@ node scripts/check_release_ready.mjs --skip-slow  # 12 项快跑（约 10 秒）
 | 文档真值 | `check_docs`（**B1–B14**）、`gen_api_index` / `gen_capabilities` / `gen_scenes --check` |
 | 契约 | `check_pkg_imports`、`check_deprecations`、`check_links`、`sync_pages --check`、`check_benchmarks` |
 | 绑定 | `npm/test.mjs`（15 项）、`check_dart_binding.mjs --no-build`（6 项） |
-| 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,415） |
+| 编译与测试 | `moon fmt --check`、`moon check --deny-warn --target all`、`moon test --target native`（7,423） |
 | 展示页 | `check_pages`（49 项，含 playground.js 现编） |
 
-覆盖率门槛由 `docs/coverage.json` 定：当前 38,352/42,611 = **90.00%**，CI 与本地均按 `--min 90` 拦。
+覆盖率门槛由 `docs/coverage.json` 定：当前 38,562/42,814 = **90.07%**，CI 与本地均按 `--min 90` 拦。
 
 ### 9.4 下游 30 分钟上手（发布后第一件事；未发布则跳过）
 

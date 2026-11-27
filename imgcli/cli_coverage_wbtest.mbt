@@ -322,6 +322,21 @@ test "clicov: 端到端 info / analyze / convert" {
   // 读不存在的文件
   let e5 = cli_dispatch(["info", "_build_not_exist_zz.png"])
   assert_true(!cli_ok(e5))
+  // --jpeg-progressive：正路（dry-run 也完整编码）
+  let pg = cli_dispatch([
+    "convert", path, "x.jpg", "--format", "jpeg", "--jpeg-progressive", "--dry-run",
+  ])
+  assert_true(cli_ok(pg))
+  // --jpeg-progressive 与 --best 互斥
+  let e6 = cli_dispatch([
+    "convert", path, "x.jpg", "--best", "--jpeg-progressive",
+  ])
+  assert_true(!cli_ok(e6))
+  // --jpeg-progressive 只能用于 JPEG 输出
+  let e7 = cli_dispatch([
+    "convert", path, "x.png", "--format", "png", "--jpeg-progressive",
+  ])
+  assert_true(!cli_ok(e7))
 }
 
 ///|

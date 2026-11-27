@@ -123,6 +123,13 @@ fn cmd_convert(flags : Flags) -> Out raise @types.ImageError {
       "--max-bytes 需要配合 --best 使用（它约束的是选格式后的体积上限）",
     )
   }
+  let progressive = flags.has("jpeg-progressive")
+  if progressive && best {
+    raise @types.ImageError::Process(
+      @types.ErrorCode::InvalidArgument,
+      "--jpeg-progressive 与 --best 不能同时给：--best 自己选格式，progressive 只作用于 JPEG 输出",
+    )
+  }
   let enc : @lib.EncodedImage = if best {
     let max_bytes = flags.int("max-bytes", 0).to_int64()
     if max_bytes > 0 {
@@ -132,7 +139,20 @@ fn cmd_convert(flags : Flags) -> Out raise @types.ImageError {
     }
   } else {
     let fmt = out_format(flags, dst, @types.ImageFormat::Png)
-    { format: fmt, bytes: encode_image(img, fmt, quality), }
+    if progressive && fmt != @types.ImageFormat::Jpeg {
+      raise @types.ImageError::Process(
+        @types.ErrorCode::InvalidArgument,
+        "--jpeg-progressive 只能用于输出 JPEG（当前目标格式为 \{format_name(fmt)}）",
+      )
+    }
+    let bytes = if progressive {
+      @lib.encode_jpeg_progressive(img, quality) catch {
+        e => raise @types.image_error_from_load(e)
+      }
+    } else {
+      encode_image(img, fmt, quality)
+    }
+    { format: fmt, bytes, }
   }
   let to_stdout = emit_bytes(dst, enc.bytes, dry)
   result({

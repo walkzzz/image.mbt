@@ -488,7 +488,7 @@ dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
 
 | 编号 | 遗留项 | 现状事实 | 立项前置 |
 |---|---|---|---|
-| F-01 | progressive JPEG 编码 | 解码闭环（GAP-1），编码面无入口，`encode_jpeg` 只出 baseline | 解码回归面已就位（F-05 ✅：`g25`/`g26`）；编码侧仍缺「逐字节/逐扫描结构」对比基准，需先定 progressive 扫描脚本约定 |
+| F-01 ⚠️ | progressive JPEG 编码 | **第一步已落地（2026-11-27）**：`encode_jpeg_progressive(img, quality)`（`image.codec`）与 CLI `--jpeg-progressive`，最简合法形态 = DC 首扫（交错 3 分量）+ 每分量一条 AC 首扫（`Ss=1 Se=63`），`Ah=Al=0`、4:4:4、≤ 200 万像素。实测 1280×720 Q55：位流 4 条 SOS、Pillow 可直接解码（`progressive=1`），自解与 Pillow max diff 1 / mean 0.48；体积 58,115 B vs baseline 58,084 B。**未做**：successive approximation（`Ah>0` 细化）、spectral selection 分段、EOBRUN 合并、4:2:0 子采样、扫描脚本可配置 | 下一步按收益排序：① EOBRUN 合并（唯一能把体积压到 baseline 以下的改动）② `Ah>0` 细化（渐进感更强）③ 4:2:0 子采样（需与 F-04 上采样一并定口径） |
 | F-02 | progressive 的 4 分量（CMYK/YCCK）与 arithmetic coding（SOF9–12） | 解码器分量数只接受 1 / 3；算术编码分支不存在 | 需授权可分发样本来源（印刷类素材），否则只能写死不覆盖 |
 | F-03 ✅ | progressive + DRI（restart interval） | **已落地**：`g26_jpeg_progressive_restart_480x320.jpg` 为 SOF2 + DRI 样本（restart interval 8 块、212 个 RST 标记），`jpeg_skip_to_restart` 在多扫描下正确清空 DC 预测与 EOBRUN；解码对 Pillow 参考 max diff 4（mean 0.57） | 若后续需要「不同 interval 的成组回归」，再按 8/4/2 块各补一张（当前上限余量 166,868 B 够用） |
 | F-04 | 4:2:0 色度最近邻上采样与 libjpeg 双线性不一致 | 彩色解码对 Pillow 差异 max 103 / 117（mean 7.66 / 1.85），属 baseline 既有行为 | 改采样会同时改 baseline 输出与基准集期望值，需一次成组改 |
