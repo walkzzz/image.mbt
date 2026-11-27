@@ -21,6 +21,8 @@ const small = await resize(ppmBytes, 64, 64, 'cover');
 ```
 
 导出面：`info` / `convert` / `convertMeta` / `resize` / `resizeMeta` / `formats`。
+
+**ABI 时序约束**：`abi_alloc` 分配的输入缓冲在 MoonBit 侧不留引用，`index.mjs` 的 `run()` 因此必须保持「写内存 → 立即调用 → 立即取回」的同步块；`info` / `convert` / `resize` 都是这么写的。改成异步或一次 staging 多次调用会踩 GC 复用（见 [known-gaps](known-gaps.md) GAP-51）。
 wasm 用 `--target wasm`（MVP，非 wasm-gc）：线性内存可导出，`Bytes` 就是 i32 指针，
 Node 侧无需 `externref` 全局；ABI 见 `wasm/abi.mbt` 文件头注释。
 

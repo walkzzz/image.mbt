@@ -67,6 +67,7 @@
 | GAP-48 | **QR 生成只覆盖 version 1-L（≤17 字节）** | `render_qr` 固定 21×21 矩阵、单块 RS；超出 17 字节（UTF-8）时无法无损编码。修复前是静默截断，现改为 `qr_fits_v1` 守卫 + 页面显式报错（`img_qr_max_bytes()` 导出 17） | 已明确能力边界：UI 提示"最多 17 字节，中文约 5 字"；多版本（v2+ 对齐图案与分块 RS）未排期，需求出现再评估 |
 | GAP-49 | **S16 的 4 个场景模块与 S17 的 2 条绑定通道脱离版本列车** | `image.doc/media/commerce/pro` 停在 `0.1.20`、依赖钉同停 `0.1.20`；`npm/package.json` 与 `bindings/dart/pubspec.yaml` 停在 `0.1.23`。`check_version.mjs` 的 `MODULES` 只有 7 项、`bump_version.mjs` 同名单，注释却写「共 11 个」——文档与实现不符，四个 patch 的漂移无人拦 | ✅ 两脚本扩到 11 个 `moon.mod` + 37 处钉 + npm + Dart（门禁 16 → 22 项）；六个文件版本与钉一次性对齐 `0.1.24`；4 个场景包 `moon test` 4/4 通过 |
 | GAP-50 | **Dart 绑定的两条错误路径被自己吃掉（S17）** | ① `_call` 里 `(res.stderr as String).trim().split('\n').first` 在 stderr 整段为空时会抛 `StateError`，真实 `code` 被掩盖成无意义异常；② `_ext` 表列了 tiff/hdr/avif/heif/ico/icns/psd 七个只读格式，`convert(format: 'tiff')` 会先 spawn 一次进程再吃 `encode/unsupported_format` | ✅ `_ext` 收窄到 CLI `is_writable` 的 8 个（png/jpeg/bmp/gif/webp/qoi/ppm/tga），只读格式在 Dart 侧直接抛 `process/invalid_argument`；stderr 为空时改用「退出码 N，无 stderr」文案；自测 6 → 8 项（补「不可写格式本地拒绝」「imgtool 缺失抛 `process/spawn_failed`」） |
+| GAP-51 | **wasm ABI 的输入指针没有保活（S17 边界）** | `abi_alloc` 用 `Bytes::make(n, 0)` 分配，返回 i32 指针让 JS 直接写；此时 MoonBit 侧已无引用，安全依赖「JS 写完立刻调用」这段同步时序——`abi_convert` / `abi_resize` 内部第一次分配发生在输入已复制之后，所以当前写法安全。若将来把调用改成异步、或一次 staging 多次调用，指针可能在 GC 后被复用 | 已如实记录，未加 pin 机制；真要做多步往返时需补一张保活表（把指针与输入长度登记到 wasm 侧全局，`abi_*` 结束时清空） |
 
 ## 测试口径
 
