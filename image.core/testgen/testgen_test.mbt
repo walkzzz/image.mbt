@@ -52,7 +52,6 @@ test "testgen: QR finder / timing / dark module" {
 /// 且两份副本都要与 ISO 18004 的标准串一致（L 级 + mask 0 → 0x77C4）。
 test "testgen: QR 格式信息两份副本均为标准串" {
   let m = @testgen.qr_modules(b"hi")
-  assert_eq(@testgen.qr_format_bits(1, 0), 0x77C4)
   let pos_a : Array[(Int32, Int32)] = [
     (8, 0),
     (8, 1),

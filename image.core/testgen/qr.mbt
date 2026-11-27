@@ -57,7 +57,7 @@ fn qr_rs_encode(data : Array[Int32], ecc_len : Int32) -> Array[Int32] {
 ///|
 /// BCH(15,5) 格式信息编码，返回 15 位整数。
 /// L=01 + mask 000 必须得到 0x77C4（标准串 111011111000100）。
-pub fn qr_format_bits(ec_level : Int32, mask : Int32) -> Int32 {
+fn qr_format_bits(ec_level : Int32, mask : Int32) -> Int32 {
   let data = ((ec_level & 3) << 3) | (mask & 7)
   // BCH(15,5)：rem = data << 10，对高 5 位（bit14..bit10）做长除法，
   // 生成多项式 0x537 (10100110111) 按当前位对齐（shift 4..0）。
