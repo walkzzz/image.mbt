@@ -101,15 +101,26 @@ function run(input, call) {
 }
 
 /**
- * 探测图片：不完整解码，只读头部（宽高、格式、通道）。
+ * 探测图片：不完整解码，只读头部（宽高、格式、体积）。
+ *
+ * `channels` 恒为 `null`：函数名是 info 但只读头部，`abi_info` 不解码像素，
+ * wasm 侧把 channels 写 0；若原样透出，调用方会把 0 当「单通道灰度图」。
+ * 需要真实通道数时用 `convertMeta` / `resizeMeta`（那条路径解过码）。
  * @param {Buffer|Uint8Array|ArrayBuffer} input
- * @returns {{format: string, width: number, height: number, channels: number, bytes: number}}
+ * @returns {{format: string, width: number, height: number, channels: null, bytes: number}}
  */
 export function info(input) {
   const ptr = stage(input);
   ex.abi_info(ptr);
   if (!ex.abi_last_ok()) return fail();
-  return { ...meta(), bytes: ex.abi_last_len() };
+  const m = meta();
+  return {
+    format: m.format,
+    width: m.width,
+    height: m.height,
+    channels: null,
+    bytes: ex.abi_last_len(),
+  };
 }
 
 /**

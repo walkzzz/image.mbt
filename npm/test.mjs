@@ -32,6 +32,10 @@ check('info: PPM 4x3', () => {
   assert.equal(r.bytes, ppm(4, 3).length);
 });
 
+check('info: channels 为 null（header-only 不解码，不能透出 0）', () => {
+  assert.strictEqual(info(ppm(4, 3)).channels, null);
+});
+
 check('convert: PPM -> PNG', () => {
   const out = convert(ppm(4, 3), { format: 'png' });
   assert.equal(sig(out), '89504e470d0a1a0a');

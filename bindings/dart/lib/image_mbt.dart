@@ -51,6 +51,44 @@ class ImageInfo {
   String toString() => 'ImageInfo($format ${width}x$height, $bytes B)';
 }
 
+/// `imgtool convert` / `resize` 的回执：输出侧的格式、实际宽高、通道、体积。
+///
+/// 与 [ImageInfo] 的区别：这里描述的是**编码后的真实结果**（进程解过码），
+/// 而 `info` 是 header-only（不解码，拿不到通道数）。
+class ImageMeta {
+  ImageMeta({
+    required this.format,
+    required this.width,
+    required this.height,
+    required this.channels,
+    required this.bytes,
+    required this.data,
+  });
+
+  final String format;
+  final int width;
+  final int height;
+
+  /// 输出像素的通道数（1 灰度 / 3 RGB / 4 RGBA）。旧版 CLI 不回传该字段时为 0。
+  final int channels;
+  final int bytes;
+  final Uint8List data;
+
+  factory ImageMeta.fromJson(Map<String, dynamic> json, Uint8List data) =>
+      ImageMeta(
+        format: (json['format'] as String?) ?? 'unknown',
+        width: (json['width'] as num?)?.toInt() ?? 0,
+        height: (json['height'] as num?)?.toInt() ?? 0,
+        channels: (json['channels'] as num?)?.toInt() ?? 0,
+        bytes: (json['bytes'] as num?)?.toInt() ?? data.length,
+        data: data,
+      );
+
+  @override
+  String toString() =>
+      'ImageMeta($format ${width}x$height, $channels ch, $bytes B)';
+}
+
 /// 命令行绑定：每次调用一次 `imgtool` 进程，临时目录在返回前删掉。
 class ImageMbt {
   ImageMbt({String? executablePath})
@@ -101,8 +139,17 @@ class ImageMbt {
     );
   }
 
-  /// 格式互转：返回编码后的字节。对应 `imgtool convert`。
+  /// 格式互转。对应 `imgtool convert`。
   Future<Uint8List> convert(
+    Uint8List data, {
+    required String format,
+    int? quality,
+  }) async =>
+      (await convertMeta(data, format: format, quality: quality)).data;
+
+  /// 同 [convert]，但同时返回 CLI 回执里的格式 / 尺寸 / 通道 / 体积，
+  /// 不多开一次进程（JSON 与输出文件本来就在同一趟里）。
+  Future<ImageMeta> convertMeta(
     Uint8List data, {
     required String format,
     int? quality,
@@ -120,11 +167,24 @@ class ImageMbt {
       data,
       outName: 'out.$ext',
     );
-    return r.output!;
+    return ImageMeta.fromJson(r.json, r.output!);
   }
 
   /// 缩放：`mode` 取 `cover` / `contain`。对应 `imgtool resize`。
   Future<Uint8List> resize(
+    Uint8List data,
+    int width,
+    int height, {
+    String mode = 'cover',
+    String? format,
+    int? quality,
+  }) async =>
+      (await resizeMeta(data, width, height,
+              mode: mode, format: format, quality: quality))
+          .data;
+
+  /// 同 [resize]，但同时返回 CLI 回执里的实际宽高 / 通道 / 体积。
+  Future<ImageMeta> resizeMeta(
     Uint8List data,
     int width,
     int height, {
@@ -158,7 +218,7 @@ class ImageMbt {
       data,
       outName: 'out.$ext',
     );
-    return r.output!;
+    return ImageMeta.fromJson(r.json, r.output!);
   }
 
   /// decode → resize → encode 一次走完（S17 验收口径）。

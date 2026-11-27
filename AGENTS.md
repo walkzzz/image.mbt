@@ -70,7 +70,7 @@ src/  (已迁移为根目录 6 子模块工作空间；0.1.0 起子模块目录�
 ### 语言绑定（S17）
 
 - JS 通道：`npm/index.mjs` + `image.wasm`（`--target wasm`，线性内存 + `wasm/abi.mbt` 的 `abi_*` 导出）；自测 `node npm/test.mjs`（15 项）；`prepack` 走 `scripts/build_npm_wasm.mjs --no-test`，**wasm 不手改**。
-- Dart 通道：`bindings/dart/`（`lib/image_mbt.dart` + `tool/selftest.dart`），以 `imgtool` 进程为 ABI；自测 `node scripts/check_dart_binding.mjs`（8 项，`--no-build` 复用产物）。
+- Dart 通道：`bindings/dart/`（`lib/image_mbt.dart` + `tool/selftest.dart`），以 `imgtool` 进程为 ABI；自测 `node scripts/check_dart_binding.mjs`（10 项，`--no-build` 复用产物）。
 - 绑定层**禁止重写编解码/缩放**：只允许搬字节 + 解析 CLI 单行 JSON；新增能力先加到 MoonBit 侧，再由绑定暴露。
 - Dart 不载 wasm 的原因已定：MoonBit native 不产出静态/动态库、`package:wasm` 已废弃且需 Rust + Wasmer、Dart VM 无内置 wasm 运行时。别重复探这三条路。
 - 绑定的版本随库走（`npm/package.json` 与 `bindings/dart/pubspec.yaml` 跟 0.1.x 同步）；发布时机与库一致，只在阶段收口发。

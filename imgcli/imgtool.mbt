@@ -288,6 +288,7 @@ fn cmd_resize(flags : Flags) -> Out raise @types.ImageError {
     "dst": jstr(dst),
     "width": jnum(out.width),
     "height": jnum(out.height),
+    "channels": jnum(out.channels),
     "mode": jstr(mode),
     "format": jstr(format_name(fmt)),
     "bytes": jnum(data.length().to_int()),

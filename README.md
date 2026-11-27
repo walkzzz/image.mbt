@@ -400,7 +400,7 @@ final Uint8List webp = await img.convert(png, format: 'webp', quality: 80);
 
 Dart VM 没有 WebAssembly 运行时、MoonBit native 又不产出静态/动态库，因此 Dart 绑定以
 `imgtool` 进程为 ABI（不重写任何编解码）。自测 `node scripts/check_dart_binding.mjs` 跑
-`decode → resize → encode` 8 项；两条通道的取舍见 [docs/bindings.md](docs/bindings.md)。
+`decode → resize → encode` 10 项；两条通道的取舍见 [docs/bindings.md](docs/bindings.md)。
 
 ### 高级：SIFT 特征匹配
 

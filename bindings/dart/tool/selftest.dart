@@ -144,6 +144,27 @@ Future<void> main() async {
     }
   });
 
+  // 9) convertMeta：回执里的格式 / 宽高 / 通道 / 体积与输出字节自洽
+  await checkAsync('convertMeta: 回执宽高与通道', () async {
+    final ImageMeta m = await img.convertMeta(resizedPng, format: 'png');
+    assertEq(m.format, 'png', 'format');
+    assertEq(m.width, 2, 'width');
+    assertEq(m.height, 2, 'height');
+    assertEq(m.channels, 3, 'channels');
+    assertEq(m.bytes, m.data.length, 'bytes');
+  });
+
+  // 10) resizeMeta：实际宽高来自 CLI 回执，且输出能被再读回
+  await checkAsync('resizeMeta: 回执带实际宽高', () async {
+    final ImageMeta m = await img.resizeMeta(src, 8, 6, mode: 'contain');
+    assertEq(m.width, 8, 'width');
+    assertEq(m.height, 6, 'height');
+    assertEq(m.channels, 3, 'channels');
+    final ImageInfo out = await img.info(m.data);
+    assertEq(out.width, 8, 'decoded width');
+    assertEq(out.height, 6, 'decoded height');
+  });
+
   stdout.writeln('$passed/$passed+$failed passed');
   if (failed > 0) {
     exit(1);

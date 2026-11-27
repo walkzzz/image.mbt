@@ -25,7 +25,7 @@ writeFileSync('out.jpg', convert(readFileSync('in.png'), { format: 'jpeg', quali
 
 | 方法 | 说明 | 返回 |
 | --- | --- | --- |
-| `info(input)` | 只读头部：格式 / 宽高 / 字节数，不解完整像素 | `{format, width, height, channels, bytes}` |
+| `info(input)` | 只读头部：格式 / 宽高 / 字节数，不解完整像素；`channels` 恒为 `null`（拿不到真实通道数） | `{format, width, height, channels: null, bytes}` |
 | `convert(input, {format, quality})` | 解码后重新编码，`format='best'` 逐候选实编取最小 | `Buffer` |
 | `convertMeta(input, opts)` | 同 convert，另带输出元信息 | `{data, format, width, height, channels}` |
 | `resize(input, {width, height, mode, format, quality})` | 缩放后编码，`mode` 为 `cover`（默认）或 `contain`（白底留边） | `Buffer` |
