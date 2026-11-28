@@ -1,7 +1,7 @@
 # 发布与分发
 
 > 本页只讲**怎么把 `walkzzz/image.*` 发到 mooncakes 让下游 `moon add` 能用**，以及 `moon publish --dry-run` 到底在校验什么。
-> 当前状态：**已发布 0.1.33**（2026-11-28，十一个模块齐发，`publish.ps1` 逐环 `moon update` 后全部 200 OK，registry 复核 11 包均 0.1.33）。dry-run 结构性阻塞（依赖钉）已闭环，下游验收见文末。
+> 当前状态：**已发布 0.1.34**（2026-11-28，十一个模块齐发，`publish.ps1` 逐环 `moon update` 后全部 200 OK，registry 复核 11 包均 0.1.34）。dry-run 结构性阻塞（依赖钉）已闭环，下游验收见文末。
 
 ## 一、十一个模块与发布顺序
 
