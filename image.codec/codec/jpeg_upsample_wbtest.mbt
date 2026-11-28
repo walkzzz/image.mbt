@@ -71,12 +71,12 @@ test "upsample: ramp stays monotonic within each row through h2v2" {
 test "upsample: plane dispatch picks fancy only for 2x subsampling" {
   let plane : Array[Int32] = [1, 2, 3, 4]
   // 2×2 → 三角滤波，宽高各翻倍
-  let (a, aw, ah, aup) = jpeg_upsample_plane(plane, 2, 2, 2, 2, 2)
+  let (_a, aw, ah, aup) = jpeg_upsample_plane(plane, 2, 2, 2, 2, 2)
   assert_true(aup)
   assert_eq(aw, 4)
   assert_eq(ah, 4)
   // 2×1 → 只翻宽
-  let (b, bw, bh, bup) = jpeg_upsample_plane(plane, 2, 2, 2, 2, 1)
+  let (_b, bw, bh, bup) = jpeg_upsample_plane(plane, 2, 2, 2, 2, 1)
   assert_true(bup)
   assert_eq(bw, 4)
   assert_eq(bh, 2)
