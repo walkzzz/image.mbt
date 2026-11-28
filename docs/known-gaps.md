@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-28）：版本 0.1.32 · 7,443 测试 × 4 目标 · 82 包 · 覆盖率 90.14% · prove 8 goals。
+> 当前口径（2026-11-28）：版本 0.1.33 · 7,449 测试 × 4 目标 · 82 包 · 覆盖率 90.15% · prove 8 goals。
 
 ## 功能边界
 
@@ -9,7 +9,7 @@
 |------|------|--------|-------------|
 | GAP-1 | ~~JPEG progressive 解码未实现~~ **已闭环（2026-11-27）**：SOF2 多扫描累积（DC 首扫/DC 细化/AC 首扫/AC 细化、跨扫描 DHT 重定义快照、交错与非交错块网格、EOB run）全通；4 份 Pillow 样本（48×32/32×24/96×72/160×120）逐块系数与同图案 baseline 解码一致，灰度像素差 ≤1 LSB，彩色输出与 baseline 解码逐字节相同 | 格式矩阵 | 剩余边界：4 分量（CMYK）与 arithmetic coding 不支持；progressive 下的 DRI 无样本验证 |
 | GAP-2 | AVIF / HEIF / JPEG-XL 仅基础解码，无编码 | 格式矩阵 | 编码面明确不做（JPEG-XL 全特性不做） |
-| GAP-3 | 流式解码为「全量解码后逐行分发」，非增量 | lib 流式 API | 真增量解码规划于后续大版本 |
+| GAP-3 | 流式解码为「全量解码后逐行分发」，非增量 | lib 流式 API | **progressive JPEG 例外（0.1.33）**：`decode_jpeg_progressive_previews` 逐扫描出帧（解码器本来就按扫描推进，这里只是每扫描后成型一帧）。通用 `decode_stream*` 仍是全量后逐行分发；真增量（可暂停 bit reader 状态机）规划于后续大版本 |
 | GAP-4 | PSD 无编码；TIFF Huffman 块不支持；形态学固定 3×3 核 | codec / process | 已在 README 与 docs/notes 标注 |
 | GAP-5 | `ImageF` 受 `MAX_TOTAL_PIXELS = 5e8` 约束（峰值内存约 12 GB） | core/types | 解码器入口 `check_dims` 守卫 |
 | GAP-6 | ~~`detect_format` 仅识别 9 种 magic~~ **已闭环（2026-11-26）**：TIFF/ICO/CUR/ICNS/APNG 早有分支，TGA 补入末位头部字段判定（`is_tga_format` 覆盖 1/2/3/9/10/11 类型与 8/15/16/24/32 bpp） | codec/lib | S20 基准集暴露后修复，`g11_tga24` 已可 `imgtool convert` 直通 |
@@ -77,7 +77,7 @@
 
 ## 测试口径
 
-- **7,443 为 native 实测**（2026-11-28，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言、GAP-1 收口新增 3 条 progressive 测试、GAP-56 的 progressive 编码新增 8 条、0.1.28 EOBRUN/优化表新增 3 条、0.1.29 细化新增 2 条、0.1.30 的 4:2:0 新增 6 条、0.1.31 脚本引擎新增 5 条 + CLI 1 条、0.1.32 三角滤波上采样新增 6 条白盒）；四目标由 CI `test` job 矩阵实测。
+- **7,449 为 native 实测**（2026-11-28，含 S22 新增 9 条、S23 新增 2 条 QR 回归、S20 扩容新增 1 条 g23 位流断言、GAP-1 收口新增 3 条 progressive 测试、GAP-56 的 progressive 编码新增 8 条、0.1.28 EOBRUN/优化表新增 3 条、0.1.29 细化新增 2 条、0.1.30 的 4:2:0 新增 6 条、0.1.31 脚本引擎新增 5 条 + CLI 1 条、0.1.32 三角滤波上采样新增 6 条白盒、0.1.33 progressive 逐扫描预览新增 6 条）；四目标由 CI `test` job 矩阵实测。
 - 差分/往返/边界测试分布在 364 个 `*_test.mbt`；`roundtrip_test.mbt` 覆盖全格式往返。
 - 覆盖率、prove、变异、CI 门禁的完整矩阵见 [TEST_REPORT.md](../TEST_REPORT.md)。
 - 本轮冻结时的未做项（progressive 编码、4 分量与 arithmetic、DRI 样本、基准集 progressive 样本等）已统一转入 [roadmap.md §11 冻结基线遗留](roadmap.md)，不在本表重复。

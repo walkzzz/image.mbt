@@ -1,6 +1,6 @@
 name = "walkzzz/image.media"
 
-version = "0.1.32"
+version = "0.1.33"
 
 license = "MIT"
 
@@ -13,8 +13,8 @@ readme = "README.md"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.32",
-  "walkzzz/image.codec@0.1.32",
-  "walkzzz/image.process@0.1.32",
-  "walkzzz/image.domain@0.1.32",
+  "walkzzz/image.core@0.1.33",
+  "walkzzz/image.codec@0.1.33",
+  "walkzzz/image.process@0.1.33",
+  "walkzzz/image.domain@0.1.33",
 }

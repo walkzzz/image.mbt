@@ -498,3 +498,4 @@ dogfood 记录 ≥1 条                       # 本 Sprint 真实用过
 | F-08 | 覆盖率贴门槛运行 | 0.1.26 为 90.00%，门槛 90%，余量仅 165 行 | 新增代码前先补同量测试，或下调门槛需改 `check_coverage.mjs` 的 `min` |
 | F-09 | `moon coverage analyze` / `moon prove` 的 Windows 路径问题（GAP-10/GAP-15） | 上游 `\\?\` canonicalize 缺陷，本地无法绕 | 上游修复后重测 |
 | F-10 | 流式解码真增量（GAP-3）、AVIF/JXL 编码（GAP-2）、VP8 lossy 修好（GAP-25/27） | 见 [known-gaps.md](known-gaps.md) | 均需重新决策 |
+| F-11 ✅ | progressive 逐扫描预览（渐进加载 / 大图先看轮廓） | **已落地（0.1.33）**：`decode_jpeg_progressive_previews(data, every_scans)` 每 `every_scans` 条扫描成型一帧，返回 `Array[JpegProgPreview]{scan_index, image}`，末帧恒等于终态；`jpeg_progressive_scan_count` 取扫描条数。6 条测试钉住帧数/序号/末帧逐字节相等/首帧细节量小于末帧 1/4/baseline 拒绝；`image.media` 同步重导出。通用流式 API（`decode_stream*`）仍为"全量解码后逐行分发"，真增量留给后续大版本 | 若要做「边下边解的推流入口」，需把 bit reader 做成可暂停状态机（GAP-3） |

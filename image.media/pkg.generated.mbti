@@ -113,6 +113,8 @@ pub fn decode_icns_pure(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn decode_ico_pure(Bytes) -> @types.Image raise @types.LoadError
 
+pub fn decode_jpeg_progressive_previews(Bytes, Int32) -> Array[@codec.JpegProgPreview] raise @types.LoadError
+
 pub fn decode_jpeg_pure(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn decode_png_16_pure(Bytes, req_channels? : Int32?) -> @types.Image16 raise @types.LoadError
@@ -413,6 +415,8 @@ pub fn is_webp_format(Bytes) -> Bool
 
 pub fn jpeg_info_extended(Bytes) -> @codec.JpegInfoExtended raise @types.LoadError
 
+pub fn jpeg_progressive_scan_count(Bytes) -> Int32 raise @types.LoadError
+
 pub fn jpeg_progressive_script_eight() -> Array[@codec.JpegProgScan]
 
 pub fn jpeg_progressive_script_libjpeg() -> Array[@codec.JpegProgScan]
@@ -639,6 +643,8 @@ pub using @encryption {type ImageEncryptionQuality}
 pub using @codec {type ImageInfoExtended}
 
 pub using @codec {type JpegInfoExtended}
+
+pub using @codec {type JpegProgPreview}
 
 pub using @codec {type JpegProgScan}
 

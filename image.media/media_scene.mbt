@@ -44,6 +44,9 @@ pub using @codec {type ImageInfoExtended}
 pub using @codec {type JpegInfoExtended}
 
 ///|
+pub using @codec {type JpegProgPreview}
+
+///|
 pub using @codec {type JpegProgScan}
 
 ///|
@@ -95,6 +98,7 @@ pub using @codec {
   decode_hdr_pure,
   decode_icns_pure,
   decode_ico_pure,
+  decode_jpeg_progressive_previews,
   decode_jpeg_pure,
   decode_png_16_pure,
   decode_png_pure,
@@ -165,6 +169,7 @@ pub using @codec {
   is_tiff_format,
   is_webp_format,
   jpeg_info_extended,
+  jpeg_progressive_scan_count,
   jpeg_progressive_script_eight,
   jpeg_progressive_script_libjpeg,
   jpegxl_decode,

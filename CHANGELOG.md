@@ -4,6 +4,22 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.33] - 2026-11-28
+
+### Added
+
+- **progressive JPEG 逐扫描预览**：新增 `image.codec/codec/jpeg_progressive_preview.mbt`。`decode_jpeg_progressive_previews(data, every_scans)` 每解完 `every_scans` 条扫描就成型一帧，返回 `Array[JpegProgPreview]`（`scan_index` 为 1 起的扫描序号 + 当期 `Image`），末帧恒等于终态解码结果。第 1 条扫描（DC 首扫）即可给出整幅低频轮廓，后续扫描逐位补细节——这是渐进编码唯一真正的用户价值（渐进加载 / 大图先看轮廓）。
+- **`jpeg_progressive_scan_count(data)`**：不解码、只取扫描条数（8 段脚本为 8，libjpeg 10 段脚本为 10），便于调用方预分配帧预算。
+- **`image.media` 场景包同步重导出**：`type JpegProgPreview`、`decode_jpeg_progressive_previews`、`jpeg_progressive_scan_count`。
+
+### Changed
+
+- `jpeg_decode_progressive` 改用共享的 `jpeg_progressive_ctx`（头部校验 + 网格分配）与 `jpeg_progressive_render`（成型），行为不变——全量 native 7,449 测试与 0.1.32 逐字节一致（末帧断言 `frames[last] == decode_jpeg_pure(bytes)` 逐字节比对）。
+
+### Verified
+
+- 新增 6 条测试：帧数与 `scan_index` 递增、末帧与全量解码逐字节相等、`every_scans=4` 只出 4/8 两帧、纯 DC 首帧细节量显著小于末帧（行内相邻差和 `< 1/4`）、`every_scans<1` 归一、baseline JPEG 拒绝、扫描数查询（8 段 / 10 段）；native 全量 7,449 / 7,449。
+
 ## [0.1.32] - 2026-11-28
 
 ### Added

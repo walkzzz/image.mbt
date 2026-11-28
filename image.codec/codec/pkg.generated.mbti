@@ -40,6 +40,8 @@ pub fn decode_icns_pure(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn decode_ico_pure(Bytes) -> @types.Image raise @types.LoadError
 
+pub fn decode_jpeg_progressive_previews(Bytes, Int32) -> Array[JpegProgPreview] raise @types.LoadError
+
 pub fn decode_jpeg_pure(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn decode_png_16_pure(Bytes, req_channels? : Int32?) -> @types.Image16 raise @types.LoadError
@@ -185,6 +187,8 @@ pub fn is_tiff_format(Bytes) -> Bool
 pub fn is_webp_format(Bytes) -> Bool
 
 pub fn jpeg_info_extended(Bytes) -> JpegInfoExtended raise @types.LoadError
+
+pub fn jpeg_progressive_scan_count(Bytes) -> Int32 raise @types.LoadError
 
 pub fn jpeg_progressive_script_eight() -> Array[JpegProgScan]
 
@@ -397,6 +401,11 @@ pub struct JpegInfoExtended {
   sof_name : String
   num_channels : Int32
   has_alpha : Bool
+}
+
+pub(all) struct JpegProgPreview {
+  scan_index : Int32
+  image : @types.Image
 }
 
 pub(all) struct JpegProgScan {

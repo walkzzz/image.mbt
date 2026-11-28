@@ -368,52 +368,19 @@ fn jpeg_decode_progressive(
   header : JpegHeader,
   data : Bytes,
 ) -> @types.Image raise @types.LoadError {
-  let width = header.width
-  let height = header.height
-  let nc = header.num_components
-  if nc != 1 && nc != 3 {
-    raise @types.LoadError::DecodeFailed(
-      "JPEG progressive 仅支持 1 或 3 分量",
-    )
-  }
-  if header.scans.length() == 0 {
-    raise @types.LoadError::DecodeFailed("JPEG progressive 缺少扫描数据")
-  }
-  let mut max_h = 1
-  let mut max_v = 1
-  for i in 0..<nc {
-    if header.component_h[i] > max_h {
-      max_h = header.component_h[i]
-    }
-    if header.component_v[i] > max_v {
-      max_v = header.component_v[i]
-    }
-  }
-  if max_h < 1 || max_v < 1 {
-    raise @types.LoadError::DecodeFailed("JPEG 采样因子无效")
-  }
-  let mcu_w = max_h * 8
-  let mcu_h = max_v * 8
-  let mcus_x = (width + mcu_w - 1) / mcu_w
-  let mcus_y = (height + mcu_h - 1) / mcu_h
-  let bw : Array[Int32] = Array::make(4, 0)
-  let bh : Array[Int32] = Array::make(4, 0)
-  let stride_x : Array[Int32] = Array::make(4, 0)
-  let coefs : Array[Array[Int32]] = []
-  for ci in 0..<nc {
-    // 实际块网格（输出用）：ceil(w*h_i/(8*max_h)) × ceil(h*v_i/(8*max_v))
-    bw[ci] = (width * header.component_h[ci] + mcu_w - 1) / mcu_w
-    bh[ci] = (height * header.component_v[ci] + mcu_h - 1) / mcu_h
-    // 系数缓冲按 MCU 网格容量分配：交错扫描会把 padding 块也编进码流
-    stride_x[ci] = mcus_x * header.component_h[ci]
-    coefs.push(
-      Array::make(stride_x[ci] * mcus_y * header.component_v[ci] * 64, 0),
-    )
-  }
+  let ctx = jpeg_progressive_ctx(header)
   for scan in header.scans {
     jpeg_progressive_scan(
-      header, data, scan, coefs, bw, bh, stride_x, mcus_x, mcus_y,
+      header,
+      data,
+      scan,
+      ctx.coefs,
+      ctx.bw,
+      ctx.bh,
+      ctx.stride_x,
+      ctx.mcus_x,
+      ctx.mcus_y,
     )
   }
-  jpeg_progressive_output(header, coefs, bw, bh, stride_x, max_h, max_v)
+  jpeg_progressive_render(header, ctx)
 }
