@@ -233,6 +233,16 @@
           </div>
           <output id="summary-out" class="out-wide" aria-live="polite">点击「解读当前 PNG」…</output>
         </article>
+
+        <article class="card wide">
+          <header class="card-head">
+            <h3>渐进 JPEG 的 8 条扫描</h3>
+            <a class="pkg-link" href="https://github.com/walkzzz/image.mbt/blob/main/image.codec/codec/README.md" target="_blank" rel="noreferrer"><code>decode_jpeg_progressive_previews</code></a>
+          </header>
+          <p class="hint">同一张 320×240 图（自编 progressive 4:2:0、Q72）交给 <code>imgtool previews</code> 逐扫描成帧：scan 1 只有 DC，整幅是 8×8 的马赛克；scan 2 起 AC 首扫把文字与形状补齐；之后 6 帧逐位细化。静态图由 CLI 预生成，浏览器端零计算。</p>
+          <img src="progressive_previews.jpg" class="preview-sheet" alt="渐进 JPEG 八条扫描的逐帧对比：从马赛克到全分辨率" loading="lazy" />
+          <output class="out-wide" aria-live="polite">scan 8 与完整解码逐字节相同——这条断言写在 7,450 条测试里。</output>
+        </article>
       </div>
     </section>
 

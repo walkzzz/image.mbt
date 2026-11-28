@@ -154,6 +154,7 @@ button { padding: 9px 16px; border: 1px solid var(--accent); border-radius: 9px;
 button:hover { background: color-mix(in srgb, var(--accent) 18%, var(--panel)); }
 .chip-btn { border-color: var(--border); background: var(--panel-alt); color: var(--muted); }
 .demo-img { display: none; width: 100%; max-width: 320px; margin: 16px auto 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; image-rendering: pixelated; }
+.preview-sheet { display: block; width: 100%; max-width: 780px; margin: 16px auto 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
 output { display: block; width: 100%; margin-top: 14px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 9px; background: var(--panel-alt); color: var(--text); font-family: ui-monospace, monospace; font-size: 12.5px; white-space: pre-wrap; overflow-wrap: break-word; }
 .out-wide { min-height: 44px; }
 output.is-error { border-left: 2px solid #f87171; color: #b91c1c; }
