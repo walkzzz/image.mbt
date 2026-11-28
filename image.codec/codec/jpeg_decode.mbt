@@ -10,12 +10,16 @@
 
 ///|
 /// JPEG 位读取器
+///
+/// `suspended` 只在流式半扫描路径使用：读到字节末尾时置位，调用方据此
+/// 区分「文件真的坏了」与「还差输入」，并可回滚到上一个已完成单位。
 priv struct JpegBitReader {
   data : Bytes
   len : Int32
   mut pos : Int32
   mut bit_buf : Int32
   mut bit_cnt : Int32
+  mut suspended : Bool
 }
 
 ///|
@@ -67,12 +71,14 @@ fn build_jpeg_huffman(
 fn jpeg_read_bit(r : JpegBitReader) -> Int32 raise @types.LoadError {
   if r.bit_cnt == 0 {
     if r.pos >= r.len {
+      r.suspended = true
       raise @types.LoadError::DecodeFailed("JPEG 数据意外结束")
     }
     let b = r.data[r.pos].to_int()
     r.pos += 1
     if b == 0xFF {
       if r.pos >= r.len {
+        r.suspended = true
         raise @types.LoadError::DecodeFailed("JPEG 数据意外结束于 0xFF")
       }
       let next = r.data[r.pos].to_int()
@@ -593,6 +599,7 @@ fn jpeg_decode_scan(
     pos: header.entropy_start,
     bit_buf: 0,
     bit_cnt: 0,
+    suspended: false,
   }
   let mut max_h = 1
   let mut max_v = 1

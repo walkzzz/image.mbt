@@ -1,6 +1,6 @@
 name = "walkzzz/image.commerce"
 
-version = "0.1.36"
+version = "0.1.37"
 
 license = "MIT"
 
@@ -13,9 +13,9 @@ readme = "README.md"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.36",
-  "walkzzz/image.codec@0.1.36",
-  "walkzzz/image.process@0.1.36",
-  "walkzzz/image.domain@0.1.36",
-  "walkzzz/image.photography@0.1.36",
+  "walkzzz/image.core@0.1.37",
+  "walkzzz/image.codec@0.1.37",
+  "walkzzz/image.process@0.1.37",
+  "walkzzz/image.domain@0.1.37",
+  "walkzzz/image.photography@0.1.37",
 }

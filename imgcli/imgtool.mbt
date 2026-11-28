@@ -623,7 +623,7 @@ fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.36"
+pub let version : String = "0.1.37"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。

@@ -1,11 +1,11 @@
 {
   "schema": "coverage@1",
-  "covered": 39388,
-  "total": 43690,
-  "percent": 90.15,
+  "covered": 39443,
+  "total": 43759,
+  "percent": 90.14,
   "threshold": 90,
   "scope": "native（四目标同源，行覆盖以 native 实测为准）",
   "source": "moon test --enable-coverage --target native → moon coverage report -f summary",
   "measured_at": "2026-11-28",
-  "note": "口径不排除任何文件：pub using 声明行为 0/0、benchmarks/gen/main.mbt 0/21 均计入分母。0.1.36 渐进扫描游标（JpegProgStream + 5 条测试）落地后全量复测（7,455 测试）。"
+  "note": "口径不排除任何文件：pub using 声明行为 0/0、benchmarks/gen/main.mbt 0/21 均计入分母。0.1.37 半扫描推进（JpegProgPartial + 4 条测试）落地后全量复测（7,459 测试）。"
 }

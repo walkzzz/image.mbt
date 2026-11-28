@@ -188,6 +188,16 @@ pub fn is_webp_format(Bytes) -> Bool
 
 pub fn jpeg_info_extended(Bytes) -> JpegInfoExtended raise @types.LoadError
 
+pub fn jpeg_progressive_partial_advance(JpegProgPartial, Int32) -> JpegProgAdvance raise @types.LoadError
+
+pub fn jpeg_progressive_partial_feed(JpegProgPartial, Int32) -> Unit
+
+pub fn jpeg_progressive_partial_image(JpegProgPartial) -> @types.Image
+
+pub fn jpeg_progressive_partial_open(Bytes) -> JpegProgPartial raise @types.LoadError
+
+pub fn jpeg_progressive_partial_position(JpegProgPartial) -> (Int32, Int32)
+
 pub fn jpeg_progressive_scan_count(Bytes) -> Int32 raise @types.LoadError
 
 pub fn jpeg_progressive_script_eight() -> Array[JpegProgScan]
@@ -440,6 +450,15 @@ pub struct JpegInfoExtended {
   has_alpha : Bool
 }
 
+pub(all) struct JpegProgAdvance {
+  scan_index : Int32
+  unit_done : Int32
+  unit_total : Int32
+  scan_complete : Bool
+  stuck : Bool
+  finished : Bool
+}
+
 pub struct JpegProgCtx {
   coefs : Array[Array[Int32]]
   bw : Array[Int32]
@@ -449,6 +468,21 @@ pub struct JpegProgCtx {
   mcus_y : Int32
   max_h : Int32
   max_v : Int32
+}
+
+pub struct JpegProgPartial {
+  header : JpegHeader
+  data : Bytes
+  ctx : JpegProgCtx
+  mut visible : Int32
+  mut scan_idx : Int32
+  mut unit_idx : Int32
+  mut started : Bool
+  mut r_pos : Int32
+  mut r_bit_buf : Int32
+  mut r_bit_cnt : Int32
+  mut pred : Array[Int32]
+  mut eobrun : Int32
 }
 
 pub(all) struct JpegProgPreview {

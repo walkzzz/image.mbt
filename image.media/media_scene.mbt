@@ -50,7 +50,13 @@ pub using @codec {type JpegHuffmanTable}
 pub using @codec {type JpegInfoExtended}
 
 ///|
+pub using @codec {type JpegProgAdvance}
+
+///|
 pub using @codec {type JpegProgCtx}
+
+///|
+pub using @codec {type JpegProgPartial}
 
 ///|
 pub using @codec {type JpegProgPreview}
@@ -184,6 +190,11 @@ pub using @codec {
   is_tiff_format,
   is_webp_format,
   jpeg_info_extended,
+  jpeg_progressive_partial_advance,
+  jpeg_progressive_partial_feed,
+  jpeg_progressive_partial_image,
+  jpeg_progressive_partial_open,
+  jpeg_progressive_partial_position,
   jpeg_progressive_scan_count,
   jpeg_progressive_script_eight,
   jpeg_progressive_script_libjpeg,

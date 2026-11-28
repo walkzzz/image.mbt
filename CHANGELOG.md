@@ -4,6 +4,20 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.37] - 2026-11-28
+
+### Added
+
+- **半扫描推进 `JpegProgPartial`**：新增 `image.codec/codec/jpeg_progressive_partial.mbt`。步长从 0.1.36 的「整条扫描」压到「**MCU**」：`jpeg_progressive_partial_open(data)` 解析头部与全部 SOS 边界（`data` 给完整文件），`jpeg_progressive_partial_feed(p, up_to)` 声明「前 up_to 字节已收到」，`jpeg_progressive_partial_advance(p, max_units)` 推进至多 `max_units` 个单位（interleaved 扫描为 MCU、单分量扫描为块），`jpeg_progressive_partial_image(p)` 取当前成型帧，`jpeg_progressive_partial_position(p)` 给 `(扫描序号, 单位序号)`。
+- **回滚语义**：每个单位开始前快照 reader 位置 / 位缓冲 / 各分量 DC 预测 / EOBRUN / 该单位覆盖的 64×块旧值；单位中途读到可见窗口末尾（`JpegBitReader.suspended`）就整体回滚到该单位起点并返回 `stuck=true`。保证「已确认完成的单位」只增不减——进程被挂起、字节继续到达后从同一位置续跑，不会出现半步脏系数。
+- `JpegProgAdvance` 汇报 `scan_index` / `unit_done` / `unit_total` / `scan_complete` / `stuck` / `finished`；`JpegBitReader` 增加 `suspended` 标志（默认 `false`，baseline 与整条扫描路径行为完全不变）。
+- `image.media` 转出 `JpegProgPartial` / `JpegProgAdvance` 与 5 个 `jpeg_progressive_partial_*` 函数。
+
+### Verified
+
+- `jpeg_progressive_partial_test.mbt` 4 条：全量字节按 7 单位预算推进与 `decode_jpeg_pure` **逐字节一致**、字节分三段喂入时首次 `advance` 必然 `stuck` 且 `unit_done` 单调不减、续喂到齐后终态仍等于整解、只喂 1/4 字节即可出帧且尺寸正确、baseline 拒绝打开。
+- 全量 **7,459** 测试（4 目标同源）全绿；覆盖率全量复测 **39,443/43,759 = 90.14%**（门槛 90%）。
+
 ## [0.1.36] - 2026-11-28
 
 ### Added

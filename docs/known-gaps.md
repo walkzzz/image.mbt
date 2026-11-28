@@ -1,7 +1,7 @@
 # 已知边界与缺口（真话台账）
 
 > 维护者人工维护的诚实台账。README 只描述能力；本文件描述边界与未完成项。
-> 当前口径（2026-11-28）：版本 0.1.36 · 7,455 测试 × 4 目标 · 82 包 · 覆盖率 90.15% · prove 8 goals。
+> 当前口径（2026-11-28）：版本 0.1.37 · 7,459 测试 × 4 目标 · 82 包 · 覆盖率 90.14% · prove 8 goals。
 
 ## 功能边界
 
@@ -9,7 +9,7 @@
 |------|------|--------|-------------|
 | GAP-1 | ~~JPEG progressive 解码未实现~~ **已闭环（2026-11-27）**：SOF2 多扫描累积（DC 首扫/DC 细化/AC 首扫/AC 细化、跨扫描 DHT 重定义快照、交错与非交错块网格、EOB run）全通；4 份 Pillow 样本（48×32/32×24/96×72/160×120）逐块系数与同图案 baseline 解码一致，灰度像素差 ≤1 LSB，彩色输出与 baseline 解码逐字节相同 | 格式矩阵 | 剩余边界：4 分量（CMYK）与 arithmetic coding 不支持；progressive 下的 DRI 无样本验证 |
 | GAP-2 | AVIF / HEIF / JPEG-XL 仅基础解码，无编码 | 格式矩阵 | 编码面明确不做（JPEG-XL 全特性不做） |
-| GAP-3 | 流式解码为「全量解码后逐行分发」，非增量 | lib 流式 API | **progressive JPEG 已可暂停（0.1.36）**：`jpeg_progressive_stream_open/step/finish` 把「解析头部」与「推进扫描」拆开，系数缓冲跨步共享，`--first 2` 实测 171 ms vs 全 10 条 903 ms（640×400，省 81%）。边界仍是「扫描为最小步长」：字节流可以只喂到某条扫描结束，但一条扫描内部的半截熵数据仍需等齐（可暂停 bit reader 状态机未做）。通用 `decode_stream*` 仍是全量后逐行分发 |
+| GAP-3 | 流式解码为「全量解码后逐行分发」，非增量 | lib 流式 API | **progressive JPEG 已可半扫描暂停（0.1.37）**：`jpeg_progressive_partial_open/feed/advance/image` 把步长从扫描压到 MCU——单位开始前快照 reader/DC 预测/EOBRUN/系数块旧值，读到可见窗口末尾就整体回滚并 `stuck=true`，续喂字节后从同一位置继续（测试：分三段喂入终态与整解逐字节一致）。0.1.36 的 `JpegProgStream` 仍提供「整条扫描」粒度 + `--first` 早停（640×400 实测 171 ms vs 903 ms，省 81%）。边界是「不跨扫描自动推进」：`advance` 一次只推进当前扫描，扫描完成后由调用方再调一次；通用 `decode_stream*` 仍是全量后逐行分发 |
 | GAP-4 | PSD 无编码；TIFF Huffman 块不支持；形态学固定 3×3 核 | codec / process | 已在 README 与 docs/notes 标注 |
 | GAP-5 | `ImageF` 受 `MAX_TOTAL_PIXELS = 5e8` 约束（峰值内存约 12 GB） | core/types | 解码器入口 `check_dims` 守卫 |
 | GAP-6 | ~~`detect_format` 仅识别 9 种 magic~~ **已闭环（2026-11-26）**：TIFF/ICO/CUR/ICNS/APNG 早有分支，TGA 补入末位头部字段判定（`is_tga_format` 覆盖 1/2/3/9/10/11 类型与 8/15/16/24/32 bpp） | codec/lib | S20 基准集暴露后修复，`g11_tga24` 已可 `imgtool convert` 直通 |

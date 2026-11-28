@@ -255,6 +255,7 @@ fn jpeg_progressive_scan(
     pos: scan.entropy_start,
     bit_buf: 0,
     bit_cnt: 0,
+    suspended: false,
   }
   let zz = zigzag()
   let pred : Array[Ref[Int32]] = []

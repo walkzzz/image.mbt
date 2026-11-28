@@ -415,6 +415,16 @@ pub fn is_webp_format(Bytes) -> Bool
 
 pub fn jpeg_info_extended(Bytes) -> @codec.JpegInfoExtended raise @types.LoadError
 
+pub fn jpeg_progressive_partial_advance(@codec.JpegProgPartial, Int32) -> @codec.JpegProgAdvance raise @types.LoadError
+
+pub fn jpeg_progressive_partial_feed(@codec.JpegProgPartial, Int32) -> Unit
+
+pub fn jpeg_progressive_partial_image(@codec.JpegProgPartial) -> @types.Image
+
+pub fn jpeg_progressive_partial_open(Bytes) -> @codec.JpegProgPartial raise @types.LoadError
+
+pub fn jpeg_progressive_partial_position(@codec.JpegProgPartial) -> (Int32, Int32)
+
 pub fn jpeg_progressive_scan_count(Bytes) -> Int32 raise @types.LoadError
 
 pub fn jpeg_progressive_script_eight() -> Array[@codec.JpegProgScan]
@@ -658,7 +668,11 @@ pub using @codec {type JpegHuffmanTable}
 
 pub using @codec {type JpegInfoExtended}
 
+pub using @codec {type JpegProgAdvance}
+
 pub using @codec {type JpegProgCtx}
+
+pub using @codec {type JpegProgPartial}
 
 pub using @codec {type JpegProgPreview}
 
