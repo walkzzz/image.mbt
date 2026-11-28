@@ -235,6 +235,8 @@ pub fn encode_jpeg_progressive(@types.Image, Int32) -> Bytes raise @types.LoadEr
 
 pub fn encode_jpeg_progressive_420(@types.Image, Int32) -> Bytes raise @types.LoadError
 
+pub fn encode_jpeg_progressive_420_scripted(@types.Image, Int32, Array[@codec.JpegProgScan]) -> Bytes raise @types.LoadError
+
 pub fn encode_jpeg_pure(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn encode_jpeg_with_quality(@types.Image, Int32) -> Bytes raise @types.LoadError
@@ -410,6 +412,10 @@ pub fn is_tiff_format(Bytes) -> Bool
 pub fn is_webp_format(Bytes) -> Bool
 
 pub fn jpeg_info_extended(Bytes) -> @codec.JpegInfoExtended raise @types.LoadError
+
+pub fn jpeg_progressive_script_eight() -> Array[@codec.JpegProgScan]
+
+pub fn jpeg_progressive_script_libjpeg() -> Array[@codec.JpegProgScan]
 
 pub fn jpegxl_decode(Bytes) -> @types.Image raise @types.LoadError
 
@@ -633,6 +639,8 @@ pub using @encryption {type ImageEncryptionQuality}
 pub using @codec {type ImageInfoExtended}
 
 pub using @codec {type JpegInfoExtended}
+
+pub using @codec {type JpegProgScan}
 
 pub using @codec {type JpegXlInfo}
 
