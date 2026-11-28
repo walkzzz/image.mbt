@@ -4,6 +4,18 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.35] - 2026-11-28
+
+### Added
+
+- **`imgtool previews --anim <out.gif> [--frame-ms N]`**：在同一次渐进解码里把逐扫描帧直接编码成循环 GIF（Netscape 扩展、无限循环、末帧停留 4 倍时长），不必再拿 PNG 去外部拼图。走 `encode_gif_animation_pure` + 3-3-2 调色板 256 色；灰度 progressive JPEG 的单通道帧由 `gif_ready` 就地展开成 RGB，避免 GIF 编码器拒收。JSON 顶层新增 `anim` 对象（`path` / `bytes` / `frames` / `frame_ms` / `wrote`）；不给 `--anim` 时该对象 `bytes:0`、`frames:0`，零额外开销。
+- 实测：320×240 自编图（progressive 4:2:0 Q72、8 段）→ 8 帧 GIF **72,367 B**，末帧 1,040 ms（260 ms × 4）；640×400 libjpeg 10 段样本 → 10 帧 **2,296,411 B**。容器由 PIL 交叉验证：`frames=8`、`loop=0`、最后一帧 `duration=1040`。
+- Pages 演示区新增「渐进 JPEG 的 8 条扫描」卡片（`docs/progressive_previews.jpg`，320×240 源图逐帧 4×2 拼图，113 KB），scan 1 是纯 DC 的 8×8 马赛克、scan 2 起文字与形状补齐。
+
+### Verified
+
+- `previews` 的 CLI 测试扩成 round-trip：CLI 造 progressive → `--anim` 出 GIF → `decode_gif_animation_pure` 读回，断言 8 帧、`delays[0]=120`、`delays[7]=480`、首末帧尺寸一致；imgcli 33 测试全绿，`moon check --deny-warn --target all` 零告警。
+
 ## [0.1.34] - 2026-11-28
 
 ### Added

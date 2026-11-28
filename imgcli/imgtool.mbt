@@ -493,20 +493,49 @@ fn pad2(n : Int32) -> String {
 }
 
 ///|
-/// `previews` — 把 progressive JPEG 的逐扫描预览帧落成 PNG。
+/// GIF 动画要求 3 / 4 通道；灰度预览帧就地展开成 RGB。
+fn gif_ready(img : @types.Image) -> @types.Image {
+  if img.channels != 1 {
+    return img
+  }
+  let n = img.width * img.height
+  let out : Array[Byte] = Array::make(n * 3, b'\x00')
+  for i in 0..<n {
+    let v = img.data[i]
+    out[i * 3] = v
+    out[i * 3 + 1] = v
+    out[i * 3 + 2] = v
+  }
+  @types.Image::{
+    width: img.width,
+    height: img.height,
+    channels: 3,
+    data: Bytes::from_array(out),
+  }
+}
+
+///|
+/// `previews` — 把 progressive JPEG 的逐扫描预览帧落成 PNG，可选合成动画 GIF。
 ///
-/// `imgtool previews <in.jpg> <out-dir> [--every N] [--dry-run]`
-/// 输出 `scan_01.png`、`scan_02.png`…（末帧即完整解码结果）。
+/// `imgtool previews <in.jpg> <out-dir> [--every N] [--anim out.gif] [--frame-ms N] [--dry-run]`
+/// 输出 `scan_01.png`、`scan_02.png`…（末帧即完整解码结果）；给了 `--anim` 时
+/// 再把同一批帧编码成循环 GIF（末帧停留 4 倍时长）。
 fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
   let src = flags.positional[0]
   let dir = flags.positional[1]
   let every = flags.int("every", 1)
+  let anim_path = flags.str("anim", "")
+  let frame_ms = flags.int("frame-ms", 250)
   let dry = flags.has("dry-run")
   let input = src_bytes(src)
   let frames = @codec.decode_jpeg_progressive_previews(input, every) catch {
     e => raise @types.image_error_from_load(e)
   }
   let items : Array[@json.Json] = []
+  let anim_imgs : Array[@types.Image] = []
+  let anim_delays : Array[Int32] = []
+  let n_frames = frames.length()
+  let mut frame_idx = 0
   let mut total_scan = 0
   for f in frames {
     let name = "scan_" + pad2(f.scan_index) + ".png"
@@ -531,6 +560,39 @@ fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
     }
     items.push(@json.Json::object(entry))
     total_scan = f.scan_index
+    if anim_path != "" {
+      anim_imgs.push(gif_ready(f.image))
+      anim_delays.push(
+        if frame_idx == n_frames - 1 {
+          frame_ms * 4
+        } else {
+          frame_ms
+        },
+      )
+    }
+    frame_idx = frame_idx + 1
+  }
+  let mut anim_bytes = 0
+  let mut anim_ok = false
+  if anim_path != "" {
+    let gif = @codec.encode_gif_animation_pure(@types.GifAnimation::{
+      frames: anim_imgs,
+      delays: anim_delays,
+    }) catch {
+      e => raise @types.image_error_from_load(e)
+    }
+    anim_bytes = gif.length().to_int()
+    if !dry {
+      write_bytes(anim_path, gif)
+    }
+    anim_ok = true
+  }
+  let anim_entry : Out = {
+    "path": jstr(anim_path),
+    "bytes": jnum(anim_bytes),
+    "frames": jnum(if anim_ok { n_frames } else { 0 }),
+    "frame_ms": jnum(frame_ms),
+    "wrote": jbool(anim_ok && !dry),
   }
   result({
     "src": jstr(src),
@@ -538,6 +600,7 @@ fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
     "every": jnum(every),
     "last_scan": jnum(total_scan),
     "frames": @json.Json::array(items),
+    "anim": @json.Json::object(anim_entry),
     "dry_run": jbool(dry),
     "wrote": jbool(!dry),
   })
@@ -545,7 +608,7 @@ fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.34"
+pub let version : String = "0.1.35"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。
@@ -564,8 +627,8 @@ pub fn help_text() -> String {
   "  imgtool analyze  <in>\n" +
   "  imgtool sanitize <in> <out> [--policy metadata|standard|strict] [--regions \"x,y,w,h;...\"]\n" +
   "                             [--block N] [--blur N] [--format ...] [--quality 1-100] [--dry-run]\n" +
-  "  imgtool previews <in.jpg> <out-dir> [--every N] [--dry-run]\n" +
-  "                             （progressive JPEG 逐扫描帧落成 scan_01.png…，末帧即完整解码）\n" +
+  "  imgtool previews <in.jpg> <out-dir> [--every N] [--anim out.gif] [--frame-ms N] [--dry-run]\n" +
+  "                             （progressive JPEG 逐扫描帧落成 scan_01.png…，末帧即完整解码；--anim 再合成循环 GIF）\n" +
   "  imgtool bench    <in> [--iters N] [--formats png,jpeg,webp] [--quality 1-100]\n" +
   "                             [--width N --height N]\n" +
   "  imgtool help | version\n\n" +

@@ -1,6 +1,6 @@
 name = "walkzzz/image.core"
 
-version = "0.1.34"
+version = "0.1.35"
 
 license = "MIT"
 

@@ -1,6 +1,6 @@
 name = "walkzzz/image.mbt"
 
-version = "0.1.34"
+version = "0.1.35"
 
 license = "MIT"
 
@@ -29,11 +29,11 @@ preferred_target = "native"
 readme = "README.md"
 
 import {
-  "walkzzz/image.core@0.1.34",
-  "walkzzz/image.codec@0.1.34",
-  "walkzzz/image.process@0.1.34",
-  "walkzzz/image.photography@0.1.34",
-  "walkzzz/image.vision@0.1.34",
-  "walkzzz/image.domain@0.1.34",
+  "walkzzz/image.core@0.1.35",
+  "walkzzz/image.codec@0.1.35",
+  "walkzzz/image.process@0.1.35",
+  "walkzzz/image.photography@0.1.35",
+  "walkzzz/image.vision@0.1.35",
+  "walkzzz/image.domain@0.1.35",
   "moonbitlang/x@0.5.9",
 }

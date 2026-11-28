@@ -6,8 +6,8 @@
 
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20260819-6E40C9?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjNkU0MEM5Ii8+PC9zdmc+)](https://www.moonbitlang.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.34-orange)]()
-[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.34-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
+[![Version](https://img.shields.io/badge/version-0.1.35-orange)]()
+[![mooncakes.io](https://img.shields.io/badge/mooncakes-0.1.35-orange?style=flat-square)](https://mooncakes.io/package/walkzzz/image.mbt)
 [![CI](https://github.com/walkzzz/image.mbt/actions/workflows/ci.yml/badge.svg)](https://github.com/walkzzz/image.mbt/actions/workflows/ci.yml)
 [![Pages](https://github.com/walkzzz/image.mbt/actions/workflows/pages.yml/badge.svg)](https://walkzzz.github.io/image.mbt/)
 

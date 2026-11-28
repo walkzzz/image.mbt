@@ -490,6 +490,36 @@ test "clicov: previews 逐扫描导出（dry-run）" {
     "previews", "_build_cli_pv_base.jpg", ".", "--dry-run",
   ])
   assert_true(!cli_ok(bad))
+  // --anim：8 帧合成循环 GIF，末帧停留 4 倍；读回来校验帧数与延迟
+  // 非 dry-run 会把 PNG 逐帧落盘，因此帧与 GIF 统一写进 _build，不污染仓库根
+  let gif_path = "_build\\cli_pv_anim.gif"
+  let anim_out = cli_dispatch([
+    "previews", "_build_cli_pv.jpg", "_build", "--anim", gif_path, "--frame-ms",
+    "120",
+  ])
+  assert_true(cli_ok(anim_out))
+  assert_true(cli_has(anim_out, "anim"))
+  let gif = read_bytes(gif_path)
+  let anim = @codec.decode_gif_animation_pure(gif) catch {
+    e => {
+      fail("gif decode err: \{e}")
+      @types.GifAnimation::{ frames: [], delays: [], }
+    }
+  }
+  let blen = anim.frames.length()
+  if blen != 8 {
+    fail("gif frames=" + blen.to_string())
+  }
+  if anim.delays.length() != 8 {
+    fail("gif delays=" + anim.delays.length().to_string())
+  }
+  if anim.delays[0] != 120 {
+    fail("d0=" + anim.delays[0].to_string())
+  }
+  if anim.delays[7] != 480 {
+    fail("d7=" + anim.delays[7].to_string())
+  }
+  assert_true(anim.frames[7].width == anim.frames[0].width)
 }
 
 ///|

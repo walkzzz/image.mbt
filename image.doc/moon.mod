@@ -1,6 +1,6 @@
 name = "walkzzz/image.doc"
 
-version = "0.1.34"
+version = "0.1.35"
 
 license = "MIT"
 
@@ -13,7 +13,7 @@ readme = "README.md"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.34",
-  "walkzzz/image.codec@0.1.34",
-  "walkzzz/image.vision@0.1.34",
+  "walkzzz/image.core@0.1.35",
+  "walkzzz/image.codec@0.1.35",
+  "walkzzz/image.vision@0.1.35",
 }
