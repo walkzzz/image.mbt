@@ -10,7 +10,7 @@ moon build --release cmd/imgtool
 # 产物：_build/native/release/build/walkzzz/image.mbt/cmd/imgtool/imgtool.exe
 ```
 
-## 8 个子命令
+## 9 个子命令
 
 | 子命令 | 作用 | 关键参数 |
 |---|---|---|
@@ -22,6 +22,7 @@ moon build --release cmd/imgtool
 | `analyze` | 尺寸/通道/均值/极值/标准差 | `<in>` |
 | `sanitize` | 三档脱敏（剥元数据/区域打码/整图模糊） | `--policy` `--regions` `--block` `--blur` |
 | `bench` | decode / encode / resize 的每轮均值（微秒） | `--iters` `--formats` `--width` `--height` |
+| `previews` | progressive JPEG 逐扫描帧落成 `scan_01.png`…（末帧即完整解码） | `--every` |
 
 通用：`--format`（省略时按输出扩展名推断，再无则 PNG）、`--quality 1-100`、`--mem-budget`、`--max-pixels`。
 
@@ -52,6 +53,13 @@ DC 细化 → Y `Ah=2 Al=1` → 三通道逐级细化。它换来更细腻的渐
 1280×720 Q55 52,860 B（默认 8 段为 51,837，+2.0%）、Q80 113,762 B（+0.1%）、128×128 Q80 1,670 B（+8.4%）——
 每条 AC 扫描要各带一张 DHT、EOBRUN 也各扫描重置一次。默认保持 8 段，此开关按需显式开启。
 单独给 `--jpeg-progressive-10scan` 会报错——它只选扫描脚本，不开关 progressive。
+
+`previews <in.jpg> <out-dir> [--every N]`（仅 progressive JPEG，SOF2）：把 `decode_jpeg_progressive_previews`
+产出的每一帧写成 `scan_01.png`、`scan_02.png`…，输出 JSON 的 `frames` 数组给出每帧的序号、路径、尺寸与 PNG 体积。
+`--every 4` 表示每 4 条扫描出一帧（8 段脚本 → 只有 `scan_04`、`scan_08`）；末帧恒等于完整解码结果。
+实测 256×256 噪声图（我们自编 Q82 4:2:0，8 段）：scan 1 是 16×16 马赛克（纯 DC），scan 2 起高频全部出现，
+PNG 体积 12,655 B → 末帧的最细版；640×400 libjpeg 10 段样本则是 33,443 B → 145,683 B 逐级递增。
+baseline JPEG 会直接报错（该子命令只对渐进流有意义）；`--dry-run` 完整成帧但不落盘。
 
 ## 输出约定
 

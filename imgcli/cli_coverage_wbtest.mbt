@@ -460,6 +460,39 @@ test "clicov: 端到端 resize / crop / filter / sanitize" {
 }
 
 ///|
+test "clicov: previews 逐扫描导出（dry-run）" {
+  if !cli_fs_writable() {
+    return
+  }
+  let png = "_build_cli_pv_src.png"
+  cli_write_png(png)
+  // 先造一张 progressive JPEG（4:2:0，不 dry-run 才真有文件）
+  let enc = cli_dispatch([
+    "convert", png, "_build_cli_pv.jpg", "--format", "jpeg", "--jpeg-progressive",
+    "--jpeg-progressive-420",
+  ])
+  assert_true(cli_ok(enc))
+  let dry = cli_dispatch(["previews", "_build_cli_pv.jpg", ".", "--dry-run"])
+  assert_true(cli_ok(dry))
+  assert_true(cli_has(dry, "frames"))
+  assert_true(cli_has(dry, "last_scan"))
+  // --every 4：只出 4、8 两帧（帧数组仍在，序号由 last_scan 兜底）
+  let ev = cli_dispatch([
+    "previews", "_build_cli_pv.jpg", ".", "--every", "4", "--dry-run",
+  ])
+  assert_true(cli_ok(ev))
+  // baseline JPEG 必须拒绝
+  let base = cli_dispatch([
+    "convert", png, "_build_cli_pv_base.jpg", "--format", "jpeg",
+  ])
+  assert_true(cli_ok(base))
+  let bad = cli_dispatch([
+    "previews", "_build_cli_pv_base.jpg", ".", "--dry-run",
+  ])
+  assert_true(!cli_ok(bad))
+}
+
+///|
 test "clicov: 端到端 bench" {
   if !cli_fs_writable() {
     return

@@ -483,8 +483,69 @@ pub fn error_json(e : @types.ImageError) -> Out {
 }
 
 ///|
+/// 扫描序号补两位：`1` → `01`，`10` → `10`（便于按文件名排序）
+fn pad2(n : Int32) -> String {
+  if n < 10 {
+    "0" + n.to_string()
+  } else {
+    n.to_string()
+  }
+}
+
+///|
+/// `previews` — 把 progressive JPEG 的逐扫描预览帧落成 PNG。
+///
+/// `imgtool previews <in.jpg> <out-dir> [--every N] [--dry-run]`
+/// 输出 `scan_01.png`、`scan_02.png`…（末帧即完整解码结果）。
+fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
+  let src = flags.positional[0]
+  let dir = flags.positional[1]
+  let every = flags.int("every", 1)
+  let dry = flags.has("dry-run")
+  let input = src_bytes(src)
+  let frames = @codec.decode_jpeg_progressive_previews(input, every) catch {
+    e => raise @types.image_error_from_load(e)
+  }
+  let items : Array[@json.Json] = []
+  let mut total_scan = 0
+  for f in frames {
+    let name = "scan_" + pad2(f.scan_index) + ".png"
+    let path = if dir == "." || dir == "" {
+      name
+    } else if dir.has_suffix("\\") || dir.has_suffix("/") {
+      dir + name
+    } else {
+      dir + "\\" + name
+    }
+    let png = encode_image(f.image, @types.ImageFormat::Png, 0)
+    if !dry {
+      write_bytes(path, png)
+    }
+    let entry : Out = {
+      "scan": jnum(f.scan_index),
+      "path": jstr(path),
+      "width": jnum(f.image.width),
+      "height": jnum(f.image.height),
+      "bytes": jnum(png.length().to_int()),
+      "wrote": jbool(!dry),
+    }
+    items.push(@json.Json::object(entry))
+    total_scan = f.scan_index
+  }
+  result({
+    "src": jstr(src),
+    "dir": jstr(dir),
+    "every": jnum(every),
+    "last_scan": jnum(total_scan),
+    "frames": @json.Json::array(items),
+    "dry_run": jbool(dry),
+    "wrote": jbool(!dry),
+  })
+}
+
+///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.33"
+pub let version : String = "0.1.34"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。
@@ -503,6 +564,8 @@ pub fn help_text() -> String {
   "  imgtool analyze  <in>\n" +
   "  imgtool sanitize <in> <out> [--policy metadata|standard|strict] [--regions \"x,y,w,h;...\"]\n" +
   "                             [--block N] [--blur N] [--format ...] [--quality 1-100] [--dry-run]\n" +
+  "  imgtool previews <in.jpg> <out-dir> [--every N] [--dry-run]\n" +
+  "                             （progressive JPEG 逐扫描帧落成 scan_01.png…，末帧即完整解码）\n" +
   "  imgtool bench    <in> [--iters N] [--formats png,jpeg,webp] [--quality 1-100]\n" +
   "                             [--width N --height N]\n" +
   "  imgtool help | version\n\n" +
@@ -527,7 +590,7 @@ fn usage() -> Out {
     "ok": jbool(false),
     "code": jstr("process/invalid_argument"),
     "message": jstr(
-      "未知子命令。可用: info convert resize crop filter analyze sanitize bench help version（decode/encode 为 convert 别名）",
+      "未知子命令。可用: info convert resize crop filter analyze sanitize bench previews help version（decode/encode 为 convert 别名）",
     ),
     "hint": jstr(
       "跑 `imgtool help` 看完整用法；每个子命令都输出单行 JSON；省略 --format 时按输出扩展名推断",
@@ -555,6 +618,7 @@ pub fn dispatch(args : Array[String]) -> Out raise @types.ImageError {
     "analyze" => cmd_analyze(flags)
     "sanitize" => cmd_sanitize(flags)
     "bench" => cmd_bench(flags)
+    "previews" => cmd_previews(flags)
     _ => usage()
   }
 }

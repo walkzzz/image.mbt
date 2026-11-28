@@ -4,6 +4,17 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.34] - 2026-11-28
+
+### Added
+
+- **`imgtool previews` 子命令（第 9 个子命令）**：`imgtool previews <in.jpg> <out-dir> [--every N] [--dry-run]` 把 progressive JPEG 的逐扫描帧落成 `scan_01.png`…，JSON 结果的 `frames` 数组给出每帧序号、路径、尺寸与体积。baseline JPEG 直接拒绝；`--dry-run` 完整成帧但不写盘。imgcli 因此新增对 `walkzzz/image.codec/codec` 的依赖（此前只经 `image.codec/lib` 转发）。
+- 实测：256×256 噪声图（自编 Q82 4:2:0、8 段）scan 1 为 16×16 马赛克、scan 2 起高频出现，PNG 体积逐级递增；640×400 libjpeg 10 段样本 10 帧、33,443 B → 145,683 B。
+
+### Verified
+
+- 新增 1 条 CLI 测试（progressive 造样本 → `--dry-run` 出帧 → `--every 4` → baseline 拒绝），imgcli 240 测试全绿。
+
 ## [0.1.33] - 2026-11-28
 
 ### Added

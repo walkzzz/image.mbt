@@ -1,6 +1,7 @@
 import {
   "walkzzz/image.core/types",
   "walkzzz/image.codec/lib",
+  "walkzzz/image.codec/codec",
   "walkzzz/image.process/transform",
   "walkzzz/image.process/filter",
   "moonbitlang/core/json",
