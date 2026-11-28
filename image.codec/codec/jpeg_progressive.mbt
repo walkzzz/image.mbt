@@ -330,8 +330,6 @@ fn jpeg_progressive_output(
   max_h : Int32,
   max_v : Int32,
 ) -> @types.Image {
-  let width = header.width
-  let height = header.height
   let nc = header.num_components
   let cos_t = idct_cos_table()
   let tmpf : Array[Float] = Array::make(64, 0.0F)
@@ -361,39 +359,7 @@ fn jpeg_progressive_output(
     }
     planes.push(p)
   }
-  let out : Array[Byte] = Array::make(width * height * 3, b'\x00')
-  let plane_h0 = bh[0] * 8
-  for oy in 0..<height {
-    for ox in 0..<width {
-      if nc == 1 {
-        let v = planes[0][oy * plane_w[0] + ox]
-        let vb = v.to_byte()
-        let oidx = (oy * width + ox) * 3
-        out[oidx] = vb
-        out[oidx + 1] = vb
-        out[oidx + 2] = vb
-      } else {
-        let y_val = planes[0][oy * plane_w[0] + ox]
-        let h1 = header.component_h[1]
-        let v1 = header.component_v[1]
-        let h2 = header.component_h[2]
-        let v2 = header.component_v[2]
-        let sx1 = ox * h1 / max_h
-        let sy1 = oy * v1 / max_v
-        let cb_val = planes[1][sy1 * plane_w[1] + sx1]
-        let sx2 = ox * h2 / max_h
-        let sy2 = oy * v2 / max_v
-        let cr_val = planes[2][sy2 * plane_w[2] + sx2]
-        let (r, g, b) = ycbcr_to_rgb(y_val, cb_val, cr_val)
-        let oidx = (oy * width + ox) * 3
-        out[oidx] = r.to_byte()
-        out[oidx + 1] = g.to_byte()
-        out[oidx + 2] = b.to_byte()
-      }
-    }
-  }
-  ignore(plane_h0)
-  @types.Image::{ width, height, channels: 3, data: Bytes::from_array(out), }
+  jpeg_planes_to_rgb(header, planes, plane_w, max_h, max_v)
 }
 
 ///|

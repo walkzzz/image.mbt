@@ -41,7 +41,8 @@ AC 首扫与 AC 细化各自按实际符号频次自建霍夫曼表（libjpeg `o
 MCU 16×16、每 MCU 6 块），色度先做 2×2 盒式平均再 DCT。扫描脚本与 4:4:4 版完全相同（仍是 8 条）。
 体积明显更小：实测 1280×720 Q55 79,638 B → **51,837 B（−34.9%）**（4:4:4 progressive 为 75,268 B），
 128×128 渐变 Q80 3,120 → **1,540 B（−50.6%）**（4:4:4 为 2,440 B）；代价是色度细节轻微损失
-（PSNR 29.5 dB @ Q55，与 libjpeg 4:2:0 解码逐像素 mean 差 0.68）。上采样为最近邻（libjpeg 默认三角滤波）。
+（PSNR 29.5 dB @ Q55，与 libjpeg 4:2:0 解码逐像素 mean 差 0.48、max 1）。上采样与 libjpeg 同口径（2×2 走三角滤波
+`h2v2_fancy_upsample`，2×1 走 `h2v1_fancy_upsample`）。
 单独给 `--jpeg-progressive-420` 会报错——它只选采样方式，不开关 progressive。
 
 `--jpeg-progressive-10scan`（配合 `--jpeg-progressive` 使用，隐含 4:2:0）：改用对齐 libjpeg

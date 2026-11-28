@@ -1,6 +1,6 @@
 name = "walkzzz/image.codec"
 
-version = "0.1.31"
+version = "0.1.32"
 
 license = "MIT"
 
@@ -13,5 +13,5 @@ repository = "https://github.com/walkzzz/image.mbt"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.31",
+  "walkzzz/image.core@0.1.32",
 }

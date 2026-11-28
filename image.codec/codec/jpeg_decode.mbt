@@ -578,86 +578,6 @@ fn jpeg_parse_header(data : Bytes) -> JpegHeader raise @types.LoadError {
 }
 
 ///|
-/// 写入单个 MCU 的像素到输出缓冲
-fn jpeg_write_mcu_pixels(
-  header : JpegHeader,
-  comp_data : Array[Array[Int32]],
-  mx : Int32,
-  my : Int32,
-  max_h : Int32,
-  max_v : Int32,
-  mcu_width : Int32,
-  mcu_height : Int32,
-  out_channels : Int32,
-  rgb_data : Array[Byte],
-) -> Unit {
-  let width = header.width
-  let height = header.height
-  let num_components = header.num_components
-  let scan_comp_idx = header.scan_comp_idx
-  let component_h = header.component_h
-  let component_v = header.component_v
-  for py in 0..<mcu_height {
-    for px in 0..<mcu_width {
-      let ox = mx * mcu_width + px
-      let oy = my * mcu_height + py
-      if ox >= width || oy >= height {
-        continue
-      }
-      if num_components == 1 {
-        let ci = scan_comp_idx[0]
-        let hi = component_h[ci]
-        let vi = component_v[ci]
-        let cx = px * hi / max_h
-        let cy = py * vi / max_v
-        let bx = cx / 8
-        let by = cy / 8
-        let ix = by * hi * 64 + bx * 64 + cy % 8 * 8 + cx % 8
-        let y_val = comp_data[ci][ix]
-        let oidx = oy * width * out_channels + ox * out_channels
-        let yb = y_val.to_byte()
-        rgb_data[oidx] = yb
-        rgb_data[oidx + 1] = yb
-        rgb_data[oidx + 2] = yb
-      } else {
-        let y_ci = scan_comp_idx[0]
-        let cb_ci = scan_comp_idx[1]
-        let cr_ci = scan_comp_idx[2]
-        let y_hi = component_h[y_ci]
-        let y_vi = component_v[y_ci]
-        let ycx = px * y_hi / max_h
-        let ycy = py * y_vi / max_v
-        let ybx = ycx / 8
-        let yby = ycy / 8
-        let y_idx = yby * y_hi * 64 + ybx * 64 + ycy % 8 * 8 + ycx % 8
-        let y_val = comp_data[y_ci][y_idx]
-        let cb_hi = component_h[cb_ci]
-        let cb_vi = component_v[cb_ci]
-        let cbcx = px * cb_hi / max_h
-        let cbcy = py * cb_vi / max_v
-        let cbbx = cbcx / 8
-        let cbby = cbcy / 8
-        let cb_idx = cbby * cb_hi * 64 + cbbx * 64 + cbcy % 8 * 8 + cbcx % 8
-        let cb_val = comp_data[cb_ci][cb_idx]
-        let cr_hi = component_h[cr_ci]
-        let cr_vi = component_v[cr_ci]
-        let crcx = px * cr_hi / max_h
-        let crcy = py * cr_vi / max_v
-        let crbx = crcx / 8
-        let crby = crcy / 8
-        let cr_idx = crby * cr_hi * 64 + crbx * 64 + crcy % 8 * 8 + crcx % 8
-        let cr_val = comp_data[cr_ci][cr_idx]
-        let (r, g, b) = ycbcr_to_rgb(y_val, cb_val, cr_val)
-        let oidx = oy * width * out_channels + ox * out_channels
-        rgb_data[oidx] = r.to_byte()
-        rgb_data[oidx + 1] = g.to_byte()
-        rgb_data[oidx + 2] = b.to_byte()
-      }
-    }
-  }
-}
-
-///|
 /// 解码 JPEG 扫描数据（MCU 循环），返回 RGB 像素
 fn jpeg_decode_scan(
   header : JpegHeader,
@@ -692,20 +612,24 @@ fn jpeg_decode_scan(
   for _ in 0..<num_components {
     dc_pred.push(Ref(0))
   }
-  let out_channels = 3
-  let rgb_data : Array[Byte] = Array::make(
-    width * height * out_channels,
-    b'\x00',
-  )
   let mut mcu_count = 0
-  // 全图复用：IDCT 余弦表、块/空间/浮点暂存、各分量平面
+  // 全图复用：IDCT 余弦表、块/空间/浮点暂存、各分量整幅平面
   let cos_t = idct_cos_table()
   let tmpf : Array[Float] = Array::make(64, 0.0F)
   let block : Array[Int32] = Array::make(64, 0)
   let spatial : Array[Int32] = Array::make(64, 0)
+  // 每个分量一块整幅平面（行跨距按 8 对齐），供最后统一做色度上采样与 RGB 转换
+  let plane_stride : Array[Int32] = Array::make(num_components, 0)
   let comp_data : Array[Array[Int32]] = []
-  for _ in 0..<num_components {
-    comp_data.push(Array::make(256, 0))
+  for i in 0..<num_components {
+    let hi = header.component_h[i]
+    let vi = header.component_v[i]
+    let dw = (width * hi + max_h - 1) / max_h
+    let dh = (height * vi + max_v - 1) / max_v
+    let stride = (dw + 7) / 8 * 8
+    let ph = (dh + 7) / 8 * 8
+    plane_stride[i] = stride
+    comp_data.push(Array::make(stride * ph, 0))
   }
   for _my in 0..<mcus_y {
     for _mx in 0..<mcus_x {
@@ -739,29 +663,28 @@ fn jpeg_decode_scan(
         for bi in 0..<nblocks {
           jpeg_decode_block(reader, dc_tab, ac_tab, qt, dc_pred[ci], zz, block)
           idct_8x8(block, cos_t, tmpf, spatial)
-          let bx = bi % hi
-          let by = bi / hi
+          // 全局块坐标：MCU 内的块序 → 整幅块网格
+          let bx = mx * hi + bi % hi
+          let by = my * vi + bi / hi
+          let stride = plane_stride[ci]
+          let plane = comp_data[ci]
+          let plane_len = plane.length()
           for py in 0..<8 {
             for px in 0..<8 {
-              let idx = by * hi * 64 + bx * 64 + py * 8 + px
-              comp_data[ci][idx] = spatial[py * 8 + px]
+              let gx = bx * 8 + px
+              let gy = by * 8 + py
+              let idx = gy * stride + gx
+              if idx >= 0 && idx < plane_len {
+                plane[idx] = spatial[py * 8 + px]
+              }
             }
           }
         }
       }
-      jpeg_write_mcu_pixels(
-        header, comp_data, mx, my, max_h, max_v, mcu_width, mcu_height, out_channels,
-        rgb_data,
-      )
       mcu_count += 1
     }
   }
-  @types.Image::{
-    width,
-    height,
-    channels: out_channels,
-    data: Bytes::from_array(rgb_data),
-  }
+  jpeg_planes_to_rgb(header, comp_data, plane_stride, max_h, max_v)
 }
 
 ///|

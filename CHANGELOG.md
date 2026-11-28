@@ -4,6 +4,24 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.32] - 2026-11-28
+
+### Added
+
+- **色度上采样对齐 libjpeg 三角滤波（F-01 最后一项）**：新增 `image.codec/codec/jpeg_upsample.mbt`，按 `jdsample.c` 逐位复刻 `h2v2_fancy_upsample`（权重 9/16、3/16、3/16、1/16）与 `h2v1_fancy_upsample`（3/4、1/4）；边界行列复制钳制。此前 4:2:0 用最近邻（一个色度值铺满 2×2），放大处有方块边缘。
+- **baseline / progressive 共用收尾**：新增 `jpeg_planes_to_rgb(header, planes, plane_w, max_h, max_v)`。baseline 走了和 progressive 一样的路——每个分量先铺一张整幅平面（行跨距按 8 对齐），解码结束后统一上采样 + YCbCr→RGB；逐 MCU 的 `jpeg_write_mcu_pixels` 删除（它的近邻取样跨不出块边界，做不了三角滤波）。
+
+### Fixed
+
+- 非上采样分量（如 4:4:4 的 Y）返回时必须携带**真实行跨距**而不是有效宽：137×93 这类宽度非 8 倍数的图，块对齐让 stride=144、有效宽=137，取错会把整幅错位（实测 mean 差 29.89、max 254）。修后回到 5.19。
+
+### Verified
+
+- **解码器与 libjpeg 逐像素对齐**：`g07_jpeg_photo_1280x720`（4:2:0 彩色）对比 Pillow 解码 **mean 0.48 / max 1**（改前 mean 7.66 / max 103）；`g08` 灰度 **0.00 / 0**；`g25` progressive 640×400 **0.49 / max 3**；`g26` progressive+restart 480×320 **0.52 / max 2**。残差只来自 IDCT 取整。
+- 自编码自解码三向一致（Q85 4:2:0）：64×48 我们解 3.62 / Pillow 解 3.51；96×96 5.30 / 5.21；137×93 5.19 / 5.09（mean 差，对源图）。
+- 新增 6 条白盒测试（`h2v1`/`h2v2` 逐点数值与公式核对、4×4 全表、平面恒定、斜坡行内单调、比例分派与 stride 回传），全量 native **7,443/7,443**。
+- 顺带修：progressive 输出改走共享收尾后，`jpeg_progressive_output` 里重复的最近邻取样代码删除（约 60 行）。
+
 ## [0.1.31] - 2026-11-28
 
 ### Added
