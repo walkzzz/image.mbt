@@ -4,6 +4,26 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.31] - 2026-11-28
+
+### Added
+
+- **progressive 扫描脚本可配置 + spectral selection 分段（F-01 收尾）**：新增 `image.codec/codec/jpeg_progressive_script.mbt`。`JpegProgScan { comps, ss, se, ah, al }` 描述一条扫描；`encode_jpeg_progressive_420_scripted(img, quality, script)` 按脚本逐条发射，每条 AC 扫描走"两遍"（先计频自建优化表、再写位流），并以紧邻 SOS 的独立 DHT 段携带自己的表。
+- 两个内置脚本：`jpeg_progressive_script_libjpeg()` = **10 段**，对齐 libjpeg `jpeg_simple_progression()`——DC 首扫 `Al=1` → Y 的 `Ss=1..5 Al=2` → Cr 全带 `Al=1` → Cb 全带 `Al=1` → Y 的 `Ss=6..63 Al=2` → DC 细化 → Y `Ah=2 Al=1` → Cr/Cb/Y 逐级细化（亮度最低位最后发）；`jpeg_progressive_script_eight()` = 等价 0.1.30 的 8 段，供对照与回归。
+- 语义按 libjpeg `encode_mcu_AC_first` / `encode_mcu_AC_refine` 实现：首扫按 `|c|>>Al` 判零计 run；细化扫 `absv==1` 为新非零（发修正位）、`absv>1` 为旧非零（补发 `absv & 1` 位），EOB 取最后一个 `absv==1` 位置，ZRL 折叠条件 `r>15 && k<=eob`，块尾 `r>0 || BR>0` 计入 EOBRUN。
+- CLI：`imgtool convert --jpeg-progressive-10scan`（必须配合 `--jpeg-progressive`，隐含 4:2:0）；`help_text` 与 `docs/cli.md` 同步。
+
+### Fixed
+
+- 新引擎最初只写 AC 表、漏写 DC 标准 DHT，导致自解码在 DC 首扫即报 `JPEG Huffman 解码失败`；改为 SOF2 之后一次性写入 DC 表 0/1 两张后，10 段、纯 DC 脚本、非 16 倍数尺寸全部回环通过。
+
+### Verified
+
+- 10 段与 8 段**解码像素逐字节一致**（64×48，两者量化系数相同，仅扫描组织不同）。
+- 10 段实测**不更省**（多扫描各自的 DHT 段与 EOBRUN 重置）：1280×720 Q55 **52,860 B**（8 段 51,837，+2.0%）、Q80 113,762（113,637，+0.1%）；128×128 Q80 1,670（1,540，+8.4%）、Q90 2,063（1,952，+5.7%）。**结论：默认仍走 8 段**，10 段作为可配置脚本（对齐 libjpeg 的渐进层次与互操作）保留。
+- 新增 5 条测试（10 段 SOS 参数 `(Ns,Ss,Se,Ah,Al)` 逐条核对、10 段 vs 8 段像素一致、10 段段头开销相对上界、137×93 非 16 倍数往返、纯 DC 脚本）+ 1 条 CLI 测试；全量 native **7,437/7,437**。
+- 边界：解码侧 4:2:0 上采样仍是最近邻；`--jpeg-progressive-10scan` 目前只作用于 4:2:0（脚本引擎按 16×16 MCU 组织）。
+
 ## [0.1.30] - 2026-11-27
 
 ### Added

@@ -15,7 +15,7 @@ moon build --release cmd/imgtool
 | 子命令 | 作用 | 关键参数 |
 |---|---|---|
 | `info` | 读头部（不整图解码） | `<in>` |
-| `convert` | 任意可写格式互转（`decode`/`encode` 为别名） | `--format` `--quality` `--best` `--max-bytes` `--jpeg-progressive` `--jpeg-progressive-420` |
+| `convert` | 任意可写格式互转（`decode`/`encode` 为别名） | `--format` `--quality` `--best` `--max-bytes` `--jpeg-progressive` `--jpeg-progressive-420` `--jpeg-progressive-10scan` |
 | `resize` | 等比覆盖 / 包含缩放 | `--width` `--height` `--mode cover\|contain` |
 | `crop` | 裁剪，越界直接拒绝 | `--x` `--y` `--width` `--height` |
 | `filter` | 六种滤波/锐化/去噪 | `--op` `--radius` `--sigma` `--amount` `--ksize` `--sigma-color` `--patch` `--search` `--h` |
@@ -43,6 +43,14 @@ MCU 16×16、每 MCU 6 块），色度先做 2×2 盒式平均再 DCT。扫描�
 128×128 渐变 Q80 3,120 → **1,540 B（−50.6%）**（4:4:4 为 2,440 B）；代价是色度细节轻微损失
 （PSNR 29.5 dB @ Q55，与 libjpeg 4:2:0 解码逐像素 mean 差 0.68）。上采样为最近邻（libjpeg 默认三角滤波）。
 单独给 `--jpeg-progressive-420` 会报错——它只选采样方式，不开关 progressive。
+
+`--jpeg-progressive-10scan`（配合 `--jpeg-progressive` 使用，隐含 4:2:0）：改用对齐 libjpeg
+`jpeg_simple_progression()` 的 **10 段脚本**（`encode_jpeg_progressive_420_scripted` + `jpeg_progressive_script_libjpeg()`）：
+DC 首扫 `Al=1` → Y 的 spectral selection `Ss=1..5` `Al=2` → Cr、Cb 全带 `Al=1` → Y 的 `Ss=6..63` `Al=2` →
+DC 细化 → Y `Ah=2 Al=1` → 三通道逐级细化。它换来更细腻的渐进层次与更好的 libjpeg 互操作，但**体积不更省**：
+1280×720 Q55 52,860 B（默认 8 段为 51,837，+2.0%）、Q80 113,762 B（+0.1%）、128×128 Q80 1,670 B（+8.4%）——
+每条 AC 扫描要各带一张 DHT、EOBRUN 也各扫描重置一次。默认保持 8 段，此开关按需显式开启。
+单独给 `--jpeg-progressive-10scan` 会报错——它只选扫描脚本，不开关 progressive。
 
 ## 输出约定
 

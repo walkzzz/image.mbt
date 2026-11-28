@@ -1,6 +1,6 @@
 name = "walkzzz/image.commerce"
 
-version = "0.1.30"
+version = "0.1.31"
 
 license = "MIT"
 
@@ -11,9 +11,9 @@ repository = "https://github.com/walkzzz/image.mbt"
 preferred_target = "native"
 
 import {
-  "walkzzz/image.core@0.1.30",
-  "walkzzz/image.codec@0.1.30",
-  "walkzzz/image.process@0.1.30",
-  "walkzzz/image.domain@0.1.30",
-  "walkzzz/image.photography@0.1.30",
+  "walkzzz/image.core@0.1.31",
+  "walkzzz/image.codec@0.1.31",
+  "walkzzz/image.process@0.1.31",
+  "walkzzz/image.domain@0.1.31",
+  "walkzzz/image.photography@0.1.31",
 }

@@ -96,6 +96,8 @@ pub fn encode_jpeg_progressive(@types.Image, Int32) -> Bytes raise @types.LoadEr
 
 pub fn encode_jpeg_progressive_420(@types.Image, Int32) -> Bytes raise @types.LoadError
 
+pub fn encode_jpeg_progressive_420_scripted(@types.Image, Int32, Array[JpegProgScan]) -> Bytes raise @types.LoadError
+
 pub fn encode_jpeg_pure(@types.Image) -> Bytes raise @types.LoadError
 
 pub fn encode_jpeg_with_quality(@types.Image, Int32) -> Bytes raise @types.LoadError
@@ -183,6 +185,10 @@ pub fn is_tiff_format(Bytes) -> Bool
 pub fn is_webp_format(Bytes) -> Bool
 
 pub fn jpeg_info_extended(Bytes) -> JpegInfoExtended raise @types.LoadError
+
+pub fn jpeg_progressive_script_eight() -> Array[JpegProgScan]
+
+pub fn jpeg_progressive_script_libjpeg() -> Array[JpegProgScan]
 
 pub fn jpegxl_decode(Bytes) -> @types.Image raise @types.LoadError
 
@@ -391,6 +397,14 @@ pub struct JpegInfoExtended {
   sof_name : String
   num_channels : Int32
   has_alpha : Bool
+}
+
+pub(all) struct JpegProgScan {
+  comps : Array[Int32]
+  ss : Int32
+  se : Int32
+  ah : Int32
+  al : Int32
 }
 
 pub struct JpegXlInfo {

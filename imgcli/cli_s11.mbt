@@ -125,6 +125,13 @@ fn cmd_convert(flags : Flags) -> Out raise @types.ImageError {
   }
   let progressive = flags.has("jpeg-progressive")
   let subsample420 = flags.has("jpeg-progressive-420")
+  let tenscan = flags.has("jpeg-progressive-10scan")
+  if tenscan && !progressive {
+    raise @types.ImageError::Process(
+      @types.ErrorCode::InvalidArgument,
+      "--jpeg-progressive-10scan 需要配合 --jpeg-progressive 使用（它只选扫描脚本）",
+    )
+  }
   if subsample420 && !progressive {
     raise @types.ImageError::Process(
       @types.ErrorCode::InvalidArgument,
@@ -153,7 +160,15 @@ fn cmd_convert(flags : Flags) -> Out raise @types.ImageError {
       )
     }
     let bytes = if progressive {
-      if subsample420 {
+      if tenscan {
+        @lib.encode_jpeg_progressive_420_scripted(
+          img,
+          quality,
+          @lib.jpeg_progressive_script_libjpeg(),
+        ) catch {
+          e => raise @types.image_error_from_load(e)
+        }
+      } else if subsample420 {
         @lib.encode_jpeg_progressive_420(img, quality) catch {
           e => raise @types.image_error_from_load(e)
         }

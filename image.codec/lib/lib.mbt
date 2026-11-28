@@ -361,6 +361,35 @@ pub fn encode_jpeg_progressive_420(
 }
 
 ///|
+/// 渐进式 JPEG 编码委托（SOF2，4:2:0，**扫描脚本可配置**）。
+///
+/// `script` 给出每条扫描的分量集与 `Ss/Se/Ah/Al`；`@codec.jpeg_progressive_script_libjpeg()`
+/// 返回 libjpeg `jpeg_simple_progression()` 的 10 段默认脚本，
+/// `@codec.jpeg_progressive_script_eight()` 为 0.1.30 固定 8 段等价脚本。
+///
+/// 错误 Errors:
+/// - `LoadError::EncodeFailed` - 尺寸无效、像素数超上限、脚本非法
+pub fn encode_jpeg_progressive_420_scripted(
+  img : @types.Image,
+  quality : Int32,
+  script : Array[@codec.JpegProgScan],
+) -> Bytes raise @types.LoadError {
+  @codec.encode_jpeg_progressive_420_scripted(img, quality, script)
+}
+
+///|
+/// libjpeg 默认（10 段）progressive 扫描脚本。
+pub fn jpeg_progressive_script_libjpeg() -> Array[@codec.JpegProgScan] {
+  @codec.jpeg_progressive_script_libjpeg()
+}
+
+///|
+/// 0.1.30 固定 8 段扫描脚本（DC 首扫 Al=1 → 3×AC 首扫 → DC 细化 → 3×AC 细化）。
+pub fn jpeg_progressive_script_eight() -> Array[@codec.JpegProgScan] {
+  @codec.jpeg_progressive_script_eight()
+}
+
+///|
 /// HDR 编码委托
 /// HDR 编码委托 HDR encoding delegation
 ///

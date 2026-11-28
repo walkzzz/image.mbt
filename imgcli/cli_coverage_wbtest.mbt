@@ -346,6 +346,15 @@ test "clicov: 端到端 info / analyze / convert" {
   // 单独给 --jpeg-progressive-420 必须报错（它只选色度采样方式）
   let e8 = cli_dispatch(["convert", path, "x.jpg", "--jpeg-progressive-420"])
   assert_true(!cli_ok(e8))
+  // --jpeg-progressive-10scan：走 libjpeg 10 段脚本（正路）
+  let pg10 = cli_dispatch([
+    "convert", path, "x10.jpg", "--format", "jpeg", "--quality", "70", "--jpeg-progressive",
+    "--jpeg-progressive-10scan", "--dry-run",
+  ])
+  assert_true(cli_ok(pg10))
+  // 单独给 --jpeg-progressive-10scan 必须报错（它只选扫描脚本）
+  let e9 = cli_dispatch(["convert", path, "x.jpg", "--jpeg-progressive-10scan"])
+  assert_true(!cli_ok(e9))
 }
 
 ///|

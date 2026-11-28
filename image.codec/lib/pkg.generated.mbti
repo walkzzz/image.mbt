@@ -46,6 +46,8 @@ pub fn encode_jpeg_progressive(@types.Image, Int32) -> Bytes raise @types.LoadEr
 
 pub fn encode_jpeg_progressive_420(@types.Image, Int32) -> Bytes raise @types.LoadError
 
+pub fn encode_jpeg_progressive_420_scripted(@types.Image, Int32, Array[@codec.JpegProgScan]) -> Bytes raise @types.LoadError
+
 pub fn encode_pgm_auto(@types.Image) -> Bytes
 
 pub fn encode_png(@types.Image) -> Bytes
@@ -71,6 +73,10 @@ pub fn get_image_summary(Bytes) -> String raise @types.LoadError
 pub fn has_alpha(@types.Image) -> Bool
 
 pub fn info_dims(@codec.ImageInfoExtended) -> (Int64, Int64)
+
+pub fn jpeg_progressive_script_eight() -> Array[@codec.JpegProgScan]
+
+pub fn jpeg_progressive_script_libjpeg() -> Array[@codec.JpegProgScan]
 
 pub fn load_16_from_bytes_auto(Bytes, req_channels? : Int32?) -> @types.Image16 raise @types.LoadError
 

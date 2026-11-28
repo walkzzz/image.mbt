@@ -68,13 +68,13 @@
 |---|---:|---:|---:|
 | `(root)` | 16 | 2038 | 6 |
 | `image.core` | 4 | 152 | 15 |
-| `image.codec` | 7 | 243 | 38 |
+| `image.codec` | 7 | 249 | 39 |
 | `image.process` | 11 | 519 | 71 |
 | `image.photography` | 12 | 408 | 84 |
 | `image.vision` | 13 | 1507 | 282 |
 | `image.domain` | 17 | 992 | 222 |
 | `cmd` | 2 | 0 | 0 |
-| **合计** | **82** | **5859** | **718** |
+| **合计** | **82** | **5865** | **719** |
 
 统计口径：包 = 含 `pkg.generated.mbti` 的目录（排除 `examples` / `playground` / `scripts`）；
 `pub fn` 只计顶层函数；公开类型 = `pub`/`pub(all)` 的 `struct|enum|type` + `pub trait`。

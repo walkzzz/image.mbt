@@ -44,6 +44,9 @@ pub using @codec {type ImageInfoExtended}
 pub using @codec {type JpegInfoExtended}
 
 ///|
+pub using @codec {type JpegProgScan}
+
+///|
 pub using @codec {type JpegXlInfo}
 
 ///|
@@ -120,6 +123,7 @@ pub using @codec {
   encode_ico_with_sizes_pure,
   encode_jpeg_progressive,
   encode_jpeg_progressive_420,
+  encode_jpeg_progressive_420_scripted,
   encode_jpeg_pure,
   encode_jpeg_with_quality,
   encode_pgm_pure,
@@ -161,6 +165,8 @@ pub using @codec {
   is_tiff_format,
   is_webp_format,
   jpeg_info_extended,
+  jpeg_progressive_script_eight,
+  jpeg_progressive_script_libjpeg,
   jpegxl_decode,
   jpegxl_info,
   jpegxl_info_extended,
@@ -453,4 +459,7 @@ pub using @pipeline {
 // 冲突清单（先到先得，以下未再导出，仍可在原子包直接使用）：
 //   - encode_jpeg_progressive（image.codec/lib 的 fn，已被 image.codec/codec 占用）
 //   - encode_jpeg_progressive_420（image.codec/lib 的 fn，已被 image.codec/codec 占用）
+//   - encode_jpeg_progressive_420_scripted（image.codec/lib 的 fn，已被 image.codec/codec 占用）
 //   - encode_webp_lossless（image.codec/lib 的 fn，已被 image.codec/codec 占用）
+//   - jpeg_progressive_script_eight（image.codec/lib 的 fn，已被 image.codec/codec 占用）
+//   - jpeg_progressive_script_libjpeg（image.codec/lib 的 fn，已被 image.codec/codec 占用）
