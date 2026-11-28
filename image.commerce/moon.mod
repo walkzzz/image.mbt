@@ -8,6 +8,8 @@ description = "MoonBit commerce scene entry: crop, color, enhance, watermark, ba
 
 repository = "https://github.com/walkzzz/image.mbt"
 
+readme = "README.md"
+
 preferred_target = "native"
 
 import {

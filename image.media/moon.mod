@@ -8,6 +8,8 @@ description = "MoonBit media scene entry: codec, metadata, transform, encryption
 
 repository = "https://github.com/walkzzz/image.mbt"
 
+readme = "README.md"
+
 preferred_target = "native"
 
 import {

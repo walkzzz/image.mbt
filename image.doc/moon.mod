@@ -8,6 +8,8 @@ description = "MoonBit document scene entry: OCR, barcode, document metadata, fo
 
 repository = "https://github.com/walkzzz/image.mbt"
 
+readme = "README.md"
+
 preferred_target = "native"
 
 import {

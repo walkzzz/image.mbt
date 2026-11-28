@@ -8,6 +8,8 @@ description = "MoonBit pro scene entry: detection, segmentation, feature, freque
 
 repository = "https://github.com/walkzzz/image.mbt"
 
+readme = "README.md"
+
 preferred_target = "native"
 
 import {
