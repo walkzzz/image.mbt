@@ -652,13 +652,21 @@ pub using @encryption {type ImageEncryptionQuality}
 
 pub using @codec {type ImageInfoExtended}
 
+pub using @codec {type JpegHeader}
+
+pub using @codec {type JpegHuffmanTable}
+
 pub using @codec {type JpegInfoExtended}
+
+pub using @codec {type JpegProgCtx}
 
 pub using @codec {type JpegProgPreview}
 
 pub using @codec {type JpegProgScan}
 
 pub using @codec {type JpegProgStream}
+
+pub using @codec {type JpegScanSpec}
 
 pub using @codec {type JpegXlInfo}
 
