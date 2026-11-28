@@ -4,6 +4,20 @@
 
 **版本双轨说明**：功能迭代版本（v0.1 → v237.0.0）与 mooncakes 包版本（0.x.y）并行演进；包版本随发布递增，workspace 十一个模块（6 原子子模块 + S16 的 `image.doc/media/commerce/pro` 场景包）版本与依赖钉随主包同步，S17 的两条绑定通道（`npm/package.json`、`bindings/dart/pubspec.yaml`）同号，全部由 `check_version.mjs` 22 项守门。
 
+## [0.1.36] - 2026-11-28
+
+### Added
+
+- **渐进解码扫描游标 `JpegProgStream`**：新增 `image.codec/codec/jpeg_progressive_stream.mbt`。`jpeg_progressive_stream_open(data)` 解析一次头部（SOI/SOF/DHT/DQT + 全部 SOS 边界），`jpeg_progressive_stream_step(s)` 每次只解一条扫描并成型一帧，`remaining` / `done` 给进度，`finish(s)` 补齐剩余扫描并返回终态（与 `decode_jpeg_pure` 逐字节一致）。系数缓冲在游标生命周期内共享，**不重复分配、不重解已解扫描**——这是「解到一半就停」的前提。
+- **`imgtool previews --first N`**：解到第 N 条扫描即停，JSON 新增 `total_scans` / `remaining_scans` / `stopped_early`。只要缩略轮廓（scan 1 的 DC 首扫已够看）时不必跑完整个渐进流。
+- 实测（640×400 libjpeg 10 段样本，单次含进程启动）：`--first 2` **171 ms**，全 10 条 **903 ms**，省 81%。
+- 为让游标能公开出现在 API 上，`JpegHeader` / `JpegScanSpec` / `JpegHuffmanTable` / `JpegProgCtx` 由 `priv struct` 升为 `pub struct`（字段仍私有，只暴露类型名）。
+
+### Verified
+
+- `jpeg_progressive_stream_test.mbt` 5 条：逐步 8 条扫描序号/剩余量同步、每步帧与 `decode_jpeg_progressive_previews(data,1)` 逐字节一致、只看前 2 帧后 `finish` 等于 `decode_jpeg_pure`、解完后 `step` 返回 `None` 且 `finish` 不重解、baseline 拒绝打开。codec 723 测试全绿。
+- CLI 测试补 `--first 2 --dry-run`（断言 `stopped_early` / `remaining_scans` 字段存在），imgcli 33 测试全绿。
+
 ## [0.1.35] - 2026-11-28
 
 ### Added

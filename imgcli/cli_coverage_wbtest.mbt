@@ -481,6 +481,13 @@ test "clicov: previews 逐扫描导出（dry-run）" {
     "previews", "_build_cli_pv.jpg", ".", "--every", "4", "--dry-run",
   ])
   assert_true(cli_ok(ev))
+  // --first：解到第 2 条就停（只要缩略轮廓时不必跑完 8 条）
+  let early = cli_dispatch([
+    "previews", "_build_cli_pv.jpg", ".", "--first", "2", "--dry-run",
+  ])
+  assert_true(cli_ok(early))
+  assert_true(cli_has(early, "stopped_early"))
+  assert_true(cli_has(early, "remaining_scans"))
   // baseline JPEG 必须拒绝
   let base = cli_dispatch([
     "convert", png, "_build_cli_pv_base.jpg", "--format", "jpeg",

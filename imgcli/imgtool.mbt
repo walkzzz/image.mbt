@@ -515,66 +515,77 @@ fn gif_ready(img : @types.Image) -> @types.Image {
 }
 
 ///|
-/// `previews` — 把 progressive JPEG 的逐扫描预览帧落成 PNG，可选合成动画 GIF。
+/// `previews` — 逐扫描预览帧落成 PNG，可早停、可选合成动画 GIF。
 ///
-/// `imgtool previews <in.jpg> <out-dir> [--every N] [--anim out.gif] [--frame-ms N] [--dry-run]`
-/// 输出 `scan_01.png`、`scan_02.png`…（末帧即完整解码结果）；给了 `--anim` 时
-/// 再把同一批帧编码成循环 GIF（末帧停留 4 倍时长）。
+/// `imgtool previews <in.jpg> <out-dir> [--every N] [--first N] [--anim out.gif] [--frame-ms N] [--dry-run]`
+/// 用扫描游标逐条推进：`--first N` 解到第 N 条就停（只要缩略轮廓时不必解完），
+/// 输出 `scan_01.png`…；给了 `--anim` 再把已出的帧编码成循环 GIF（末帧停留 4 倍）。
 fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
   let src = flags.positional[0]
   let dir = flags.positional[1]
   let every = flags.int("every", 1)
+  let first = flags.int("first", 0)
   let anim_path = flags.str("anim", "")
   let frame_ms = flags.int("frame-ms", 250)
   let dry = flags.has("dry-run")
   let input = src_bytes(src)
-  let frames = @codec.decode_jpeg_progressive_previews(input, every) catch {
+  let stream = @codec.jpeg_progressive_stream_open(input) catch {
     e => raise @types.image_error_from_load(e)
   }
+  let total = @codec.jpeg_progressive_stream_remaining(stream)
+  let every_n = if every < 1 { 1 } else { every }
   let items : Array[@json.Json] = []
   let anim_imgs : Array[@types.Image] = []
   let anim_delays : Array[Int32] = []
-  let n_frames = frames.length()
-  let mut frame_idx = 0
-  let mut total_scan = 0
-  for f in frames {
-    let name = "scan_" + pad2(f.scan_index) + ".png"
-    let path = if dir == "." || dir == "" {
-      name
-    } else if dir.has_suffix("\\") || dir.has_suffix("/") {
-      dir + name
-    } else {
-      dir + "\\" + name
+  let mut done = 0
+  let mut stopped_early = false
+  while true {
+    let next = @codec.jpeg_progressive_stream_step(stream) catch {
+      e => raise @types.image_error_from_load(e)
     }
-    let png = encode_image(f.image, @types.ImageFormat::Png, 0)
-    if !dry {
-      write_bytes(path, png)
+    match next {
+      None => break
+      Some(p) => {
+        done = p.scan_index
+        let keep = done % every_n == 0 || done == total
+        if keep {
+          let name = "scan_" + pad2(p.scan_index) + ".png"
+          let path = if dir == "." || dir == "" {
+            name
+          } else if dir.has_suffix("\\") || dir.has_suffix("/") {
+            dir + name
+          } else {
+            dir + "\\" + name
+          }
+          let png = encode_image(p.image, @types.ImageFormat::Png, 0)
+          if !dry {
+            write_bytes(path, png)
+          }
+          let entry : Out = {
+            "scan": jnum(p.scan_index),
+            "path": jstr(path),
+            "width": jnum(p.image.width),
+            "height": jnum(p.image.height),
+            "bytes": jnum(png.length().to_int()),
+            "wrote": jbool(!dry),
+          }
+          items.push(@json.Json::object(entry))
+          anim_imgs.push(gif_ready(p.image))
+          anim_delays.push(frame_ms)
+        }
+        if first > 0 && done >= first {
+          stopped_early = done < total
+          break
+        }
+      }
     }
-    let entry : Out = {
-      "scan": jnum(f.scan_index),
-      "path": jstr(path),
-      "width": jnum(f.image.width),
-      "height": jnum(f.image.height),
-      "bytes": jnum(png.length().to_int()),
-      "wrote": jbool(!dry),
-    }
-    items.push(@json.Json::object(entry))
-    total_scan = f.scan_index
-    if anim_path != "" {
-      anim_imgs.push(gif_ready(f.image))
-      anim_delays.push(
-        if frame_idx == n_frames - 1 {
-          frame_ms * 4
-        } else {
-          frame_ms
-        },
-      )
-    }
-    frame_idx = frame_idx + 1
   }
+  let n_frames = anim_imgs.length()
   let mut anim_bytes = 0
   let mut anim_ok = false
-  if anim_path != "" {
+  if anim_path != "" && n_frames > 0 {
+    // 末帧停留 4 倍，便于看终态
+    anim_delays[n_frames - 1] = frame_ms * 4
     let gif = @codec.encode_gif_animation_pure(@types.GifAnimation::{
       frames: anim_imgs,
       delays: anim_delays,
@@ -598,7 +609,11 @@ fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
     "src": jstr(src),
     "dir": jstr(dir),
     "every": jnum(every),
-    "last_scan": jnum(total_scan),
+    "first": jnum(first),
+    "last_scan": jnum(done),
+    "total_scans": jnum(total),
+    "remaining_scans": jnum(@codec.jpeg_progressive_stream_remaining(stream)),
+    "stopped_early": jbool(stopped_early),
     "frames": @json.Json::array(items),
     "anim": @json.Json::object(anim_entry),
     "dry_run": jbool(dry),
@@ -608,7 +623,7 @@ fn cmd_previews(flags : Flags) -> Out raise @types.ImageError {
 
 ///|
 /// CLI 版本号（与 `moon.mod` 的 version 由 `scripts/check_version.mjs` 强制对齐）。
-pub let version : String = "0.1.35"
+pub let version : String = "0.1.36"
 
 ///|
 /// `imgtool help` / `--help` / `-h` 打印的人类可读用法（不输出 JSON）。
@@ -627,8 +642,8 @@ pub fn help_text() -> String {
   "  imgtool analyze  <in>\n" +
   "  imgtool sanitize <in> <out> [--policy metadata|standard|strict] [--regions \"x,y,w,h;...\"]\n" +
   "                             [--block N] [--blur N] [--format ...] [--quality 1-100] [--dry-run]\n" +
-  "  imgtool previews <in.jpg> <out-dir> [--every N] [--anim out.gif] [--frame-ms N] [--dry-run]\n" +
-  "                             （progressive JPEG 逐扫描帧落成 scan_01.png…，末帧即完整解码；--anim 再合成循环 GIF）\n" +
+  "  imgtool previews <in.jpg> <out-dir> [--every N] [--first N] [--anim out.gif] [--frame-ms N] [--dry-run]\n" +
+  "                             （progressive JPEG 逐扫描帧落成 scan_01.png…；--first N 解到第 N 条即停，--anim 合成循环 GIF）\n" +
   "  imgtool bench    <in> [--iters N] [--formats png,jpeg,webp] [--quality 1-100]\n" +
   "                             [--width N --height N]\n" +
   "  imgtool help | version\n\n" +

@@ -421,6 +421,16 @@ pub fn jpeg_progressive_script_eight() -> Array[@codec.JpegProgScan]
 
 pub fn jpeg_progressive_script_libjpeg() -> Array[@codec.JpegProgScan]
 
+pub fn jpeg_progressive_stream_done(@codec.JpegProgStream) -> Int32
+
+pub fn jpeg_progressive_stream_finish(@codec.JpegProgStream) -> @types.Image raise @types.LoadError
+
+pub fn jpeg_progressive_stream_open(Bytes) -> @codec.JpegProgStream raise @types.LoadError
+
+pub fn jpeg_progressive_stream_remaining(@codec.JpegProgStream) -> Int32
+
+pub fn jpeg_progressive_stream_step(@codec.JpegProgStream) -> @codec.JpegProgPreview? raise @types.LoadError
+
 pub fn jpegxl_decode(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn jpegxl_info(Bytes) -> @codec.JpegXlInfo raise @types.LoadError
@@ -647,6 +657,8 @@ pub using @codec {type JpegInfoExtended}
 pub using @codec {type JpegProgPreview}
 
 pub using @codec {type JpegProgScan}
+
+pub using @codec {type JpegProgStream}
 
 pub using @codec {type JpegXlInfo}
 

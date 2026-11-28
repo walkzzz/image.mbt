@@ -194,6 +194,16 @@ pub fn jpeg_progressive_script_eight() -> Array[JpegProgScan]
 
 pub fn jpeg_progressive_script_libjpeg() -> Array[JpegProgScan]
 
+pub fn jpeg_progressive_stream_done(JpegProgStream) -> Int32
+
+pub fn jpeg_progressive_stream_finish(JpegProgStream) -> @types.Image raise @types.LoadError
+
+pub fn jpeg_progressive_stream_open(Bytes) -> JpegProgStream raise @types.LoadError
+
+pub fn jpeg_progressive_stream_remaining(JpegProgStream) -> Int32
+
+pub fn jpeg_progressive_stream_step(JpegProgStream) -> JpegProgPreview? raise @types.LoadError
+
 pub fn jpegxl_decode(Bytes) -> @types.Image raise @types.LoadError
 
 pub fn jpegxl_info(Bytes) -> JpegXlInfo raise @types.LoadError
@@ -390,6 +400,33 @@ pub enum ImageInfoExtended {
   Apng(ApngInfoExtended)
 }
 
+pub struct JpegHeader {
+  width : Int32
+  height : Int32
+  num_components : Int32
+  quant_tables : Array[Array[Int32]]
+  huff_dc : Array[JpegHuffmanTable]
+  huff_ac : Array[JpegHuffmanTable]
+  component_h : Array[Int32]
+  component_v : Array[Int32]
+  component_qt : Array[Int32]
+  restart_interval : Int32
+  scan_comp_idx : Array[Int32]
+  scan_dc_table : Array[Int32]
+  scan_ac_table : Array[Int32]
+  scan_ns : Int32
+  entropy_start : Int32
+  progressive : Bool
+  scans : Array[JpegScanSpec]
+}
+
+pub struct JpegHuffmanTable {
+  maxcode : Array[Int32]
+  mincode : Array[Int32]
+  valptr : Array[Int32]
+  huffval : Array[Int32]
+}
+
 pub struct JpegInfoExtended {
   width : Int32
   height : Int32
@@ -403,6 +440,17 @@ pub struct JpegInfoExtended {
   has_alpha : Bool
 }
 
+pub struct JpegProgCtx {
+  coefs : Array[Array[Int32]]
+  bw : Array[Int32]
+  bh : Array[Int32]
+  stride_x : Array[Int32]
+  mcus_x : Int32
+  mcus_y : Int32
+  max_h : Int32
+  max_v : Int32
+}
+
 pub(all) struct JpegProgPreview {
   scan_index : Int32
   image : @types.Image
@@ -414,6 +462,26 @@ pub(all) struct JpegProgScan {
   se : Int32
   ah : Int32
   al : Int32
+}
+
+pub struct JpegProgStream {
+  header : JpegHeader
+  data : Bytes
+  ctx : JpegProgCtx
+  mut next : Int32
+}
+
+pub struct JpegScanSpec {
+  ns : Int32
+  comp_idx : Array[Int32]
+  dc_tabs : Array[JpegHuffmanTable]
+  ac_tabs : Array[JpegHuffmanTable]
+  ss : Int32
+  se : Int32
+  ah : Int32
+  al : Int32
+  entropy_start : Int32
+  entropy_end : Int32
 }
 
 pub struct JpegXlInfo {

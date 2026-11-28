@@ -45,7 +45,7 @@ fn hex_to_bytes(hex : String) -> Bytes {
 ///|
 #export_name("img_version")
 pub fn img_version() -> String {
-  "0.1.35"
+  "0.1.36"
 }
 
 ///|

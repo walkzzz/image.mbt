@@ -7,7 +7,7 @@
 
 ///|
 /// progressive 解码上下文：系数缓冲与块网格参数（scan 之间共享）
-priv struct JpegProgCtx {
+pub struct JpegProgCtx {
   coefs : Array[Array[Int32]]
   bw : Array[Int32]
   bh : Array[Int32]

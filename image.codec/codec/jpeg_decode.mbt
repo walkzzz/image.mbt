@@ -20,7 +20,7 @@ priv struct JpegBitReader {
 
 ///|
 /// JPEG Huffman 表（规范解码）
-priv struct JpegHuffmanTable {
+pub struct JpegHuffmanTable {
   maxcode : Array[Int32]
   mincode : Array[Int32]
   valptr : Array[Int32]
@@ -257,7 +257,7 @@ fn ycbcr_to_rgb(y : Int32, cb : Int32, cr : Int32) -> (Int32, Int32, Int32) {
 
 ///|
 /// 一个扫描（SOS 段 + 熵数据区间）的参数。baseline 只用第 0 个；progressive 逐段累积。
-priv struct JpegScanSpec {
+pub struct JpegScanSpec {
   ns : Int32
   comp_idx : Array[Int32]
   // 扫描开始时的 Huffman 表快照：progressive 文件会在扫描之间重定义同号表，
@@ -274,7 +274,7 @@ priv struct JpegScanSpec {
 
 ///|
 /// JPEG 解码头部信息
-priv struct JpegHeader {
+pub struct JpegHeader {
   width : Int32
   height : Int32
   num_components : Int32

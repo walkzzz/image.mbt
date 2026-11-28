@@ -41,13 +41,28 @@ pub using @codec {type IcoInfoExtended}
 pub using @codec {type ImageInfoExtended}
 
 ///|
+pub using @codec {type JpegHeader}
+
+///|
+pub using @codec {type JpegHuffmanTable}
+
+///|
 pub using @codec {type JpegInfoExtended}
+
+///|
+pub using @codec {type JpegProgCtx}
 
 ///|
 pub using @codec {type JpegProgPreview}
 
 ///|
 pub using @codec {type JpegProgScan}
+
+///|
+pub using @codec {type JpegProgStream}
+
+///|
+pub using @codec {type JpegScanSpec}
 
 ///|
 pub using @codec {type JpegXlInfo}
@@ -172,6 +187,11 @@ pub using @codec {
   jpeg_progressive_scan_count,
   jpeg_progressive_script_eight,
   jpeg_progressive_script_libjpeg,
+  jpeg_progressive_stream_done,
+  jpeg_progressive_stream_finish,
+  jpeg_progressive_stream_open,
+  jpeg_progressive_stream_remaining,
+  jpeg_progressive_stream_step,
   jpegxl_decode,
   jpegxl_info,
   jpegxl_info_extended,

@@ -22,7 +22,7 @@ moon build --release cmd/imgtool
 | `analyze` | 尺寸/通道/均值/极值/标准差 | `<in>` |
 | `sanitize` | 三档脱敏（剥元数据/区域打码/整图模糊） | `--policy` `--regions` `--block` `--blur` |
 | `bench` | decode / encode / resize 的每轮均值（微秒） | `--iters` `--formats` `--width` `--height` |
-| `previews` | progressive JPEG 逐扫描帧落成 `scan_01.png`…（末帧即完整解码），可选合成循环 GIF | `--every` `--anim` `--frame-ms` |
+| `previews` | progressive JPEG 逐扫描帧落成 `scan_01.png`…（末帧即完整解码），可早停、可合成循环 GIF | `--every` `--first` `--anim` `--frame-ms` |
 
 通用：`--format`（省略时按输出扩展名推断，再无则 PNG）、`--quality 1-100`、`--mem-budget`、`--max-pixels`。
 
@@ -54,8 +54,8 @@ DC 细化 → Y `Ah=2 Al=1` → 三通道逐级细化。它换来更细腻的渐
 每条 AC 扫描要各带一张 DHT、EOBRUN 也各扫描重置一次。默认保持 8 段，此开关按需显式开启。
 单独给 `--jpeg-progressive-10scan` 会报错——它只选扫描脚本，不开关 progressive。
 
-`previews <in.jpg> <out-dir> [--every N] [--anim out.gif] [--frame-ms N] [--dry-run]`（仅 progressive JPEG，SOF2）：
-把 `decode_jpeg_progressive_previews` 产出的每一帧写成 `scan_01.png`、`scan_02.png`…，输出 JSON 的 `frames` 数组给出每帧的序号、路径、尺寸与 PNG 体积。
+`previews <in.jpg> <out-dir> [--every N] [--first N] [--anim out.gif] [--frame-ms N] [--dry-run]`（仅 progressive JPEG，SOF2）：
+用扫描游标 `jpeg_progressive_stream_open/step` 逐条推进，把每帧写成 `scan_01.png`、`scan_02.png`…，输出 JSON 的 `frames` 数组给出每帧的序号、路径、尺寸与 PNG 体积。
 `--every 4` 表示每 4 条扫描出一帧（8 段脚本 → 只有 `scan_04`、`scan_08`）；末帧恒等于完整解码结果。
 实测 256×256 噪声图（我们自编 Q82 4:2:0，8 段）：scan 1 是 16×16 马赛克（纯 DC），scan 2 起高频全部出现，
 PNG 体积 12,655 B → 末帧的最细版；640×400 libjpeg 10 段样本则是 33,443 B → 145,683 B 逐级递增。
@@ -63,7 +63,7 @@ PNG 体积 12,655 B → 末帧的最细版；640×400 libjpeg 10 段样本则是
 JSON 顶层因此多一个 `anim` 对象（`path`/`bytes`/`frames`/`frame_ms`/`wrote`）；不给 `--anim` 时 `bytes:0`、`frames:0`，不额外解码。
 实测 320×240 自编图 8 帧为 72,367 B（末帧 1,040 ms），640×400 libjpeg 10 段样本 10 帧 2,296,411 B。
 灰度（1 通道）progressive 帧在内部展开成 RGB 再进 GIF 编码器，不会因通道数被拒。
-baseline JPEG 会直接报错（该子命令只对渐进流有意义）；`--dry-run` 完整成帧与编码但不落盘。
+`--first N` 解到第 N 条扫描即停（内部走 `jpeg_progressive_stream_open/step`，系数缓冲跨步共享），JSON 给出 `total_scans` / `remaining_scans` / `stopped_early`；实测 640×400 libjpeg 10 段样本 `--first 2` 171 ms、跑完 10 条 903 ms。baseline JPEG 会直接报错（该子命令只对渐进流有意义）；`--dry-run` 完整成帧与编码但不落盘。
 
 ## 输出约定
 
